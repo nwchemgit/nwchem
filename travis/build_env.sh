@@ -248,11 +248,12 @@ if [[ "$os" == "Linux" ]]; then
 	if [[ "$FC" == "nvfortran" ]]; then
 	    $MYSUDO apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
 	    nv_major=23
-	    nv_minor=3
+	    nv_minor=7
 	    nverdot="$nv_major"."$nv_minor"
 	    nverdash="$nv_major"-"$nv_minor"
 	    arch_dpkg=`dpkg --print-architecture`
-	    echo 'deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | $MYSUDO tee /etc/apt/sources.list.d/nvhpc.list
+	    curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --yes --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
+            echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
 	    echo '*** added hpc-sdk source to /etc/aps ***'
 	    ls -lrt /etc/apt/sources.list.d/ || true
 	    ls -lrt	/etc/apt/sources.list.d/nvhpc.list || true
@@ -266,7 +267,10 @@ if [[ "$os" == "Linux" ]]; then
 	    export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
 	    export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
 	    $MYSUDO /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
-	    
+	    #clean stuff we do not use
+	    rm  -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/profilers
+	    rm  -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs
+	    rm  -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/math_libs
 	    export FC=nvfortran
 	    export CC=gcc
 	    nvfortran -V ;if [[ $? != 0 ]]; then echo "nvfortran install failed"; exit 1; fi
