@@ -5,7 +5,7 @@ title "dmo_tddft_cd_velocity"
 start dmo_tddft_cd_velocity
 
 geometry units angstrom
-symmetry c1
+#symmetry c1
 C       -1.0434290        0.6153280       -0.0615190
 C        0.1515990       -0.0360920        0.4888630
 H        0.1531120       -0.2526560        1.5570100
@@ -24,20 +24,11 @@ end
 
 charge 0
 
-scf
-  semidirect filesize 0
-  maxiter 100
-end
 
-set int:cando_txs f
 dft
- tolerances tight
  grid fine
-  convergence energy 1d-10 nolevelshifting
+  convergence energy 1d-10 
   xc b3lyp
-  iterations 100
-  direct
-  print medium
 end
 
 tddft
