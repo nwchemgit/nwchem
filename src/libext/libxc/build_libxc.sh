@@ -38,7 +38,8 @@ else
     fi
 fi
 
-tar -xzf libxc-${VERSION}.tar.gz
+mkdir -p libxc-${VERSION}
+tar -xzf libxc-${VERSION}.tar.gz -C libxc-${VERSION} --strip 1
 ln -sf libxc-${VERSION} libxc
 
 if [[  -z "${CC}" ]]; then

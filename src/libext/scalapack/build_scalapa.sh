@@ -16,7 +16,9 @@ else
 	exit 1
     else
 	MPIF90="mpif90"
-        MPICC=mpicc
+	if [[ -z "${MPICC}" ]]; then
+            MPICC=mpicc
+	fi
     fi
 fi
 fi
@@ -28,6 +30,9 @@ if [[  -z "${NWCHEM_TOP}" ]]; then
     dir2=$(dirname "$dir3")
     NWCHEM_TOP=$(dirname "$dir2")
 fi
+# take care of xcode 15 quirks
+source ${NWCHEM_TOP}/src/config/fix_xcode15.sh
+
 if [[ ! -z "${BUILD_MPICH}" ]]; then
     export PATH=${NWCHEM_TOP}/src/libext/bin:$PATH
     if [ -x "$(command -v pkg-config1)" ]; then
@@ -200,6 +205,7 @@ if [[  -z "$MPICH_CC"   ]] ; then
     export MPICH_CC="$CC"
 fi
 echo MPICH_CC is "$MPICH_CC"
+echo $(mpicc -show)
 #Intel MPI
 if [[  -z "$I_MPI_F90"   ]] ; then
     export I_MPI_F90="$FC"

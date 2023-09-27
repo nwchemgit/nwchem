@@ -26,6 +26,11 @@ if  [ -z "$(command -v patch)" ]; then
     exit 1
 fi
 UNAME_S=$(uname -s)
+if [ ! -z "${CONDA_TOOLCHAIN_HOST}" ]; then
+    arch=$(echo $CONDA_TOOLCHAIN_HOST | cut -d - -f 1)
+else
+    arch=$(uname -m)
+fi
 if [[ ${UNAME_S} == Linux ]]; then
     CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
     CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |tail -n 1)
@@ -228,12 +233,26 @@ elif  [ ${FC} == frt ] || [ ${FC} == frtpx ] ; then
     CC=/opt/FJSVxos/devkit/aarch64/bin/aarch64-linux-gnu-gcc
     CXX=/opt/FJSVxos/devkit/aarch64/bin/aarch64-linux-gnu-g++
 fi
+if  [ ${CC} == icx ] ; then
+    C_FLAGS=" -w "
+    C_FLAGS_RELEASE="-O2"
+else
+    C_FLAGS_RELEASE="-O3"
+fi
+GOTCLANG=$( "$CC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+if [[ ${GOTCLANG} == "1" ]] ; then
+    echo "GOTCLANG"
+    C_FLAGS+=" -Wno-error=implicit-function-declaration "
+fi
+echo
 if [[ ! -z ${FFLAGS_FORGA} ]]; then Fortran_FLAGS+=" ${FFLAGS_FORGA}" ; fi
 echo Fortran_FLAGS equal "$Fortran_FLAGS"
+echo C_FLAGS equal "$C_FLAGS"
 FC="${FC}" CC="${CC}" CXX="${CXX}" $CMAKE \
  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}" -DSIMINT_VECTOR=${VEC}  \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} -DSIMINT_MAXDER=${DERIV} \
  -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \
+ -DCMAKE_C_FLAGS="$C_FLAGS"   -DCMAKE_C_FLAGS_RELEASE="$C_FLAGS_RELEASE"  \
  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DCMAKE_INSTALL_PREFIX=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install ../
 time -p make  -j4
 make simint
@@ -245,7 +264,11 @@ cd ../..
 echo ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install
 ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install
 cd simint_install/lib
-strip --strip-debug libsimint.a
+if [[ "$arch" == "x86_64" ]]; then
+    if [[ $(uname -s) == "Linux" ]]; then
+	strip --strip-debug libsimint.a
+    fi
+fi
 ln -sf libsimint.a libnwc_simint.a
 export SIMINT_HOME=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install
 echo 'SIMINT library built with maximum angular momentum='${SIMINT_MAXAM}
