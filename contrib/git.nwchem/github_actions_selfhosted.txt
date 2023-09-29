@@ -138,9 +138,6 @@ jobs:
           path: |
             ~/cache
           key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-blas_size${{ matrix.blas_size}}-libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}-simd${{ env.simd }}-nwchemcache-v003
-      - name: build environment
-        run: |
-          ./travis/build_env.sh
       - name: fetch cache
         if: steps.setup-cache.outputs.cache-hit == 'true'
         run: |
