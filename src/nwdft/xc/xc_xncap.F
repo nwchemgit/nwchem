@@ -103,6 +103,9 @@ c
 #endif
       double precision ops, omz, logops
 
+      double precision s2overgamma,s2overgamma_rho43
+      double precision dFxd1s,dFxd2s
+
       arcsinh(s)=dlog(s+dsqrt(1d0+s*s))
       darcsinh(s)=1d0/dsqrt(1d0+s*s)
       d2arcsinh(s) = -s/dsqrt(1d0+s*s)**3
@@ -141,11 +144,21 @@ CDEC$ NOSWP
             s = dsqrt(gamma)/(2d0*ckf*rho43)
             s2 = s*s
 
+            s2overgamma = 1d0/(4d0*ckf*ckf*rho43*rho43)
+            s2overgamma_rho43 = 1d0/(4d0*ckf*ckf*rho43)
+            d1s = 0.5d0*s/gamma
+
             if (s.lt.1d-8) then
                Fx = 1d0 + mu*s2 + alpha*zeta*mu*s2*s + 
      &              mu*(alpha - beta - alpha*zeta - 0.5d0)*s2*s2
                dFx = 2d0*mu*s + 3d0*alpha*zeta*mu*s2 +
      &               4d0*mu*(alpha - beta - alpha*zeta - 0.5d0)*s2*s
+               dFxd1s = mu*s2overgamma*
+     &           (1d0 + 1.5d0*alpha*zeta*s +
+     &                           2d0*(alpha-beta-alpha*zeta-0.5d0)*s2)
+               dFxd2s = -0.5d0*mu*
+     &           (1d0 + 1.5d0*alpha*zeta*s +
+     &                           2d0*(alpha-beta-alpha*zeta-0.5d0)*s2)
                d2Fx = 2d0*mu + 6d0*alpha*zeta*mu*s + 
      &                12d0*mu*(alpha - beta - alpha*zeta - 0.5d0)*s2
                d3Fx = 6d0*alpha*zeta*mu + 
@@ -158,7 +171,7 @@ CDEC$ NOSWP
               asymp = 1d0 + alpha*(omz*s*logops + zeta*s)
               dasymp = alpha*( (s + zeta)/ops + omz*logops )
 
-              if (s.gt.30d0) then
+              if (s.gt.20d0) then
                 tansin = arcsinh(s)
                 dtansin = darcsinh(s)
               else
@@ -170,18 +183,19 @@ CDEC$ NOSWP
               ddenom = beta*dtansin
 
               factor = tansin/denom
-              dfactor = (dtansin - factor*ddenom)/denom
+              dfactor = dtansin*(1d0 - beta*factor)/denom
 
               Fx = 1d0 + mu*factor*asymp
               dFx = mu*(dfactor*asymp + factor*dasymp)
+              dFxd1s = dFx*d1s
+              dFxd2s = -0.5d0*dFxd1s/s2overgamma
 
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-              if (s.gt.30d0) then
+              if (s.gt.24d0) then
                 d2tansin = d2arcsinh(s)
               else
-                d2tansin = 2d0*darcsinh(s)/dcosh(s)**2 +
-     &                     dtanh(s)*d2arcsinh(s) -
-     &                     2d0*tansin/dcosh(s)**2
+                d2tansin = (darcsinh(s)-tansin)*2d0/dcosh(s)**2 +
+     &                     dtanh(s)*d2arcsinh(s)
               endif
               d2asymp = alpha*omz*(2d0 + s)/ops**2
               d2denom = beta*d2tansin
@@ -213,9 +227,8 @@ CDEC$ NOSWP
             Ex = Ex + Ax*rho43*Fx*qwght(n)*fac
             if (ldew) func(n) = func(n) + Ax*rho43*Fx*fac
 
-            d1s = 0.5d0*s/gamma
             Amat(n,1) = Amat(n,1) + F43*Ax*rho13*(Fx - s*dFx)*fac
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 2d0*Ax*rho43*dFx*d1s*fac
+            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 2d0*Ax*rho43*dFxd1s*fac
 
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 
@@ -225,10 +238,10 @@ CDEC$ NOSWP
      &                          (Fx - s*dFx + 4d0*s2*d2Fx)*fac
 
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) -
-     &                           (F43*Ax*rho13*d2Fx*d1s*s)*4d0*fac
+     &                 (0.5d0*F43*Ax*rho13*d2Fx*s2overgamma)*4d0*fac
 
-            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + Ax*rho43*
-     &                            (d2Fx*d1s**2 + dFx*d2s)*8d0*fac
+            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + Ax*
+     &       s2overgamma_rho43/gamma*(0.25d0*d2Fx + dFxd2s)*8d0*fac
 #endif
 #ifdef THIRD_DERIV
             rhom53 = rhom23*rrho
