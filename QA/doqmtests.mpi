@@ -627,7 +627,8 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np back_to_atguess
 let "myexit+=$?"
-./runtests.mpi.unix procs $np chem_library_h4_sto6g_0.000
+np_small8=$(get_limit $np 8)
+./runtests.mpi.unix procs $np_small8 chem_library_h4_sto6g_0.000
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_pt13_spinsetf
 let "myexit+=$?"
