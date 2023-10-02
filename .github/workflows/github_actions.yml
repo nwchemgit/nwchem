@@ -417,6 +417,18 @@ jobs:
         USE_OPENMP:  ${{ matrix.use_openmp }}
     continue-on-error: ${{ matrix.experimental }}
     steps:
+    - name: pkg cleanup
+      run: |
+        df -h
+        sudo apt-get purge -y azure-cli || true
+        sudo apt-get purge -y google-cloud-cli azure-cli microsoft-edge-stable dotnet-sdk-7.0 dotnet-sdk-6.0 google-chrome-stable firefox
+        sudo apt-get purge -y temurin-17-jdk temurin-11-jdk hhvm temurin-8-jdk
+        sudo apt-get purge -y llvm-12-dev llvm-11-dev llvm-10-dev
+        sudo apt-get purge -y libgl1-mesa-dri
+        sudo apt-get -y clean
+        sudo apt-get autoremove -y 
+        dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
+        df -h
       - name: Checkout code
         uses: actions/checkout@v4
         with:
