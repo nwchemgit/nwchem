@@ -441,7 +441,6 @@ sync
     fi
 
     diff -w ${STUB}.ok.out.nwparse ${STUB}.out.nwparse >& /dev/null
-    cat ${ERRORFILE}
     diff1status=$?
     cat ${ERRORFILE}
 #
