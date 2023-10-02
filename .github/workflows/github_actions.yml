@@ -420,6 +420,7 @@ jobs:
       - name: pkg cleanup
         run: |
           df -h
+          if [[ $(uname -s) == "Linux" ]]; then
           sudo apt-get purge -y azure-cli || true
           sudo apt-get purge -y google-cloud-cli azure-cli microsoft-edge-stable dotnet-sdk-7.0 dotnet-sdk-6.0 google-chrome-stable firefox
           sudo apt-get purge -y temurin-17-jdk temurin-11-jdk hhvm temurin-8-jdk
@@ -429,6 +430,7 @@ jobs:
           sudo apt-get autoremove -y 
           dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
           df -h
+          fi
       - name: Checkout code
         uses: actions/checkout@v4
         with:
