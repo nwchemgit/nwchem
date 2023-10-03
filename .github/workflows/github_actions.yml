@@ -420,8 +420,8 @@ jobs:
       - name: pkg cleanup
         run: |
           df -h
-          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
           if [[ $(uname -s) == "Linux" ]]; then
+          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
           sudo apt-get purge -y azure-cli || true
           sudo apt-get purge -y google-cloud-cli microsoft-edge-stable dotnet-sdk-7.0 dotnet-sdk-6.0 google-chrome-stable firefox
           sudo apt-get purge -y temurin-17-jdk temurin-11-jdk temurin-8-jdk
