@@ -22,13 +22,13 @@ NEW FUNCTIONALITY
 BUG FIXES/ENHANCEMENTS
 -----
 
-    * fix compilation for Cray compilers
+* fix compilation for Cray compilers
 
-    * fixes for macOS Xcode 15
+* fixes for macOS Xcode 15
 
-    * fixes for Intel OneAPI 2023 releases
+* fixes for Intel OneAPI 2023 releases
 
-    * memory fixes for ARMCI_NETWORK=MPI-PR https://github.com/GlobalArrays/ga/pull/310
+* memory fixes for ARMCI_NETWORK=MPI-PR https://github.com/GlobalArrays/ga/pull/310
 
 GITHUB ISSUES ADDRESSED
 ----
