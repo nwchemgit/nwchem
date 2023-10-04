@@ -175,6 +175,14 @@ c
 c
 c     ----- atomic spin density -----
 c
+      if(nospin.eq.0.and. (scftype.ne.'UHF')) then  ! only perform for open-shell
+         if (ga_nodeid().eq.0) then
+            write(luout,7000)
+ 7000 format(/,6x,'Indirect spin-spin coupling not calculated for RHF',
+     1       /,6x,'wave functions: needs UHF wave function')
+         endif
+         call errquit(' use ODFT input keyword ',0,0)
+      endif
       if(nospin.eq.0.and. (scftype.eq.'UHF')) then  ! only perform for open-shell
        if (.not.do_zora) then
           call hnd_spind(rtdb,basis,geom) ! non-relativistic
