@@ -42,4 +42,5 @@ GITHUB ISSUES ADDRESSED
    * [Undefined symbol "ycnrm2"](https://github.com/nwchemgit/nwchem/issues/817)
    * [Wrong symmetry assignments in TDDFT](https://github.com/nwchemgit/nwchem/issues/828)
    * [GW might lead to incorrect results when symmetry is on](https://github.com/nwchemgit/nwchem/issues/829)
+   * [ch5n_nbo QA test fails](https://github.com/nwchemgit/nwchem/issues/864)
    
