@@ -104,10 +104,20 @@
       ! lda = h2d*h1d
       ! ldb = p6d*p5d
       ! ldc = h2d*h1d
+      ! m = h2d*h1d
+      ! n = p4d*p3d
+      ! k = p6d*p5d
       double precision, intent(in) :: t2sub(h2d*h1d,p6d*p5d)
       double precision, intent(in) :: v2sub(p6d*p5d,p4d*p3d)
       double precision, intent(inout) :: r2sub(h2d*h1d,p4d*p3d)
+#if 0
       r2sub = r2sub + factor * matmul(t2sub,v2sub)
+#else
+      call DGEMM('n','n',h2d*h1d,p4d*p3d,p6d*p5d,
+     &           factor,t2sub,h2d*h1d,
+     &                  v2sub,p6d*p5d,
+     &           1.0d0, r2sub,h2d*h1d)
+#endif
 #endif
       return
       end
