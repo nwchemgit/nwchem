@@ -21,16 +21,16 @@ located at the Pacific Northwest National Laboratory (PNNL) in Washington State
 
 ### Scalable computational chemistry tools
 
-Source download instructions
+Source download instructions for developers
 
 * Master
-
+```
 git clone https://github.com/nwchemgit/nwchem.git
-
+```
 * 7.2.1 Release
-
+```
 git clone  -b hotfix/release-7-2-0 https://github.com/nwchemgit/nwchem.git nwchem-7.2.1
-
+```
 ### Release 7.2.1
 
 Release files available at the page  
