@@ -196,21 +196,14 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       INTEGER p3b_2,p4b_2,p5b_2,p6b_2
       INTEGER dima,dimb,dimc,dim_common,dima_sort,dimb_sort
 #ifdef USE_F90_ALLOCATABLE
-      double precision, allocatable :: f_a(:)
-      double precision, allocatable :: f_b(:)
-      double precision, allocatable :: f_c(:)
-      double precision, allocatable :: f_t(:)
+      double precision, allocatable :: f_a(:), f_b(:), f_c(:), f_t(:)
 #ifdef USE_FASTMEM
       !dec$ attributes fastmem :: f_a,f_b,f_c,f_t
 #endif
-      integer :: e_a,e_b,e_c,e_t
 #else
-      integer k_a, l_a
-      integer k_b, l_b
-      integer k_c, l_c
-      integer k_t, l_t
-      integer e_a,e_b,e_c,e_t
+      integer :: k_a, l_a, k_b, l_b, k_c, l_c, k_t, l_t
 #endif
+      integer :: e_a,e_b,e_c,e_t
       double precision alpha
       integer p5b_in,p6b_in
       INTEGER NXTASK
@@ -223,6 +216,10 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       dimpppp = maxp*maxp*maxp*maxp
       dimtemp = max(dimpppp,dimhhpp)
 
+      e_a=0
+      e_b=0
+      e_c=0
+      e_t=0
 #ifdef USE_F90_ALLOCATABLE
       allocate(f_a(1:dimhhpp),stat=e_a)
       allocate(f_b(1:dimpppp),stat=e_b)
@@ -231,18 +228,11 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       allocate(f_t(1:dimtemp),stat=e_t)
 # endif
 #else
-      e_a=0
       if(.not.MA_PUSH_GET(mt_dbl,dimhhpp,"a",l_a,k_a)) e_a=-1
-      e_b=0
       if(.not.MA_PUSH_GET(mt_dbl,dimpppp,"b",l_b,k_b)) e_b=-1
-      e_c=0
       if(.not.MA_PUSH_GET(mt_dbl,dimhhpp,"c",l_c,k_c)) e_c=-1
 # ifndef USE_LOOPS_NOT_DGEMM
-      e_t=0
       if(.not.MA_PUSH_GET(mt_dbl,dimtemp,"t",l_t,k_t)) e_t=-1
-# else
-      dimtemp=-12345
-      e_t=.false.
 # endif
 #endif
       if (e_a.ne.0) call errquit("MA a",dimhhpp,MA_ERR)
@@ -343,7 +333,9 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
                     alpha = 2.0d0
                    end if
 #ifdef USE_LOOPS_NOT_DGEMM
-                   call t2_p8(int_mb(k_range+h1b-1),
+                    print*,'hi'
+#if 1
+                   call t2_p8_x(int_mb(k_range+h1b-1),
      &                        int_mb(k_range+h2b-1),
      &                        int_mb(k_range+p3b-1),
      &                        int_mb(k_range+p4b-1),
@@ -351,6 +343,11 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
      &                        int_mb(k_range+p6b-1),
      &                        f_a,f_b,f_c,
      &                        0.5d0*alpha)
+#else
+                   CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
+     &                  alpha,f_a,dim_common,f_b,
+     &                  dim_common,1.0d0,f_c,dima_sort)
+#endif
 #else
                    CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
      &                  alpha,f_a,dim_common,f_b,
