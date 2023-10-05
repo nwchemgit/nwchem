@@ -333,8 +333,8 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
                     alpha = 2.0d0
                    end if
 #ifdef USE_LOOPS_NOT_DGEMM
-                    print*,'hi'
-#if 1
+                    !print*,'hi'
+#if 0
                    call t2_p8_x(int_mb(k_range+h1b-1),
      &                        int_mb(k_range+h2b-1),
      &                        int_mb(k_range+p3b-1),
@@ -344,9 +344,16 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
      &                        f_a,f_b,f_c,
      &                        0.5d0*alpha)
 #else
-                   CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
-     &                  alpha,f_a,dim_common,f_b,
-     &                  dim_common,1.0d0,f_c,dima_sort)
+                   block
+                     integer :: h21d, p43d, p65d
+                     h21d = int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
+                     p43d = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
+                     p65d = int_mb(k_range+p5b-1)*int_mb(k_range+p6b-1)
+                     call DGEMM('n','n',h21d,p43d,p65d,
+     &                           0.5d0*alpha,f_a,h21d,
+     &                                       f_b,p65d,
+     &                           1.0d0,      f_c,h21d)
+                   end block
 #endif
 #else
                    CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
