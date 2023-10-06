@@ -135,6 +135,9 @@ if [[ ! -z "$MKLROOT"   ]] ; then
 	SCALAPACK_FCFLAGS+=" -I${MKLROOT}/include/intel64/lp64"
     fi
 fi
+# take care of xcode 15 quirks
+source ${NWCHEM_TOP}/src/config/fix_xcode15.sh
+
 if [[  -z "$MPICH_FC"   ]] ; then
     export MPICH_FC="$FC"
 fi
