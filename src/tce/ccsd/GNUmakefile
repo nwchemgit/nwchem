@@ -1,5 +1,7 @@
 #$Id$
 
+include ../../config/makefile.h
+
 OBJ_OPTIMIZE = ccsd_e.o ccsd_t1.o ccsd_t2.o cc2_t1.o cc2_t2.o \
                ccsd_1prdm.o ccsd_1prdm_hh.o ccsd_1prdm_hp.o \
                ccsd_1prdm_ph.o ccsd_1prdm_pp.o \
@@ -21,6 +23,17 @@ LIB_DEFINES = -DDEBUG_PRINT
 # This replaces 3*TCE_SORT4+DGEMM with 6D loops (ccsd_kernels.F).
 #LIB_DEFINES += -DUSE_LOOPS_NOT_DGEMM
 
+# replace this with something better later
+ifdef USE_OPENACC_TRPDRV
+  FOPTIONS += -DUSE_TCE_CUBLAS
+  ifeq ($(_FC),pgf90)
+      FOPTIONS += -Mextend -acc -cuda -cudalib=cublas
+  endif
+  ifeq ($(_FC),gfortran)
+      FOPTIONS += -ffree-form -fopenacc -lcublas
+  endif
+endif
+
 #
 # Possible #defines
 #
@@ -32,6 +45,5 @@ LIB_DEFINES = -DDEBUG_PRINT
 
 HEADERS = 
 
-include ../../config/makefile.h
 include ../../config/makelib.h
 
