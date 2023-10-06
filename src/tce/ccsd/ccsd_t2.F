@@ -302,7 +302,6 @@ c
      1                  ccsd_t2_8_alg)) then
         ccsd_t2_8_alg = 2
       endif
-        !print*,'ccsd_t2_8_alg=',ccsd_t2_8_alg
       if (ccsd_t2_8_alg.eq.1) then
         CALL ccsd_t2_8(d_t2,k_t2_offset,d_v2,k_v2_offset,
      1                 d_i0,k_i0_offset)
