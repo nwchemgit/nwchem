@@ -1482,17 +1482,17 @@
                     alpha = 2.0d0
                    end if
                    !print*,'cudaMemcpyAsync A'
-                   x_a(1:dima) = f_a(1:dima)
-                   !err = cudaMemcpyAsync(x_a,f_a,dima,stream)
-                   !if (err.ne.0) then
-                   !  call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
-                   !endif
-                   !print*,'cudaMemcpyAsync B'
-                   x_b(1:dimb) = f_b(1:dimb)
-                   !err = cudaMemcpyAsync(x_b,f_b,dimb,stream)
-                   !if (err.ne.0) then
-                   !  call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
-                   !endif
+                   !x_a(1:dima) = f_a(1:dima)
+                   err = cudaMemcpyAsync(x_a,f_a,dima,stream)
+                   if (err.ne.0) then
+                     call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                   endif
+                   print*,'cudaMemcpyAsync B'
+                   !x_b(1:dimb) = f_b(1:dimb)
+                   err = cudaMemcpyAsync(x_b,f_b,dimb,stream)
+                   if (err.ne.0) then
+                     call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                   endif
                    block
                    integer :: ih21d, ip43d, ip65d
                    ih21d = int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
