@@ -1389,18 +1389,20 @@
       INTEGER NXTASK
       EXTERNAL NXTASK
 
-      integer :: err
-      integer(kind=cuda_stream_kind) :: stream
-      type(cublasHandle) :: handle
+      integer :: err, shi
+      integer(kind=cuda_stream_kind) :: stream(2)
+      type(cublasHandle) :: handle(2)
 
-      integer :: buffer
+      integer :: phase
 
-      err = cudaStreamCreate(stream)
-      if (err.ne.0) call errquit('cudaStreamCreate',err,UNKNOWN_ERR)
-      err = cublasCreate(handle)
-      if (err.ne.0) call errquit('cublasCreate',err,UNKNOWN_ERR)
-      err = cublasSetStream(handle, stream)
-      if (err.ne.0) call errquit('cublasSetStream',err,UNKNOWN_ERR)
+      do shi=1,2
+        err = cudaStreamCreate(stream(shi))
+        if (err.ne.0) call errquit('cudaStreamCreate',err,UNKNOWN_ERR)
+        err = cublasCreate(handle(shi))
+        if (err.ne.0) call errquit('cublasCreate',err,UNKNOWN_ERR)
+        err = cublasSetStream(handle(shi), stream(shi))
+        if (err.ne.0) call errquit('cublasSetStream',err,UNKNOWN_ERR)
+      end do
 
       nprocs = GA_NNODES()
       count = 0
@@ -1416,7 +1418,7 @@
      &         x_c(1:dimhhpp,2), stat=e_a)
       if (e_a.ne.0) call errquit("MA Galloc",2*dimhhpp+1*dimpppp,MA_ERR)
 
-      buffer = 1
+      phase = 1
 
       DO p3b = noab+1,noab+nvab
        DO p4b = p3b,noab+nvab
@@ -1458,22 +1460,22 @@
                   dima = dim_common * dima_sort
                   dimb = dim_common * dimb_sort
                   IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
-                   CALL GET_HASH_BLOCK(d_a,f_a(:,buffer),dima,
+                   CALL GET_HASH_BLOCK(d_a,f_a(:,phase),dima,
      &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
      &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
                    print*,'cudaMemcpyAsync A'
                    !x_a(1:dima) = f_a(1:dima)
-                   err = cudaMemcpyAsync(x_a(:,buffer),f_a(:,buffer),dima,stream)
+                   err = cudaMemcpyAsync(x_a(:,phase),f_a(:,phase),dima,stream(phase))
                    if (err.ne.0) then
                      call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
                    endif
                    if(.not.intorb) then
-                    CALL GET_HASH_BLOCK(d_b,f_b(:,buffer),dimb,
+                    CALL GET_HASH_BLOCK(d_b,f_b(:,phase),dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &                   (p3b_2-1)))))
                    else
-                    CALL GET_HASH_BLOCK_I(d_b,f_b(:,buffer),dimb,
+                    CALL GET_HASH_BLOCK_I(d_b,f_b(:,phase),dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &                   (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
@@ -1485,7 +1487,7 @@
                    end if
                    print*,'cudaMemcpyAsync B'
                    !x_b(1:dimb) = f_b(1:dimb)
-                   err = cudaMemcpyAsync(x_b(:,buffer),f_b(:,buffer),dimb,stream)
+                   err = cudaMemcpyAsync(x_b(:,phase),f_b(:,phase),dimb,stream(phase))
                    if (err.ne.0) then
                      call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
                    endif
@@ -1497,17 +1499,17 @@
                    p43d = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
                    p65d = int_mb(k_range+p5b-1)*int_mb(k_range+p6b-1)
                    print*,'cublasDgemm_v2',h21d,p43d,p65d,dima,dimb,dimc
-                   err = cublasDgemm_v2(handle,cu_op_n,cu_op_n,
+                   err = cublasDgemm_v2(handle(phase),cu_op_n,cu_op_n,
      &                                  h21d,p43d,p65d,
-     &                         0.5d0*alpha,x_a(:,buffer),h21d,
-     &                                     x_b(:,buffer),p65d,
-     &                         1.0d0,      x_c(:,buffer),h21d)
+     &                         0.5d0*alpha,x_a(:,phase),h21d,
+     &                                     x_b(:,phase),p65d,
+     &                         1.0d0,      x_c(:,phase),h21d)
                    if (err.ne.0) then
                      call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
                    endif
-                   err = cudaDeviceSynchronize()
+                   err = cudaStreamSynchronize(stream(phase))
                    if (err.ne.0) then
-                     call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+                     call errquit('cudaStreamSync',err,UNKNOWN_ERR)
                    endif
                    end block
                   END IF
@@ -1517,15 +1519,15 @@
               END DO
               print*,'cudaMemcpyAsync C (out)'
               !f_c(1:dimc) = x_c(1:dimc)
-              err = cudaMemcpyAsync(f_c(:,buffer),x_c(:,buffer),dimc,stream)
+              err = cudaMemcpyAsync(f_c(:,phase),x_c(:,phase),dimc,stream(phase))
               if (err.ne.0) then
                 call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
               endif
-              err = cudaDeviceSynchronize()
+              err = cudaStreamSynchronize(stream(phase))
               if (err.ne.0) then
-                call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+                call errquit('cudaStreamSync',err,UNKNOWN_ERR)
               endif
-              CALL ADD_HASH_BLOCK(d_c,f_c(:,buffer),dimc,
+              CALL ADD_HASH_BLOCK(d_c,f_c(:,phase),dimc,
      &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &             (p4b-noab-1+nvab*(p3b-noab-1)))))
               next = NXTASK(nprocs, 1)
@@ -1545,10 +1547,12 @@
       if (e_a.ne.0) call errquit("MA Hfree",e_a,MA_ERR)
       deallocate(x_a,x_b,x_c,stat=e_a)
       if (e_a.ne.0) call errquit("MA Gfree",e_a,MA_ERR)
-      err = cublasDestroy(handle)
-      if (err.ne.0) call errquit('cublasDestroy',err,UNKNOWN_ERR)
-      err = cudaStreamDestroy(stream)
-      if (err.ne.0) call errquit('cudaStreamDestroy',err,UNKNOWN_ERR)
+      do shi=1,2
+        err = cublasDestroy(handle(shi))
+        if (err.ne.0) call errquit('cublasDestroy',err,UNKNOWN_ERR)
+        err = cudaStreamDestroy(stream(shi))
+        if (err.ne.0) call errquit('cudaStreamDestroy',err,UNKNOWN_ERR)
+      end do
       END
 
 #endif
