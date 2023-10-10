@@ -1372,22 +1372,22 @@
 #include "sym.fh"
 #include "errquit.fh"
 #include "tce.fh"
-      INTEGER d_a,d_b,d_c
-      INTEGER k_a_offset,k_b_offset,k_c_offset
-      INTEGER maxh,maxp,dimhhpp,dimpppp
+      INTEGER, intent(in) :: d_a,d_b,d_c
+      INTEGER, intent(in) :: k_a_offset,k_b_offset,k_c_offset
+      INTEGER, intent(in) :: maxh,maxp
+      INTEGER :: dimhhpp,dimpppp
       INTEGER next,nprocs,count
       INTEGER p5b,p6b,p3b,p4b,h1b,h2b
       INTEGER p5b_1,p6b_1,h1b_1,h2b_1
       INTEGER p3b_2,p4b_2,p5b_2,p6b_2
-      INTEGER dima,dimb,dimc,dim_common,dima_sort,dimb_sort
-      integer(kind=INT32) :: h21d, p43d, p65d
-      double precision, allocatable, pinned :: f_a(:), f_b(:), f_c(:)
-      double precision, allocatable, pinned :: f_d(:)
-      double precision, allocatable, device :: x_a(:), x_b(:)
-      double precision, allocatable, device :: x_c(:)
-      integer :: e_a
-      double precision alpha
       integer p5b_in,p6b_in
+      INTEGER dima,dimb,dimc,dim_common,dima_sort,dimb_sort
+      !double precision, allocatable, pinned :: f_a(:), f_b(:), f_c(:)
+      !double precision, allocatable, pinned :: f_d(:)
+      double precision, allocatable :: f_a(:), f_b(:), f_c(:), f_d(:)
+      double precision, allocatable, device :: x_a(:), x_b(:), x_c(:)
+      integer :: e_a
+      double precision :: alpha
       INTEGER NXTASK
       EXTERNAL NXTASK
 
@@ -1438,7 +1438,7 @@
      &             * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
               CALL DFILL(dimc,0.0d0,f_c,1)
               !print*,'cudaMemcpyAsync C (in)'
-              !x_c(1:dimc) = f_c(1:dimc)
+              x_c(1:dimc) = 0.0d0 !f_c(1:dimc)
               !err = cudaMemcpyAsync(x_c,f_c,dimc,stream)
               !if (err.ne.0) then
               !  call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
@@ -1481,52 +1481,61 @@
                    else
                     alpha = 2.0d0
                    end if
-                   h21d = int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
-                   p43d = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
-                   p65d = int_mb(k_range+p5b-1)*int_mb(k_range+p6b-1)
                    !print*,'cudaMemcpyAsync A'
-                   !x_a(1:dima) = f_a(1:dima)
+                   x_a(1:dima) = f_a(1:dima)
                    !err = cudaMemcpyAsync(x_a,f_a,dima,stream)
                    !if (err.ne.0) then
                    !  call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
                    !endif
                    !print*,'cudaMemcpyAsync B'
-                   !x_b(1:dimb) = f_b(1:dimb)
+                   x_b(1:dimb) = f_b(1:dimb)
                    !err = cudaMemcpyAsync(x_b,f_b,dimb,stream)
                    !if (err.ne.0) then
                    !  call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
-                   !endif
-                   !print*,'cublasDgemm_v2',h21d,p43d,p65d,dima,dimb,dimc
-                   !err = cublasDgemm_v2(handle,cu_op_n,cu_op_n,
-     &             !                     h21d,p43d,p65d,
-     &             !            0.5d0*alpha,x_a(1:dima),h21d,
-     &             !                        x_b(1:dimb),p65d,
-     &             !            1.0d0,      x_c(1:dimc),h21d)
-                   !if (err.ne.0) then
-                   !  call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
-                   !endif
-                   !err = cudaDeviceSynchronize()
-                   !if (err.ne.0) then
-                   !  call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
                    !endif
                    block
                    integer :: ih21d, ip43d, ip65d
                    ih21d = int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
                    ip43d = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
                    ip65d = int_mb(k_range+p5b-1)*int_mb(k_range+p6b-1)
-                   print*,'BLAS DGEMM'
-                   call DGEMM('n','n',ih21d,ip43d,ip65d,
-     &                         0.5d0*alpha,f_a,ih21d,
-     &                                     f_b,ip65d,
-     &                         1.0d0,      f_d,ih21d)
+!                   print*,'BLAS DGEMM'
+!                   call DGEMM('n','n',ih21d,ip43d,ip65d,0.5d0*alpha,
+!     &                        f_a,ih21d,f_b,ip65d,1.0d0,f_d,ih21d)
                    end block
                    block
-                   use cublas, only : dgemm
-                   print*,'CUBLAS DGEMM'
-                   call DGEMM('n','n',h21d,p43d,p65d,
-     &                         0.5d0*alpha,f_a,h21d,
-     &                                     f_b,p65d,
-     &                         1.0d0,      f_c,h21d)
+                   use cublas, only : dgemm, cublasDgemm_v2
+                   integer(kind=INT32) :: h21d, p43d, p65d
+!                   double precision :: aaa, bbb
+                   h21d = int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
+                   p43d = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
+                   p65d = int_mb(k_range+p5b-1)*int_mb(k_range+p6b-1)
+!                   aaa = 0.5d0*alpha
+!                   bbb = 1.0d0
+!                   print*,'CUBLAS DGEMM'
+!                   print*,h21d,p43d,p65d,LOC(f_a),LOC(f_b),LOC(f_c),
+!     &                                   LOC(h21d),LOC(p43d),LOC(p65d)
+!     &                                   LOC(aaa),LOC(bbb)
+!                   call DGEMM('n','n',h21d,p43d,p65d,0.5d0*alpha,
+!     &                        f_a,h21d,f_b,p65d,1.0d0,f_c,h21d)
+!                   call DGEMM('n','n',h21d,p43d,p65d,aaa,
+!     &                        f_a,h21d,f_b,p65d,bbb,f_c,h21d)
+                   !x_c(1:dimc) = f_c(1:dimc)
+!                   call DGEMM('n','n',h21d,p43d,p65d,0.5d0*alpha,
+!     &                        x_a,h21d,x_b,p65d,1.0d0,x_c,h21d)
+                   !f_c(1:dimc) = x_c(1:dimc)
+                   !print*,'cublasDgemm_v2',h21d,p43d,p65d,dima,dimb,dimc
+                   err = cublasDgemm_v2(handle,cu_op_n,cu_op_n,
+     &                                  h21d,p43d,p65d,
+     &                         0.5d0*alpha,x_a(1:dima),h21d,
+     &                                     x_b(1:dimb),p65d,
+     &                         1.0d0,      x_c(1:dimc),h21d)
+                   if (err.ne.0) then
+                     call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
+                   endif
+                   err = cudaDeviceSynchronize()
+                   if (err.ne.0) then
+                     call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+                   endif
                    end block
                   END IF
                  END IF
@@ -1534,7 +1543,7 @@
                END DO
               END DO
               !print*,'cudaMemcpyAsync C (out)'
-              !f_c(1:dimc) = x_c(1:dimc)
+              f_c(1:dimc) = x_c(1:dimc)
               !err = cudaMemcpyAsync(f_c,x_c,dimc,stream)
               !if (err.ne.0) then
               !  call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
@@ -1543,7 +1552,7 @@
               !if (err.ne.0) then
               !  call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
               !endif
-              f_c(1:dimc) = f_d(1:dimc)
+              !f_c(1:dimc) = f_d(1:dimc)
               CALL ADD_HASH_BLOCK(d_c,f_c,dimc,
      &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &             (p4b-noab-1+nvab*(p3b-noab-1)))))
