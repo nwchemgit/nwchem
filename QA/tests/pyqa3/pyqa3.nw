@@ -13,10 +13,10 @@ end
 
 python
 print ("value check:")
-print ("INT     = "), INT
-print ("DBL     = "), DBL
-print ("CHAR    = "), CHAR
-print ("LOGICAL = "), LOGICAL
+print ("INT     = ", INT)
+print ("DBL     = ", DBL)
+print ("CHAR    = ", CHAR)
+print ("LOGICAL = ", LOGICAL)
 
 rtdb_put("test_int2", 22)
 print (' Done 1')
