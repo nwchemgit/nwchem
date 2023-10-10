@@ -270,6 +270,9 @@ c -----------------------
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) 
      1    CALL ERRQUIT('ccsd_t2',-1,MA_ERR)
+!
+!
+!
       CALL OFFSET_ccsd_t2_7_1(l_i1_offset,k_i1_offset,size_i1)
       CALL TCE_FILENAME('ccsd_t2_7_1_i1',filename)
       CALL CREATEFILE(filename,d_i1,size_i1)
@@ -283,6 +286,9 @@ c -----------------------
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) 
      1    CALL ERRQUIT('ccsd_t2',-1,MA_ERR)
+!
+!
+!
       CALL OFFSET_vt1t1_1_1(l_i1_offset,k_i1_offset,size_i1)
       CALL TCE_FILENAME('vt1t1_1_1_i1',filename)
       CALL CREATEFILE(filename,d_i1,size_i1)
@@ -295,9 +301,9 @@ c -----------------------
       CALL c2f_t2_t12(d_t1,k_t1_offset,d_t2,k_t2_offset)
       cpu = - util_cpusec()
       wall = - util_wallsec()
-c
-c
-c
+!
+!
+!
       if (.not.rtdb_get(rtdb,'tce:ccsd_t2_8_alg',mt_int,1,
      1                  ccsd_t2_8_alg)) then
         ccsd_t2_8_alg = 2
@@ -333,9 +339,9 @@ c
       else
         CALL errquit('ccsd_t2_8_alg',ccsd_t2_8_alg,INPUT_ERR)
       endif
-c
-c
-c
+!
+!
+!
       cpu = cpu + util_cpusec()
       wall = wall + util_wallsec()
       cpusecs(37) = cpu
