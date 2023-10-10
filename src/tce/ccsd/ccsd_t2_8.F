@@ -1364,8 +1364,8 @@
 !     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( p3 p4 p5 p6 )_v
       use iso_fortran_env
       use cudafor
-      use cublas, only : cublasHandle, cublascreate, cublasdestroy!,
-!     &                   cublassetstream
+      use cublas, only : cublasHandle, cublascreate, cublasdestroy,
+     &                   cublassetstream
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1390,15 +1390,15 @@
       EXTERNAL NXTASK
 
       integer :: err
-      !integer(kind=cuda_stream_kind) :: stream
+      integer(kind=cuda_stream_kind) :: stream
       type(cublasHandle) :: handle
 
-      !err = cudaStreamCreate(stream)
-      !if (err.ne.0) call errquit('cudaStreamCreate',err,UNKNOWN_ERR)
+      err = cudaStreamCreate(stream)
+      if (err.ne.0) call errquit('cudaStreamCreate',err,UNKNOWN_ERR)
       err = cublasCreate(handle)
       if (err.ne.0) call errquit('cublasCreate',err,UNKNOWN_ERR)
-      !err = cublasSetStream(handle, stream)
-      !if (err.ne.0) call errquit('cublasSetStream',err,UNKNOWN_ERR)
+      err = cublasSetStream(handle, stream)
+      if (err.ne.0) call errquit('cublasSetStream',err,UNKNOWN_ERR)
 
       nprocs = GA_NNODES()
       count = 0
@@ -1457,15 +1457,9 @@
                    CALL GET_HASH_BLOCK(d_a,f_a,dima,
      &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
      &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
-                   ! this is here because we cannot overwrite x_a with a new f_a
-                   ! until the DGEMM is finished.  need to double-buffer...
-                   err = cudaDeviceSynchronize()
-                   if (err.ne.0) then
-                     call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
-                   endif
                    !print*,'cudaMemcpyAsync A'
                    !x_a(1:dima) = f_a(1:dima)
-                   err = cudaMemcpyAsync(x_a,f_a,dima)!,stream)
+                   err = cudaMemcpyAsync(x_a,f_a,dima,stream)
                    if (err.ne.0) then
                      call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
                    endif
@@ -1487,32 +1481,17 @@
                    end if
                    !print*,'cudaMemcpyAsync B'
                    !x_b(1:dimb) = f_b(1:dimb)
-                   err = cudaMemcpyAsync(x_b,f_b,dimb)!,stream)
+                   err = cudaMemcpyAsync(x_b,f_b,dimb,stream)
                    if (err.ne.0) then
                      call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
                    endif
-!                   block
-!                   integer :: ih21d, ip43d, ip65d
-!                   ih21d = int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
-!                   ip43d = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
-!                   ip65d = int_mb(k_range+p5b-1)*int_mb(k_range+p6b-1)
-!                   print*,'BLAS DGEMM'
-!                   call DGEMM('n','n',ih21d,ip43d,ip65d,0.5d0*alpha,
-!     &                        f_a,ih21d,f_b,ip65d,1.0d0,f_c,ih21d)
-!                   end block
                    block
-!                   use cublas, only : dgemm
                    use cublas, only : cublasDgemm_v2, CUBLAS_OP_N
                    integer(INT32), parameter :: cu_op_n = CUBLAS_OP_N
                    integer(kind=INT32) :: h21d, p43d, p65d
                    h21d = int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
                    p43d = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
                    p65d = int_mb(k_range+p5b-1)*int_mb(k_range+p6b-1)
-!                   print*,'CUBLAS DGEMM'
-!                   x_c(1:dimc) = f_c(1:dimc)
-!                   call DGEMM('n','n',h21d,p43d,p65d,0.5d0*alpha,
-!     &                        x_a,h21d,x_b,p65d,1.0d0,x_c,h21d)
-!                   f_c(1:dimc) = x_c(1:dimc)
                    !print*,'cublasDgemm_v2',h21d,p43d,p65d,dima,dimb,dimc
                    err = cublasDgemm_v2(handle,cu_op_n,cu_op_n,
      &                                  h21d,p43d,p65d,
@@ -1522,10 +1501,10 @@
                    if (err.ne.0) then
                      call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
                    endif
-                   !err = cudaDeviceSynchronize()
-                   !if (err.ne.0) then
-                   !  call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
-                   !endif
+                   err = cudaDeviceSynchronize()
+                   if (err.ne.0) then
+                     call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+                   endif
                    end block
                   END IF
                  END IF
@@ -1534,7 +1513,7 @@
               END DO
               !print*,'cudaMemcpyAsync C (out)'
               !f_c(1:dimc) = x_c(1:dimc)
-              err = cudaMemcpyAsync(f_c,x_c,dimc)!,stream)
+              err = cudaMemcpyAsync(f_c,x_c,dimc,stream)
               if (err.ne.0) then
                 call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
               endif
@@ -1564,8 +1543,8 @@
       if (e_a.ne.0) call errquit("MA Gfree",e_a,MA_ERR)
       err = cublasDestroy(handle)
       if (err.ne.0) call errquit('cublasDestroy',err,UNKNOWN_ERR)
-      !err = cudaStreamDestroy(stream)
-      !if (err.ne.0) call errquit('cudaStreamDestroy',err,UNKNOWN_ERR)
+      err = cudaStreamDestroy(stream)
+      if (err.ne.0) call errquit('cudaStreamDestroy',err,UNKNOWN_ERR)
       END
 
 #endif
