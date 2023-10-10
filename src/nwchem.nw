@@ -1,28 +1,39 @@
-#
-# $Id$
-#
-
-title "Water geometry optimization in cc-pvdz basis set"
+echo
 
 start h2o
 
-geometry autosym
+memory global 4000 mb heap 100 mb stack 4000 mb
+
+geometry autosym noprint
   O    0.0    0.0    -0.02
   H   -0.74   0.0    -0.76
   H    0.74   0.0    -0.76
 end
 
-basis
-  H library cc-pvdz
-  O library cc-pvdz
+basis noprint
+  * library cc-pvdz
 end
 
-driver
-  clear
+scf
+  thresh 1e-10
+  print none
 end
 
-scf; print low; end
+tce
+  ccsd
+  thresh 1e-12
+  io ga
+  2eorb
+  tilesize 40
+  attilesize 40
+  2emet 13
+end
 
-task scf optimize
+set tce:nts F
+set tce:ccsd_t2_8_alg 8
 
+task tce energy
 
+set tce:nts T
+
+task tce energy
