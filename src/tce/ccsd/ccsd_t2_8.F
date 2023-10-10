@@ -1393,7 +1393,7 @@
       integer(kind=cuda_stream_kind) :: stream(2)
       type(cublasHandle) :: handle(2)
 
-      integer :: phase
+      integer :: phase, oldphase
 
       do shi=1,2
         err = cudaStreamCreate(stream(shi))
@@ -1419,6 +1419,8 @@
       if (e_a.ne.0) call errquit("MA Galloc",2*dimhhpp+1*dimpppp,MA_ERR)
 
       phase = 1
+      oldphase = 1+modulo(phase+1,2)
+      print*,phase,oldphase
 
       DO p3b = noab+1,noab+nvab
        DO p4b = p3b,noab+nvab
