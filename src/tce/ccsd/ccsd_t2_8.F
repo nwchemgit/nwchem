@@ -205,7 +205,7 @@
       integer :: k_a, l_a, k_b, l_b, k_c, l_c
 #endif
       integer :: e_a,e_b,e_c
-      double precision alpha
+      double precision :: alpha
       integer p5b_in,p6b_in
       INTEGER NXTASK
       EXTERNAL NXTASK
@@ -1364,8 +1364,8 @@
 !     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( p3 p4 p5 p6 )_v
       use iso_fortran_env
       use cudafor
-      use cublas, only : cublasHandle, cublascreate,
-     &                   cublassetstream, cublasdestroy
+      use cublas, only : cublasHandle, cublascreate, cublasdestroy!,
+!     &                   cublassetstream
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1390,15 +1390,15 @@
       EXTERNAL NXTASK
 
       integer :: err
-      integer(kind=cuda_stream_kind) :: stream
+      !integer(kind=cuda_stream_kind) :: stream
       type(cublasHandle) :: handle
 
-      err = cudaStreamCreate(stream)
-      if (err.ne.0) call errquit('cudaStreamCreate',err,UNKNOWN_ERR)
+      !err = cudaStreamCreate(stream)
+      !if (err.ne.0) call errquit('cudaStreamCreate',err,UNKNOWN_ERR)
       err = cublasCreate(handle)
       if (err.ne.0) call errquit('cublasCreate',err,UNKNOWN_ERR)
-      err = cublasSetStream(handle, stream)
-      if (err.ne.0) call errquit('cublasSetStream',err,UNKNOWN_ERR)
+      !err = cublasSetStream(handle, stream)
+      !if (err.ne.0) call errquit('cublasSetStream',err,UNKNOWN_ERR)
 
       nprocs = GA_NNODES()
       count = 0
@@ -1457,9 +1457,15 @@
                    CALL GET_HASH_BLOCK(d_a,f_a,dima,
      &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
      &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
+                   ! this is here because we cannot overwrite x_a with a new f_a
+                   ! until the DGEMM is finished.  need to double-buffer...
+                   err = cudaDeviceSynchronize()
+                   if (err.ne.0) then
+                     call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+                   endif
                    !print*,'cudaMemcpyAsync A'
                    !x_a(1:dima) = f_a(1:dima)
-                   err = cudaMemcpyAsync(x_a,f_a,dima,stream)
+                   err = cudaMemcpyAsync(x_a,f_a,dima)!,stream)
                    if (err.ne.0) then
                      call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
                    endif
@@ -1481,7 +1487,7 @@
                    end if
                    !print*,'cudaMemcpyAsync B'
                    !x_b(1:dimb) = f_b(1:dimb)
-                   err = cudaMemcpyAsync(x_b,f_b,dimb,stream)
+                   err = cudaMemcpyAsync(x_b,f_b,dimb)!,stream)
                    if (err.ne.0) then
                      call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
                    endif
@@ -1516,10 +1522,10 @@
                    if (err.ne.0) then
                      call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
                    endif
-                   err = cudaDeviceSynchronize()
-                   if (err.ne.0) then
-                     call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
-                   endif
+                   !err = cudaDeviceSynchronize()
+                   !if (err.ne.0) then
+                   !  call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+                   !endif
                    end block
                   END IF
                  END IF
@@ -1528,7 +1534,7 @@
               END DO
               !print*,'cudaMemcpyAsync C (out)'
               !f_c(1:dimc) = x_c(1:dimc)
-              err = cudaMemcpyAsync(f_c,x_c,dimc,stream)
+              err = cudaMemcpyAsync(f_c,x_c,dimc)!,stream)
               if (err.ne.0) then
                 call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
               endif
@@ -1558,8 +1564,8 @@
       if (e_a.ne.0) call errquit("MA Gfree",e_a,MA_ERR)
       err = cublasDestroy(handle)
       if (err.ne.0) call errquit('cublasDestroy',err,UNKNOWN_ERR)
-      err = cudaStreamDestroy(stream)
-      if (err.ne.0) call errquit('cudaStreamDestroy',err,UNKNOWN_ERR)
+      !err = cudaStreamDestroy(stream)
+      !if (err.ne.0) call errquit('cudaStreamDestroy',err,UNKNOWN_ERR)
       END
 
 #endif
