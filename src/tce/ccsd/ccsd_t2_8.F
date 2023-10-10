@@ -1364,8 +1364,8 @@
 !     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( p3 p4 p5 p6 )_v
       use iso_fortran_env
       use cudafor
-      use cublas, only : cublasHandle, CUBLAS_OP_N, cublascreate,
-     &                   cublassetstream, cublasdestroy, cublasDgemm_v2
+      use cublas, only : cublasHandle, cublascreate,
+     &                   cublassetstream, cublasdestroy
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1382,9 +1382,9 @@
       INTEGER p3b_2,p4b_2,p5b_2,p6b_2
       integer p5b_in,p6b_in
       INTEGER dima,dimb,dimc,dim_common,dima_sort,dimb_sort
-      !double precision, allocatable, pinned :: f_a(:), f_b(:), f_c(:)
+      double precision, allocatable, pinned :: f_a(:), f_b(:), f_c(:)
       !double precision, allocatable, pinned :: f_d(:)
-      double precision, allocatable :: f_a(:), f_b(:), f_c(:), f_d(:)
+      !double precision, allocatable :: f_a(:), f_b(:), f_c(:), f_d(:)
       double precision, allocatable, device :: x_a(:), x_b(:), x_c(:)
       integer :: e_a
       double precision :: alpha
@@ -1394,7 +1394,6 @@
       integer :: err
       integer(kind=cuda_stream_kind) :: stream
       type(cublasHandle) :: handle
-      integer(INT32), parameter :: cu_op_n = CUBLAS_OP_N
 
       err = cudaStreamCreate(stream)
       if (err.ne.0) call errquit('cudaStreamCreate',err,UNKNOWN_ERR)
@@ -1411,7 +1410,7 @@
       dimpppp = maxp*maxp*maxp*maxp
 
       allocate(f_a(1:dimhhpp), f_b(1:dimpppp),
-     &         f_c(1:dimhhpp), f_d(1:dimhhpp), stat=e_a)
+     &         f_c(1:dimhhpp), stat=e_a)
       if (e_a.ne.0) call errquit("MA Halloc",2*dimhhpp+1*dimpppp,MA_ERR)
       allocate(x_a(1:dimhhpp), x_b(1:dimpppp),
      &         x_c(1:dimhhpp), stat=e_a)
@@ -1443,7 +1442,7 @@
               !if (err.ne.0) then
               !  call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
               !endif
-              CALL DFILL(dimc,0.0d0,f_d,1)
+              !CALL DFILL(dimc,0.0d0,f_d,1)
               DO p5b_in =ga_nodeid(),ga_nodeid()+nvab-1
                 p5b=mod(p5b_in,nvab)+noab+1
                 DO p6b_in=ga_nodeid(),ga_nodeid()+nvab+noab-p5b
@@ -1487,23 +1486,25 @@
                    if (err.ne.0) then
                      call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
                    endif
-                   print*,'cudaMemcpyAsync B'
+                   !print*,'cudaMemcpyAsync B'
                    !x_b(1:dimb) = f_b(1:dimb)
                    err = cudaMemcpyAsync(x_b,f_b,dimb,stream)
                    if (err.ne.0) then
                      call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
                    endif
-                   block
-                   integer :: ih21d, ip43d, ip65d
-                   ih21d = int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
-                   ip43d = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
-                   ip65d = int_mb(k_range+p5b-1)*int_mb(k_range+p6b-1)
+!                   block
+!                   integer :: ih21d, ip43d, ip65d
+!                   ih21d = int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
+!                   ip43d = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
+!                   ip65d = int_mb(k_range+p5b-1)*int_mb(k_range+p6b-1)
 !                   print*,'BLAS DGEMM'
 !                   call DGEMM('n','n',ih21d,ip43d,ip65d,0.5d0*alpha,
 !     &                        f_a,ih21d,f_b,ip65d,1.0d0,f_d,ih21d)
-                   end block
+!                   end block
                    block
-                   use cublas, only : dgemm, cublasDgemm_v2
+!                   use cublas, only : dgemm
+                   use cublas, only : cublasDgemm_v2, CUBLAS_OP_N
+                   integer(INT32), parameter :: cu_op_n = CUBLAS_OP_N
                    integer(kind=INT32) :: h21d, p43d, p65d
 !                   double precision :: aaa, bbb
                    h21d = int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
@@ -1542,17 +1543,17 @@
                 END IF
                END DO
               END DO
-              !print*,'cudaMemcpyAsync C (out)'
-              f_c(1:dimc) = x_c(1:dimc)
-              !err = cudaMemcpyAsync(f_c,x_c,dimc,stream)
-              !if (err.ne.0) then
-              !  call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
-              !endif
-              !err = cudaDeviceSynchronize()
-              !if (err.ne.0) then
-              !  call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
-              !endif
               !f_c(1:dimc) = f_d(1:dimc)
+              !print*,'cudaMemcpyAsync C (out)'
+              !f_c(1:dimc) = x_c(1:dimc)
+              err = cudaMemcpyAsync(f_c,x_c,dimc,stream)
+              if (err.ne.0) then
+                call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+              endif
+              err = cudaDeviceSynchronize()
+              if (err.ne.0) then
+                call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+              endif
               CALL ADD_HASH_BLOCK(d_c,f_c,dimc,
      &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &             (p4b-noab-1+nvab*(p3b-noab-1)))))
@@ -1569,7 +1570,7 @@
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
 
-      deallocate(f_a,f_b,f_c,f_d,stat=e_a)
+      deallocate(f_a,f_b,f_c,stat=e_a)
       if (e_a.ne.0) call errquit("MA Hfree",e_a,MA_ERR)
       deallocate(x_a,x_b,x_c,stat=e_a)
       if (e_a.ne.0) call errquit("MA Gfree",e_a,MA_ERR)
