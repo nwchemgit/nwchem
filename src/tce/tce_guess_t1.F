@@ -515,6 +515,7 @@ cc      EXTERNAL nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       EXTERNAL FACTORIAL
+      integer :: i
       nprocs = GA_NNODES()
       count = 0
 cc      next = nxtask(nprocs,1)
@@ -609,8 +610,14 @@ cc      next = nxtask(nprocs,1)
       END DO
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'noname',l_c,k_c)) CALL ERRQUIT('
      &t1mp2_3',9,MA_ERR)
+#if 0
       CALL TCE_SORT_2(dbl_mb(k_c_sort),dbl_mb(k_c),int_mb(k_range+p2b-1)
      &,int_mb(k_range+h1b-1),1,2,-1.0d0/2.0d0)
+#else
+      do i=0,int_mb(k_range+p2b-1)*int_mb(k_range+h1b-1)-1
+        dbl_mb(k_c+i) = dbl_mb(k_c_sort+i) * -0.5d0
+      end do
+#endif
       CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_c),dimc,int_mb(k_c_offset),(h1b -
      & 1 + noab * (p2b - noab - 1)))
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('t1mp2_3',10,MA_ERR)
