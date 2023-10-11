@@ -90,7 +90,7 @@ c ---------------------------------------
       logical nodezero         ! True if node 0
       double precision cpu     ! CPU sec counter
       double precision wall    ! WALL sec counter
-      integer ccsd_t2_8_alg
+      integer :: ccsd_t2_7_alg, ccsd_t2_8_alg
       integer p,h,maxp,maxh
       integer profile
       double precision tt0,tt1,t2timers(50)
@@ -273,16 +273,39 @@ c -----------------------
 !
 !
 !
+      if (.not.rtdb_get(rtdb,'tce:ccsd_t2_7_alg',mt_int,1,
+     1                  ccsd_t2_7_alg)) then
+        ccsd_t2_7_alg = 1
+      endif
       CALL OFFSET_ccsd_t2_7_1(l_i1_offset,k_i1_offset,size_i1)
       CALL TCE_FILENAME('ccsd_t2_7_1_i1',filename)
       CALL CREATEFILE(filename,d_i1,size_i1)
-      CALL ccsd_t2_7_1(d_v2,k_v2_offset,d_i1,k_i1_offset)
-      CALL ccsd_t2_7_2(d_t1,k_t1_offset,d_v2,k_v2_offset,
-     1                 d_i1,k_i1_offset)
-      CALL ccsd_t2_7_3(d_t2,k_t2_offset,d_v2,k_v2_offset,
-     1                 d_i1,k_i1_offset)
+      if (ccsd_t2_7_alg.eq.1) then
+        CALL ccsd_t2_7_1(d_v2,k_v2_offset,d_i1,k_i1_offset)
+        CALL ccsd_t2_7_2(d_t1,k_t1_offset,d_v2,k_v2_offset,
+     &                   d_i1,k_i1_offset)
+        CALL ccsd_t2_7_3(d_t2,k_t2_offset,d_v2,k_v2_offset,
+     &                   d_i1,k_i1_offset)
+      else if (ccsd_t2_7_alg.eq.2) then
+        CALL ccsd_t2_7_1_x(d_v2,k_v2_offset,
+     &                     d_i1,k_i1_offset,maxh,maxp)
+        CALL ccsd_t2_7_2_x(d_t1,k_t1_offset,d_v2,k_v2_offset,
+     &                   d_i1,k_i1_offset,maxh,maxp)
+        CALL ccsd_t2_7_3_x(d_t2,k_t2_offset,d_v2,k_v2_offset,
+     &                   d_i1,k_i1_offset,maxh,maxp)
+      else
+        CALL errquit('ccsd_t2_7_alg',ccsd_t2_7_alg,INPUT_ERR)
+      endif
       CALL RECONCILEFILE(d_i1,size_i1)
-      CALL ccsd_t2_7(d_t2,k_t2_offset,d_i1,k_i1_offset,d_i0,k_i0_offset)
+      if (ccsd_t2_7_alg.eq.1) then
+        CALL ccsd_t2_7(d_t2,k_t2_offset,d_i1,k_i1_offset,
+     &                 d_i0,k_i0_offset)
+      else if (ccsd_t2_7_alg.eq.2) then
+        CALL ccsd_t2_7_x(d_t2,k_t2_offset,d_i1,k_i1_offset,
+     &                 d_i0,k_i0_offset,maxh,maxp)
+      else
+        CALL errquit('ccsd_t2_7_alg',ccsd_t2_7_alg,INPUT_ERR)
+      endif
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) 
      1    CALL ERRQUIT('ccsd_t2',-1,MA_ERR)
