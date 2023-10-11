@@ -11,7 +11,7 @@ geometry autosym noprint
 end
 
 basis noprint
-  * library cc-pvdz
+  * library cc-pvtz
 end
 
 scf
@@ -27,13 +27,18 @@ tce
   tilesize 40
   attilesize 40
   2emet 13
+  #maxiter 1
 end
 
 set tce:nts F
-set tce:ccsd_t2_8_alg 8
+#set tce:ccsd_t2_8_alg 8 # test alg w/ CUBLAS
+set tce:ccsd_t2_8_alg 2 # test alg (now w/ pure DGEMM)
+set tce:ccsd_t2_7_alg 2 # x alg
 
 task tce energy
 
 set tce:nts T
+#set tce:nts F
+#set tce:ccsd_t2_8_alg 2 # test alg (now w/ pure DGEMM)
 
-task tce energy
+#task tce energy
