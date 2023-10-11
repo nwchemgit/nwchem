@@ -436,9 +436,9 @@ C     i0 ( )_vt + = 1/4 * Sum ( h3 h4 p1 p2 ) * t ( p1 p2 h3 h4 )_t * v ( h3 h4 
       INTEGER k_bs,l_bs
       INTEGER nsuperp,nsubh
       DOUBLE PRECISION alpha
-      double precision ddot
       EXTERNAL NXTASK
-      external ddot
+      integer :: i
+      double precision :: temp
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -488,6 +488,8 @@ c
              CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_as),
      1            dim_p1*dim_p2,dim_h3*dim_h4,
      2            2,1,1.0d0)
+             IF (.not.MA_POP_STACK(l_a))
+     1            CALL ERRQUIT('ccsd_e_2',3,MA_ERR)
 c
 c            b = v2
 c
@@ -518,28 +520,22 @@ c
 c
 c            do the contraction
 c
-#if 0
+#if 1
              CALL DGEMM('T','N',1,1,dim_pphh,alpha,
      1            dbl_mb(k_as),dim_pphh,dbl_mb(k_b),
      2            dim_pphh,1.0d0,dbl_mb(k_c),1)
 #else
-             block
-              integer :: i
-              double precision :: temp
-              temp = 0.0d0
-              do i = 0,dim_pphh-1
-                 temp = temp + dbl_mb(k_as+i)*dbl_mb(k_b+i)
-              end do
-              dbl_mb(k_c) = dbl_mb(k_c) + alpha*temp
-             end block
+             temp = 0.0d0
+             do i = 0,dim_pphh-1
+                temp = temp + dbl_mb(k_as+i)*dbl_mb(k_b+i)
+             end do
+             dbl_mb(k_c) = dbl_mb(k_c) + alpha*temp
 #endif
 c
 c            delete arrays
 c
              IF (.not.MA_POP_STACK(l_b))
      1            CALL ERRQUIT('ccsd_e_2',7,MA_ERR)
-             IF (.not.MA_POP_STACK(l_a))
-     1            CALL ERRQUIT('ccsd_e_2',3,MA_ERR)
              IF (.not.MA_POP_STACK(l_as))
      1            CALL ERRQUIT('ccsd_e_2',8,MA_ERR)
             END IF
