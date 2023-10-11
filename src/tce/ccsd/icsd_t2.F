@@ -9219,9 +9219,9 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
                    p43d = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
                    p65d = int_mb(k_range+p5b-1)*int_mb(k_range+p6b-1)
                    call DGEMM('n','n',h21d,p43d,p65d,
-     &                         0.5d0*alpha,f_a,h21d,
-     &                                     f_b,p65d,
-     &                         1.0d0,      f_c,h21d)
+     &                         0.5d0*alpha,dbl_mb(k_a),h21d,
+     &                                     dbl_mb(k_b),p65d,
+     &                         1.0d0,      dbl_mb(k_c),h21d)
                   END IF
                  END IF
                 END IF
