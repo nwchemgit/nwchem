@@ -441,6 +441,7 @@ C     i0 ( )_vt + = 1/4 * Sum ( h3 h4 p1 p2 ) * t ( p1 p2 h3 h4 )_t * v ( h3 h4 
       double precision :: temp
       double precision :: ddot
       external :: ddot
+      double precision :: e_c
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -449,9 +450,9 @@ C     i0 ( )_vt + = 1/4 * Sum ( h3 h4 p1 p2 ) * t ( p1 p2 h3 h4 )_t * v ( h3 h4 
 c
 c     create output array
 c
-      IF (.not.MA_PUSH_GET(mt_dbl,1,'noname',l_c,k_c)) 
-     1     CALL ERRQUIT('ccsd_e_2',9,MA_ERR)
-      dbl_mb(k_c) = 0.0d0
+!      IF (.not.MA_PUSH_GET(mt_dbl,1,'noname',l_c,k_c)) 
+!     1     CALL ERRQUIT('ccsd_e_2',9,MA_ERR)
+!      dbl_mb(k_c) = 0.0d0
 c
       DO p1b = noab+1,noab+nvab
        DO p2b = p1b,noab+nvab
@@ -561,7 +562,8 @@ c
                  temp = temp + dbl_mb(k_b+y) * dbl_mb(k_a+x)
                 enddo
                enddo
-               dbl_mb(k_c) = dbl_mb(k_c) + alpha*temp
+!               dbl_mb(k_c) = dbl_mb(k_c) + alpha*temp
+               e_c = e_c + alpha * temp
              end block
 #else
              temp = 0.0d0
@@ -586,15 +588,15 @@ c
         END DO
        END DO
       END DO
-      CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_c),1,int_mb(k_c_offset),0)
-      IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_e_2',10,MA_ERR)
+      !CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_c),1,int_mb(k_c_offset),0)
+      CALL ADD_HASH_BLOCK(d_c,e_c,1,int_mb(k_c_offset),0)
+      !IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_e_2',10,MA_ERR)
       END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
-      RETURN
       END
 
 
