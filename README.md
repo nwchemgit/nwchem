@@ -9,6 +9,7 @@
 [![Github Downloads Release 7.0.0](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.0.0-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v7.0.0-release)
 [![Github Downloads Release 7.0.2](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.0.2-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v7.0.2-release)
 [![Github Downloads Release 7.2.0](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.2.0-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v7.2.0-release)
+[![Github Downloads Release 7.2.1](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.2.1-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v7.2.0-release)
 
 [![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg)](https://github.com/nwchemgit/nwchem/releases)  
 [![EMSL](https://rawgit.com/nwchemgit/nwchem/master/contrib/git.nwchem/emsl_logo2.svg)](https://www.emsl.pnl.gov)
@@ -20,25 +21,25 @@ located at the Pacific Northwest National Laboratory (PNNL) in Washington State
 
 ### Scalable computational chemistry tools
 
-Source download instructions
+Source download instructions for developers
 
 * Master
-
+```
 git clone https://github.com/nwchemgit/nwchem.git
-
-* 7.2.0 Release
-
-git clone  -b release-7-2-0 https://github.com/nwchemgit/nwchem.git nwchem-7.2.0
-
-### Release 7.2.0
+```
+* 7.2.1 Release
+```
+git clone  -b hotfix/release-7-2-0 https://github.com/nwchemgit/nwchem.git nwchem-7.2.1
+```
+### Release 7.2.1
 
 Release files available at the page  
-https://github.com/nwchemgit/nwchem/releases/tag/v7.2.0-release  
+https://github.com/nwchemgit/nwchem/releases/tag/v7.2.1-release    
 Tar files for download:  
-https://github.com/nwchemgit/nwchem/releases/download/v7.2.0-release/nwchem-7.2.0-release.revision-d0d141fd-srconly.2023-03-10.tar.bz2  
-https://github.com/nwchemgit/nwchem/releases/download/v7.2.0-release/nwchem-7.2.0-release.revision-d0d141fd-nonsrconly.2023-03-10.tar.bz2  
+https://github.com/nwchemgit/nwchem/releases/download/v7.2.1-release/nwchem-7.2.1-release.revision-487f8b94-srconly.2023-10-04.tar.bz2  
+https://github.com/nwchemgit/nwchem/releases/download/v7.2.1-release/nwchem-7.2.1-release.revision-487f8b94-nonsrconly.2023-10-04.tar.bz2  
 Release notes available at  
-https://raw.githubusercontent.com/nwchemgit/nwchem/v7.2.0-release/release.notes.7.2.0
+https://github.com/nwchemgit/nwchem/blob/master/release.notes.7.2.1.md  
 
 ### Documentation
 https://nwchemgit.github.io
