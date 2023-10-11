@@ -432,7 +432,7 @@ C     i0 ( )_vt + = 1/4 * Sum ( h3 h4 p1 p2 ) * t ( p1 p2 h3 h4 )_t * v ( h3 h4 
       INTEGER h3b_2,h4b_2,p1b_2,p2b_2
       INTEGER dim_p1,dim_p2,dim_h3,dim_h4,dim_pphh
       INTEGER k_a,l_a,k_b,l_b,k_c,l_c
-      INTEGER k_as,l_as
+!      INTEGER k_as,l_as
       INTEGER k_bs,l_bs
       INTEGER nsuperp,nsubh
       DOUBLE PRECISION alpha
@@ -475,23 +475,14 @@ c
 c
 c            a = t2
 c
-             IF (.not.MA_PUSH_GET(mt_dbl,dim_pphh,'as',l_as,k_as)) 
-     1            CALL ERRQUIT('ccsd_e_2',1,MA_ERR)
+!             IF (.not.MA_PUSH_GET(mt_dbl,dim_pphh,'as',l_as,k_as)) 
+!     1            CALL ERRQUIT('ccsd_e_2',1,MA_ERR)
              IF (.not.MA_PUSH_GET(mt_dbl,dim_pphh,'a',l_a,k_a))
      1            CALL ERRQUIT('ccsd_e_2',2,MA_ERR)
              CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dim_pphh,
      1            int_mb(k_a_offset),
      2            (h4b_1 - 1 + noab * (h3b_1 - 1 + noab * 
      3            (p2b_1 - noab - 1 + nvab * (p1b_1 - noab - 1)))))
-!            Simplify 4D to 2D transpose: 3,4,1,2 = 34,12 = 2,1
-!             CALL TCE_SORT_4(dbl_mb(k_a),dbl_mb(k_as),
-!     1            dim_p1,dim_p2,dim_h3,dim_h4,
-!     2            3,4,1,2,1.0d0)
-             CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_as),
-     1            dim_p1*dim_p2,dim_h3*dim_h4,
-     2            2,1,1.0d0)
-             IF (.not.MA_POP_STACK(l_a))
-     1            CALL ERRQUIT('ccsd_e_2',3,MA_ERR)
 c
 c            b = v2
 c
@@ -519,6 +510,29 @@ c
              IF (h3b .eq. h4b) THEN
                alpha = 0.5d0*alpha
              END IF
+#if 0
+!            Simplify 4D to 2D transpose: 3,4,1,2 = 34,12 = 2,1
+             CALL TCE_SORT_4(dbl_mb(k_a),dbl_mb(k_as),
+     1            dim_p1,dim_p2,dim_h3,dim_h4,
+     2            3,4,1,2,1.0d0)
+#elif 0
+             CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_as),
+     1            dim_p1*dim_p2,dim_h3*dim_h4,
+     2            2,1,1.0d0)
+#elif 0
+             block
+               integer :: dimpp,dimhh,pp,hh,x,y
+               dimpp = dim_p1*dim_p2
+               dimhh = dim_h3*dim_h4
+               do pp = 1,dimpp
+                do hh = 1,dimhh
+                 x = (hh-1)+dimhh*(pp-1)
+                 y = (pp-1)+dimpp*(hh-1)
+                 dbl_mb(k_as+y) = dbl_mb(k_a+x)
+                enddo
+               enddo
+             end block
+#endif
 c
 c            do the contraction
 c
@@ -530,10 +544,25 @@ c
              dbl_mb(k_c) = dbl_mb(k_c) + alpha *
      &                     dot_product(dbl_mb(k_as:k_as+dim_pphh-1),
      &                                 dbl_mb(k_b:k_b+dim_pphh-1))
-#elif 1
+#elif 0
              dbl_mb(k_c) = dbl_mb(k_c) + alpha *
      &                     ddot(dim_pphh,dbl_mb(k_as),1,
      &                                   dbl_mb(k_b),1)
+#elif 1
+             block
+               integer :: dimpp,dimhh,pp,hh,x,y
+               dimpp = dim_p1*dim_p2
+               dimhh = dim_h3*dim_h4
+               temp = 0.0d0
+               do pp = 1,dimpp
+                do hh = 1,dimhh
+                 x = (hh-1)+dimhh*(pp-1)
+                 y = (pp-1)+dimpp*(hh-1)
+                 temp = temp + dbl_mb(k_b+y) * dbl_mb(k_a+x)
+                enddo
+               enddo
+               dbl_mb(k_c) = dbl_mb(k_c) + alpha*temp
+             end block
 #else
              temp = 0.0d0
              do i = 0,dim_pphh-1
@@ -546,8 +575,10 @@ c            delete arrays
 c
              IF (.not.MA_POP_STACK(l_b))
      1            CALL ERRQUIT('ccsd_e_2',7,MA_ERR)
-             IF (.not.MA_POP_STACK(l_as))
-     1            CALL ERRQUIT('ccsd_e_2',8,MA_ERR)
+             IF (.not.MA_POP_STACK(l_a))
+     1            CALL ERRQUIT('ccsd_e_2',3,MA_ERR)
+!             IF (.not.MA_POP_STACK(l_as))
+!     1            CALL ERRQUIT('ccsd_e_2',8,MA_ERR)
             END IF
            END IF
           END IF
