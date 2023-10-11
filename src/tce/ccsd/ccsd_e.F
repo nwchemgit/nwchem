@@ -439,6 +439,8 @@ C     i0 ( )_vt + = 1/4 * Sum ( h3 h4 p1 p2 ) * t ( p1 p2 h3 h4 )_t * v ( h3 h4 
       EXTERNAL NXTASK
       integer :: i
       double precision :: temp
+      double precision :: ddot
+      external :: ddot
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -520,10 +522,18 @@ c
 c
 c            do the contraction
 c
-#if 1
+#if 0
              CALL DGEMM('T','N',1,1,dim_pphh,alpha,
      1            dbl_mb(k_as),dim_pphh,dbl_mb(k_b),
      2            dim_pphh,1.0d0,dbl_mb(k_c),1)
+#elif 0
+             dbl_mb(k_c) = dbl_mb(k_c) + alpha *
+     &                     dot_product(dbl_mb(k_as:k_as+dim_pphh-1),
+     &                                 dbl_mb(k_b:k_b+dim_pphh-1))
+#elif 1
+             dbl_mb(k_c) = dbl_mb(k_c) + alpha *
+     &                     ddot(dim_pphh,dbl_mb(k_as),1,
+     &                                   dbl_mb(k_b),1)
 #else
              temp = 0.0d0
              do i = 0,dim_pphh-1
