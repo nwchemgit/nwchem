@@ -39,6 +39,9 @@ if [[ "$FC" == "amdflang" ]]; then
     export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
      export BUILD_MPICH=1
 fi
+if [[ "$FC" == "flang-new-17" ]]; then
+    export BUILD_MPICH=1
+fi
 
 if [[ "$FC" == "nvfortran" ]]; then
      nv_major=23
