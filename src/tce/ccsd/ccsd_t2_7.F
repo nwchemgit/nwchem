@@ -1202,19 +1202,51 @@ C     i1 ( h6 p3 h1 p5 )_vt+=-1/2*Sum ( h8 p7 )*t ( p3 p7 h1 h8 )_t*v ( h6 h8 p5
                    CALL GET_HASH_BLOCK(d_a,dbl_mb(k_t),dima,
      &                  int_mb(k_a_offset),(h1b_1-1+noab*(h8b_1-1+noab*
      &                  (p7b_1-noab-1+nvab*(p3b_1-noab-1)))))
+#if 0
                    CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_a),
      &                  int_mb(k_range+p3b-1),int_mb(k_range+p7b-1),
      &                  int_mb(k_range+h8b-1),int_mb(k_range+h1b-1),
      &                  4,1,3,2,-1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+p3b-1)
+                     dim2 = int_mb(k_range+p7b-1)
+                     dim3 = int_mb(k_range+h8b-1)
+                     dim4 = int_mb(k_range+h1b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+               dbl_mb(k_a+j2-1+dim2*(j3-1+dim3*(j1-1+dim1*(j4-1)))) =
+     &  -1.0d0*dbl_mb(k_t+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+                     enddo
+                    end block
+#endif
                    END IF
                    IF ((p3b .le. p7b) .and. (h1b .le. h8b)) THEN
                    CALL GET_HASH_BLOCK(d_a,dbl_mb(k_t),dima,
      &                  int_mb(k_a_offset),(h8b_1-1+noab*(h1b_1-1+noab*
      &                  (p7b_1-noab-1+nvab*(p3b_1-noab-1)))))
+#if 0
                    CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_a),
      &                  int_mb(k_range+p3b-1),int_mb(k_range+p7b-1),
      &                  int_mb(k_range+h1b-1),int_mb(k_range+h8b-1),
      &                  3,1,4,2,1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+p3b-1)
+                     dim2 = int_mb(k_range+p7b-1)
+                     dim3 = int_mb(k_range+h1b-1)
+                     dim4 = int_mb(k_range+h8b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+               dbl_mb(k_a+j2-1+dim2*(j4-1+dim4*(j1-1+dim1*(j3-1)))) =
+     &         dbl_mb(k_t+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+                     enddo
+                    end block
+#endif
                    END IF
                    IF ((h8b .lt. h6b) .and. (p7b .lt. p5b)) THEN
                     if(.not.intorb) then
