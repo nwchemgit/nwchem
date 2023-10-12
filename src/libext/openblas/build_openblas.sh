@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #set -v
 arch=`uname -m`
-VERSION=0.3.23
+VERSION=0.3.24
 #COMMIT=974acb39ff86121a5a94be4853f58bd728b56b81
 BRANCH=develop
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
@@ -146,9 +146,12 @@ if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == 
     FORCETARGET+=" CC=gcc "
     _FC=xlf
     LAPACK_FPFLAGS_VAL=" -qstrict=ieeefp -O2 -g" 
-elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]] || [[ "${FC}" == "amdflang" ]]; then
+elif  [[ -n ${FC} ]] && [[ $(../../../config/strip_compiler.sh "${FC}") == "flang" ]]; then
     FORCETARGET+=' F_COMPILER=FLANG '
-    LAPACK_FPFLAGS_VAL=" -O1 -g -Kieee"
+    LAPACK_FPFLAGS_VAL=" -O1 -g -fno-fast-math"
+        if [[ ${BLAS_SIZE} == 8 ]]; then
+           LAPACK_FPFLAGS_VAL+=" -fdefault-integer-8"
+	fi
 elif  [[ "${_FC}" == "crayftn" ]] ; then
 #    FORCETARGET+=' F_COMPILER=FLANG '
     LAPACK_FPFLAGS_VAL=" -s integer64 -ef "
@@ -251,6 +254,8 @@ echo output redirected to libext/openblas/OpenBLAS/openblas.log
 echo
 if [[ ${_FC} == xlf ]]; then
  $MYMAKE FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib $MAKEJ >& openblas.log
+elif [[ ${FC} == flang-new-17 ]]; then
+ $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET FCOMMON_OPT="$LAPACK_FPFLAGS_VAL" LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKEJ >& openblas.log
 else
  $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKEJ >& openblas.log
 fi
