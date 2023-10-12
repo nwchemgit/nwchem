@@ -1260,10 +1260,26 @@ C     i1 ( h6 p3 h1 p5 )_vt+=-1/2*Sum ( h8 p7 )*t ( p3 p7 h1 h8 )_t*v ( h6 h8 p5
      &                    (p7b_2-1+(noab+nvab)*(h6b_2-1+(noab+nvab)*
      &                    (h8b_2-1)))),p5b_2,p7b_2,h6b_2,h8b_2)
                     end if
+#if 0
                     CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_b),
      &                   int_mb(k_range+h8b-1),int_mb(k_range+h6b-1),
      &                   int_mb(k_range+p7b-1),int_mb(k_range+p5b-1),
      &                   4,2,1,3,1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+h8b-1)
+                     dim2 = int_mb(k_range+h6b-1)
+                     dim3 = int_mb(k_range+p7b-1)
+                     dim4 = int_mb(k_range+p5b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+               dbl_mb(k_b+j3-1+dim3*(j1-1+dim1*(j2-1+dim2*(j4-1)))) =
+     &         dbl_mb(k_t+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+                     enddo
+                    end block
+#endif
                    END IF
                    IF ((h8b .lt. h6b) .and. (p5b .le. p7b)) THEN
                     if(.not.intorb) then
@@ -1277,10 +1293,26 @@ C     i1 ( h6 p3 h1 p5 )_vt+=-1/2*Sum ( h8 p7 )*t ( p3 p7 h1 h8 )_t*v ( h6 h8 p5
      &                   (p5b_2-1+(noab+nvab)*(h6b_2-1+(noab+nvab)*
      &                   (h8b_2-1)))),p7b_2,p5b_2,h6b_2,h8b_2)
                     end if
+#if 0
                    CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_b),
      &                  int_mb(k_range+h8b-1),int_mb(k_range+h6b-1),
      &                  int_mb(k_range+p5b-1),int_mb(k_range+p7b-1),
      &                  3,2,1,4,-1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+h8b-1)
+                     dim2 = int_mb(k_range+h6b-1)
+                     dim3 = int_mb(k_range+p5b-1)
+                     dim4 = int_mb(k_range+p7b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+               dbl_mb(k_b+j4-1+dim4*(j1-1+dim1*(j2-1+dim2*(j3-1)))) =
+     &  -1.0d0*dbl_mb(k_t+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+                     enddo
+                    end block
+#endif
                    END IF
                    IF ((h6b .le. h8b) .and. (p7b .lt. p5b)) THEN
                     if(.not.intorb) then
@@ -1294,10 +1326,26 @@ C     i1 ( h6 p3 h1 p5 )_vt+=-1/2*Sum ( h8 p7 )*t ( p3 p7 h1 h8 )_t*v ( h6 h8 p5
      &                   (p7b_2-1+(noab+nvab)*(h8b_2-1+(noab+nvab)*
      &                   (h6b_2-1)))),p5b_2,p7b_2,h8b_2,h6b_2)
                     end if
+#if 0
                     CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_b),
      &                   int_mb(k_range+h6b-1),int_mb(k_range+h8b-1),
      &                   int_mb(k_range+p7b-1),int_mb(k_range+p5b-1),
      &                   4,1,2,3,-1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+h6b-1)
+                     dim2 = int_mb(k_range+h8b-1)
+                     dim3 = int_mb(k_range+p7b-1)
+                     dim4 = int_mb(k_range+p5b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+               dbl_mb(k_b+j3-1+dim3*(j2-1+dim2*(j1-1+dim1*(j4-1)))) =
+     &  -1.0d0*dbl_mb(k_t+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+                     enddo
+                    end block
+#endif
                    END IF
                    IF ((h6b .le. h8b) .and. (p5b .le. p7b)) THEN
                     if(.not.intorb) then
@@ -1311,10 +1359,26 @@ C     i1 ( h6 p3 h1 p5 )_vt+=-1/2*Sum ( h8 p7 )*t ( p3 p7 h1 h8 )_t*v ( h6 h8 p5
      &                   (p5b_2-1+(noab+nvab)*(h8b_2-1+(noab+nvab)*
      &                   (h6b_2-1)))),p7b_2,p5b_2,h8b_2,h6b_2)
                     end if
+#if 0
                     CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_b),
      &                   int_mb(k_range+h6b-1),int_mb(k_range+h8b-1),
      &                   int_mb(k_range+p5b-1),int_mb(k_range+p7b-1),
      &                   3,1,2,4,1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+h6b-1)
+                     dim2 = int_mb(k_range+h8b-1)
+                     dim3 = int_mb(k_range+p5b-1)
+                     dim4 = int_mb(k_range+p7b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+               dbl_mb(k_b+j4-1+dim4*(j2-1+dim2*(j1-1+dim1*(j3-1)))) =
+     &         dbl_mb(k_t+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+                     enddo
+                    end block
+#endif
                    END IF
                    CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
      &                        1.0d0,dbl_mb(k_a),dim_common,
