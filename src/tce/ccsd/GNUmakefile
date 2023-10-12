@@ -23,7 +23,7 @@ LIB_DEFINES = -DDEBUG_PRINT
 ifdef USE_OPENACC_TRPDRV
   FOPTIONS += -DUSE_TCE_CUBLAS
   ifeq ($(_FC),pgf90)
-      FOPTIONS += -Mextend -acc -cuda -cudalib=cublas
+      FOPTIONS += -Mextend -acc -cuda -cudalib=cublas -stdpar=gpu
   endif
   ifeq ($(_FC),gfortran)
       FOPTIONS += -ffree-form -fopenacc -lcublas
