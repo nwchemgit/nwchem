@@ -215,6 +215,12 @@ if [[ "$os" == "Linux" ]]; then
 	    icc -V
 
 	fi
+	if [[ "$FC" == "flang-new-17" ]]; then
+	    wget https://apt.llvm.org/llvm.sh
+	    chmod +x llvm.sh
+	    sudo ./llvm.sh 17
+	    syudo apt-get -y install flang-17
+	fi
 	if [[ "$FC" == "flang" ]]; then
 	    if [[ "USE_AOMP" == "Y" ]]; then
 		aomp_major=16

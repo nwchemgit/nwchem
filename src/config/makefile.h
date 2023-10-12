@@ -2130,7 +2130,9 @@ ifneq ($(TARGET),LINUX)
                 FOPTIONS += -w
                 COPTIONS += -w
             else
-                FOPTIMIZE  += -Wuninitialized
+                    ifneq ($(USE_FLANG),1)
+                        FOPTIMIZE  += -Wuninitialized
+	            endif
                 ifeq ($(_CC),$(findstring $(_CC),gcc clang))
                     COPTIONS += -Wall
 		endif
@@ -2139,20 +2141,28 @@ ifneq ($(TARGET),LINUX)
                         FOPTIMIZE  += -Wno-maybe-uninitialized
                     endif
                 else
-                    FOPTIONS   += -Wuninitialized
+                    ifneq ($(USE_FLANG),1)
+                        FOPTIONS   += -Wuninitialized
+		    endif
                 endif
             endif
 
             DEFINES  += -DGFORTRAN
             DEFINES  += -DCHKUNDFLW -DGCC4
-
             ifeq ($(USE_FLANG),1)
+
                 GNU_GE_4_6=true
-                FOPTIONS+=-mcmodel=medium
-                FOPTIONS+=-mcmodel=medium -fno-backslash
-                COPTIONS+=-mcmodel=medium
-                CFLAGS_FORGA = -mcmodel=medium
-                FFLAGS_FORGA = -mcmodel=medium
+                FOPTIONS+=-fno-backslash
+                FLANG_VERSION=$(shell $(FC) --version |head -1 |cut -d ' ' -f 4 |cut -d . -f 1)
+                FLANG_LT_17 = $(shell [ $(FLANG_VERSION) -lt 17 ] && echo true)
+                ifeq ($(FLANG_LT_17),true)
+                    FOPTIONS+=-mcmodel=medium
+                    COPTIONS+=-mcmodel=medium
+                    CFLAGS_FORGA = -mcmodel=medium
+                    FFLAGS_FORGA = -mcmodel=medium
+		else
+                    DEFINES  += -D__FLANG
+		endif
             else
                 GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
                 ifdef GNUMAJOR
@@ -2628,7 +2638,9 @@ ifneq ($(TARGET),LINUX)
 
                 LINK.f = $(FC)  $(LDFLAGS) 
                 FOPTIMIZE  += -O3 
-                FOPTIMIZE  += -mfpmath=sse # 
+                ifneq ($(USE_FLANG),1)
+                    FOPTIMIZE  += -mfpmath=sse #
+		endif
 
                 ifeq ($(GNU_GE_6),true)
                     FOPTIMIZE += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
@@ -2674,7 +2686,9 @@ ifneq ($(TARGET),LINUX)
 
             ifeq ($(GNU_GE_4_6),true)
                 ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
-                    FOPTIMIZE +=  -mtune=native
+                    ifneq ($(USE_FLANG),1)
+                        FOPTIMIZE +=  -mtune=native
+		    endif
                 endif
                 ifdef GFORTRAN_MARCH
                     FOPTIMIZE += -march=$(GFORTRAN_MARCH)
