@@ -217,8 +217,8 @@ if [[ "$os" == "Linux" ]]; then
 	if [[ "$FC" == "flang-new-17" ]]; then
 	    wget https://apt.llvm.org/llvm.sh
 	    chmod +x llvm.sh
-	    sudo ./llvm.sh 17
-	    syudo apt-get -y install flang-17
+	    $MYSUDO ./llvm.sh 17
+	    $MYSUDO apt-get install -y flang-17
 	fi
 	if [[ "$FC" == "flang" ]]; then
 	    if [[ "USE_AOMP" == "Y" ]]; then
