@@ -1052,6 +1052,8 @@ c Author: Fredy W. Aquino, Northwestern Universtiy (Oct. 2012)
       integer inntsize
       integer l_scr,k_scr,
      &        l_iscr,k_iscr
+      integer util_system
+      external util_system
 
       inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       call ga_sync()
@@ -1065,10 +1067,12 @@ c ======== Determine lists of files to read ======== START
      &                     .false.,.false.,fname_raman)
         write(*,*) 'Searching for fname_raman=',fname_raman
 c WARNING: This works only on UNIX systems
-        call system('ls -1 -p '//trim(fname_raman)
-     &              //'_[0-9]*nblock > list_raman_files.txt')     
-        call system('ls -1 -p '//trim(fname_raman)
-     &              //'_[!0-9]*nblock >> list_raman_files.txt')     
+        if(util_system('ls -1 -p '//trim(fname_raman)
+     &       //'_[0-9]*nblock > list_raman_files.txt').ne.0)
+     &   call errquit('raman: util_systemfailed',1,0)
+        if(util_system('ls -1 -p '//trim(fname_raman)
+     &              //'_[!0-9]*nblock >> list_raman_files.txt').ne.0)
+     &       call errquit('raman: util_systemfailed',2,0)
 c Note.- Listing XX_[0-9]*nblock  first
 c        Listing XX_[!0-9]*nblock below
 c        This is to update rminfo correctly
