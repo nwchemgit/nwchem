@@ -2181,7 +2181,9 @@ ifneq ($(TARGET),LINUX)
                 FOPTIONS   += -ffast-math #-Wunused  
             endif
             ifeq ($(V),-1)
+                ifeq ($(FLANG_LT_17),true)
                 FOPTIONS += -w
+		endif
                 COPTIONS += -w
             else
                     ifneq ($(USE_FLANG),1)
@@ -3989,7 +3991,7 @@ endif
 #
 V = 0
 ACTUAL_FC := $(FC)
-NWFC_-1 = @echo "Compiling $<..."; $(ACTUAL_FC)
+NWFC_-1 = @echo "Compiling $<..."; $(ACTUAL_FC) 2> >(grep -v warning|grep -v  '\^\^' |grep -v previous\ ref >&2)
 NWFC_0 = @echo "Compiling $<..."; $(ACTUAL_FC)
 NWFC_1 = $(ACTUAL_FC)
 NWFC = $(NWFC_$(V))
