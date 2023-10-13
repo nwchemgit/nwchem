@@ -42,8 +42,7 @@ c
       util_erf = f
 #else
       double precision x
-      double precision derf
-      util_erf=derf(x)
+      util_erf=erf(x)
 #endif
       return
       end 
