@@ -189,7 +189,7 @@ c
       implicit none
 #include "xc_params.fh"
 
-      double precision q,TwoSqrtPi,OneOverQ,q2,DERF
+      double precision q,TwoSqrtPi,OneOverQ,q2,ERF
 
       if (q .lt. 1D-15) then
          HqBNL=1.d0
@@ -205,7 +205,7 @@ c
          return
       end if
 
-      HqBNL=1.0d0-q*2.0d0/3.0d0*(TwoSqrtPi*DERF(OneOverQ)-q+
+      HqBNL=1.0d0-q*2.0d0/3.0d0*(TwoSqrtPi*ERF(OneOverQ)-q+
      $     q*(q2-2.0d0)*(1.0d0-exp(-OneOverQ*OneOverQ)))
 
       return
@@ -262,7 +262,7 @@ c
       implicit none
 #include "xc_params.fh"
 
-      double precision q,OneOverQ,q2,q3,DERF
+      double precision q,OneOverQ,q2,q3,ERF
       
       q2 = q**2.0d0
       q3 = q**3.0d0
@@ -274,7 +274,7 @@ c
       OneOverQ = 1.0d0/q
 
       HqBNLPrime = 4.0d0/3.0d0*(q*(exp(-OneOverQ*OneOverQ)*(2.0d0*q2
-     $     -1.0d0)+(3.0d0-2.0d0*q2))-dsqrt(Pi)*DERF(OneOverQ))
+     $     -1.0d0)+(3.0d0-2.0d0*q2))-dsqrt(Pi)*ERF(OneOverQ))
 
       return
       end

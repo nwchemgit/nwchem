@@ -35,7 +35,7 @@ c
       double precision a_first,a2_first,btmp_first, btmp1
 c
       double precision sqrt_pi,t1,t2,t3,t4,t5,t6,t7
-      double precision alpha,beta, DERF
+      double precision alpha,beta, ERF
       double precision f10, f01, b_first
       double precision a2, a3, a4, a5, a6, a7, a8, a9, a10, a11
       double precision ta, ta2, ta3, ta4, ta5, ta6, ta7, ta8, ta9, 
@@ -170,7 +170,7 @@ c
             erff = 1.0d0
           else
             expf = exp(-1d0/(4d0*a2))
-            erff = DERF(1d0/(2d0*a))
+            erff = ERF(1d0/(2d0*a))
           endif
 c
           if (a .lt. 0.14d0) then
@@ -199,7 +199,7 @@ c             stop
              b = expf - 1d0
 c             c = 2d0*a*a*b + 0.5d0
              c = 2d0*a2*b + 0.5d0
-c             btmp = (8d0/3d0)*a*(sqrt_pi*DERF(1/(2d0*a)) + 2d0*a*(b-c))
+c             btmp = (8d0/3d0)*a*(sqrt_pi*ERF(1/(2d0*a)) + 2d0*a*(b-c))
              btmp = (8d0/3d0)*a*(sqrt_pi*erff + 2d0*a*(b-c))
 c OLD CODE
 c             t1 = 1/a
@@ -211,7 +211,7 @@ c             t5 = t4 -1d0
 c             t6 = t4 -2d0*t2*t5 - 1.5d0
 c             btmp_first = -t7*a *
 c     &       (2*a*(t4/(2*a**3) - 4d0*a*t5 - t1*t4) + 2d0*t6 -t3*t4) -
-c     &         t7*(2*a*t6 + sqrt_pi*DERF(0.5d0*t1))
+c     &         t7*(2*a*t6 + sqrt_pi*ERF(0.5d0*t1))
 c             btmp_first = -t7*a *
 c     &       (2*a*(t4/(2*a**3) - 4d0*a*t5 - t1*t4) + 2d0*t6 -t3*t4) -
 c     &         t7*(2*a*t6 + sqrt_pi*erff)
