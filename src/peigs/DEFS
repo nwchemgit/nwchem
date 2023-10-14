@@ -45,7 +45,7 @@ else
 peigs_LIB	= $(TOPDIR)/lib/$(NWCHEM_TARGET)_$(NWCHEM_TARGET_CPU)/libpeigs.a
 endif
 
-SHELL		= /bin/sh
+SHELL		= /usr/bin/env bash
 
 peigs_OBJDIR	 = $(peigs_DIR)/o
 peigs_HDIR	 = $(peigs_DIR)/h
