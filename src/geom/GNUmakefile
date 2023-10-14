@@ -16,6 +16,9 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 
+  ifeq ($(FC),flang-new-17)
+            FOPTIONS += -fno-automatic
+  endif
   ifeq ($(_FC),pgf90)
             FOPTIONS += -Mnorecursive
   endif
