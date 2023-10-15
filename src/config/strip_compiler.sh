@@ -7,6 +7,8 @@ elif [[ "$1" == *cc* ]] && [[ ! -z $_CC ]]; then
     echo $_CC
 elif [[ "$1" == *gfortran* ]] ; then
     echo gfortran
+elif [[ "$1" == *flang* ]] ; then
+    echo flang
 else
     echo $(basename -- $1 | cut -d \- -f 1 | sed 's/[0-9]*//g')
 fi
