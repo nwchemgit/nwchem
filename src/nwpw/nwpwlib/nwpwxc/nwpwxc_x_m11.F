@@ -1785,8 +1785,8 @@ c
       tmu2 = tmu*tmu
       tmu3 = tmu*tmu2
 c
-      W    = DExp(-F1o4/tmu2)
-      ERFV = DErf( F1o2/tmu)
+      W    = Exp(-F1o4/tmu2)
+      ERFV = Erf( F1o2/tmu)
       dtmudR = -F1o3*tmu / Rho
 c
       Fsr = F1-F4o3*tmu*(-F6*tmu+F8*tmu3+W*

@@ -61,7 +61,7 @@ c
       double precision a_first,a2_first,btmp_first, btmp1
 c
       double precision sqrt_pi,t1,t2,t3,t4,t5,t6,t7
-      double precision alpha,beta, DERF
+      double precision alpha,beta
       double precision f10, f01, b_first
 
       Parameter (sqrt_pi = 1.77245385090552d0)
@@ -132,7 +132,7 @@ c            write(luout,*) 'a is medium'
 c             stop
              b = exp(-1d0/(4d0*a*a)) - 1d0
              c = 2d0*a*a*b + 0.5d0
-             btmp = (8d0/3d0)*a*(sqrt_pi*DERF(1/(2d0*a)) + 2d0*a*(b-c))
+             btmp = (8d0/3d0)*a*(sqrt_pi*ERF(1/(2d0*a)) + 2d0*a*(b-c))
              t1 = 1/a
              t2 = a*a
              t3 = 1/t2
@@ -141,7 +141,7 @@ c             stop
              t6 = t4 -2d0*t2*t5 - 1.5d0
              btmp_first = -t7*a *
      &       (2*a*(t4/(2*a**3) - 4d0*a*t5 - t1*t4) + 2d0*t6 -t3*t4) -
-     &         t7*(2*a*t6 + sqrt_pi*DERF(0.5d0*t1))
+     &         t7*(2*a*t6 + sqrt_pi*ERF(0.5d0*t1))
           else
 c            write(luout,*) 'a is large'
 c            stop

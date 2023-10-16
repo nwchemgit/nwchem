@@ -192,7 +192,7 @@ c
 
       implicit none
 
-      double precision q,TwoSqrtPi,OneOverQ,q2,DERF
+      double precision q,TwoSqrtPi,OneOverQ,q2
       double precision nwpwxc_ValueOfPi
 
       OneOverQ = 1.0d0/q
@@ -209,7 +209,7 @@ c
          return
       end if
 
-      nwpwxc_HqBNL=1.0d0-q*2.0d0/3.0d0*(TwoSqrtPi*DERF(OneOverQ)-q+
+      nwpwxc_HqBNL=1.0d0-q*2.0d0/3.0d0*(TwoSqrtPi*ERF(OneOverQ)-q+
      $     q*(q2-2.0d0)*(1.0d0-exp(-OneOverQ*OneOverQ)))
 
       return
@@ -265,7 +265,7 @@ c
 
       implicit none
 
-      double precision q,OneOverQ,q2,q3,DERF
+      double precision q,OneOverQ,q2,q3
       double precision nwpwxc_ValueOfPi
 
       OneOverQ = 1.0d0/q
@@ -280,7 +280,7 @@ c
 
       nwpwxc_HqBNLPrime = 4.0d0/3.0d0*(q*(exp(-OneOverQ*OneOverQ)*
      $     (2.0d0*q2-1.0d0)+(3.0d0-2.0d0*q2))-dsqrt(nwpwxc_ValueOfPi())*
-     $     DERF(OneOverQ))
+     $     ERF(OneOverQ))
 
       return
       end
