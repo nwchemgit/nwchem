@@ -3047,7 +3047,10 @@ ifneq ($(TARGET),LINUX)
             EXTRA_LIBS += -lm
             DEFINES  += -DUSE_FLANG
         endif
-
+        # Jeff: F18 does not support GETLOG _or_ PXF
+        ifeq ($(USE_FLANG),1)
+           DEFINES  += -DUSE_GETENV_LOGNAME
+        endif
     endif
 
 endif
