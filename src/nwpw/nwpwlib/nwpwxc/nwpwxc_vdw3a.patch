@@ -1,5 +1,5 @@
 --- dftd3.f	2016-06-07 18:30:18.000000000 -0700
-+++ nwpwxc_vdw3a.F	2022-04-21 18:29:00.016746797 -0700
++++ nwpwxc_vdw3a.F	2023-10-16 10:55:00.981252161 -0700
 @@ -25,9 +25,36 @@
  
  C For the GNU General Public License, see <http://www.gnu.org/licenses/>
@@ -874,6 +874,15 @@
           if(nn.eq.6) then
                       s6  =xx(1)
                       rs6 =xx(2)
+@@ -1529,7 +1613,7 @@
+       return
+       endif 
+ ! read parameter file from home directory
+-      call system('hostname > .tmpx')
++      call util_system('hostname > .tmpx')
+       open(unit=43,file='.tmpx')
+       read(43,'(a)')ftmp
+       close(43,status='delete')
 @@ -1540,7 +1624,7 @@
        if(ex)then
           open(unit=42,file=dtmp)
