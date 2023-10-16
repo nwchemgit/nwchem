@@ -563,7 +563,6 @@ c
       logical stat
       logical oprint_energies
 c
-      double precision derf
       logical util_io_unit
       external util_io_unit
 c
