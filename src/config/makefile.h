@@ -2078,6 +2078,9 @@ ifneq ($(TARGET),LINUX)
             CFLAGS_FORGA   = -mabi=64
         endif
 
+        ifeq ($(_CPU),loong64)
+            DONTHAVEM64OPT=Y
+        endif
         ifeq ($(_CPU),riscv64)
             COPTIONS   =  -march=rv64gc -mabi=lp64d
             FOPTIONS   =  -march=rv64gc -mabi=lp64d
