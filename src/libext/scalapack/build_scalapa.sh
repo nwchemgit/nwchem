@@ -142,6 +142,7 @@ cd scalapack
 # macos accelerate does not contain dcombossq
 if [[  ! -z "$USE_INTERNALBLAS" ]]; then
     export USE_DCOMBSSQ=1
+    BLASOPT="-L${NWCHEM_TOP}/lib/${NWCHEM_TARGET} -lnwclapack -lnwcblas"
 fi
 if [[ $(echo "$LAPACK_LIB" |awk '/Accelerate/ {print "Y"; exit}' ) == "Y" ]]; then
     export USE_DCOMBSSQ=1
