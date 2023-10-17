@@ -2138,7 +2138,7 @@ ifneq ($(TARGET),LINUX)
             CFLAGS_FORGA   = -mabi=64
         endif
 
-        ifeq ($(_CPU),loong64)
+        ifeq ($(_CPU),loongarch64)
             DONTHAVEM64OPT=Y
         endif
         ifeq ($(_CPU),riscv64)
