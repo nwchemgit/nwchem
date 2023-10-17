@@ -19,7 +19,7 @@
 # For development tree 
 #RELEASE := 
 # For current release tree
-RELEASE := 7.2.0
+RELEASE := 7.2.1
 
 #
 ifndef NWCHEM_TOP
@@ -251,6 +251,9 @@ endif
 #JN: under the new structure, tools should be listed first as
 # their header files are needed for dependency analysis of
 # other NWChem modules
+ifdef USE_INTERNALBLAS
+    NW_CORE_SUBDIRS += blas lapack
+endif
 ifdef USE_LIBXC
     NW_CORE_SUBDIRS += libext
 endif
@@ -280,6 +283,10 @@ ifdef BUILD_OPENBLAS
     BLAS_LIB=$(BLASOPT)
 endif
 
+ifdef USE_INTERNALBLAS
+    BLASOPT=-L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/ -lnwcblas
+    LAPACK_LIB=-L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/ -lnwclapack
+endif
 
 ifdef BUILD_SCALAPACK
     NW_CORE_SUBDIRS += libext
@@ -2131,6 +2138,9 @@ ifneq ($(TARGET),LINUX)
             CFLAGS_FORGA   = -mabi=64
         endif
 
+        ifeq ($(_CPU),loong64)
+            DONTHAVEM64OPT=Y
+        endif
         ifeq ($(_CPU),riscv64)
             DONTHAVEM64OPT=Y
             COPTIONS   =  -march=rv64gc -mabi=lp64d
@@ -3903,7 +3913,7 @@ MKDIR = mkdir
 #extract defines to be used with linear algebra libraries
 ifdef USE_INTERNALBLAS
     DEFINES += -DBLAS_NOTHREADS
-    BLAS_SIZE=8
+#    BLAS_SIZE=8
 endif
 ifdef BUILD_OPENBLAS
     DEFINES += -DOPENBLAS
