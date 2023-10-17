@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+!/usr/bin/env bash
 #set -v
 arch=`uname -m`
 VERSION=0.3.24
@@ -25,7 +25,7 @@ cd OpenBLAS
 #patch -p0 -s -N < ../makesys.patch
 #patch -p0 -s -N < ../icc_avx512.patch
 # patch for pgi/nvfortran missing -march=armv8
-patch -p0 -s -N < ../arm64_fopt.patch
+#patch -p0 -s -N < ../arm64_fopt.patch
 #patch -p1 -s -N < ../9402df5604e69f86f58953e3883f33f98c930baf.patch
 patch -p0 -s -N < ../crayftn.patch
 patch -p0 -s -N < ../f_check.patch
@@ -152,6 +152,12 @@ elif  [[ -n ${FC} ]] && [[ $(../../../config/strip_compiler.sh "${FC}") == "flan
         if [[ ${BLAS_SIZE} == 8 ]]; then
            LAPACK_FPFLAGS_VAL+=" -fdefault-integer-8"
 	fi
+	FLANG_VERSION=$(${FC} --version |head -1 | sed 's/^.*\(version\)//'|cut -d . -f 1)
+	if [[ ${FLANG_VERSION} -lt 17 ]]; then
+	    FLANG_GE_17="false"
+	else
+	    FLANG_GE_17="true"
+	fi
 elif  [[ "${_FC}" == "crayftn" ]] ; then
 #    FORCETARGET+=' F_COMPILER=FLANG '
     LAPACK_FPFLAGS_VAL=" -s integer64 -ef "
@@ -254,8 +260,8 @@ echo output redirected to libext/openblas/OpenBLAS/openblas.log
 echo
 if [[ ${_FC} == xlf ]]; then
  $MYMAKE FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib $MAKEJ >& openblas.log
-elif [[ ${FC} == flang-new-17 ]]; then
- $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET FCOMMON_OPT="$LAPACK_FPFLAGS_VAL" LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKEJ >& openblas.log
+elif [[ ${FLANG_GE_17} == "true" ]]; then
+ $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET FCOMMON_OPT="$LAPACK_FPFLAGS_VAL" LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib  $MAKEJ >& openblas.log
 else
  $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKEJ >& openblas.log
 fi
