@@ -19,7 +19,7 @@
 # For development tree 
 #RELEASE := 
 # For current release tree
-RELEASE := 7.2.0
+RELEASE := 7.2.1
 
 #
 ifndef NWCHEM_TOP
