@@ -5,7 +5,7 @@ endif
 include ../config/makefile.h
 
        LIBRARY = libnwcblas.a
-       LIB_INCLUDES = -I../util
+#       LIB_INCLUDES = -I../util
 
 #
 # USE both double and single now (short term solution for added single precision
