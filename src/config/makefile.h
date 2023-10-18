@@ -2138,7 +2138,7 @@ ifneq ($(TARGET),LINUX)
             CFLAGS_FORGA   = -mabi=64
         endif
 
-        ifeq ($(_CPU),loong64)
+        ifeq ($(_CPU),loongarch64)
             DONTHAVEM64OPT=Y
         endif
         ifeq ($(_CPU),riscv64)
@@ -2219,7 +2219,7 @@ ifneq ($(TARGET),LINUX)
 
                 GNU_GE_4_6=true
                 FOPTIONS+=-fno-backslash
-                FLANG_VERSION=$(shell $(FC) --version |head -1 |cut -d ' ' -f 4 |cut -d . -f 1)
+                FLANG_VERSION=$(shell $(FC) --version |head -1 || sed 's/^.*\(version\)//'|cut -d . -f 1)
                 FLANG_LT_17 = $(shell [ $(FLANG_VERSION) -lt 17 ] && echo true)
                 ifeq ($(FLANG_LT_17),true)
                     FOPTIONS+=-mcmodel=medium
