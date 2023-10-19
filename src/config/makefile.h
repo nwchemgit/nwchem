@@ -1271,6 +1271,15 @@ ifeq ($(TARGET),MACX64)
         COPTIONS   += -fPIC
     endif
 
+    ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(FC)),flang)
+        _FC=gfortran
+        USE_FLANG=1
+    endif
+    ifeq ($(USE_FLANG),1)
+        FLANG_VERSION=$(shell $(FC) --version |head -1 | sed 's/^.*\(version\)//'|cut -d . -f 1)
+        FLANG_LT_16 = $(shell [ $(FLANG_VERSION) -lt 16 ] && echo true || echo false)
+    endif
+
     ifeq ($(_FC),gfortran)
         #gcc version 
         FOPTIONS  = -cpp #-Wextra #-Wunused #-ffast-math
@@ -1281,6 +1290,20 @@ ifeq ($(TARGET),MACX64)
         endif
 
         FOPTIMIZE = -O2 -ffast-math
+
+        ifdef USE_OPENMP
+            FOPTIONS  += -fopenmp
+            LDOPTIONS += -fopenmp
+        endif
+
+        ifeq ($(USE_FLANG),1)
+            GNU_GE_4_6=true
+            FOPTIONS+=-fno-backslash
+            DEFINES  += -D__FLANG
+            ifeq ($(FLANG_LT_16),false)
+#            FOPTIONS+=-fstack-arrays
+            endif
+	else
         ifeq ($(V),-1)
             FOPTIONS += -w
         else
@@ -1336,11 +1359,6 @@ ifeq ($(TARGET),MACX64)
             FOPTIONS   += -std=legacy
         endif
 
-        ifdef USE_OPENMP
-            FOPTIONS  += -fopenmp
-            LDOPTIONS += -fopenmp
-        endif
-
         ifdef  USE_ASAN
             FOPTIONS += -fsanitize=address -fsanitize-recover=address
             LDOPTIONS += -fsanitize=address -fsanitize-recover=address
@@ -1352,6 +1370,7 @@ ifeq ($(TARGET),MACX64)
         ifdef  USE_FPE
             FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
         endif
+    endif # not USE_FLANG
     endif # gfortran
 
     ifdef  USE_GPROF
@@ -2019,6 +2038,16 @@ ifneq ($(TARGET),LINUX)
             USE_FLANG=1
         endif
 
+        ifeq ($(USE_FLANG),1)
+            FLANG_VERSION=$(shell $(FC) --version |head -1 | sed 's/^.*\(version\)//'|cut -d . -f 1)
+            FLANG_LT_16 = $(shell [ $(FLANG_VERSION) -lt 16 ] && echo true || echo false)
+	endif
+
+#@info 
+#@info flv $(FLANG_VERSION)
+#@info FLANG_LT_16 $(FLANG_LT_16)
+#@info 
+
         ifeq ($(CC),clang)
             _CC=gcc
         endif
@@ -2118,7 +2147,7 @@ ifneq ($(TARGET),LINUX)
                 LDOPTIONS += -fsanitize=address -fsanitize-recover=address
             endif
             ifdef  USE_FPE
-                ifdef USE_FLANG
+                ifeq ($(USE_FLANG),1)
                     $(info     )
                     $(info     USE_FPE not ready for flang)
                     $(info     )
@@ -2130,7 +2159,7 @@ ifneq ($(TARGET),LINUX)
                 FOPTIONS   += -ffast-math #-Wunused  
             endif
             ifeq ($(V),-1)
-                ifeq ($(FLANG_LT_17),true)
+                ifeq ($(FLANG_LT_16),true)
                 FOPTIONS += -w
 		endif
                 COPTIONS += -w
@@ -2141,14 +2170,12 @@ ifneq ($(TARGET),LINUX)
                 ifeq ($(_CC),$(findstring $(_CC),gcc clang))
                     COPTIONS += -Wall
 		endif
-                ifeq ($(GNU_GE_4_8),true)
-                    ifndef USE_FLANG
+                ifneq ($(USE_FLANG),1)
+                    ifeq ($(GNU_GE_4_8),true)
                         FOPTIMIZE  += -Wno-maybe-uninitialized
-                    endif
-                else
-                    ifneq ($(USE_FLANG),1)
+                    else
                         FOPTIONS   += -Wuninitialized
-		    endif
+                    endif
                 endif
             endif
 
@@ -2158,9 +2185,7 @@ ifneq ($(TARGET),LINUX)
 
                 GNU_GE_4_6=true
                 FOPTIONS+=-fno-backslash
-                FLANG_VERSION=$(shell $(FC) --version |head -1 || sed 's/^.*\(version\)//'|cut -d . -f 1)
-                FLANG_LT_17 = $(shell [ $(FLANG_VERSION) -lt 17 ] && echo true)
-                ifeq ($(FLANG_LT_17),true)
+                ifeq ($(FLANG_LT_16),true)
                     FOPTIONS+=-mcmodel=medium
                     COPTIONS+=-mcmodel=medium
                     CFLAGS_FORGA = -mcmodel=medium
@@ -2657,7 +2682,7 @@ ifneq ($(TARGET),LINUX)
                     FOPTIMIZE  += -ffast-math #2nd time
                 endif
 
-                ifdef USE_FLANG
+                ifeq ($(USE_FLANG),1)
                     ifdef USE_OPTREPORT
                         FOPTIMIZE  += -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize
                     endif
