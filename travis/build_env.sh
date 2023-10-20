@@ -231,15 +231,19 @@ if [[ "$os" == "Linux" ]]; then
 		export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
 		ls -lrt /usr/lib | grep aomp ||true
 	    else
-		aocc_version=4.1.0
-		aocc_dir=aocc-compiler-${aocc_version}
+		aocc_major=4
+		aocc_minor=1
+		aocc_patch=0
+		aocc_version=${aocc_major}.${aocc_minor}.${aocc_patch}
+		aocc_dir=aocc-${aocc_major}-${aocc_minor}
+		aocc_file=aocc-compiler-${aocc_version}
 #		curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
 		tries=0 ; until [ "$tries" -ge 10 ] ; do \
-                curl -sS -LJO https://download.amd.com/developer/eula/aocc-compiler/${aocc_dir}.tar \
+                curl -sS -LJO https://download.amd.com/developer/eula/aocc/${aocc_dir}/${aocc_file}.tar \
                 && break ; \
                 tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
-		tar xf ${aocc_dir}.tar
-		./${aocc_dir}/install.sh
+		tar xf ${aocc_file}.tar
+		./${aocc_file}/install.sh
 		source setenv_AOCC.sh
 		pwd
 	    fi
