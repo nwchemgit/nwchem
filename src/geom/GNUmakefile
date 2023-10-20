@@ -15,8 +15,7 @@
 include ../config/makefile.h
 include ../config/makelib.h
 
-
-  ifeq ($(FC),flang-new-17)
+  ifeq ($(FLANG_LT_16),false)
             FOPTIONS += -fno-automatic
   endif
   ifeq ($(_FC),pgf90)

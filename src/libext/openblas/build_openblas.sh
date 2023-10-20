@@ -1,4 +1,4 @@
-!/usr/bin/env bash
+#!/usr/bin/env bash
 #set -v
 arch=`uname -m`
 VERSION=0.3.24

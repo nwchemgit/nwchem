@@ -33,6 +33,7 @@ c
 !     For most purposes, it is more useful to use the environment variable
 !     LOGNAME to find out who the user is. This is more flexible precisely
 !     because the user can set LOGNAME arbitrarily.
+      call util_getenv('LOGNAME',user)
 #else
       call getlog(user)
 #endif
