@@ -1,4 +1,5 @@
 
+
 # $Id$
 #
 
@@ -1276,8 +1277,7 @@ ifeq ($(TARGET),MACX64)
         USE_FLANG=1
     endif
     ifeq ($(USE_FLANG),1)
-        FLANG_VERSION=$(shell $(FC) --version |head -1 | sed 's/^.*\(version\)//'|cut -d . -f 1)
-        FLANG_LT_16 = $(shell [ $(FLANG_VERSION) -lt 16 ] && echo true || echo false)
+        FLANG_NEW = $(shell [ $(shell $(FC) --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
     endif
 
     ifeq ($(_FC),gfortran)
@@ -1299,8 +1299,7 @@ ifeq ($(TARGET),MACX64)
         ifeq ($(USE_FLANG),1)
             GNU_GE_4_6=true
             FOPTIONS+=-fno-backslash
-            DEFINES  += -D__FLANG
-            ifeq ($(FLANG_LT_16),false)
+            ifeq ($(FLANG_NEW),true)
 #            FOPTIONS+=-fstack-arrays
             endif
 	else
@@ -2039,13 +2038,11 @@ ifneq ($(TARGET),LINUX)
         endif
 
         ifeq ($(USE_FLANG),1)
-            FLANG_VERSION=$(shell $(FC) --version |head -1 | sed 's/^.*\(version\)//'|cut -d . -f 1)
-            FLANG_LT_16 = $(shell [ $(FLANG_VERSION) -lt 16 ] && echo true || echo false)
+		FLANG_NEW = $(shell [ $(shell $(FC) --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
 	endif
 
 #@info 
-#@info flv $(FLANG_VERSION)
-#@info FLANG_LT_16 $(FLANG_LT_16)
+#@info FLANG_NEW $(FLANG_NEW)
 #@info 
 
         ifeq ($(CC),clang)
@@ -2159,7 +2156,7 @@ ifneq ($(TARGET),LINUX)
                 FOPTIONS   += -ffast-math #-Wunused  
             endif
             ifeq ($(V),-1)
-                ifeq ($(FLANG_LT_16),true)
+                ifeq ($(FLANG_NEW),false)
                 FOPTIONS += -w
 		endif
                 COPTIONS += -w
@@ -2185,13 +2182,11 @@ ifneq ($(TARGET),LINUX)
 
                 GNU_GE_4_6=true
                 FOPTIONS+=-fno-backslash
-                ifeq ($(FLANG_LT_16),true)
+                ifeq ($(FLANG_NEW),false)
                     FOPTIONS+=-mcmodel=medium
                     COPTIONS+=-mcmodel=medium
                     CFLAGS_FORGA = -mcmodel=medium
                     FFLAGS_FORGA = -mcmodel=medium
-		else
-                    DEFINES  += -D__FLANG
 		endif
             else
                 GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
