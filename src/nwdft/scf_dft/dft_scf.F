@@ -893,7 +893,8 @@ c     == better have static ldb at high node counts ==
      &                       .true.) 
 c     check if movecs read has failed
       if(movecs_in_org.ne.movecs_in) then
-         if(ga_nodeid().eq.0) then
+         if(ga_nodeid().eq.0.and.
+     A        util_print('movecs_info', print_high)) then
             write(luout,*) ' WARNING: movecs_in_org=',
      c           movecs_in_org(1:inp_strlen(movecs_in_org)),
      c           ' not equal to movecs_in=',
