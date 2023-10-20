@@ -25,8 +25,8 @@ echo NWCHEM_TOP is $NWCHEM_TOP
 export USE_MPI=y
 if [[ "$FC" == "flang" ]]; then
     if [[ "USE_AOMP" == "Y" ]]; then
-	aomp_major=16
-	aomp_minor=0-3
+	aomp_major=18
+	aomp_minor=0-0
 	export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
 	export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
     else
