@@ -1,4 +1,4 @@
-!/usr/bin/env bash
+#!/usr/bin/env bash
 #set -v
 arch=`uname -m`
 VERSION=0.3.24
@@ -152,7 +152,7 @@ elif  [[ -n ${FC} ]] && [[ $(../../../config/strip_compiler.sh "${FC}") == "flan
         if [[ ${BLAS_SIZE} == 8 ]]; then
            LAPACK_FPFLAGS_VAL+=" -fdefault-integer-8"
 	fi
-	FLANG_NEW = $( [ $( $({FC)} --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
+        FLANG_NEW=$( [ $( ${FC} --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
 elif  [[ "${_FC}" == "crayftn" ]] ; then
 #    FORCETARGET+=' F_COMPILER=FLANG '
     LAPACK_FPFLAGS_VAL=" -s integer64 -ef "
@@ -256,6 +256,8 @@ echo
 if [[ ${_FC} == xlf ]]; then
  $MYMAKE FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib $MAKEJ >& openblas.log
 elif [[ ${FLANG_NEW} == "true" ]]; then
+    echo FLANG_NEW
+    echo $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET FCOMMON_OPT="$LAPACK_FPFLAGS_VAL" LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD ="$THREADOPT"  libs netlib  $MAKEJ
  $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET FCOMMON_OPT="$LAPACK_FPFLAGS_VAL" LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib  $MAKEJ >& openblas.log
 else
  $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKEJ >& openblas.log
