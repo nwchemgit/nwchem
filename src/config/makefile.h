@@ -2152,23 +2152,18 @@ ifneq ($(TARGET),LINUX)
 
         FOPTIMIZE  = -O2 
 
-        ifeq ($(_CPU),aarch64)
+        ifeq ($(_CPU),$(findstring $(_CPU),aarch64 mips64 loongarch64 riscv64 alpha ia64 hppa))
             DONTHAVEM64OPT=Y
         endif
 
         ifeq ($(_CPU),mips64)
-            DONTHAVEM64OPT=Y
             COPTIONS   = -mabi=64
             FOPTIONS   = -mabi=64
             FFLAGS_FORGA   = -mabi=64
             CFLAGS_FORGA   = -mabi=64
         endif
 
-        ifeq ($(_CPU),loongarch64)
-            DONTHAVEM64OPT=Y
-        endif
         ifeq ($(_CPU),riscv64)
-            DONTHAVEM64OPT=Y
             COPTIONS   =  -march=rv64gc -mabi=lp64d
             FOPTIONS   =  -march=rv64gc -mabi=lp64d
             FFLAGS_FORGA   = -march=rv64gc -mabi=lp64d
