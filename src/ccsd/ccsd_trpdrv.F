@@ -361,12 +361,15 @@ c --  f4n(b,c)=f4n(b,c)+vvvo(a,d,b,i)*t2(d,k,c,j)
       integer av,klo,khi,j
 c
       integer k,l_kk,k_kk,lenk,start,end,iptr,i,startc
+      double precision mem_avail
       logical failed
 c
       start = 1 + (j-1)*nvir + (klo-1)*lnov
       end =  (j-1)*nvir + (khi)*lnov
       lenk=end-start+1
-      lenk=min(lenk,(ma_inquire_avail(MT_DBL)*66)/100)
+c protect from integer overflowing on 32bit archs
+      mem_avail=0.66d0*dble(ma_inquire_avail(MT_DBL))
+      lenk=min(lenk,int(mem_avail))
 crestrict to 5M to avoid OOMs
       lenk=min(lenk,5000000)
  1    continue
