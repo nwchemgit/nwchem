@@ -222,23 +222,27 @@ if [[ "$os" == "Linux" ]]; then
 	fi
 	if [[ "$FC" == "flang" ]]; then
 	    if [[ "USE_AOMP" == "Y" ]]; then
-		aomp_major=16
-		aomp_minor=0-3
+		aomp_major=18
+		aomp_minor=0-0
 		wget -nv https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 		$MYSUDO dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 		export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
 		export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
 		ls -lrt /usr/lib | grep aomp ||true
 	    else
-		aocc_version=4.0.0
-		aocc_dir=aocc-compiler-${aocc_version}
+		aocc_major=4
+		aocc_minor=1
+		aocc_patch=0
+		aocc_version=${aocc_major}.${aocc_minor}.${aocc_patch}
+		aocc_dir=aocc-${aocc_major}-${aocc_minor}
+		aocc_file=aocc-compiler-${aocc_version}
 #		curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
 		tries=0 ; until [ "$tries" -ge 10 ] ; do \
-                curl -sS -LJO https://download.amd.com/developer/eula/aocc-compiler/${aocc_dir}.tar \
+                curl -sS -LJO https://download.amd.com/developer/eula/aocc/${aocc_dir}/${aocc_file}.tar \
                 && break ; \
                 tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
-		tar xf ${aocc_dir}.tar
-		./${aocc_dir}/install.sh
+		tar xf ${aocc_file}.tar
+		./${aocc_file}/install.sh
 		source setenv_AOCC.sh
 		pwd
 	    fi
@@ -247,7 +251,7 @@ if [[ "$os" == "Linux" ]]; then
 	fi
 	if [[ "$FC" == "amdflang" ]]; then
 	    $MYSUDO apt-get install -y wget gnupg2 coreutils dialog tzdata
-	    rocm_version=5.4.3
+	    rocm_version=5.6.1
 	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  $MYSUDO apt-key add - \
 		&& break ; \
