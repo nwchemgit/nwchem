@@ -12,7 +12,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = vdw-DF.F
+    USES_BLAS = vdw-DF.F vdw_DF_kernel.F
 
 
   LIB_DEFINES = 
