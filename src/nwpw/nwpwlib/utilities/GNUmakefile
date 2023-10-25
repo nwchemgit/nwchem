@@ -53,7 +53,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F cellgeometry.F nwpw_list.F cpsi_data.F psi_data.F nwpw_diis.F nwpw_kain.F nwpw_matrix_invert.F generate_unfolded_xyz.F nwpw_fftpack3d.F 
+    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F cellgeometry.F nwpw_list.F cpsi_data.F psi_data.F nwpw_diis.F nwpw_kain.F nwpw_matrix_invert.F generate_unfolded_xyz.F nwpw_fftpack3d.F  nwpw_kbpp_ray.F paw_utilities/nwpw_compcharge2.F task_paulsmatrix.F
 
   LIB_DEFINES = 
 
