@@ -36,10 +36,10 @@ clean:
  CNFDIR := $(NWCHEM_TOP)/src/config
 .PHONY:	 64_to_32 32_to_64
 64_to_32:
-	$(CNFDIR)/64_to_32 *c *f *F
+	$(CNFDIR)/64_to_32 *c
 
 32_to_64:
-	$(CNFDIR)/32_to_64 *c *f *F
+	$(CNFDIR)/32_to_64 *c
 
 .c.o:	 ;	$(peigs_CC) -c $<
  
