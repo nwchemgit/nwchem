@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
+sudo apt-get install -y mpich libmpich-dev
+export NWCHEM_TOP=`pwd`
+export USE_MPI=1
 cd src
+make nwchem_config NWCHEM_MODULES="all python"
 make  64_to_32 CONVERT_ALL=y
 make  32_to_64
 rm -f diff.out
