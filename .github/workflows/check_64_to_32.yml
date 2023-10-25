@@ -18,17 +18,17 @@ jobs:
       (!contains(github.event.head_commit.message, 'ci skip'))
     runs-on: ubuntu-latest
     steps:
-      - name: pkg cleanup
-        run: |
-          ls -lrt
-          ls -lrt || true
-          ./travis/pkg_cleanup.sh
-        shell: bash
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           show-progress:
           fetch-depth: 1
+      - name: pkg cleanup
+        run: |
+          ls -lrt
+          ls -lrt travis || true
+          ./travis/pkg_cleanup.sh
+        shell: bash
       - name: check
         run: |
           ./travis/check_64_to_32.sh
