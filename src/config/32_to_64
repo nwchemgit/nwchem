@@ -32,7 +32,7 @@ fi
 for file in "$@"
 do
 
-   echo converting "$file" to 32-bit integers for BLAS/LAPACK
+   echo converting "$file" to 64-bit integers for BLAS/LAPACK
       ($perlexe $perlscript $file) &	
 
    let njob++
