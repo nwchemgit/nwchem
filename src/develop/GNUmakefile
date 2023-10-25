@@ -11,7 +11,7 @@
 
    LIBRARY = libtest.a
 
-USES_BLAS =     raktest.F rak20.F rak21.F rak22.F rak23.F jvltest.F rjhtrans.F cct_UHF.F rak25.F rak26.F rak27.F rak29.F rak30.F
+USES_BLAS =     raktest.F rak20.F rak21.F rak22.F rak23.F jvltest.F rjhtrans.F cct_UHF.F rak25.F rak26.F rak27.F rak29.F rak30.F jantest.F kgdtest.F uccsdtest.F
 
 include ../config/makefile.h
 include ../config/makelib.h
