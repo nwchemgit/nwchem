@@ -168,7 +168,7 @@ c
       integer ifocc
       logical oskel, omp2, odft, ocdfit, status,frac_occ
       double precision xfac(numfunc), jfac, kfac
-      double precision rot(3,3),xrot,yrot,zrot
+      double precision rot(3,3),xrot(3)
 c
       logical has_frac_occ
       external has_frac_occ
@@ -1240,12 +1240,12 @@ C     default: print the total forces
             if (.not. geom_cent_get(geom, i, tag, crd, q)) call errquit
      $           ('gradients: geometry corrupt?',0, GEOM_ERR)
             if(have_symrot) then
-         xrot = crd(1)*rot(1,1) + crd(2)*rot(2,1) + crd(3)*rot(3,1)
-         yrot = crd(1)*rot(1,2) + crd(2)*rot(2,2) + crd(3)*rot(3,2)
-         zrot = crd(1)*rot(1,3) + crd(2)*rot(2,3) + crd(3)*rot(3,3)
-         crd(1)=xrot
-         crd(2)=yrot
-         crd(3)=zrot
+         xrot(1) = crd(1)*rot(1,1) + crd(2)*rot(2,1) + crd(3)*rot(3,1)
+         xrot(2) = crd(1)*rot(1,2) + crd(2)*rot(2,2) + crd(3)*rot(3,2)
+         xrot(3) = crd(1)*rot(1,3) + crd(2)*rot(2,3) + crd(3)*rot(3,3)
+         crd(1)=xrot(1)
+         crd(2)=xrot(2)
+         crd(3)=xrot(3)
          fol(1)=dbl_mb(k_force+3*(i-1))
          fol(2)=dbl_mb(k_force+3*(i-1)+1)
          fol(3)=dbl_mb(k_force+3*(i-1)+2)
