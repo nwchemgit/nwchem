@@ -16,7 +16,7 @@ LIBRARY = libnwdft.a
 LIB_INCLUDES = -I../include
 
 USES_BLAS = tddft_diagon.F tddft_transfm.F tddft_analysis.F tddft_restart.F tddft_civecs_phase.F \
-tddft_fock_fit.F
+tddft_fock_fit.F tddft_memory.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 #

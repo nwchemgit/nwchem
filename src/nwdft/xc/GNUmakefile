@@ -74,7 +74,7 @@ LIB_INCLUDES = -I../include
                xc_eval_basis.F xc_eval_fnl.F xc_fd.F xc_optc.F xc_atomblock.F scat_mat.F \
                xc_replicated.F xc_vdw_main.F xc_vdw_util.F\
                xc_3rd_deriv.F xc_hcth.F ts_tf.F xc_xn12.F xc_util.F \
-	       xc_tabcd_adft.F xc_rhogen_adft.F
+	       xc_tabcd_adft.F xc_rhogen_adft.F xc_getvxc.F xc_lb94.F
 
 include ../../config/makefile.h
 	ifeq ($(_FC),ifort)
