@@ -88,6 +88,11 @@ endif
      ccsd_mktau_ga.F \
      ccden_2pdmb.F \
      aoccsd2.F \
+     ccsd_fsig1.F \
+     ccsd_fsig2.F \
+     ccsd_trpdrv_bgp2.F \
+     ccsd_trpdrv_offload.F \
+     ccsd_trpdrv_openacc.F \
      moints_trp.F
 
 ifeq ($(TARGET),BGP)
