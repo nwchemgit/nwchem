@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: pkg cleanup
         run: |
+          ls -lrt
+          ls -lrt || true
           ./travis/pkg_cleanup.sh
         shell: bash
       - name: Checkout code
