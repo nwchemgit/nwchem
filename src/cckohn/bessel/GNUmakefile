@@ -9,7 +9,7 @@ OBJ_OPTIMIZE =
 
 LIBRARY = libcckohn.a
 
-USES_BLAS = 
+USES_BLAS = ubesplg.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
