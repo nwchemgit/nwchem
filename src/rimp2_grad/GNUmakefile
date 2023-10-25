@@ -15,7 +15,7 @@ OBJ =	rimp2g.o rimp2g_e_mem.o rimp2g_parm.o rimp2g_timers.o driver_e.o \
 
 OBJ_OPTIMIZE = 
 
-USES_BLAS = rimp2g_v_e2.F
+USES_BLAS = driver_e.F e_final.F mk_w2.F ns2_2e2c.F p2ab.F t_stats.F
 
 include ../config/makefile.h
 include ../config/makelib.h
