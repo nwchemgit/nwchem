@@ -23,7 +23,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = ion.F fcoord.f incell1.f incell2.f incell3.f unfold.f seperate_molpsp.F seperate_pointcharge.F ion_FixIon.F
+    USES_BLAS = ion.F fcoord.f incell1.f incell2.f incell3.f unfold.f seperate_molpsp.F seperate_pointcharge.F ion_FixIon.F ion_scaling_atoms.F
 
   LIB_DEFINES = 
 
