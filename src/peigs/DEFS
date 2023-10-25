@@ -489,13 +489,18 @@ endif
 	peigs_CC  += -DSTD_DBL 
 	peigs_FC +=  -DSTD_DBL    -D$(peigs_COMM)  -D$(peigs_CPU)
 ifeq ($(_CPU),alpha)
-	peigs_CPU  = ALPHA
-ifeq ($(CC),gcc)
-	peigs_CC  += -O3  -mcpu=ev56
-	else
+	peigs_CPU  = ALPHA_CPU
+ifeq ($(CC),ccc)
 	peigs_CC  += -O2  -fast -tune host -arch host 
+	else
+	peigs_CC  += -O2
+#	peigs_CC  += -O3  -mcpu=ev56
 	endif
+ifeq ($FC),fort)
 	peigs_FC +=  -O1 -DLINUX64 -DLINUX -tune host -arch host
+else
+	peigs_FC +=  -O1 -DLINUX64 -DLINUX 
+endif
 	endif
 
 ifeq ($(_CPU),ia64)

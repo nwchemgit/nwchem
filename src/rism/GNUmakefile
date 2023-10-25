@@ -11,7 +11,7 @@ LIBRARY=librism.a
 
 HEADERS=
 
-USES_BLAS=
+USES_BLAS= task_rism.F
 
 include ../config/makefile.h
 

@@ -8,7 +8,7 @@
   CPU definitions and machine precision definitions
   */
 
-#ifdef ALPHA
+#ifdef ALPHA_CPU
 
 #define DLAMCHE        2.22044604925031308e-16
 #define DLAMCHP        2.22044604925031308e-16
