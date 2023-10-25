@@ -21,7 +21,7 @@
        LIBRARY = libstepper.a
    LIB_TARGETS = 
 
-   USES_BLAS = stpr_driver.F stpr_mkstep.F stpr_partit.F
+   USES_BLAS = stpr_driver.F stpr_mkstep.F stpr_partit.F stpr_gh_at.F
 
 include ../config/makefile.h
 include ../config/makelib.h
