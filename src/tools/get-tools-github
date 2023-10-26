@@ -205,6 +205,10 @@ if [[ -d "ga-5.8.2" ]]; then
 	./gamalloc_patch.sh $GA_DIR
 	./peigstubs_patch.sh $GA_DIR
 	./mpipr-too-many_patch.sh $GA_DIR
+	./scalapacki4_patch.sh $GA_DIR
+	if [ $(uname -s) != "Darwin" ]; then
+	    ./autoconf_patch.sh $GA_DIR
+	fi
 	echo patched
 	touch ga-5.8.2/patched581
     fi
