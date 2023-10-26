@@ -195,12 +195,12 @@ nr0.F \
 q3rexpt2.F \
 t2t12.F \
 creomccsd_t_n2_mem.F \
-cr_eomccsd_t.F\
-q3rexpt2_6dts.F\
-creomccsd_t_n2_mem_6dts.F\
-cr_eomccsd_t_6dts.F\
-cr_ccsd_t_N_6dts.F\
-cr_ccsd_t_E_6dts.F\
+cr_eomccsd_t.F \
+q3rexpt2_6dts.F \
+creomccsd_t_n2_mem_6dts.F \
+cr_eomccsd_t_6dts.F \
+cr_ccsd_t_N_6dts.F \
+cr_ccsd_t_E_6dts.F \
 cr_eomccsd_t_6dts_d4d5_parallel.F
 
 
