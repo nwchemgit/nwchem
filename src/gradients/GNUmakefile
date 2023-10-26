@@ -4,7 +4,7 @@
        grad_dens.o grad_inp.o ga_reorder.o
  OBJ_OPTIMIZE = grad2.o grad_getdens.o
 
-   USES_BLAS = grad2.F ga_reorder.F grad_dens.F grad_force.F
+   USES_BLAS = grad2.F ga_reorder.F grad_dens.F
 
    LIBRARY = libgradients.a
 
