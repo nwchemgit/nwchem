@@ -3365,8 +3365,6 @@ c     >                   dbl_mb(sw1t(1)+jpl*nn+tid*nn*n_prj_indx))
       call nwpw_timing_end(56) 
 
 
-
-
 *     **** Compute sw2  ****
       eh_atom = 0.0d0
       do ip=1,nion_prj_indx
