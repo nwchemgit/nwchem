@@ -28,7 +28,7 @@ Source download instructions for developers
 ```
 git clone https://github.com/nwchemgit/nwchem.git
 ```
-* 7.2.1 Release
+* 7.2.2 Release
 ```
 git clone  -b hotfix/release-7-2-0 https://github.com/nwchemgit/nwchem.git nwchem-7.2.2
 ```
