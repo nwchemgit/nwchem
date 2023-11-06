@@ -117,7 +117,12 @@ c
          maxh = max(maxh,int_mb(k_range+h-1))
       enddo
 c
+      wall = - util_wallsec()
       CALL ccsd_t2_1(d_v2,k_v2_offset,d_i0,k_i0_offset)
+      wall = wall + util_wallsec()
+      cpusecs(31) = wall
+
+      wall = - util_wallsec()
       CALL OFFSET_ccsd_t2_2_1(l_i1_offset,k_i1_offset,size_i1)
       CALL TCE_FILENAME('ccsd_t2_2_1_i1',filename)
       CALL CREATEFILE(filename,d_i1,size_i1)
@@ -179,8 +184,16 @@ c
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) 
      1    CALL ERRQUIT('ccsd_t2',-1,MA_ERR)
+      wall = wall + util_wallsec()
+      cpusecs(32) = wall
+
+      wall = - util_wallsec()
       CALL lccsd_t2_3x(d_t1,k_t1_offset,d_v2,k_v2_offset,
      1                 d_i0,k_i0_offset)
+      wall = wall + util_wallsec()
+      cpusecs(33) = wall
+
+      wall = - util_wallsec()
       CALL OFFSET_ccsd_t2_4_1(l_i1_offset,k_i1_offset,size_i1)
       CALL TCE_FILENAME('ccsd_t2_4_1_i1',filename)
       CALL CREATEFILE(filename,d_i1,size_i1)
@@ -220,6 +233,10 @@ c -----------------------
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) 
      1    CALL ERRQUIT('ccsd_t2',-1,MA_ERR)
+      wall = wall + util_wallsec()
+      cpusecs(34) = wall
+
+      wall = - util_wallsec()
       CALL OFFSET_ccsd_t2_5_1(l_i1_offset,k_i1_offset,size_i1)
       CALL TCE_FILENAME('ccsd_t2_5_1_i1',filename)
       CALL CREATEFILE(filename,d_i1,size_i1)
@@ -247,6 +264,10 @@ c -----------------------
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) 
      1    CALL ERRQUIT('ccsd_t2',-1,MA_ERR)
+      wall = wall + util_wallsec()
+      cpusecs(35) = wall
+
+      wall = - util_wallsec()
       CALL OFFSET_ccsd_t2_6_1(l_i1_offset,k_i1_offset,size_i1)
       CALL TCE_FILENAME('ccsd_t2_6_1_i1',filename)
       CALL CREATEFILE(filename,d_i1,size_i1)
@@ -270,9 +291,10 @@ c -----------------------
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) 
      1    CALL ERRQUIT('ccsd_t2',-1,MA_ERR)
-!
-!
-!
+      wall = wall + util_wallsec()
+      cpusecs(36) = wall
+
+      wall = - util_wallsec()
       if (.not.rtdb_get(rtdb,'tce:ccsd_t2_7_alg',mt_int,1,
      1                  ccsd_t2_7_alg)) then
         ccsd_t2_7_alg = 1
@@ -309,9 +331,10 @@ c -----------------------
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) 
      1    CALL ERRQUIT('ccsd_t2',-1,MA_ERR)
-!
-!
-!
+      wall = wall + util_wallsec()
+      cpusecs(37) = wall
+
+      wall = - util_wallsec()
       CALL OFFSET_vt1t1_1_1(l_i1_offset,k_i1_offset,size_i1)
       CALL TCE_FILENAME('vt1t1_1_1_i1',filename)
       CALL CREATEFILE(filename,d_i1,size_i1)
@@ -322,11 +345,10 @@ c -----------------------
       IF (.not.MA_POP_STACK(l_i1_offset)) 
      1    CALL ERRQUIT('vt1t1',-1,MA_ERR)
       CALL c2f_t2_t12(d_t1,k_t1_offset,d_t2,k_t2_offset)
-      cpu = - util_cpusec()
+      wall = wall + util_wallsec()
+      cpusecs(39) = wall
+
       wall = - util_wallsec()
-!
-!
-!
       if (.not.rtdb_get(rtdb,'tce:ccsd_t2_8_alg',mt_int,1,
      1                  ccsd_t2_8_alg)) then
         ccsd_t2_8_alg = 2
@@ -362,15 +384,14 @@ c -----------------------
       else
         CALL errquit('ccsd_t2_8_alg',ccsd_t2_8_alg,INPUT_ERR)
       endif
-!
-!
-!
-      cpu = cpu + util_cpusec()
       wall = wall + util_wallsec()
-      cpusecs(37) = cpu
       cpusecs(38) = wall
+
+      wall = - util_wallsec()
       CALL c2d_t2_t12(d_t1,k_t1_offset,d_t2,k_t2_offset)
-      RETURN
+      wall = wall + util_wallsec()
+      cpusecs(39) = cpusecs(39) + wall
+
       END
 
 
