@@ -130,12 +130,14 @@ cxxxxxxxxxxxxxxxxxxxxx
         cpu=cpu+util_cpusec()
         wall=wall+util_wallsec()
         if (nodezero) then
-          if(ccsd_var.eq.'ic') then
+         if(ccsd_var.eq.'ic') then
           write(LuOut,9102) iter,residual,corr,cpu,wall
-          else
-          write(LuOut,9100) iter,residual,corr,cpu,wall,cpusecs(37)
-c          write(LuOut,9101) cpusecs(37),cpusecs(38)
-          end if
+         else
+          write(LuOut,9100) iter,residual,corr,cpu,wall,cpusecs(38)
+          if (util_print('ccsd_t2_timers',print_debug)) then
+           write(LuOut,9101) cpusecs(31:39)
+          endif
+         end if
         endif
         if (residual .lt. thresh) then
           if (nodezero) then
@@ -237,8 +239,8 @@ c
  9080 format(1x,A,' total energy / hartree       = ',f25.15)
  9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
  9100 format(1x,i4,2f18.13,3f8.1)
- 9101 format(11x,'ccsd_t2_8 ',20x,2f8.1)
  9102 format(1x,i4,2f18.13,2f8.1)
+ 9101 format(11x,'ccsd_t2_1:8+c2f ',1x,9f9.3)
  9700 format(1x,'Skipping CCSD altogether')
       end
 
@@ -326,11 +328,14 @@ c
         cpu=cpu+util_cpusec()
         wall=wall+util_wallsec()
         if (nodezero) then
-          if(ccsd_var.eq.'ic') then
+         if(ccsd_var.eq.'ic') then
           write(LuOut,9102) iter,residual,corr,cpu,wall
-          else
-          write(LuOut,9100) iter,residual,corr,cpu,wall,cpusecs(37)
-          end if
+         else
+          write(LuOut,9100) iter,residual,corr,cpu,wall,cpusecs(38)
+          if (util_print('ccsd_t2_timers',print_debug)) then
+           write(LuOut,9101) cpusecs(31:39)
+          endif
+         end if
         endif
         if (residual .lt. thresh) then
           if (nodezero) then
@@ -430,7 +435,7 @@ c
  9080 format(1x,A,' total energy / hartree       = ',f25.15)
  9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
  9100 format(1x,i4,2f18.13,3f8.1)
- 9101 format(11x,'ccsd_t2_8 ',20x,2f8.1)
+ 9101 format(11x,'ccsd_t2_1:8+c2f ',1x,9f9.3)
  9102 format(1x,i4,2f18.13,2f8.1)
  9700 format(1x,'Skipping CCSD altogether')
       end
