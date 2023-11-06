@@ -660,7 +660,14 @@ C     i0 ( p3 p4 h1 h2 )_vt+= -1*P( 4 )*Sum ( h6 p5 )*t ( p3 p5 h1 h6 )_t*i1 ( h
       integer :: p3b, p4b, h1b, h2b, p5b, h6b
       integer :: p3b_1, p5b_1, h1b_1, h6b_1, p4b_2, h6b_2, h2b_2, p5b_2
       integer :: dima, dimb, dimc, dima_sort, dimb_sort, dim_common
+#ifdef USE_F90_ALLOCATABLE
+      double precision, allocatable, dimension(:), pinned :: f_t
+      double precision, allocatable, dimension(:), device :: f_a, f_b, f_c
+      !double precision, allocatable, dimension(:) :: f_t
+      !double precision, allocatable, dimension(:) :: f_a, f_b, f_c
+#else
       integer :: k_a, l_a, k_b, l_b, k_c, l_c, k_t, l_t
+#endif
       integer :: next, nprocs, count, NXTASK
       EXTERNAL NXTASK
 
@@ -669,10 +676,16 @@ C     i0 ( p3 p4 h1 h2 )_vt+= -1*P( 4 )*Sum ( h6 p5 )*t ( p3 p5 h1 h6 )_t*i1 ( h
 
       e_a = 0
       dimhhpp = maxh*maxh*maxp*maxp
+#ifdef USE_F90_ALLOCATABLE
+      allocate( f_a(1:dimhhpp), f_b(1:dimhhpp), f_c(1:dimhhpp), 
+     &          f_t(1:dimhhpp), stat=e_a)
+#else
+      e_a = 0
       IF (.not.MA_PUSH_GET(mt_dbl,dimhhpp,'a',l_a,k_a)) e_a = e_a + 1
       IF (.not.MA_PUSH_GET(mt_dbl,dimhhpp,'b',l_b,k_b)) e_a = e_a + 1
       IF (.not.MA_PUSH_GET(mt_dbl,dimhhpp,'c',l_c,k_c)) e_a = e_a + 1
       IF (.not.MA_PUSH_GET(mt_dbl,dimhhpp,'t',l_t,k_t)) e_a = e_a + 1
+#endif
       if (e_a .gt. 0) then
         CALL ERRQUIT('ccsd_t2_7_x',dimhhpp*4,MA_ERR)
       end if
@@ -695,7 +708,11 @@ C     i0 ( p3 p4 h1 h2 )_vt+= -1*P( 4 )*Sum ( h6 p5 )*t ( p3 p5 h1 h6 )_t*i1 ( h
              IF (next.eq.count) THEN
               dimc = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
      &             * int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
+#ifdef USE_F90_ALLOCATABLE
+              f_c = 0.0d0
+#else
               CALL DFILL(dimc,0.0d0,dbl_mb(k_c),1)
+#endif
               DO p5b = noab+1,noab+nvab
                DO h6b = 1,noab
                 IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p5b-1) .eq. 
@@ -717,92 +734,357 @@ C     i0 ( p3 p4 h1 h2 )_vt+= -1*P( 4 )*Sum ( h6 p5 )*t ( p3 p5 h1 h6 )_t*i1 ( h
                   dimb = dim_common*dimb_sort
                   IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
                    IF ((p5b .lt. p3b) .and. (h6b .lt. h1b)) THEN
+#ifdef USE_F90_ALLOCATABLE
+                    CALL GET_HASH_BLOCK(d_a,f_t,dima,
+     &                   int_mb(k_a_offset),(h1b_1-1+noab*(h6b_1-1+noab*
+     &                   (p3b_1-noab-1+nvab*(p5b_1-noab-1)))))
+#else
                     CALL GET_HASH_BLOCK(d_a,dbl_mb(k_t),dima,
      &                   int_mb(k_a_offset),(h1b_1-1+noab*(h6b_1-1+noab*
      &                   (p3b_1-noab-1+nvab*(p5b_1-noab-1)))))
-                    CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_a),
+#endif
+#if 0
+                    CALL TCE_SORT_4(f_t,f_a,
      &                   int_mb(k_range+p5b-1),int_mb(k_range+p3b-1),
      &                   int_mb(k_range+h6b-1),int_mb(k_range+h1b-1),
      &                   4,2,3,1,1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+p5b-1)
+                     dim2 = int_mb(k_range+p3b-1)
+                     dim3 = int_mb(k_range+h6b-1)
+                     dim4 = int_mb(k_range+h1b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+#ifdef USE_F90_ALLOCATABLE
+               f_a(j1+dim1*(j3-1+dim3*(j2-1+dim2*(j4-1)))) =
+     &         f_t(j4+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#else
+               dbl_mb(k_a+j1-1+dim1*(j3-1+dim3*(j2-1+dim2*(j4-1)))) =
+     &         dbl_mb(k_t+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#endif
+                     enddo
+                    end block
+#endif
                    END IF
                    IF ((p5b .lt. p3b) .and. (h1b .le. h6b)) THEN
+#ifdef USE_F90_ALLOCATABLE
+                    CALL GET_HASH_BLOCK(d_a,f_t,dima,
+     &                   int_mb(k_a_offset),(h6b_1-1+noab*(h1b_1-1+noab*
+     &                   (p3b_1-noab-1+nvab*(p5b_1-noab-1)))))
+#else
                     CALL GET_HASH_BLOCK(d_a,dbl_mb(k_t),dima,
      &                   int_mb(k_a_offset),(h6b_1-1+noab*(h1b_1-1+noab*
      &                   (p3b_1-noab-1+nvab*(p5b_1-noab-1)))))
-                    CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_a),
+#endif
+#if 0
+                    CALL TCE_SORT_4(f_t,f_a,
      &                   int_mb(k_range+p5b-1),int_mb(k_range+p3b-1),
      &                   int_mb(k_range+h1b-1),int_mb(k_range+h6b-1),
      &                   3,2,4,1,-1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+p5b-1)
+                     dim2 = int_mb(k_range+p3b-1)
+                     dim3 = int_mb(k_range+h1b-1)
+                     dim4 = int_mb(k_range+h6b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+#ifdef USE_F90_ALLOCATABLE
+               f_a(j1+dim1*(j4-1+dim4*(j2-1+dim2*(j3-1)))) =
+     &  -1.0d0*f_t(j4+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#else
+               dbl_mb(k_a+j1-1+dim1*(j4-1+dim4*(j2-1+dim2*(j3-1)))) =
+     &  -1.0d0*dbl_mb(k_t+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#endif
+                     enddo
+                    end block
+#endif
                    END IF
                    IF ((p3b .le. p5b) .and. (h6b .lt. h1b)) THEN
+#ifdef USE_F90_ALLOCATABLE
+                    CALL GET_HASH_BLOCK(d_a,f_t,dima,
+     &                   int_mb(k_a_offset),(h1b_1-1+noab*(h6b_1-1+noab*
+     &                   (p5b_1-noab-1+nvab*(p3b_1-noab-1)))))
+#else
                     CALL GET_HASH_BLOCK(d_a,dbl_mb(k_t),dima,
      &                   int_mb(k_a_offset),(h1b_1-1+noab*(h6b_1-1+noab*
      &                   (p5b_1-noab-1+nvab*(p3b_1-noab-1)))))
-                    CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_a),
+#endif
+#if 0
+                    CALL TCE_SORT_4(f_t,f_a,
      &                   int_mb(k_range+p3b-1),int_mb(k_range+p5b-1),
      &                   int_mb(k_range+h6b-1),int_mb(k_range+h1b-1),
      &                   4,1,3,2,-1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+p3b-1)
+                     dim2 = int_mb(k_range+p5b-1)
+                     dim3 = int_mb(k_range+h6b-1)
+                     dim4 = int_mb(k_range+h1b-1)
+#ifdef USE_F90_ALLOCATABLE
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+               f_a(j2+dim2*(j3-1+dim3*(j1-1+dim1*(j4-1)))) =
+     &  -1.0d0*f_t(j4+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#else
+               dbl_mb(k_a+j2-1+dim2*(j3-1+dim3*(j1-1+dim1*(j4-1)))) =
+     &  -1.0d0*dbl_mb(k_t+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#endif
+                     enddo
+                    end block
+#endif
                    END IF
                    IF ((p3b .le. p5b) .and. (h1b .le. h6b)) THEN
+#ifdef USE_F90_ALLOCATABLE
+                    CALL GET_HASH_BLOCK(d_a,f_t,dima,
+     &                   int_mb(k_a_offset),(h6b_1-1+noab*(h1b_1-1+noab*
+     &                   (p5b_1-noab-1+nvab*(p3b_1-noab-1)))))
+#else
                     CALL GET_HASH_BLOCK(d_a,dbl_mb(k_t),dima,
      &                   int_mb(k_a_offset),(h6b_1-1+noab*(h1b_1-1+noab*
      &                   (p5b_1-noab-1+nvab*(p3b_1-noab-1)))))
-                    CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_a),
+#endif
+#if 0
+                    CALL TCE_SORT_4(f_t,f_a,
      &                   int_mb(k_range+p3b-1),int_mb(k_range+p5b-1),
      &                   int_mb(k_range+h1b-1),int_mb(k_range+h6b-1),
      &                   3,1,4,2,1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+p3b-1)
+                     dim2 = int_mb(k_range+p5b-1)
+                     dim3 = int_mb(k_range+h1b-1)
+                     dim4 = int_mb(k_range+h6b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+#ifdef USE_F90_ALLOCATABLE
+               f_a(j2+dim2*(j4-1+dim4*(j1-1+dim1*(j3-1)))) =
+     &         f_t(j4+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#else
+               dbl_mb(k_a+j2-1+dim2*(j4-1+dim4*(j1-1+dim1*(j3-1)))) =
+     &         dbl_mb(k_t+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#endif
+                     enddo
+                    end block
+#endif
                    END IF
+#ifdef USE_F90_ALLOCATABLE
+                   CALL GET_HASH_BLOCK(d_b,f_t,dimb,
+     &                  int_mb(k_b_offset),(h6b_2-1+noab*(p5b_2-noab-1+
+     &                  nvab*(h2b_2-1+noab*(p4b_2-noab-1)))))
+#else
                    CALL GET_HASH_BLOCK(d_b,dbl_mb(k_t),dimb,
      &                  int_mb(k_b_offset),(h6b_2-1+noab*(p5b_2-noab-1+
      &                  nvab*(h2b_2-1+noab*(p4b_2-noab-1)))))
-                   CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_b),
+#endif
+#if 0
+                   CALL TCE_SORT_4(f_t,f_b,
      &                  int_mb(k_range+p4b-1),int_mb(k_range+h6b-1),
      &                  int_mb(k_range+h2b-1),int_mb(k_range+p5b-1),
      &                  3,1,2,4,1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+p4b-1)
+                     dim2 = int_mb(k_range+h6b-1)
+                     dim3 = int_mb(k_range+h2b-1)
+                     dim4 = int_mb(k_range+p5b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+#ifdef USE_F90_ALLOCATABLE
+               f_b(j4+dim4*(j2-1+dim2*(j1-1+dim1*(j3-1)))) =
+     &         f_t(j4+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#else
+               dbl_mb(k_b+j4-1+dim4*(j2-1+dim2*(j1-1+dim1*(j3-1)))) =
+     &         dbl_mb(k_t+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#endif
+                     enddo
+                    end block
+#endif
+#ifdef USE_F90_ALLOCATABLE
+#if 1
+                block
+                   use iso_fortran_env, only: INT32
+                   use cublas, only : DGEMM
+                   integer(kind=INT32) :: m,n,k
+                   m = dima_sort
+                   n = dimb_sort
+                   k = dim_common
+                   CALL DGEMM('T','N',m,n,k,
+     &                        1.0d0,f_a,k,
+     &                              f_b,k,
+     &                        1.0d0,f_c,m)
+                end block
+#else
+                   CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
+     &                  1.0d0,f_a,dim_common,
+     &                        f_b,dim_common,
+     &                  1.0d0,f_c,dima_sort)
+#endif
+#else
                    CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
      &                  1.0d0,dbl_mb(k_a),dim_common,
      &                        dbl_mb(k_b),dim_common,
      &                  1.0d0,dbl_mb(k_c),dima_sort)
+#endif
                   END IF
                  END IF
                 END IF
                END DO
               END DO
               IF ((p3b .le. p4b) .and. (h1b .le. h2b)) THEN
-               CALL TCE_SORT_4(dbl_mb(k_c),dbl_mb(k_t),
+#if 0
+               CALL TCE_SORT_4(f_c,f_t,
      &              int_mb(k_range+h2b-1),int_mb(k_range+p4b-1),
      &              int_mb(k_range+h1b-1),int_mb(k_range+p3b-1),
      &              4,2,3,1,-1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+h2b-1)
+                     dim2 = int_mb(k_range+p4b-1)
+                     dim3 = int_mb(k_range+h1b-1)
+                     dim4 = int_mb(k_range+p3b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+#ifdef USE_F90_ALLOCATABLE
+               f_t(j1+dim1*(j3-1+dim3*(j2-1+dim2*(j4-1)))) =
+     &        -f_c(j4+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#else
+               dbl_mb(k_t+j1-1+dim1*(j3-1+dim3*(j2-1+dim2*(j4-1)))) =
+     &        -dbl_mb(k_c+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#endif
+                     enddo
+                    end block
+#endif
+#ifdef USE_F90_ALLOCATABLE
+               CALL ADD_HASH_BLOCK(d_c,f_t,dimc,
+     &              int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
+     &              (p4b-noab-1+nvab*(p3b-noab-1)))))
+#else
                CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_t),dimc,
      &              int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &              (p4b-noab-1+nvab*(p3b-noab-1)))))
+#endif
               END IF
               IF ((p3b .le. p4b) .and. (h2b .le. h1b)) THEN
-               CALL TCE_SORT_4(dbl_mb(k_c),dbl_mb(k_t),
+#if 0
+               CALL TCE_SORT_4(f_c,f_t,
      &              int_mb(k_range+h2b-1),int_mb(k_range+p4b-1),
      &              int_mb(k_range+h1b-1),int_mb(k_range+p3b-1),
      &              4,2,1,3,1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+h2b-1)
+                     dim2 = int_mb(k_range+p4b-1)
+                     dim3 = int_mb(k_range+h1b-1)
+                     dim4 = int_mb(k_range+p3b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+#ifdef USE_F90_ALLOCATABLE
+               f_t(j3+dim3*(j1-1+dim1*(j2-1+dim2*(j4-1)))) =
+     &         f_c(j4+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#else
+               dbl_mb(k_t+j3-1+dim3*(j1-1+dim1*(j2-1+dim2*(j4-1)))) =
+     &         dbl_mb(k_c+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#endif
+                     enddo
+                    end block
+#endif
+#ifdef USE_F90_ALLOCATABLE
+               CALL ADD_HASH_BLOCK(d_c,f_t,dimc,
+     &              int_mb(k_c_offset),(h1b-1+noab*(h2b-1+noab*
+     &              (p4b-noab-1+nvab*(p3b-noab-1)))))
+#else
                CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_t),dimc,
      &              int_mb(k_c_offset),(h1b-1+noab*(h2b-1+noab*
      &              (p4b-noab-1+nvab*(p3b-noab-1)))))
+#endif
               END IF
               IF ((p4b .le. p3b) .and. (h1b .le. h2b)) THEN
-               CALL TCE_SORT_4(dbl_mb(k_c),dbl_mb(k_t),
+#if 0
+               CALL TCE_SORT_4(f_c,f_t,
      &              int_mb(k_range+h2b-1),int_mb(k_range+p4b-1),
      &              int_mb(k_range+h1b-1),int_mb(k_range+p3b-1),
      &              2,4,3,1,1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+h2b-1)
+                     dim2 = int_mb(k_range+p4b-1)
+                     dim3 = int_mb(k_range+h1b-1)
+                     dim4 = int_mb(k_range+p3b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+#ifdef USE_F90_ALLOCATABLE
+               f_t(j1+dim1*(j3-1+dim3*(j4-1+dim4*(j2-1)))) =
+     &         f_c(j4+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#else
+               dbl_mb(k_t+j1-1+dim1*(j3-1+dim3*(j4-1+dim4*(j2-1)))) =
+     &         dbl_mb(k_c+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#endif
+                     enddo
+                    end block
+#endif
+#ifdef USE_F90_ALLOCATABLE
+               CALL ADD_HASH_BLOCK(d_c,f_t,dimc,
+     &              int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
+     &              (p3b-noab-1+nvab*(p4b-noab-1)))))
+#else
                CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_t),dimc,
      &              int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &              (p3b-noab-1+nvab*(p4b-noab-1)))))
+#endif
               END IF
               IF ((p4b .le. p3b) .and. (h2b .le. h1b)) THEN
-               CALL TCE_SORT_4(dbl_mb(k_c),dbl_mb(k_t),
+#if 0
+               CALL TCE_SORT_4(f_c,f_t,
      &              int_mb(k_range+h2b-1),int_mb(k_range+p4b-1),
      &              int_mb(k_range+h1b-1),int_mb(k_range+p3b-1),
      &              2,4,1,3,-1.0d0)
+#else
+                    block
+                     integer :: j1,j2,j3,j4
+                     integer :: dim1,dim2,dim3,dim4
+                     dim1 = int_mb(k_range+h2b-1)
+                     dim2 = int_mb(k_range+p4b-1)
+                     dim3 = int_mb(k_range+h1b-1)
+                     dim4 = int_mb(k_range+p3b-1)
+                     do concurrent(j2 = 1:dim2, j3 = 1:dim3,
+     &                             j4 = 1:dim4, j1 = 1:dim1)
+#ifdef USE_F90_ALLOCATABLE
+               f_t(j3+dim3*(j1-1+dim1*(j4-1+dim4*(j2-1)))) =
+     &        -f_c(j4+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#else
+               dbl_mb(k_t+j3-1+dim3*(j1-1+dim1*(j4-1+dim4*(j2-1)))) =
+     &        -dbl_mb(k_c+j4-1+dim4*(j3-1+dim3*(j2-1+dim2*(j1-1))))
+#endif
+                     enddo
+                    end block
+#endif
+#ifdef USE_F90_ALLOCATABLE
+               CALL ADD_HASH_BLOCK(d_c,f_t,dimc,
+     &              int_mb(k_c_offset),(h1b-1+noab*(h2b-1+noab*
+     &              (p3b-noab-1+nvab*(p4b-noab-1)))))
+#else
                CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_t),dimc,
      &              int_mb(k_c_offset),(h1b-1+noab*(h2b-1+noab*
      &              (p3b-noab-1+nvab*(p4b-noab-1)))))
+#endif
               END IF
               next = NXTASK(nprocs, 1)
              END IF
@@ -815,13 +1097,17 @@ C     i0 ( p3 p4 h1 h2 )_vt+= -1*P( 4 )*Sum ( h6 p5 )*t ( p3 p5 h1 h6 )_t*i1 ( h
        END DO
       END DO
 
+#ifdef USE_F90_ALLOCATABLE
+      deallocate( f_a, f_b, f_c, f_t, stat=e_a )
+#else
       e_a = 0
       IF (.not.MA_POP_STACK(l_t))  e_a = e_a + 1
       IF (.not.MA_POP_STACK(l_c))  e_a = e_a + 1
       IF (.not.MA_POP_STACK(l_b))  e_a = e_a + 1
       IF (.not.MA_POP_STACK(l_a))  e_a = e_a + 1
+#endif
       if (e_a .gt. 0) then
-        CALL ERRQUIT('ccsd_t2_7_3_x',e_a,MA_ERR)
+        CALL ERRQUIT('ccsd_t2_7_x',e_a,MA_ERR)
       end if
 
       next = NXTASK(-nprocs, 1)
@@ -1514,12 +1800,7 @@ C     i1 ( h6 p3 h1 p5 )_vt+=-1/2*Sum ( h8 p7 )*t ( p3 p7 h1 h8 )_t*v ( h6 h8 p5
                     end block
 #endif
                    END IF
-#if 0
-                   CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
-     &                        1.0d0,dbl_mb(k_a),dim_common,
-     &                              dbl_mb(k_b),dim_common,
-     &                        1.0d0,dbl_mb(k_c),dima_sort)
-#else
+#if USE_F90_ALLOCATABLE
                 block
                    use iso_fortran_env, only: INT32
                    use cublas, only : DGEMM
@@ -1532,6 +1813,11 @@ C     i1 ( h6 p3 h1 p5 )_vt+=-1/2*Sum ( h8 p7 )*t ( p3 p7 h1 h8 )_t*v ( h6 h8 p5
      &                              f_b,k,
      &                        1.0d0,f_c,m)
                 end block
+#else
+                   CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
+     &                        1.0d0,dbl_mb(k_a),dim_common,
+     &                              dbl_mb(k_b),dim_common,
+     &                        1.0d0,dbl_mb(k_c),dima_sort)
 #endif
                   END IF
                  END IF
