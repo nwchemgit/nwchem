@@ -2,7 +2,8 @@
 source ../libext_utils/get_tgz.sh
 rm -rf mpich  mpich-?.?.?
 #VERSION=3.4.2
-VERSION=4.0.2
+#VERSION=4.0.2
+VERSION=4.1.2
 #curl -L http://www.mpich.org/static/downloads/${VERSION}/mpich-${VERSION}.tar.gz -o mpich.tgz
 #curl -L https://github.com/pmodels/mpich/releases/download/v${VERSION}/mpich-${VERSION}.tar.gz -o mpich.tgz
 get_tgz https://github.com/pmodels/mpich/releases/download/v${VERSION}/mpich-${VERSION}.tar.gz  mpich.tgz
@@ -59,7 +60,8 @@ if [ -x "$(command -v xx-info)" ]; then
     fi
 fi
 echo SHARED_FLAGS is $SHARED_FLAGS
-./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --enable-romio --with-pm=gforker --with-device=ch3:nemesis --disable-cuda --disable-opencl --enable-silent-rules  --enable-fortran=all
+./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --enable-romio --disable-cuda --disable-opencl --enable-silent-rules  --enable-fortran=all
+#./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --enable-romio --with-pm=gforker --with-device=ch3:nemesis --disable-cuda --disable-opencl --enable-silent-rules  --enable-fortran=all
 if [[ "$?" != "0" ]]; then
     cat config.log
     echo "MPICH configuration failed"
