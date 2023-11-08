@@ -491,9 +491,6 @@ ifeq ($(TARGET),SOLARIS)
 
     # Don\'t need this if using the SUN performance library
     #  need for BLASOPT business because of lapack and other possible missing entries
-    ifndef BLASOPT
-        CORE_SUBDIRS_EXTRA = blas lapack 
-    endif
 
     DEFINES = -DSOLARIS  -DNOAIO
     # Note that WS6 does not optimize robustly and if using this you must 
@@ -532,7 +529,7 @@ ifeq ($(TARGET),SOLARIS)
         CORE_LIBS +=  -SSL2
     else
         LDOPTIONS = -xildoff
-        CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas  -lmvec
+        CORE_LIBS += -lmvec
     endif
  
  
@@ -563,7 +560,6 @@ ifeq ($(TARGET),SOLARIS64)
 #
 
     SHELL := $(NICE) /bin/sh
-    CORE_SUBDIRS_EXTRA = blas lapack
     CC = cc
     FC = f77
     DEFINES = -DSOLARIS  -DNOAIO -DSOLARIS64
@@ -613,14 +609,9 @@ ifeq ($(TARGET),SOLARIS64)
     LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
     ifeq ($(FC),frt)
         LDOPTIONS = -SSL2
-        CORE_LIBS +=  -lnwclapack -lnwcblas
     else
         LDOPTIONS = -xs -xildoff
-        ifdef BLASOPT
-            CORE_LIBS +=   $(BLASOPT)   -lmvec
-        else
-            CORE_LIBS +=  -lnwclapack -lnwcblas  -lmvec
-        endif
+        CORE_LIBS += -lmvec
         CORE_LIBS += -lsocket -lrpcsvc -lnsl
         EXTRA_LIBS =  -ldl -lfsu
     endif
@@ -653,7 +644,6 @@ ifeq ($(TARGET),HPUX)
 # removed reference to MLIB since 8.3 version of MLIB 
 # does not support +ppu
 #
-    CORE_SUBDIRS_EXTRA = blas lapack
     MAKEFLAGS = -j 1 --no-print-directory
     CPP = /lib/cpp -P
     CC = cc
@@ -662,7 +652,7 @@ ifeq ($(TARGET),HPUX)
     LDOPTIONS +=  +DA2.0 +DS2.0 +O2
     LDOPTIONS +=   +O2
     LINK.f = f90   $(LDFLAGS) 
-    CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas   -lm
+    CORE_LIBS +=  -lm
     FDEBUG = -g
     FOPTIONS =  +ppu -Wl,-a,archive
     COPTIONS = -Aa -D_HPUX_SOURCE +e 
@@ -685,14 +675,13 @@ ifeq ($(TARGET),HPUX64)
 #
 # HPUX 11.0
 #
-    CORE_SUBDIRS_EXTRA = blas lapack
     _CPU = $(shell uname -m  )
     MAKEFLAGS = -j 1 --no-print-directory
     CPP = /lib/cpp -P
     CC = cc
     FC = f90
     LDOPTIONS = -Wl,+vallcompatwarnings  +U77   
-    CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas  -lm
+    CORE_LIBS += -lm
     CDEBUG =
     FDEBUG = -g
     FOPTIONS =  +ppu  #+U77  
@@ -728,7 +717,6 @@ ifeq ($(TARGET),IBM)
 # IBM AIX
 #
 
-    CORE_SUBDIRS_EXTRA = lapack blas
     FC = xlf
     ifeq ($(FC),xlf)
         _FC=xlf
@@ -776,7 +764,7 @@ ifeq ($(TARGET),IBM)
     LIBPATH += -L/usr/lib 
 
     LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 -bloadmap:nwchem.lapi_map
-    CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas \
+    CORE_LIBS +=   \
               -brename:.daxpy_,.daxpy \
               -brename:.dcopy_,.dcopy \
               -brename:.ddot_,.ddot \
@@ -845,13 +833,6 @@ ifeq ($(TARGET),IBM64)
 # tested on ecs1 May 10 2000 AIX 4.3.3.10
 # does not run on AIX  4.3.2.1 (skunkworks)
 #
-    ifeq ($(LAPACK_LIB),)
-        CORE_SUBDIRS_EXTRA += lapack
-    endif
-
-    ifeq ($(BLASOPT),)
-        CORE_SUBDIRS_EXTRA += blas
-    endif
 
     FC = xlf
     ifeq ($(FC),xlf)
@@ -914,13 +895,6 @@ ifeq ($(TARGET),IBM64)
 
     LDOPTIONS += -bloadmap:nwchem.ibm64map -bbigtoc # bigtoc requires bmaxdata
     LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x200000000 # this limits MA to 8GB
-    ifeq ($(LAPACK_LIB),)
-        CORE_LIBS += -lnwclapack
-    endif
-    CORE_LIBS += $(BLASOPT)
-    ifeq ($(BLASOPT),)
-        CORE_LIBS += -lnwcblas
-    endif
     XLFBREN = y
     EXPLICITF = TRUE
 #
@@ -930,7 +904,6 @@ endif
 
 ifeq ($(TARGET),LAPI)
 #
-    CORE_SUBDIRS_EXTRA = lapack blas
     FC = mpxlf_r 
     ifdef OLDXLF
         FC += -qnohpf
@@ -983,8 +956,6 @@ ifeq ($(TARGET),LAPI)
      # Need ESSL before our own BLAS library but still need our
      # own stuff for misc. missing routines
 
-     CORE_LIBS +=  -lnwclapack -lnwcblas
-
      LDOPTIONS += -bloadmap:nwchem.lapimap -bbigtoc
      LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 # needed because of bigtoc
 
@@ -996,7 +967,6 @@ endif
 
 ifeq ($(TARGET),LAPI64)
 #
-    CORE_SUBDIRS_EXTRA = lapack blas
     FC = mpxlf_r 
     CC = mpcc_r
     ARFLAGS = urs
@@ -1042,7 +1012,6 @@ ifeq ($(TARGET),LAPI64)
     endif
 
     DEFINES += -DEXT_INT
-    CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
     LDOPTIONS += -bloadmap:nwchem.lapi64map -bbigtoc
     LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed because of bigtoc
     # LDOPTIONS += -bmaxstack:0xe0000000 -bmaxdata:0xe0000000 # this for large memory
@@ -1060,11 +1029,6 @@ ifeq ($(TARGET),MACX)
     #
     # MacOSX 
     #
-    ifdef USE_VECLIB
-        CORE_SUBDIRS_EXTRA =  blas
-    else
-        CORE_SUBDIRS_EXTRA =  blas lapack
-    endif
 
     _CPU = $(shell machine  )
     FC = gfortran
@@ -1248,9 +1212,7 @@ ifeq ($(TARGET),MACX)
     endif
 
     ifdef USE_VECLIB
-        CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lnwcblas
-    else
-        CORE_LIBS +=   -lnwclapack $(BLASOPT)  -lnwcblas
+        CORE_LIBS +=  -Wl,-framework -Wl,vecLib 
     endif
 
     ifeq ($(FC),xlf) 
@@ -1298,13 +1260,6 @@ ifeq ($(TARGET),MACX64)
 	        @exit 1
         endif
     else
-        ifeq ($(BLASOPT),)
-            CORE_SUBDIRS_EXTRA += blas
-        endif
-        ifeq ($(LAPACK_LIB),)
-            CORE_SUBDIRS_EXTRA += lapack
-        endif
-    endif
 
     INSTALL = @echo nwchem is built
     RANLIB = ranlib
@@ -1427,15 +1382,7 @@ ifeq ($(TARGET),MACX64)
     endif
 
     ifdef USE_VECLIB
-        CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lnwcblas
-    else
-        ifeq ($(LAPACK_LIB),)
-            CORE_LIBS += -lnwclapack
-        endif
-        CORE_LIBS +=    $(BLASOPT)
-        ifeq ($(BLASOPT),)
-            CORE_LIBS += -lnwcblas
-        endif
+        CORE_LIBS +=   -Wl,-framework -Wl,vecLib
     endif
 
 
@@ -1532,13 +1479,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
     NICE = nice -n 2
     SHELL := $(NICE) /usr/bin/env bash
 
-    ifeq ($(BLASOPT),)
-        CORE_SUBDIRS_EXTRA += blas
-    endif
-
-    ifeq ($(LAPACK_LIB),)
-        CORE_SUBDIRS_EXTRA += lapack
-    endif
 
     CC = gcc
     RANLIB = ranlib
@@ -1945,8 +1885,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
     endif
 
 
-#   EXTRA_LIBS +=-lefence # link against Electricfence
-#   CORE_LIBS += -lnwclapack $(BLASOPT) -lnwcblas
 # end of Linux, Cygnus
 endif
 
@@ -2316,12 +2254,6 @@ ifneq ($(TARGET),LINUX)
 
         DEFINES  += -DEXT_INT
 #       MAKEFLAGS = -j 1 --no-print-directory
-        ifeq ($(BLASOPT),)
-            CORE_SUBDIRS_EXTRA += blas
-        endif
-        ifeq ($(LAPACK_LIB),)
-            CORE_SUBDIRS_EXTRA += lapack
-        endif
         RANLIB = echo
         DEFINES   +=   -DLINUX -DLINUX64
 
@@ -2402,7 +2334,6 @@ ifneq ($(TARGET),LINUX)
                 COPTIONS += -fPIC
             endif
 
-#           CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
         endif # end of ia64 bit
 
 
@@ -2705,7 +2636,6 @@ ifneq ($(TARGET),LINUX)
                 endif
             endif
 
-#           CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
             ifdef  USE_GPROF
                 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
                     FOPTIONS   += -Mprof=func#,lines
@@ -3073,12 +3003,6 @@ ifneq ($(TARGET),LINUX)
                 endif
             endif
 
-            ifdef USE_ESSL
-                CORE_SUBDIRS_EXTRA = lapack
-                CORE_LIBS +=  -lnwclapack
-            endif
-#           CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
-#           EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
         endif # end of ppc64 arch
 
 	ifeq ($(_CC),pgcc)
@@ -3167,7 +3091,6 @@ endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 #
-    CORE_SUBDIRS_EXTRA = lapack blas
     ARFLAGS = urs
     INSTALL = @echo $@ is built
     CPP=/usr/bin/cpp  -P -C -traditional
@@ -3241,7 +3164,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
             endif
 
             # linking ESSL is painful with gfortran
-            CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas
 
             # Here is an example for ALCF:
             # IBMCMP_ROOT=${IBM_MAIN_DIR}
@@ -3296,7 +3218,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
             FOPTIMIZE += -qreport -qsource -qlistopt -qlist # verbose compiler output
 
             # ESSL dependencies should be provided by XLF linker
-            CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas
         endif
 
     endif # end BGQ
@@ -3498,15 +3419,18 @@ endif
 
 
 ifeq ($(LAPACK_LIB),)
-    CORE_LIBS +=  -lnwclapack 
+    lapackliberr:
+        @echo makefile error for lapack definition
+        @exit 1
 else
     CORE_LIBS += $(LAPACK_LIB)
 endif
 
 
 ifeq ($(BLASOPT),)
-    CORE_LIBS +=  -lnwcblas 
-else
+    blasliberr:
+        @echo makefile error for blas definition
+        @exit 1
     CORE_LIBS += $(BLASOPT)
 endif
 
