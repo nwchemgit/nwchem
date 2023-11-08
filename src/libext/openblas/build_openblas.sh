@@ -153,6 +153,9 @@ elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]] || [[ "${FC}" == "amdflang" ]];
            LAPACK_FPFLAGS_VAL+=" -fdefault-integer-8"
 	fi
         FLANG_NEW=$( [ $( ${FC} --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
+        if [[ ${FLANG_NEW} == "true" ]]; then
+            LAPACK_FPFLAGS_VAL+=" -fPIC "
+	fi
 elif  [[ "${_FC}" == "crayftn" ]] ; then
 #    FORCETARGET+=' F_COMPILER=FLANG '
     LAPACK_FPFLAGS_VAL=" -s integer64 -ef "
