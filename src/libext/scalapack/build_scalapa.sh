@@ -269,6 +269,9 @@ echo 'nvfortran -V is ' `nvfortran -V`
       fi
     fi
 fi
+if  [[ ${FC_EXTRA} == flang ]]; then
+    Fortran_FLAGS+=" -fPIC "
+fi
 if  [[ ${FC_EXTRA} == gfortran ]] || [[ ${FC} == f95 ]]; then
     Fortran_FLAGS+=" -fPIC "
     if [[ "$(expr `${FC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
