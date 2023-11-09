@@ -1259,7 +1259,7 @@ ifeq ($(TARGET),MACX64)
 	        @echo You must also set USE_64TO32 and do a "make 64_to_32" to change the source code
 	        @exit 1
         endif
-    else
+    endif
 
     INSTALL = @echo nwchem is built
     RANLIB = ranlib
