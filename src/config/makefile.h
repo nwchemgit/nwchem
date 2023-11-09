@@ -3858,7 +3858,14 @@ ifdef BUILD_OPENBLAS
     DEFINES += -DOPENBLAS
 endif
 ifeq ($(shell echo $(BLASOPT) |awk '/openblas/ {print "Y"; exit}'),Y)
-    DEFINES += -DOPENBLAS
+    ifdef OPENBLAS_USES_OPENMP
+        DEFINES += -DBLAS_OPENMP
+        ifndef USE_OPENMP
+           $(error USE_OPENMP must be set when OPENBLAS_USES_OPENMP is set)
+        endif
+    else
+        DEFINES += -DOPENBLAS
+    endif
 endif
 # NVHPC compilers are distributed wtih OpenBLAS named as libblas/liblapack
 ifeq ($(shell echo $(BLASOPT) |awk '/\/nvidia\/hpc_sdk\// {print "Y"; exit}'),Y)
