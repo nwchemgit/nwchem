@@ -25,7 +25,7 @@ cd OpenBLAS
 #patch -p0 -s -N < ../makesys.patch
 #patch -p0 -s -N < ../icc_avx512.patch
 # patch for pgi/nvfortran missing -march=armv8
-#patch -p0 -s -N < ../arm64_fopt.patch
+patch -p0 -s -N < ../arm64_fopt.patch
 #patch -p1 -s -N < ../9402df5604e69f86f58953e3883f33f98c930baf.patch
 patch -p0 -s -N < ../crayftn.patch
 patch -p0 -s -N < ../f_check.patch
@@ -153,6 +153,9 @@ elif  [[ -n ${FC} ]] && [[ $(../../../config/strip_compiler.sh "${FC}") == "flan
            LAPACK_FPFLAGS_VAL+=" -fdefault-integer-8"
 	fi
         FLANG_NEW=$( [ $( ${FC} --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
+        if [[ ${FLANG_NEW} == "true" ]]; then
+            LAPACK_FPFLAGS_VAL+=" -fPIC "
+	fi
 elif  [[ "${_FC}" == "crayftn" ]] ; then
 #    FORCETARGET+=' F_COMPILER=FLANG '
     LAPACK_FPFLAGS_VAL=" -s integer64 -ef "
