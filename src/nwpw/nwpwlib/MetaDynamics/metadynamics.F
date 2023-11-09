@@ -1578,7 +1578,7 @@ c     **** reactive_site ****
                dy = y1-y2
                dz = z1-z2
                call lattice_min_difference(dx,dy,dz)
-               r2 = (dx1**2 + dy1**2 + dz1**2)
+               r2 = (dx**2 + dy**2 + dz**2)
                r1 = dsqrt(r2)
                f = param(5+j)*dexp(-alpha*r2)
                df = (-2.0d0*alpha*r1*f)
