@@ -1267,6 +1267,7 @@ ifeq ($(TARGET),MACX64)
     DEFINES   = -DMACX
     DEFINES  += -DEXT_INT
     LINK.f    = $(FC) $(LDFLAGS) -Wl,-flat_namespace
+    LINK.f   += -Wl,-headerpad_max_install_names
     GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
     ifeq ($(GOTCLANG),1)
         COPTIONS   += -fPIC
