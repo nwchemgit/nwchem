@@ -1383,6 +1383,9 @@ ifeq ($(TARGET),MACX64)
             FOPTIONS += -fsanitize=address -fsanitize-recover=address
             LDOPTIONS += -fsanitize=address -fsanitize-recover=address
         endif
+        ifdef OPENBLAS_USES_OPENMP
+            LDOPTIONS += -fopenmp
+        endif
 
         ifdef  USE_FPE
             FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
@@ -2244,6 +2247,9 @@ ifneq ($(TARGET),LINUX)
 #                    DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
                 endif
             endif
+	    ifdef OPENBLAS_USES_OPENMP
+                LDOPTIONS += -fopenmp
+	    endif
         endif
 
 
@@ -2397,6 +2403,9 @@ ifneq ($(TARGET),LINUX)
                     ifdef USE_OFFLOAD
                         FOPTIONS += -fopenmp-targets=spirv64
                     endif
+                endif
+                ifdef OPENBLAS_USES_OPENMP
+                     LDOPTIONS += -fopenmp
                 endif
                 ifdef IFX_DEBUG
                     # debugging remove at some point
@@ -2930,6 +2939,9 @@ ifneq ($(TARGET),LINUX)
                 ifdef USE_OPENMP
                   FOPTIONS  += -fopenmp
                   LDOPTIONS += -fopenmp
+                endif
+                ifdef OPENBLAS_USES_OPENMP
+                     LDOPTIONS += -fopenmp
                 endif
 
                 DEFINES   +=   -DARMFLANG
@@ -3888,11 +3900,12 @@ ifdef BUILD_OPENBLAS
     DEFINES += -DOPENBLAS
 endif
 ifeq ($(shell echo $(BLASOPT) |awk '/openblas/ {print "Y"; exit}'),Y)
+    ifeq ($(shell $(NWCHEM_TOP)/src/config/oblas_ompcheck.sh),1)
+        OPENBLAS_USES_OPENMP = 1
+        LDOPTIONS += -fopenmp
+    endif
     ifdef OPENBLAS_USES_OPENMP
         DEFINES += -DBLAS_OPENMP
-        ifndef USE_OPENMP
-           $(error USE_OPENMP must be set when OPENBLAS_USES_OPENMP is set)
-        endif
     else
         DEFINES += -DOPENBLAS
     endif
