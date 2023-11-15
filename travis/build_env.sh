@@ -166,7 +166,8 @@ if [[ "$os" == "Linux" ]]; then
 	    if [[ "$USE_LIBXC" == "-1" ]]; then
 		pkg_extra+=" libxc-dev"
 	    fi
-	    if [[ "$BLAS_ENV" == "lib*openblas*" ]]; then
+	    echo "BLAS_ENV is" $BLAS_ENV
+	    if [[ "$BLAS_ENV" == lib*openblas* ]]; then
 		pkg_extra+=" $BLAS_ENV"
 	    fi
 	    echo pkg to install: gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra

@@ -121,7 +121,7 @@ elif [[ "$BLAS_ENV" == "accelerate" ]]; then
     export LAPACK_LIB=${BLASOPT}
     export BLAS_SIZE=4
 elif [[ "$BLAS_ENV" == lib*openblas* ]] || [[ "$BLAS_ENV" == "brew_openblas" ]]; then
-     if [[ "$BLAS_ENV" == "*openblas64*" ]]; then
+     if [[ "$BLAS_ENV" == *openblas64* ]]; then
          myob="openblas64"
      else
          myob="openblas"

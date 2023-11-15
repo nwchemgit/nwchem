@@ -71,7 +71,7 @@ else
     fi
 fi
 if [[ "$BLAS_ENV" == lib*openblas* ]] || [[ "$BLAS_ENV" == "brew_openblas" ]]; then
-    if [[ "$BLAS_ENV" == "*openblas64*" ]]; then
+    if [[ "$BLAS_ENV" == *openblas64* ]]; then
         myob="openblas64"
     else
         myob="openblas"
