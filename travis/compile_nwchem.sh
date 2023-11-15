@@ -70,6 +70,22 @@ else
 	fi
     fi
 fi
+if [[ "$BLAS_ENV" == lib*openblas* ]] || [[ "$BLAS_ENV" == "brew_openblas" ]]; then
+    if [[ "$BLAS_ENV" == "*openblas64*" ]]; then
+        myob="openblas64"
+    else
+        myob="openblas"
+    fi
+    if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
+	if [ -z "$HOMEBREW_PREFIX" ] ; then
+	    HOMEBREW_PREFIX=/usr/local
+	fi
+	export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig
+    fi
+    export BLASOPT=$(pkg-config --libs $myob)
+    export LAPACK_LIB=$BLASOPT
+    echo "BLASOPT and LAPACK_LIB are" $BLASOPT $LAPACK_LIB
+fi
 #check linear algebra
 if [[ -z "$BLASOPT" ]] && [[ -z "$BUILD_OPENBLAS" ]] && [[ -z "$USE_INTERNALBLAS" ]] ; then
     echo " no existing BLAS settings, defaulting to BUILD_OPENBLAS=y "
