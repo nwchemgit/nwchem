@@ -97,6 +97,9 @@ echo DISTR is "$DISTR"
      fi
      if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
 	 brew install openblas
+	 if [ -z "$HOMEBREW_PREFIX" ] ; then
+	     HOMEBREW_PREFIX=/usr/local
+	 fi
 	 PKG_CONFIG_PATH=$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig pkg-config --libs openblas
      fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
@@ -128,9 +131,6 @@ if [[ "$os" == "Linux" ]]; then
 	which mpif90
 	mpif90 -show
     else
-	if [[ "$BLAS_ENV" == "lib*openblas*" ]]; then
-	    $MYSUDO apt-get install -y $BLAS_ENV
-	fi
 	if [[ "$MPI_IMPL" == "openmpi" ]]; then
 	    mpi_bin="openmpi-bin" ; mpi_libdev="libopenmpi-dev" scalapack_libdev="libscalapack-openmpi-dev"
 	fi
@@ -166,11 +166,10 @@ if [[ "$os" == "Linux" ]]; then
 	    if [[ "$USE_LIBXC" == "-1" ]]; then
 		pkg_extra+=" libxc-dev"
 	    fi
-	    echo "BLAS_ENV is" $BLAS_ENV
-	    if [[ "$BLAS_ENV" == lib*openblas* ]]; then
+	    if [[ "$BLAS_ENV" == "lib*openblas*" ]]; then
 		pkg_extra+=" $BLAS_ENV"
 	    fi
-	    echo pkg to install: gfortran make perl sync $mpi_libdev $mpi_bin $pkg_extra
+	    echo pkg to install: gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
 			  $MYSUDO apt-get -y install gfortran make perl rsync $mpi_libdev $mpi_bin $pkg_extra \
 			      && break ;\

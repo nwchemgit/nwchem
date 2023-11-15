@@ -127,6 +127,9 @@ elif [[ "$BLAS_ENV" == lib*openblas* ]] || [[ "$BLAS_ENV" == "brew_openblas" ]];
          myob="openblas"
      fi
      if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
+	 if [ -z "$HOMEBREW_PREFIX" ] ; then
+	     HOMEBREW_PREFIX=/usr/local
+	 fi
 	 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig
      fi
      export BLASOPT=$(pkg-config --libs $myob)
