@@ -3432,19 +3432,26 @@ endif
 
 
 ifeq ($(LAPACK_LIB),)
-    lapackliberr:
-        @echo makefile error for lapack definition
-        @exit 1
+       lapackliberr:
+	$(info     )
+	$(info makefile error for lapack definition)
+	$(info please set LAPACK_LIB)
+	$(info     )
+	$(error )
 else
     CORE_LIBS += $(LAPACK_LIB)
 endif
 
 
 ifeq ($(BLASOPT),)
-    blasliberr:
-        @echo makefile error for blas definition
-        @exit 1
-    CORE_LIBS += $(BLASOPT)
+       blasliberr:
+	$(info     )
+	$(info makefile error for blas definition)
+	$(info please set BLASOPT)
+	$(info     )
+	$(error )
+else
+     CORE_LIBS += $(BLASOPT)
 endif
 
 
