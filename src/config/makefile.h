@@ -1267,6 +1267,7 @@ ifeq ($(TARGET),MACX64)
     DEFINES   = -DMACX
     DEFINES  += -DEXT_INT
     LINK.f    = $(FC) $(LDFLAGS) -Wl,-flat_namespace
+    LINK.f   += -Wl,-headerpad_max_install_names
     GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
     ifeq ($(GOTCLANG),1)
         COPTIONS   += -fPIC
@@ -1361,6 +1362,9 @@ ifeq ($(TARGET),MACX64)
         ifdef  USE_ASAN
             FOPTIONS += -fsanitize=address -fsanitize-recover=address
             LDOPTIONS += -fsanitize=address -fsanitize-recover=address
+        endif
+        ifdef OPENBLAS_USES_OPENMP
+            LDOPTIONS += -fopenmp
         endif
 
         ifdef  USE_FPE
@@ -2221,6 +2225,9 @@ ifneq ($(TARGET),LINUX)
 #                    DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
                 endif
             endif
+	    ifdef OPENBLAS_USES_OPENMP
+                LDOPTIONS += -fopenmp
+	    endif
         endif
 
 
@@ -2367,6 +2374,9 @@ ifneq ($(TARGET),LINUX)
                     ifdef USE_OFFLOAD
                         FOPTIONS += -fopenmp-targets=spirv64
                     endif
+                endif
+                ifdef OPENBLAS_USES_OPENMP
+                     LDOPTIONS += -fopenmp
                 endif
                 ifdef IFX_DEBUG
                     # debugging remove at some point
@@ -2904,6 +2914,9 @@ ifneq ($(TARGET),LINUX)
                   FOPTIONS  += -fopenmp
                   LDOPTIONS += -fopenmp
                 endif
+                ifdef OPENBLAS_USES_OPENMP
+                     LDOPTIONS += -fopenmp
+                endif
 
                 DEFINES   +=   -DARMFLANG
                 LINK.f = $(FC)  $(LDFLAGS) 
@@ -3419,19 +3432,26 @@ endif
 
 
 ifeq ($(LAPACK_LIB),)
-    lapackliberr:
-        @echo makefile error for lapack definition
-        @exit 1
+       lapackliberr:
+	$(info     )
+	$(info makefile error for lapack definition)
+	$(info please set LAPACK_LIB)
+	$(info     )
+	$(error )
 else
     CORE_LIBS += $(LAPACK_LIB)
 endif
 
 
 ifeq ($(BLASOPT),)
-    blasliberr:
-        @echo makefile error for blas definition
-        @exit 1
-    CORE_LIBS += $(BLASOPT)
+       blasliberr:
+	$(info     )
+	$(info makefile error for blas definition)
+	$(info please set BLASOPT)
+	$(info     )
+	$(error )
+else
+     CORE_LIBS += $(BLASOPT)
 endif
 
 
@@ -3858,11 +3878,12 @@ ifdef BUILD_OPENBLAS
     DEFINES += -DOPENBLAS
 endif
 ifeq ($(shell echo $(BLASOPT) |awk '/openblas/ {print "Y"; exit}'),Y)
+    ifeq ($(shell $(NWCHEM_TOP)/src/config/oblas_ompcheck.sh),1)
+        OPENBLAS_USES_OPENMP = 1
+        LDOPTIONS += -fopenmp
+    endif
     ifdef OPENBLAS_USES_OPENMP
         DEFINES += -DBLAS_OPENMP
-        ifndef USE_OPENMP
-           $(error USE_OPENMP must be set when OPENBLAS_USES_OPENMP is set)
-        endif
     else
         DEFINES += -DOPENBLAS
     endif

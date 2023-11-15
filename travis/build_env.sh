@@ -98,6 +98,13 @@ echo DISTR is "$DISTR"
 	 brew update || true
 	 brew unlink open-mpi && brew install mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
      fi
+     if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
+	 brew install openblas
+	 if [ -z "$HOMEBREW_PREFIX" ] ; then
+	     HOMEBREW_PREFIX=/usr/local
+	 fi
+	 PKG_CONFIG_PATH=$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig pkg-config --libs openblas
+     fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
 #      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
 #  fi
@@ -161,6 +168,10 @@ if [[ "$os" == "Linux" ]]; then
 	    fi
 	    if [[ "$USE_LIBXC" == "-1" ]]; then
 		pkg_extra+=" libxc-dev"
+	    fi
+	    echo "BLAS_ENV is" $BLAS_ENV
+	    if [[ "$BLAS_ENV" == lib*openblas* ]]; then
+		pkg_extra+=" $BLAS_ENV"
 	    fi
 	    echo pkg to install: gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
