@@ -132,6 +132,17 @@ elif [[ "$BLAS_ENV" == "accelerate" ]]; then
     export BLAS_LIB=${BLASOPT}
     export LAPACK_LIB=${BLASOPT}
     export BLAS_SIZE=4
+elif [[ "$BLAS_ENV" == lib*openblas* ]] || [[ "$BLAS_ENV" == "brew_openblas" ]]; then
+     if [[ "$BLAS_ENV" == "*openblas64*" ]]; then
+         myob="openblas64"
+     else
+         myob="openblas"
+     fi
+     if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
+	 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig
+     fi
+     export BLASOPT=$(pkg-config --libs $myob)
+     export LAPACK_LIB=$BLASOPT
 fi
 if [[ "$BLAS_SIZE" == "4" ]]; then
   export SCALAPACK_SIZE=4

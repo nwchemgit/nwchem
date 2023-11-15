@@ -98,6 +98,10 @@ echo DISTR is "$DISTR"
 	 brew update || true
 	 brew unlink open-mpi && brew install mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
      fi
+     if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
+	 brew install openblas
+	 PKG_CONFIG_PATH=$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig pkg-config --libs openblas
+     fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
 #      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
 #  fi
@@ -127,7 +131,9 @@ if [[ "$os" == "Linux" ]]; then
 	which mpif90
 	mpif90 -show
     else
-	if [[ "$MPI_IMPL" == "openmpi" ]]; then
+	if [[ "$BLAS_ENV" == "lib*openblas*" ]]; then
+	    $MYSUDO apt-get install -y $BLAS_ENV
+	fi
 	    mpi_bin="openmpi-bin" ; mpi_libdev="libopenmpi-dev" scalapack_libdev="libscalapack-openmpi-dev"
 	fi
 	if [[ "$MPI_IMPL" == "mpich" ]]; then
