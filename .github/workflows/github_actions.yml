@@ -371,6 +371,33 @@ jobs:
             armci_network: MPI-TS
             nwchem_modules: "nwdft driver solvation"
             fc: flang-new-17
+          - os: ubuntu-22.04
+            experimental: true
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "nwdft driver solvation"
+            fc: gfortran
+            cc: gcc
+            blas: "libopenblas64-pthread-dev"
+            blas_size: 8
+          - os: ubuntu-22.04
+            experimental: true
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "nwdft driver solvation"
+            fc: gfortran
+            cc: gcc
+            blas: "libopenblas64-openmp-dev"
+            blas_size: 8
+          - os: macos-latest
+            experimental: true
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "nwdft driver solvation"
+            fc: gfortran
+            cc: gcc
+            blas: "brew_openblas"
+            blas_size: 4
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
