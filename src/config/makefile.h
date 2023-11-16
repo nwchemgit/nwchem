@@ -3733,7 +3733,7 @@ ifdef BUILD_OPENBLAS
     DEFINES += -DOPENBLAS
 endif
 ifeq ($(shell echo $(BLASOPT) |awk '/openblas/ {print "Y"; exit}'),Y)
-    ifeq ($(shell $(NWCHEM_TOP)/src/config/oblas_ompcheck.sh),1)
+    ifeq ($(shell $(NWCHEM_TOP)/src/config/oblas_ompcheck.sh $(NWCHEM_TOP)),1)
         OPENBLAS_USES_OPENMP = 1
         LDOPTIONS += -fopenmp
     endif
