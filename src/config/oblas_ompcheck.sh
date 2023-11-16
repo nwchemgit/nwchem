@@ -6,6 +6,7 @@
 # oblas_name=openblas64
 #echo "USE_OPENMP is equal to " $USE_OPENMP
 mylog=/tmp/mylog.txt
+NWCHEM_TOP=$1
 file_check=$NWCHEM_TOP/src/oblas_ompcheck_done.txt
 if [ -f $file_check ]; then
     echo $file_check present >> $mylog
