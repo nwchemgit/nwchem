@@ -415,6 +415,8 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
 #
 
 
+## set USE_64TO32=y on by default since we do make 64_to_32 for this tarball
+  USE_64TO32=y
 #
 # Establish some required defaults which may need overriding
 # for some machines
