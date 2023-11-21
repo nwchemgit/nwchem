@@ -2,8 +2,8 @@
 UNAME_S=$(uname -s)
 arch=`uname -m`
 if [[ ${UNAME_S} == Linux ]]; then
-    CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
-    CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |tail -n 1)
+    CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |grep -v vmx\ flags |tail -n 1)
+    CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |grep -v vmx\ flags |tail -n 1)
 elif [[ ${UNAME_S} == Darwin ]]; then
     CPU_FLAGS=$(/usr/sbin/sysctl -n machdep.cpu.features)
     if [[ "$arch" == "x86_64" ]]; then
