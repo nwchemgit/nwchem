@@ -27,11 +27,16 @@ else
     SOSUFFIX=so
 fi
 # check first against clang libomp
-gotomp=$($MYLDD $oblas_dir/lib$oblas_name.$SOSUFFIX | grep libomp | wc -l )
-# next check against gcc libgomp
-if [ $gotomp -eq 0 ]
+if [ -f "$oblas_dir/lib$oblas_name.$SOSUFFIX" ]; 
 then
-gotomp=$($MYLDD $oblas_dir/lib$oblas_name.$SOSUFFIX | grep libgomp | wc -l )
+    gotomp=$($MYLDD $oblas_dir/lib$oblas_name.$SOSUFFIX | grep libomp | wc -l )
+# next check against gcc libgomp
+    if [ $gotomp -eq 0 ]
+    then
+	gotomp=$($MYLDD $oblas_dir/lib$oblas_name.$SOSUFFIX | grep libgomp | wc -l )
+    fi
+else
+    gotomp=0
 fi
 echo gotomp $gotomp >> $mylog
 #conda packages might use OpenMP to thread OpenBLAS
