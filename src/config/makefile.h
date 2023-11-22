@@ -2358,32 +2358,6 @@ ifneq ($(TARGET),LINUX)
             endif
 
             # support for Intel(R) Fortran compiler
-            ifeq ($(_FC),ifxold)
-                DEFINES += -DIFCV8 -DIFCLINUX
-                FOPTIONS += -fpp -align
-                ifneq ($(V),1)
-                    FOPTIONS += -Qoption,fpp,-w0
-		endif
-                FOPTIMIZE = -g -O3 -fimf-arch-consistency=true
-                ifdef USE_I4FLAGS
-                else
-                    FOPTIONS += -i8
-                endif
-                ifdef USE_OPENMP
-                    FOPTIONS += -fopenmp
-                    ifdef USE_OFFLOAD
-                        FOPTIONS += -fopenmp-targets=spirv64
-                    endif
-                endif
-                ifdef OPENBLAS_USES_OPENMP
-                     LDOPTIONS += -fopenmp
-                endif
-                ifdef IFX_DEBUG
-                    # debugging remove at some point
-                    FOPTIONS += -std95 -what
-                endif
-                FDEBUG = $(FOPTIMIZE)
-            endif
 
 
             # support for traditional Intel(R) Fortran compiler
@@ -2467,6 +2441,9 @@ ifneq ($(TARGET),LINUX)
                             FOPTIONS += -fiopenmp
                             ifdef USE_OFFLOAD
                                 FOPTIONS += -fopenmp-targets=spirv64
+                                ifdef USE_IMAX_OPENMP_TRPDRV
+                                    DEFINES += -DUSE_IMAX_OPENMP_TRPDRV
+                                endif
                             endif
                         else
                             FOPTIONS += -qopenmp
