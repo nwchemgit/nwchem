@@ -221,7 +221,7 @@ c     -----------------------------------------
 c     create S matrix GA. Do we need to use that atom-block stuff
 c     here, like they do in the SCF calling routine dft_main0d.F ???
 
-      if (.not. ga_create(MT_DBL,nu,nc,'g_s',1,1,g_s)) call
+      if (.not. ga_create(MT_DBL,nu,nu,'g_s',1,1,g_s)) call
      &  errquit(pname//': ga_create failed g_s',11,GA_ERR)
       call ga_zero(g_s)
 
