@@ -94,17 +94,19 @@ endif
      aoccsd2.F \
      ccsd_fsig1.F \
      ccsd_fsig2.F \
+     ccsd_trpdrv_bgp2.F \
+     ccsd_trpdrv_offload.F \
+     ccsd_trpdrv_openacc.F \
+     ccsd_trpdrv_openmp_imax.F \
      moints_trp.F
 
 ifeq ($(TARGET),BGP)
   OBJ_OPTIMIZE += ccsd_trpdrv_bgp2.o ccsd_tengy_bgp2.o ccsd_tengy_bgp.o
-  USES_BLAS += ccsd_trpdrv_bgp2.F
   LIB_DEFINES += -DBGP
 endif
 
 ifdef USE_MIC_TRPDRV
   OBJ_OPTIMIZE += ccsd_trpdrv_offload.o
-  USES_BLAS    += ccsd_trpdrv_offload.F
   LIB_DEFINES += -DUSE_MIC_TRPDRV
 endif
 ifeq ($(_FC),xlf)
@@ -123,7 +125,6 @@ endif
 ifdef USE_IMAX_OPENMP_TRPDRV
 
   OBJ_OPTIMIZE += ccsd_trpdrv_openmp_imax.o
-  USES_BLAS    += ccsd_trpdrv_openmp_imax.F
 
   OBJ_OPTIMIZE += ccsd_trpdrv_omp_reduce_f.o
 
@@ -138,7 +139,6 @@ endif
 
 ifdef USE_OPENACC_TRPDRV
   OBJ_OPTIMIZE += ccsd_trpdrv_openacc.o
-  USES_BLAS    += ccsd_trpdrv_openacc.F
   FOPTIONS += -DUSE_OPENACC_TRPDRV
   ifeq ($(_FC),pgf90)
       FOPTIONS += -Mextend -acc -cuda -cudalib=cublas
