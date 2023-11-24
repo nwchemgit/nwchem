@@ -33,8 +33,8 @@ if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
 if [[ ${UNAME_S} == Linux ]]; then
-    CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
-    CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |tail -n 1)
+    CPU_FLAGS=$(cat /proc/cpuinfo | grep flags | grep -v vmx\ f |tail -n 1)
+    CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags | grep -v vmx\ f |tail -n 1)
 elif [[ ${UNAME_S} == Darwin ]]; then
     CPU_FLAGS=$(/usr/sbin/sysctl -n machdep.cpu.features)
     if [[ "$arch" == "x86_64" ]]; then

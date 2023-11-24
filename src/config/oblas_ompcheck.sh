@@ -9,9 +9,17 @@ mylog=/tmp/mylog.txt
 NWCHEM_TOP=$1
 file_check=$NWCHEM_TOP/src/oblas_ompcheck_done.txt
 if [ -f $file_check ]; then
-    echo $file_check present >> $mylog
+#    echo $file_check present >> $mylog
     cat $file_check
     exit 0
+fi
+echo BLASOPT is $BLASOPT >> $mylog
+if [[  -z "${BLASOPT}" ]]; then
+    echo BLASOPT is empty >> $mylog
+    echo 0 >  $NWCHEM_TOP/src/oblas_ompcheck_done.txt
+    exit 0
+else
+    echo BLASOPT is not empty @$BLASOPT@ >> $mylog
 fi
 #extract oblas_dir & oblas_name from BLASOPT
 # 
@@ -27,11 +35,16 @@ else
     SOSUFFIX=so
 fi
 # check first against clang libomp
-gotomp=$($MYLDD $oblas_dir/lib$oblas_name.$SOSUFFIX | grep libomp | wc -l )
-# next check against gcc libgomp
-if [ $gotomp -eq 0 ]
+if [ -f "$oblas_dir/lib$oblas_name.$SOSUFFIX" ]; 
 then
-gotomp=$($MYLDD $oblas_dir/lib$oblas_name.$SOSUFFIX | grep libgomp | wc -l )
+    gotomp=$($MYLDD $oblas_dir/lib$oblas_name.$SOSUFFIX | grep libomp | wc -l )
+# next check against gcc libgomp
+    if [ $gotomp -eq 0 ]
+    then
+	gotomp=$($MYLDD $oblas_dir/lib$oblas_name.$SOSUFFIX | grep libgomp | wc -l )
+    fi
+else
+    gotomp=0
 fi
 echo gotomp $gotomp >> $mylog
 #conda packages might use OpenMP to thread OpenBLAS

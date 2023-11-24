@@ -32,8 +32,8 @@ else
     arch=$(uname -m)
 fi
 if [[ ${UNAME_S} == Linux ]]; then
-    CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
-    CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |tail -n 1)
+    CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |grep -v vmx\ f |tail -n 1)
+    CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags | grep -v vmx\ f |tail -n 1)
 elif [[ ${UNAME_S} == Darwin ]]; then
     CPU_FLAGS=$(sysctl -n machdep.cpu.features)
     if [[ "$arch" == "x86_64" ]]; then
@@ -43,6 +43,8 @@ else
     echo Operating system not supported yet
     exit 1
 fi
+echo CPU_FLAGS $CPU_FLAGS
+echo CPU_FLAGS_2 $CPU_FLAGS_2
   GOTSSE2=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /sse2/   {print "Y"}')
    GOTAVX=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx/    {print "Y"}')
   GOTAVX2=$(echo ${CPU_FLAGS_2} | tr  'A-Z' 'a-z'| awk ' /avx2/   {print "Y"}')
