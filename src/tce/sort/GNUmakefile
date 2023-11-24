@@ -1,6 +1,8 @@
 #$Id: GNUmakefile 26511 2014-12-10 17:54:10Z jhammond $
 #
 
+include ../../config/makefile.h
+
 OBJ_OPTIMIZE = tce_sort_4kg.o
 
 # OLD DEFAULT
@@ -27,6 +29,17 @@ OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o
 # This is used in the EOM code.
 OBJ_OPTIMIZE += tce_sort1.o
 
+# This is for CCSD - uses do concurrent for GPU support
+OBJ_OPTIMIZE += new_sort4_x.o
+
+# replace this with something better later
+ifdef USE_OPENACC_TRPDRV
+  ifeq ($(_FC),pgf90)
+      FOPTIONS += -Mextend -stdpar=gpu -gpu=managed
+  endif
+endif
+
+
 LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
@@ -34,14 +47,6 @@ LIBRARY = libtce.a
 USES_BLAS = 
 
 HEADERS =
-
-# This has to go before makefile.h
-#OPTIMIZE = 1
-
-include ../../config/makefile.h
-
-# This has to go after makefile.h
-#FOPTIMIZE += -qopt-streaming-stores=always
 
 include ../../config/makelib.h
 

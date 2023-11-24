@@ -1,4 +1,4 @@
-      subroutine tce_sort_4(u,s,a,b,c,d,i,j,k,l,f)
+      subroutine tce_sort_4_x(u,s,a,b,c,d,i,j,k,l,f)
       implicit none
       integer, intent(in) :: a,b,c,d
       integer, intent(in) :: i,j,k,l
