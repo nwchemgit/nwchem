@@ -2440,7 +2440,7 @@ ifneq ($(TARGET),LINUX)
                         ifdef USE_IFX
                             FOPTIONS += -fiopenmp
                             ifdef USE_OFFLOAD
-                                FOPTIONS += -fopenmp-targets=spirv64
+                                FOPTIONS += -fopenmp-targets=spir64
                                 ifdef USE_IMAX_OPENMP_TRPDRV
                                     DEFINES += -DUSE_IMAX_OPENMP_TRPDRV
                                 endif
