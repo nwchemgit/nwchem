@@ -2,7 +2,11 @@ c#define DOGRAD
       subroutine aoccsd(basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,
      &                  convi,iprt,cmo,eorb,blen,
      &                  g_ncoul, g_nexch, RefEner,
-     $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
+     $                  CC_Theory, rtdb, mxvec, geom, Tol2e, occd,
+     &                  oconverged)
+#if defined(USE_IMAX_OPENMP_TRPDRV)
+      use omp_lib, only: omp_interop_kind, omp_interop_none
+#endif
       implicit none
 #include "errquit.fh"
 C     $Id$
@@ -16,6 +20,7 @@ c
       logical oconverged, occd, use_trpdrv_nb
       logical use_trpdrv_omp, use_trpdrv_bgp2
       logical use_trpdrv_omp_mp
+      logical use_trpdrv_openmp_imax
       logical use_trpdrv_openacc
       logical use_trpdrv_offload
 c
@@ -31,7 +36,10 @@ c
 #include "msgids.fh"
 #include "ccsdps.fh"
 c
+#if defined(USE_IMAX_OPENMP_TRPDRV)
 c ccsd
+      integer(kind = omp_interop_kind) :: dummy_obj = omp_interop_none
+#endif
       Integer i
       logical stat
       integer nsh,maxbfsh,max2e,mem2
@@ -721,6 +729,9 @@ C
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_openacc', mt_log, 1,
      1                   use_trpdrv_openacc))
      2    use_trpdrv_openacc=.false.
+      if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_openmp_imax', mt_log,
+     1               1, use_trpdrv_openmp_imax))
+     2    use_trpdrv_openmp_imax=.false.
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_offload', mt_log, 1,
      1                   use_trpdrv_offload))
      2    use_trpdrv_offload=.false.
@@ -955,6 +966,20 @@ c
      &      blen, cmo, ncor, nocc, nvir, ndel, Tol2E)
 c        print *,'call trpdrv ',nvpass
          call ga_sync()
+#if defined(USE_IMAX_OPENMP_TRPDRV)
+!     Dummy parallel construct
+      !$omp parallel num_threads(8)
+      !$omp end parallel
+
+!     Dummy target construct
+      !$omp target
+      !$omp end target
+
+!     Dummy interop object
+      !$omp interop init(prefer_type("sycl"),targetsync: dummy_obj)
+      !$omp interop destroy(dummy_obj)
+#endif
+
          tx(2)=tcgtime()
 c
          if (use_trpdrv_omp) then
@@ -992,8 +1017,23 @@ c
          call ccsd_trpdrv_openacc(dbl_mb(k_t1),eorb,
      $        g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,iprt,
      $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk)
+!!#else
+!!         call errquit('aoccsd: trpdrv_openacc disabled ',0,0)
+!!#endif
+! use_trpdrv_openmp_imax
+         else if (use_trpdrv_openmp_imax) then
+#elif defined(USE_IMAX_OPENMP_TRPDRV)
+         if (iam.eq.0.and.oprint) then
+            write(luout,1818) nvpass,util_wallsec()
+            call util_flush(luout)
+         endif
+ 1818    format(' commencing triples evaluation - OpenMP',
+     I        'MAX GPU version',i8,' at ',f20.2,' secs')
+         call ccsd_trpdrv_offload_xe(dbl_mb(k_t1),eorb,
+     $        g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,iprt,
+     $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk)
 #else
-         call errquit('aoccsd: trpdrv_openacc disabled ',0,0)
+         call errquit('aoccsd: trpdrv_openmp_gpu disabled ',0,0)
 #endif
 c
          elseif (use_trpdrv_omp_mp) then

@@ -111,7 +111,9 @@ c     offloading enabled.
       span = offload_span()
 #if USE_OPENMP
       ndev = omp_get_num_devices()
+#ifdef DEBUG
       write(6,*) ' omp_get_num_devices() ',ndev
+#endif
       offload_device = mod(ga_nodeid() / span, ndev)
       call omp_set_default_device(offload_device)
 #else
