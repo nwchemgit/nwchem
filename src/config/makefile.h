@@ -3585,8 +3585,10 @@ ifdef USE_MPI
         CORE_LIBS += $(NWLIBMPI) 
     endif
 else 
+   ifneq ($(MAKECMDGOALS),$(findstring $(MAKECMDGOALS), clean realclean distclean dependencies include_stamp deps_stamp directories $(BINDIR)/depend.x))
     errornousempi:
         $(info )
+        $(info MAKECMDGOALS $(MAKECMDGOALS))
         $(info please set the env. variable USE_MPI)
         $(info and provide a working MPI installation)
         $(info )
@@ -3595,6 +3597,7 @@ else
       CORE_LIBS += -ltcgmsg 
     else
       CORE_LIBS += 
+    endif
     endif
 endif 
 
