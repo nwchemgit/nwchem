@@ -3606,6 +3606,7 @@ ifdef USE_TBLITE
     else
         EXTRA_LIBS += -ltblite -ltoml-f -ldftd4 -lmulticharge -ls-dftd3 -lmctc-lib
     endif
+    EXTRA_LIBS += $(LAPACK_LIB) $(BLASOPT)
 endif
 
 # CUDA
