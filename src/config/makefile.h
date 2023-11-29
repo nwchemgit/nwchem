@@ -3602,19 +3602,10 @@ ifdef USE_TBLITE
     DEFINES  += -DUSE_TBLITE
     EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/lib
     ifdef TBLITE_MESON
-        TBLITE_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/_build/libtblite.so.0.2.0.p
-        MCTC_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/_build/subprojects/mctc-lib/libmctc-lib.a.p
         EXTRA_LIBS += -ltblite
     else
         EXTRA_LIBS += -ltblite -ltoml-f -ldftd4 -lmulticharge -ls-dftd3 -lmctc-lib
-        TBLITE_MODS=$(NWCHEM_TOP)/src/libext/include/tblite
-        MCTC_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/mctc-lib/*/)))
-        MCHR_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/multicharge/*/)))
-        TOMLF_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/toml-f/*/)))
-        DFTD3_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/s-dftd3/*/)))
-        DFTD4_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/dftd4/*/)))
     endif
-    EXTRA_LIBS += $(LAPACK_LIB) $(BLASOPT)
 endif
 
 # CUDA
