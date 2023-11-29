@@ -463,7 +463,7 @@ ifeq ($(USE_ARUR),Y)
     ARFLAGS = rU 
 endif
 
-
+ifndef SKIP_COMPILERS
 # strip long paths when FC and/or CC are set from user
 ifneq ($(FC),f77)
     _FC = $(notdir $(FC))
@@ -3480,127 +3480,6 @@ endif
 #  All machine dependent sections should be above here, otherwise #
 #  some of the definitions below will be 'lost'                   #
 ###################################################################
-#the new GA uses ARMCI library
-ifdef OLD_GA
-    ORE_LIBS += -larmci
-else
-    ifeq ($(ARMCI_NETWORK),ARMCI)
-        ifdef EXTERNAL_ARMCI_PATH
-            CORE_LIBS += -L$(EXTERNAL_ARMCI_PATH)/lib -larmci
-        else
-            CORE_LIBS += -larmci
-        endif
-    else
-        CORE_LIBS +=
-    endif
-endif
-
-
-# MPI version requires tcgmsg-mpi library
-ifdef USE_MPI 
-    #ifeq ($(FC),$(findstring $(FC),mpifrt mpfort mpif77 mpxlf mpif90 ftn scorep-ftn))
-    ifeq ($(FC),$(findstring $(FC), ftn scorep-ftn))
-        NWLIBMPI =
-        NWMPI_INCLUDE =
-        NWMPI_LIB =
-    else ifdef BUILD_MPICH
-        NW_CORE_SUBDIRS += libext
-        PATH := $(NWCHEM_TOP)/src/libext/bin:$(PATH)
-        NWMPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
-        NWMPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
-        NWLIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-        NWLIBMPI	+= $(shell pkg-config --libs-only-L hwloc 2> /dev/null)
-        ifeq ($(NWCHEM_TARGET),MACX64)
-           GOT_BREW = $(shell command -v brew 2> /dev/null)
-           ifdef GOT_BREW
-              NWLIBMPI	+= -L$(shell brew --prefix)/lib
-           endif
-	endif
-    else ifdef FORCE_MPI_ENV
-        ifndef MPI_INCLUDE
-            errormpi1:
-                $(info )
-                $(info FORCE_MPI_ENV set but MPI_INCLUDE not set)
-                $(info )
-                $(error )
-        else
-            NWMPI_INCLUDE = $(MPI_INCLUDE)
-        endif
-        ifndef MPI_LIB
-            errormpi2:
-                $(info )
-                $(info FORCE_MPI_ENV set but MPI_LIB not set)
-                $(info )
-                $(error )
-        else
-           NWMPI_LIB = $(MPI_LIB)
-	endif
-        ifndef LIBMPI
-            errormpi3:
-                $(info )
-                $(info FORCE_MPI_ENV set but LIBMPI not set)
-                $(info )
-                $(error )
-        else
-           NWLIBMPI = $(LIBMPI)
-	endif
-    else
-        ifeq ($(shell pwd), $(NWCHEM_TOP)/src)
-	    ifndef FORCE_MPI_ENV
-                ifdef LIBMPI
-                    $(info ***warning LIBMPI ignored since FORCE_MPI_ENV not set***)
-                endif
-                ifdef MPI_LIB
-                    $(info ***warning MPI_LIB ignored since FORCE_MPI_ENV not set***)
-                endif
-                ifdef MPI_INCLUDE
-                    $(info ***warning MPI_INCLUDE ignored since FORCE_MPI_ENV not set***)
-                endif
-	    endif
-	endif
-        # check if mpif90 is present
-        MPIF90YN = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
-        ifeq ($(MPIF90YN),mpif90notfound)
-            errormpif90:
-                $(info )
-                $(info mpif90 not found. Please add its location to PATH)
-                $(info e.g. export PATH=/usr/local/bin:/usr/lib64/openmpi/bin:...)
-                $(info )
-                $(error )
-        endif
-        NWMPI_INCLUDE = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
-        NWMPI_LIB     = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
-        NWLIBMPI      = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-    endif
-
-    ifdef NWMPI_INCLUDE
-      LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(NWMPI_INCLUDE))
-    endif
-    ifdef NWMPI_LIB 
-        CORE_LIBS += $(patsubst -L-L%,-L%,-L$(NWMPI_LIB))
-    endif 
-    ifdef OLD_GA
-        CORE_LIBS += -ltcgmsg-mpi $(NWLIBMPI) 
-    else
-        CORE_LIBS += $(NWLIBMPI) 
-    endif
-else 
-   ifneq ($(MAKECMDGOALS),$(findstring $(MAKECMDGOALS), clean realclean distclean dependencies include_stamp deps_stamp directories $(BINDIR)/depend.x))
-    errornousempi:
-        $(info )
-        $(info MAKECMDGOALS $(MAKECMDGOALS))
-        $(info please set the env. variable USE_MPI)
-        $(info and provide a working MPI installation)
-        $(info )
-        $(error )
-    ifdef OLD_GA
-      CORE_LIBS += -ltcgmsg 
-    else
-      CORE_LIBS += 
-    endif
-    endif
-endif 
-
 
 # FFTW3 library inclusion
 ifdef USE_FFTW3
@@ -3697,6 +3576,8 @@ endif
     ifeq ($(PLUMED_HASMPI),y)
         DEFINES += -DPLUMED_HASMPI
     endif
+
+#endif #SKIP_COMPILERS
 
 
 #TBLITE
