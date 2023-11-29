@@ -120,6 +120,7 @@ echo    "$FOPT$FDOPT"
     echo tail deps.log '11@@@'
     tail -10  deps.log
     echo done tail deps.log '11@@@'
+    make directories
     export QUICK_BUILD=1
     if [[ -z "$FOPT" ]]; then
 	make V=0   -j3
