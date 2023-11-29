@@ -183,8 +183,8 @@ clear_dbl_to_sngl:
 
 directories:
 	test \! -f 64_to_32 -o \! -f 32_to_64 || rm -f 64_to_32 32_to_64
-	test -d $(LIBDIR) || $(MKDIR) -p $(LIBDIR)
-	test -d $(BINDIR) || $(MKDIR) -p $(BINDIR)
+	test -d $(LIBDIR) || mkdir -p $(LIBDIR)
+	test -d $(BINDIR) || mkdir -p $(BINDIR)
 	./util/util_nwchem_version.bash
 
 auxiliary:
