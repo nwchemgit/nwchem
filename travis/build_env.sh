@@ -172,7 +172,7 @@ if [[ "$os" == "Linux" ]]; then
 	    fi
 	    echo pkg to install: gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
-			  $MYSUDO apt-get -y install gfortran make perl rsync $mpi_libdev $mpi_bin $pkg_extra \
+			  $MYSUDO apt-get -y install gfortran python3-dev python-dev-is-python3  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra \
 			      && break ;\
 			  tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
