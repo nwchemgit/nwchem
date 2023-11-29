@@ -117,6 +117,7 @@ echo    "$FOPT$FDOPT"
     echo tail deps.log '11@@@'
     tail -10  deps.log
     echo done tail deps.log '11@@@'
+    cd 64to32blas && make SKIP_COMPILERS=1 dependencies include_stamp && cd ..
     make directories
     export QUICK_BUILD=1
     if [[ -z "$FOPT" ]]; then
