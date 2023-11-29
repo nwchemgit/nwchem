@@ -109,61 +109,14 @@ fi
 
 
 #compilation
- if [[ "$os" == "Darwin" ]]; then 
-#   if [[ "$NWCHEM_MODULES" == "tce" ]]; then
-#     FOPT="-O1 -fno-aggressive-loop-optimizations"
-#   fi
-   if [[ ! -z "$USE_SIMINT" ]] ; then 
-       SIMINT_BUILD_TYPE=Debug
-       if [[ "$arch" != "x86_64" ]]; then
-	   SIMINT_VECTOR=scalar
-       fi
-       echo SIMINT_VECTOR is $SIMINT_VECTOR
-#       export PATH="/usr/local/bin:$PATH"
-#       export LDFLAGS="-L/usr/local/opt/python@3.7/lib:$LDFLAGS"
-   fi
-   if [[ -z "$TRAVIS_HOME" ]]; then
-       env
-       mkdir -p ../bin/MACX64
-       gcc -o ../bin/MACX64/depend.x config/depend.c
-       make nwchem_config
-       cd libext   && make V=-1  && cd ..
-       cd tools    && make V=-1  && cd ..
-       make SKIP_COMPILERS=y deps_stamp  >& deps.log
-       make directories
-       grep -i hess deps.log
-       echo tail deps.log '@@@'
-       tail -10  deps.log
-       echo done tail deps.log '@@@'
-       export QUICK_BUILD=1
-       if [[ -z "$FOPT" ]]; then
-	   make V=0   -j3
-       else
-	   make V=0 FOPTIMIZE="$FOPT"   -j3
-       fi
-   else
-       ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"   -j3
-   fi
-     unset QUICK_BUILD
-     cd $TRAVIS_BUILD_DIR/src/64to32blas 
-     make
-     cd $TRAVIS_BUILD_DIR/src
-     ../contrib/getmem.nwchem 1000
-     otool -L ../bin/MACX64/nwchem
-#     printenv DYLD_LIBRARY_PATH
-#     ls -lrt $DYLD_LIBRARY_PATH
-#      tail -120 make.log
- elif [[ "$os" == "Linux" ]]; then
-     export MAKEFLAGS=-j3
-     echo    "$FOPT$FDOPT"
-if [[ -z "$TRAVIS_HOME" ]]; then
-    mkdir -p ../bin/LINUX64
-    gcc -o ../bin/LINUX64/depend.x config/depend.c
+export MAKEFLAGS=-j3
+echo    "$FOPT$FDOPT"
+    mkdir -p ../bin/$NWCHEM_TARGET
+    gcc -o ../bin/$NWCHEM_TARGET/depend.x config/depend.c
     make nwchem_config
     cd libext   && make V=-1  && cd ..
     cd tools    && make V=-1  && cd ..
-    make SKIP_COMPILERS=y deps_stamp  >& deps.log
-    make directories
+    make SKIP_COMPILERS=1 deps_stamp  >& deps.log
     echo tail deps.log '11@@@'
     tail -10  deps.log
     echo done tail deps.log '11@@@'
@@ -173,15 +126,11 @@ if [[ -z "$TRAVIS_HOME" ]]; then
     else
 	make V=0 FOPTIMIZE="$FOPT"   -j3
     fi
-else
-    ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"  -j3
-fi
      unset QUICK_BUILD
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
      $TRAVIS_BUILD_DIR/contrib/getmem.nwchem 1000
- fi
  #caching
  mkdir -p $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET $TRAVIS_BUILD_DIR/.cachedir/files
  cp $TRAVIS_BUILD_DIR/bin/$NWCHEM_TARGET/nwchem  $NWCHEM_EXECUTABLE
