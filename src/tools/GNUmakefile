@@ -763,7 +763,7 @@ clean:
 	@test -e $(BUILDDIR)/Makefile && { cd $(BUILDDIR) && $(MAKE) clean; } || echo "Not configured"
 
 realclean:
-	@rm -rf $(BUILDDIR) $(INSTALLDIR)
+	@rm -rf $(BUILDDIR) $(INSTALLDIR) *amp
 # remove all files that are not .o objects (eg lib*.a) from libga.a
 cleanlibga:
 	mkdir -p ob
