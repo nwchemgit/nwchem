@@ -292,7 +292,7 @@ jobs:
             armci_network: MPI-PR
             nwchem_modules: "qmandpw qmd"
             fc: gfortran-12
-            xcode_version: 15.0
+            xcode_version: 15.0.1
           - os: macos-12
             experimental: true
             mpi_impl: openmpi
@@ -398,6 +398,16 @@ jobs:
             cc: gcc
             blas: "brew_openblas"
             blas_size: 4
+          - os: macos-13
+            experimental: true
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "nwdft driver solvation"
+            fc: gfortran
+            cc: gcc
+            blas: "brew_openblas"
+            blas_size: 4
+            xcode_version: 15.0.1
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}

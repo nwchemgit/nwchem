@@ -855,6 +855,9 @@ c Date   : 03-15-12
      &        g_grad_re(ncomp),
      &        g_grad_im(ncomp)
       logical use_my_guess,lifetime
+      integer a_nrow,a_ncol
+      integer b_nrow,b_ncol
+      integer gtype
 c Note.- use_my_guess, stored in rtdb and used
 c        to indicate if we are using a vector solution
 c        taken from a file or not
@@ -889,10 +892,30 @@ c               n1= [sum_i nocc(i)*nvir(i)] * ncomp
           m1=shift+1
           m2=shift+nvec
          endif ! ------------------------if-use_my_guess--END
-          do ipm = 1,ncomp
+         do ipm = 1,ncomp
+            call ga_inquire(g_grad_re(ipm), gtype, a_nrow, a_ncol)
+            if(m1.gt.a_nrow.or.m2.gt.a_ncol) then
+               if(ga_nodeid().eq.0)
+     W              write(luout,*)
+     W              ' cphf_solve3: g_grad_re wrong col indices',
+     M              m2, ' gt ',a_ncol
+chack
+             shift=a_ncol-1
+               if(ga_nodeid().eq.0)
+     W              write(luout,*)  ' cph_solve2: reset shift=',shift
+             m1=1
+             m2=nvec
+c               call errquit(' cphf_solve3: wrong patch indices',1,0)
+            endif
            call ga_copy_patch('n',g_grad_re(ipm),1,vlen,m1,m2, 
      $                            g_work_re(ipm),1,vlen,1 ,nvec)
            if (lifetime) then
+              call ga_inquire(g_grad_im(ipm), gtype, b_nrow, b_ncol)
+              if(1.gt.b_nrow.or.nvec.gt.b_ncol) then
+                 write(luout,*) ipm,' g_grad_im wrong indices',1, nvec,
+     A                ' gt ',b_nrow, b_ncol
+                 call errquit(' cphf_solve3: wrong patch indices',2,0)
+              endif
            call ga_copy_patch('n',g_grad_im(ipm),1,vlen,m1,m2, 
      $                            g_work_im(ipm),1,vlen,1 ,nvec)
            endif
