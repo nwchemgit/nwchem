@@ -10,6 +10,9 @@ elif [[ ${UNAME_S} == Darwin ]]; then
 	CPU_FLAGS_2=$(/usr/sbin/sysctl -n machdep.cpu.leaf7_features)
     fi
 fi
+if [[ $(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /clzero/{print "Y"}') == "Y" ]]; then
+    echo "zen"
+    exit 0
 if [[ $(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}') == "Y" ]]; then
     echo "avx512"
     exit 0
