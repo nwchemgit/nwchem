@@ -13,7 +13,7 @@ fi
 if [[ $(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /clzero/{print "Y"}') == "Y" ]]; then
     echo "zen"
     exit 0
-if [[ $(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}') == "Y" ]]; then
+elif [[ $(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}') == "Y" ]]; then
     echo "avx512"
     exit 0
 elif [[ $(echo ${CPU_FLAGS_2} | tr  'A-Z' 'a-z'| awk ' /avx2/   {print "Y"}') == "Y" ]]; then
