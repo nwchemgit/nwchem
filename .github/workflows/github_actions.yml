@@ -21,7 +21,7 @@ jobs:
       matrix:
         blas: [build_openblas]
         blas_size: [8]
-        os: [ubuntu-20.04, macos-11]
+        os: [ubuntu-20.04, macos-latest]
         experimental: [false]
         mpi_impl:
           - openmpi
@@ -37,10 +37,10 @@ jobs:
         fc:
           - gfortran
         exclude:
-          - os: macos-11
+          - os: macos-latest
             mpi_impl: mpich
             nwchem_modules: "tinyqmpw python"
-          - os: macos-11
+          - os: macos-latest
             mpi_impl: mpich
             nwchem_modules: "qmandpw qmd"
         include:
@@ -246,7 +246,7 @@ jobs:
             fc: ifort
             cc: icx
             use_libxc: 1
-          - os: macos-11
+          - os: macos-latest
             experimental: true 
             mpi_impl: openmpi
             armci_network: MPI-TS
@@ -293,7 +293,7 @@ jobs:
             nwchem_modules: "qmandpw qmd"
             fc: gfortran-12
             xcode_version: 15.0.1
-          - os: macos-12
+          - os: macos-latest
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-PR
@@ -301,14 +301,14 @@ jobs:
             fc: gfortran-11
             cc: gcc-11
             xcode_version: 13.4.1
-          - os: macos-12
+          - os: macos-latest
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
             fc: gfortran-11
             xcode_version: 13.4.1
-          - os: macos-11
+          - os: macos-latest
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
@@ -316,7 +316,7 @@ jobs:
             fc: gfortran-9
             blas: "accelerate"
             blas_size: 4
-          - os: macos-12
+          - os: macos-latest
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-PT
