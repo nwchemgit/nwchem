@@ -62,16 +62,6 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 # Intel MPI not available on macos       
 #       export BUILD_MPICH=1
        unset BUILD_PLUMED
-# python arm64 not compatible with x86_64       
-       if [[ "$arch" == "arm64" ]]; then
-#         export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/python//')
-           if [[ -d ~/.pyenv/versions/3.10.6_x86 ]]; then
-	       export PYENV_ROOT="$HOME/.pyenv"
-	       command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-	       eval "$(pyenv init -)"
-	       pyenv shell 3.10.6_x86
-	 fi	  	
-       fi
        
     fi
     "$FC" -v
@@ -100,8 +90,6 @@ if [[ "$os" == "Darwin" ]]; then
   if [[ "$MPI_IMPL" == "build_mpich" ]]; then 
     export BUILD_MPICH=1
   fi
-  #python3 on brew
-#  export PATH=/usr/local/bin:$PATH
 
 fi
 if [[ "$os" == "Linux" ]]; then 
