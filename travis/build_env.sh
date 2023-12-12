@@ -33,7 +33,7 @@ echo DISTR is "$DISTR"
  if [[ "$os" == "Darwin" ]]; then 
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
-     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep automake autoconf ||true
+     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" gsed grep automake autoconf ||true
      if [[ "$FC" != "gfortran" ]]; then
 	 #install non default gfortran, ie gfortran-9
 	 #get version
@@ -90,9 +90,6 @@ echo DISTR is "$DISTR"
 	"$FC" -V
 	icc -V
      fi
-     #hack to get 3.10 as default
-     brew install python@3.10
-     brew link --force --overwrite python@3.10
      if [[ "$MPI_IMPL" == "mpich" ]]; then
 	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
 	 brew update || true
@@ -173,9 +170,9 @@ if [[ "$os" == "Linux" ]]; then
 	    if [[ "$BLAS_ENV" == lib*openblas* ]]; then
 		pkg_extra+=" $BLAS_ENV"
 	    fi
-	    echo pkg to install: gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra
+	    echo pkg to install: gfortran make perl sync $mpi_libdev $mpi_bin $pkg_extra
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
-			  $MYSUDO apt-get -y install gfortran python3-dev python-dev-is-python3  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra \
+			  $MYSUDO apt-get -y install gfortran make perl rsync $mpi_libdev $mpi_bin $pkg_extra \
 			      && break ;\
 			  tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 

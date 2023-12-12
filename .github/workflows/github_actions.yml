@@ -455,6 +455,10 @@ jobs:
         with:
           show-progress:
           fetch-depth: 200
+      - name: Install Python
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
       - name: Get Instruction
         id: get-simd
         run: |
