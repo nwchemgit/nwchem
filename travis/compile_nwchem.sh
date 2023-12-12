@@ -119,7 +119,13 @@ echo    "$FOPT$FDOPT"
     make SKIP_COMPILERS=1 deps_stamp  >& deps.log
     echo tail deps.log '11@@@'
     tail -10  deps.log
+    grep -i python deps.log
     echo done tail deps.log '11@@@'
+    python -V || true
+    python-config  --ldflags || true
+    python3 -V || true
+    python3-config  --ldflags || true
+    cd python && rm -f dependencies include_stamp ||true && make dependencies include_stamp && cd ..
     cd 64to32blas && make SKIP_COMPILERS=1 dependencies include_stamp && cd ..
     make directories
     export QUICK_BUILD=1
