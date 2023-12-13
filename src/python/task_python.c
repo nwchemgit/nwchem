@@ -42,7 +42,9 @@ int FATR task_python_(Integer *rtdb_ptr)
    wchar_t nwprogram[20];
    mbstowcs(nwprogram, "NWChem", strlen("NWChem") + 1);
 #else
+#if PY_VERSION_HEX < 0x03080000
    wchar_t *nwprogram = Py_DecodeLocale("NWChem", NULL);
+#endif   
 #endif
 #if PY_VERSION_HEX < 0x03080000
    Py_SetProgramName(nwprogram);
