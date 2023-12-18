@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # oblas_dir directory where libopenblas is located
 # oblas_name "openblas" suffix in lib"openblas".
 # e.g. for debian pkg libopenblas64-pthread-dev
