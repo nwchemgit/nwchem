@@ -64,6 +64,7 @@
          CalcPerturbedTDPmat1_opt.o \
          localization_driver.o \
          ibo_localization.o \
+         pm_localization.o \
          hnd_vec_write.o \
 	 giao_b1_movecs_tools.o \
          aor_r1_beta_anl_tools.o\
