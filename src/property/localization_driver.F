@@ -374,12 +374,13 @@ c          (occ-occ transformation only)
      &           UNKNOWN_ERR)
              end if
 
-             call util_file_name(filename,.true.,.true.,lmotrans)
+             call util_file_name(filename,.false.,.false.,lmotrans)
              if(.not.file_write_ga(lmotrans,g_t)) call errquit
      &         (pname//' pmloc: could not write lmotrans',1, DISK_ERR)
 
-             if (debug) write (luout,*)
-     &         pname//': pmloc lmotrans written'
+             if (master) write (luout,'(1x,a/1x,a)')
+     &         'PM transformation (occ.) written to file ',
+     &         trim(lmotrans)
 
              if (.not. ga_destroy(g_t)) call errquit(
      &         pname//' pmloc: error destroying g_t',1, GA_ERR)
@@ -710,12 +711,13 @@ c          (occ-occ transformation only)
      &           UNKNOWN_ERR)
              end if
 
-             call util_file_name(filename,.true.,.true.,lmotrans)
+             call util_file_name(filename,.false.,.false.,lmotrans)
              if(.not.file_write_ga(lmotrans,g_t)) call errquit
      &         (pname//' ibo: could not write lmotrans',1, DISK_ERR)
 
-             if (debug) write (luout,*)
-     &         pname//': ibo lmotrans written'
+             if (master) write (luout,'(1x,a/1x,a)')
+     &         'IBO transformation (occ.) written to file ',
+     &         trim(lmotrans)
 
              if (.not. ga_destroy(g_t)) call errquit(
      &         pname//' ibo: error destroying g_t',1, GA_ERR)
@@ -769,7 +771,7 @@ c     Localization done. return
 c     ---------------------------------------
       
       if (oprint) then
-        write (LuOut,*) 'Exiting Localization driver routine'
+        write (LuOut,'(/1x,a)') 'Exiting Localization driver routine'
       endif
 
 c     ==================================================================
