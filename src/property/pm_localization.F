@@ -65,13 +65,6 @@ c     local variables:
       parameter (small=1d-8)
 
       double precision minval, swap
-c      integer l_val, k_val
-
-c$$$      logical int_normalize
-c$$$      external int_normalize
-c$$$
-c$$$      integer ga_create_atom_blocked
-c$$$      external ga_create_atom_blocked
 
       character*(15) pname
 
@@ -153,9 +146,6 @@ c     the Fock matrix was diagonal in the basis of input MOs.
           s = iloc(ss)
           eval(s) = c(s,2)
         end do
-
-c       write(6,*) 'transformed the MO energies'
-c       write(6,*) (eval(t), t = 1,nloc)
 
         do ss = 1, nloc -1
           s = iloc(ss)
