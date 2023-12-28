@@ -121,7 +121,8 @@ c
 c
 c     ----- dipole moment -----
 c
-      if(nodip.eq.0.or.nopmloc.eq.0.or.noboysloc.eq.0.or.nodpl.eq.0) 
+      if(nodip.eq.0.or.nopmloc.eq.0.or.noboysloc.eq.0.or.noiboloc.eq.0
+     &  .or.nodpl.eq.0) 
      &  call hnd_mtpole(rtdb,basis,geom,1)
 c
 c     ----- quadrupole moment -----
