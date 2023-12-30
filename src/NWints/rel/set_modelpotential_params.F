@@ -23,7 +23,8 @@ c
       character*32 pname
 c
       integer i,j,k
-      character*16 tagi      ! tag of atom i
+      character*16 tagi         ! tag of atom i
+      integer iptr
       character*2 symi
       character*16 elemi
       double precision ci(3),chgi
@@ -41,8 +42,15 @@ c
 c     map the model potential onto the geometry
       do i = 1,natoms
         if (.not.geom_cent_get(geom,i,tagi,ci,chgi)) 
-     &    call errquit(pname//'geom_cent_get failed:i',911, GEOM_ERR)
-        status = geom_tag_to_element(tagi,symi,elemi,atni)
+     &      call errquit(pname//'geom_cent_get failed:i',911, GEOM_ERR)
+c     handle bqs
+        if (inp_compare(.false.,tagi(1:2),'bq')) then
+           iptr=3
+        else
+           iptr=1
+        endif
+        if(.not.geom_tag_to_element(tagi(iptr:),symi,elemi,atni))
+     &      call errquit(pname//'geom_tag2elem failed:i',i, GEOM_ERR)
         call inp_lcase(symi)
 cinit
         do k = 1,50
@@ -62,8 +70,11 @@ cinit
           end if
         end do ! j = 1,mpmaxelem 
  1984   continue
-        if(ga_nodeid().eq.0.and.(.not.status)) write(6,'(a,i3,2x,a)') 
+        if(ga_nodeid().eq.0.and.(.not.status)) then
+           write(6,'(a,i3,2x,a)') 
      W       ' modelpotential warning: no entry found for atom ',i,tagi
+           call errquit(' set_modelpotential error ',0,0)
+        endif
       end do  ! i = 1,natoms 
 c
 c     set parameters in rtdb
