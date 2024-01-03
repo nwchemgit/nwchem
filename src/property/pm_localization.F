@@ -1,8 +1,7 @@
 
-      subroutine pm_localization(rtdb, geom, ltyp, basis, g_c,
-     &  g_sc, g_sc0,
-     &  nocc, nvir, nmo, nbf, natoms, eval, occ, c, sc, iloc, pop, list,
-     &  ispin,nspin)
+      subroutine pm_localization(rtdb, geom, ltyp, basis, g_c, g_sc,
+     &  g_sc0, nocc, nvir, nmo, nbf, natoms, eval, occ, c, sc, iloc,
+     &  pop, list)
 
 c     =================================================================
 c     set up Pipek-Mezey localization
@@ -44,7 +43,6 @@ c     subroutine arguments:
       double precision pop(natoms)
       integer list(natoms)
       integer iloc(nmo)
-      integer ispin, nspin
 
 c     local GA handles:
 
