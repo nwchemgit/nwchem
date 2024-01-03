@@ -313,7 +313,7 @@ c          save g_sc in g_sc0 to calculate the loc. transform later
      &         dbl_mb(k_eval+(ispin-1)*nbf),
      &         dbl_mb(k_occ+(ispin-1)*nbf),
      &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
-     &         dbl_mb(k_pop), int_mb(k_list), ispin, nspin)
+     &         dbl_mb(k_pop), int_mb(k_list))
 
            else if (loc_opt.eq.1) then
 
@@ -324,7 +324,7 @@ c          save g_sc in g_sc0 to calculate the loc. transform later
      &         dbl_mb(k_eval+(ispin-1)*nbf),
      &         dbl_mb(k_occ+(ispin-1)*nbf),
      &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
-     &         dbl_mb(k_pop), int_mb(k_list), ispin, nspin)
+     &         dbl_mb(k_pop), int_mb(k_list))
 
            else if (loc_opt.eq.2) then
 
@@ -335,7 +335,7 @@ c          save g_sc in g_sc0 to calculate the loc. transform later
      &         dbl_mb(k_eval+(ispin-1)*nbf),
      &         dbl_mb(k_occ+(ispin-1)*nbf),
      &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
-     &         dbl_mb(k_pop), int_mb(k_list), ispin, nspin)
+     &         dbl_mb(k_pop), int_mb(k_list))
 
              ltyp = 'vir'
              call pm_localization(rtdb, geom, ltyp, basis,
@@ -344,7 +344,7 @@ c          save g_sc in g_sc0 to calculate the loc. transform later
      &         dbl_mb(k_eval+(ispin-1)*nbf),
      &         dbl_mb(k_occ+(ispin-1)*nbf),
      &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
-     &         dbl_mb(k_pop), int_mb(k_list), ispin, nspin)
+     &         dbl_mb(k_pop), int_mb(k_list))
 
            else
              call errquit(pname//': loc_opt out of range',loc_opt,
@@ -653,7 +653,7 @@ c          the localization transformation later for this spin
      &         dbl_mb(k_eval+(ispin-1)*nbf),
      &         dbl_mb(k_occ+(ispin-1)*nbf),
      &         dbl_mb(k_c),
-     &         dbl_mb(k_pop), int_mb(k_list), ispin, nspin)
+     &         dbl_mb(k_pop), int_mb(k_list))
 
            else if (loc_opt.eq.1) then
              ltyp = 'vir'
@@ -662,7 +662,7 @@ c          the localization transformation later for this spin
      &         dbl_mb(k_eval+(ispin-1)*nbf),
      &         dbl_mb(k_occ+(ispin-1)*nbf),
      &         dbl_mb(k_c),
-     &         dbl_mb(k_pop), int_mb(k_list), ispin, nspin)
+     &         dbl_mb(k_pop), int_mb(k_list))
 
            else if(loc_opt.eq.2) then
              ltyp = 'occ'
@@ -671,7 +671,7 @@ c          the localization transformation later for this spin
      &         dbl_mb(k_eval+(ispin-1)*nbf),
      &         dbl_mb(k_occ+(ispin-1)*nbf),
      &         dbl_mb(k_c),
-     &         dbl_mb(k_pop), int_mb(k_list), ispin, nspin)
+     &         dbl_mb(k_pop), int_mb(k_list))
 
              ltyp = 'vir'
              call ibo_localization(rtdb, geom, ltyp, basis,
@@ -679,7 +679,7 @@ c          the localization transformation later for this spin
      &         dbl_mb(k_eval+(ispin-1)*nbf),
      &         dbl_mb(k_occ+(ispin-1)*nbf),
      &         dbl_mb(k_c),
-     &         dbl_mb(k_pop), int_mb(k_list), ispin, nspin)
+     &         dbl_mb(k_pop), int_mb(k_list))
 
            else
              call errquit(pname//': loc_opt out of range',loc_opt,
