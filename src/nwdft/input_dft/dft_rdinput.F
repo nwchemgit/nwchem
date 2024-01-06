@@ -58,7 +58,7 @@ c
       External int_normalize
       External int_norm_2c
       External atom_tag_check
-      logical status
+      logical status,exact_2c
 c
       me=ga_nodeid()
 c
@@ -1116,7 +1116,21 @@ c     Define the contracted Gaussian functions for the CD basis set.
 c
       if (.not. bas_create(CD_bas_han, 'cd basis'))
      &   call errquit(pname//'bas_create?',102, BASIS_ERR)
-      CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
+      cdfit=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
+c
+c     cdfit and x2c are not compatible
+c
+      if (.not. rtdb_get(rtdb,'x2c',mt_log,1,exact_2c)) 
+     &    exact_2c = .false.
+      if(exact_2c.and.cdfit) then
+         if(ga_nodeid().eq.0) then
+            write(LuOut,*) 
+            write(LuOut,*) 'WARNING: CD fitting disabled'
+            write(LuOut,*) ' when x2c is used'
+            write(LuOut,*) 
+            cdfit=.false.
+         endif
+      endif
 c
 c     if adft && cdfit bas not provided, try to load
 c     	def2-universal-jfit
