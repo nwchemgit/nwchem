@@ -55,7 +55,8 @@ c
       integer l_c_t, k_c_t
       integer l_act, k_act, l_actsh, k_actsh
       integer twopdmunit
-      integer junk, ninseg, ierr, i, j, ish, ishlo, ishhi, shmax, tdim
+      integer junk(2), ninseg, ierr, i, j, ish, ishlo, ishhi, shmax,
+     t     tdim
       integer nsh, natoms, nactive, nblock
 c
       integer k_scr, l_scr, k_lab, l_lab, k_eri, l_eri, leneri, lenscr
@@ -482,10 +483,6 @@ c
          else
             call ga_copy(g_buf_trans,g_buf)
          endif
-cc      call ga_print(g_buf_trans)
-cc      call ga_print(g_buf)
-c               call ga_sync()
-c         call ga_mask_sync(.true.,.false.)
          call ga_sync()
 c     
 c     Now have locally (a,1:nbfpairlocal).  Loop thru local shell pairs
@@ -524,7 +521,6 @@ c
             ptr = ptr + count*(oseg_hi-oseg_lo+1)
          end do
 c     
-cedo         call ga_mask_sync(.true.,.false.)
          call ga_sync
 c     
       end do                    ! End of i
@@ -1158,27 +1154,12 @@ c     check for boundaries of buff()
                write(6,*) ga_nodeid(),' i_1.gt.ihi ',i_1,ihi
                call errquit(' mp2copybck: i boundary passed ',0,0)
             endif
-#if 0
-            call ga_get(g_a_trans,i_0,i_1,
-     A           jlo,jhi,buff(i_0,jlo),i_ld)
-#else
             call ga_get(g_a_trans,i_0,i_1,
      A           jlo,jhi,buff,i_ld)
             call ga_put(g_a, i_0, i_1, jlo, jhi, buff, i_ld)
-#endif
          enddo
       endif
 c     everybody needs to have the buffer filled
       call ga_sync()
-cold      if(dowork) call ga_put(g_a, ilo, ihi, jlo, jhi, buff, ihi-ilo+1)
-      call ga_sync()
-#if 0
-      call ga_sync()
-      tr=ga_ddot(g_a,g_a)
-      tr_tr=ga_ddot(g_a_trans,g_a_trans)
-      if(abs(tr-tr_tr).gt.1d-6)then
-         if(ga_nodeid().eq.0)write(6,*) 'tr ',tr,' tr_tr ',tr_tr
-      endif
-#endif
       return
       end

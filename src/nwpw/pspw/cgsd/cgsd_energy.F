@@ -3,9 +3,9 @@ c     $Id$
 c
 
 *     ***************************
-*     *				*
-*     *		cgsd_energy	*
-*     *				*
+*     *                         *
+*     *        cgsd_energy      *
+*     *                         *
 *     ***************************
 
       real*8 function cgsd_energy(newpsi)

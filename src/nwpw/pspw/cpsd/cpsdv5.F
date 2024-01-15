@@ -212,6 +212,8 @@ c#include "Parallel.fh"
       external control_fractional_kT
       real*8   control_fractional_alpha
       external control_fractional_alpha
+      logical  control_gram_schmidt
+      external control_gram_schmidt
 
       integer  pspw_Efield_type
       external pspw_Efield_type
@@ -716,6 +718,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          write(luout,1290) control_tole(),control_tolc(),control_tolr()
          write(luout,1281) control_it_in()*control_it_out(),
      >                 control_it_in(),control_it_out()
+         if (control_gram_schmidt()) write(luout,1282)
 
         if (control_fractional()) then
            write(6,1297)
@@ -786,7 +789,8 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
            read(31,*,end=100) emotion_time_shift,w,sumall,gx,gy,gz
            end do
   100      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
+#warning backspace           
            backspace 31
 #endif
          else
@@ -839,10 +843,12 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 
 
          !**** emotion write ****
-         write(31,1311) icount*it_in*dt + emotion_time_shift,
-     >                  e(1),deltae,deltac,deltar,e(2),e(3),e(4),
-     >                  e(5),e(6),e(7),e(8),e(9),e(10)
-         call util_flush(31)
+         if (taskid.eq.MASTER) then
+            write(31,1311) icount*it_in*dt + emotion_time_shift,
+     >                     e(1),deltae,deltac,deltar,e(2),e(3),e(4),
+     >                     e(5),e(6),e(7),e(8),e(9),e(10)
+            call util_flush(31)
+         end if
 
          !**** xyz write ****
          call xyz_novelocity_write()
@@ -1524,6 +1530,7 @@ c      call frac_occ_end()
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
+ 1282 FORMAT(5X, ' Gram Schmidt orthonormality used')
  1290 FORMAT(5X, ' tolerance=',E9.3,' (energy)',E12.3,
      &        ' (electron)',E12.3,' (ion)')
  1297 FORMAT(/' fractional smearing parameters:')
@@ -1545,10 +1552,10 @@ c      call frac_occ_end()
  1332 FORMAT(/' Elements of Hamiltonian matrix (down)')
  1333 FORMAT(/' Diagonal Elements of Hamiltonian matrix(up/restricted)')
  1334 FORMAT(/' Diagonal Elements of Hamiltonian matrix(down)')
- 1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
- 1341 FORMAT(I3,2I3,' H=',E16.6)
+ 1340 FORMAT(I5,2I5,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
+ 1341 FORMAT(I5,2I5,' H=',E16.6)
  1350 FORMAT(/' orthonormality')
- 1360 FORMAT(I3,2I3,E18.7)
+ 1360 FORMAT(I5,2I5,E18.7)
  1370 FORMAT(I3)
  1380 FORMAT(' ''',a,'''',I4)
  1390 FORMAT(I3)

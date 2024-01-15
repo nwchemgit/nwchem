@@ -1,0 +1,56 @@
+#
+# $Id$
+#
+
+title "3 Water molecules scf with DFT hfexch"
+
+start h2o
+
+geometry autosym
+       O          -0.167787    1.645761    0.108747
+       H           0.613411    1.102620    0.113724
+       H          -0.093821    2.209720   -0.643619
+       O           1.517569   -0.667424   -0.080674
+       H           1.989645   -1.098799    0.612047
+       H           0.668397   -1.091798   -0.139744
+       O          -1.350388   -0.964879   -0.092208
+       H          -1.908991   -1.211298    0.626207
+       H          -1.263787   -0.018107   -0.055536 
+end
+
+
+basis
+  H library aug-cc-pvdz
+  O library aug-cc-pvtz
+end
+set dftguess t
+scf
+#uhf
+#triplet
+end
+task scf
+eof
+driver
+  clear
+end
+set movecs:tanalyze 0d0
+task dft
+eof
+dft
+xc hfexch
+end
+scf
+print 'final vector analysis' "final vector analysis"
+end
+#task dft
+#eof
+set forces:fakezero t
+task scf optimize
+eof
+task dft gradient
+eof
+
+scf; print low; end
+task scf optimize
+
+

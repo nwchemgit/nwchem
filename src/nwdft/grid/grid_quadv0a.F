@@ -50,6 +50,7 @@ c
       integer ncontrsetx,lbas_cent_xinfo, ibas_cent_xinfo,
      &        lbas_cset_xinfo, ibas_cset_xinfo,
      .     ldocsetx, idocsetx
+      integer basis
 
       logical grid_file_rewind
       external grid_file_rewind
@@ -80,6 +81,8 @@ c
       grad=xc_chkgrad()   ! checks if we have a gradient xc functional
       kske=xc_chktau()    ! checks if we have a tau xc functional
       kslap=xc_chklap()   ! checks if we have a lap xc functional
+      basis = ao_bas_han
+      if (adft) basis = xc_bas_han
 
       if(n_rec_in_file.eq.0) goto 100
 c
@@ -98,7 +101,7 @@ c
       if (.not. grid_file_rewind())
      $   call errquit(pname//'rewinding gridpts?', 0,
      &       UNKNOWN_ERR)
-      if (.not.bas_numcont(AO_bas_han, ncontrset))
+      if (.not.bas_numcont(basis, ncontrset))
      &     call errquit('Exiting in grid_quadv0a',0, BASIS_ERR)
 c
 c     Allocate and create info for new basis function evaluator
@@ -111,9 +114,9 @@ c
      &     lbas_cset_info, ibas_cset_info))
      &     call errquit(pname//'cannot allocate bas_cset_info',0,
      &       MA_ERR)
-      call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
+      call xc_make_basis_info(basis, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
-      if (xcfit) then
+      if (xcfit.and.(.not.adft)) then
          if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_xinfo',
      &        lbas_cent_xinfo, ibas_cent_xinfo))
      &        call errquit(pname//'cant alloca bas_cent_info',0,
@@ -238,7 +241,7 @@ c
      &     call errquit('grid_quadv0a: pop stack failed.',1, MA_ERR)
  100  continue
       if(oprint_qbecke) then
-         call dft_printqbecke(geom,ao_bas_han,ncenters,dbl_mb(k_becke))
+         call dft_printqbecke(geom,basis,ncenters,dbl_mb(k_becke))
          if (.not.ma_pop_stack(l_becke)) 
      Z        call errquit('grid_loop: pop stack failed.',0, MA_ERR)
       endif

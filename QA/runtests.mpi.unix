@@ -30,30 +30,19 @@
 # A subdirectory of the current directory named scratchdir is deleted
 # and remade for each calculation, and deleted at job end.
 export HYDRA_DEBUG=0
-if [[ -z "${NWCHEM_TARGET}" ]]; then
-    UNAME_S=$(uname -s)
-  if [[ ${UNAME_S} == Linux ]]; then
-    NWCHEM_TARGET=LINUX64
-  elif [[ ${UNAME_S} == Darwin ]]; then
-    NWCHEM_TARGET=MACX64
-  else
-      echo
-      echo You must define NWCHEM_TARGET in your environment to be the name
-      echo of the machine you wish to build for ... for example
-      echo     export NWCHEM_TARGET=SOLARIS
-      echo Known targets are SOLARIS, ...
-      echo See the INSTALL instructions for a complete list
-      echo ${UNAME_S}
-      exit 1
-      fi
-fi
-if [[ -z "${NWCHEM_TOP}" ]]; then
-    DIRQA=`dirname "$0"`
-    MYPWD=`pwd`
-    NWCHEM_TOP=`echo ${MYPWD}/${DIRQA} | sed -e 's/\/QA.*//' `
-fi
+# find memory leaks using  this glibc feature that
+# initialized memory blocks to non-zero values
+if [[ -z "${USE_ASAN}" ]]; then
+    export MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
+fi    
+source ./qa_funcs.sh
+NWCHEM=$(get_nwchem_executable)
+NWCHEM_TOP=$(get_nwchem_top)
+NWCHEM_TARGET=$(get_nwchem_target)
+
 if [[ ! -z "${BUILD_MPICH}" ]]; then
     export MPIRUN_PATH=$NWCHEM_TOP/src/libext/bin/mpiexec
+    export LD_LIBRARY_PATH=$NWCHEM_TOP/src/libext/lib:$LD_LIBRARY_PATH
 fi
 cd $NWCHEM_TOP/QA
 # A subdirectory of the current directory name testoutputs is made
@@ -66,8 +55,6 @@ if [ -n "$NONSTD_MPI" ];  then
 else
   NONSTD_MPI=0
 fi
-
- NWCHEM_PROJ_PATH=${NWCHEM_TOP}/bin/${NWCHEM_TARGET}
 
 if [[ $# -eq 0 ]] ; then
    goto USAGE
@@ -95,12 +82,6 @@ done
 
  CURDIR=$(pwd)
 
- # Figure out where the executable is.
-if [[ $(echo $NWCHEM_EXECUTABLE|cut -c 1-11) == 'singularity' ]] || [[ -f $NWCHEM_EXECUTABLE ]]; then
-  NWCHEM=$NWCHEM_EXECUTABLE
-else
-  NWCHEM=${NWCHEM_PROJ_PATH}/nwchem
-fi
 
 if [[ -x $"NWCHEM" ]]; then
   echo failed: cannot execute \"$NWCHEM\"
@@ -218,6 +199,7 @@ do
   echo "     copying input and verified output files"
 
    OUTPUTFILE=${STUB}.out
+   ERRORFILE=${STUB}.err
    INPUTFILE=${STUB}.nw
 
 #
@@ -318,6 +300,12 @@ do
   fi
 
 #
+# copy the Plumed file
+#
+  PLUMEDFILE=${STUB}.plumed.dat
+  [ -f ${TESTDIR}/${PLUMEDFILE} ] && cp ${TESTDIR}/${PLUMEDFILE} ${SCRATCHDIR}
+
+#
 
 # Run the calculation in the scratch directory
 
@@ -341,17 +329,17 @@ sync
     if [ $NPROC -gt 0 ]; then
       if [ $NONSTD_MPI -ne 0 ]; then
       if [ -z $USE_SLEEPLOOP ]; then
-          ${MPIRUN} ${NWCHEM} ${INPUTFILE} >& ${OUTPUTFILE}
+          ${MPIRUN} ${NWCHEM} ${INPUTFILE} 2> ${ERRORFILE} 1> ${OUTPUTFILE}
 	else
-          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
+          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE 2> $ERRORFILE 1> $OUTPUTFILE
 	fi
         runstatus=$?
       else
-        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $OUTPUTFILE
+          $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE 2> $ERRORFILE 1> $OUTPUTFILE
         runstatus=$?
       fi
     else
-       $NWCHEM $INPUTFILE >& $OUTPUTFILE
+       $NWCHEM $INPUTFILE 2> $ERRORFILE 1> $OUTPUTFILE
        runstatus=$?
     fi
     [ -f $OUTPUTFILE ] && cp $OUTPUTFILE $TESTOUTPUTS/$OUTPUTFILE
@@ -380,19 +368,19 @@ sync
 #       know what we are doing (i.e. above this script) and simply use that
 #       verbatim. Set MPIRUN_PATH for this purpose, its value is transfered 
 #       to MPIRUN at some point in this script.
-        $MPIRUN $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+        $MPIRUN $NWCHEM $INPUTFILE  2> $TESTOUTPUTS/$ERRORFILE 1> $TESTOUTPUTS/$OUTPUTFILE
         runstatus=$?
       else
 #       In the case of standard MPI we construct the appropriate command here.
       if [ -z $USE_SLEEPLOOP ]; then
-        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& ${TESTOUTPUTS}/${OUTPUTFILE}
+        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE 2> ${TESTOUTPUTS}/${ERRORFILE} 1> ${TESTOUTPUTS}/${OUTPUTFILE}
       else
-          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
+          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  2> $ERRORFILE 1> $OUTPUTFILE
       fi
         runstatus=$?
       fi
     else
-      $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+      $NWCHEM $INPUTFILE 2> $TESTOUTPUTS/$ERRORFILE 1> $TESTOUTPUTS/$OUTPUTFILE
        runstatus=$?
     fi
 #
@@ -400,8 +388,9 @@ sync
 #
   if [ $runstatus -ne 0 ]; then
     echo "     NWChem execution failed"
-    overall_status=1
+    let "overall_status+=1"
     tail -50 $TESTOUTPUTS/$OUTPUTFILE
+    cat $TESTOUTPUTS/$ERRORFILE
     continue
   fi
    time=(60 "$x")
@@ -418,6 +407,15 @@ sync
 # Now verify the output
 
     echo -n "     verifying output ... "
+    # check if nga_wait is present in the output
+    grep nga_wait ${STUB}.out > /dev/null
+    if [ $? -eq 0 ]; then
+	echo nga_wait warnings in the output file
+	echo
+	echo Failed
+	echo
+	exit 1
+    fi
 # get rid of HYDRA_DEBUG confusing output
     rm -f hydradebugout.txt
     grep -v proxy:0:0@ ${STUB}.out > hydradebugout.txt
@@ -444,6 +442,7 @@ sync
 
     diff -w ${STUB}.ok.out.nwparse ${STUB}.out.nwparse >& /dev/null
     diff1status=$?
+    cat ${ERRORFILE}
 #
   fi
 #
@@ -456,7 +455,7 @@ sync
 #    head -1000 ${STUB}.out
 #    echo "@@@     Paste End of Output File"  
 #    tail -1000 ${STUB}.out
-    overall_status=1
+    let "overall_status+=1"
     continue 
   else
 #
@@ -477,7 +476,7 @@ sync
     espstatus=$?
        if [[ $espstatus -ne 0 ]]; then
          echo "ESP comparison failed"
-         overall_status=1
+         let "overall_status+=1"
 	 diff -u esp_temp.ok.q esp_temp.q 
          continue 
        else
@@ -492,7 +491,7 @@ sync
        diff -w ${STUB}.ok.tst ${STUB}.tst >& /dev/null
        if [ $? -ne 0 ]; then
          echo "failed"
-         overall_status=1
+         let "overall_status+=1"
          continue 
        else
          echo "completed"
@@ -505,7 +504,7 @@ sync
         echo "completed "
        else
         echo "failed"
-        overall_status=1
+        let "overall_status+=1"
         continue 
        fi
       fi

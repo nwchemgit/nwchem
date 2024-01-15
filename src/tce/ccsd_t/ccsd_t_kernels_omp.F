@@ -23,7 +23,7 @@ c
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
 #ifdef USE_OPENMP
 !DIR$ IVDEP
 #endif
@@ -31,6 +31,7 @@ c
        triplesx(h3,h2,h1,p6,p5,p4)=triplesx(h3,h2,h1,p6,p5,p4)
      1   + t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -61,7 +62,7 @@ c
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
 #ifdef USE_OPENMP
 !DIR$ IVDEP
 #endif
@@ -69,6 +70,7 @@ c
        triplesx(h3,h1,h2,p6,p5,p4)=triplesx(h3,h1,h2,p6,p5,p4)
      1   - t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -103,7 +105,7 @@ c
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
 #ifdef USE_OPENMP
 !DIR$ IVDEP
 #endif
@@ -113,6 +115,7 @@ c
        triplesx(h1,h3,h2,p6,p5,p4)=triplesx(h1,h3,h2,p6,p5,p4)
      1   + t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -144,7 +147,7 @@ c
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
 #ifdef USE_OPENMP
 !DIR$ IVDEP
 #endif
@@ -152,6 +155,7 @@ c
        triplesx(h3,h2,h1,p6,p4,p5)=triplesx(h3,h2,h1,p6,p4,p5)
      1   - t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -183,7 +187,7 @@ c
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
 #ifdef USE_OPENMP
 !DIR$ IVDEP
 #endif
@@ -191,6 +195,7 @@ c
        triplesx(h3,h1,h2,p6,p4,p5)=triplesx(h3,h1,h2,p6,p4,p5)
      1   + t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -222,7 +227,7 @@ c
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
 #ifdef USE_OPENMP
 !DIR$ IVDEP
 #endif
@@ -230,6 +235,7 @@ c
        triplesx(h1,h3,h2,p6,p4,p5)=triplesx(h1,h3,h2,p6,p4,p5)
      1   - t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -261,7 +267,7 @@ c
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
 #ifdef USE_OPENMP
 !DIR$ IVDEP
 #endif
@@ -269,6 +275,7 @@ c
        triplesx(h3,h2,h1,p4,p6,p5)=triplesx(h3,h2,h1,p4,p6,p5)
      1   + t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -299,12 +306,13 @@ c
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do h3=1,h3d
        triplesx(h3,h1,h2,p4,p6,p5)=triplesx(h3,h1,h2,p4,p6,p5)
      1   - t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -335,12 +343,13 @@ c
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do h1=1,h1d
        triplesx(h1,h3,h2,p4,p6,p5)=triplesx(h1,h3,h2,p4,p6,p5)
      1   + t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -388,12 +397,13 @@ c
       do h3=1,h3d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do h7=1,h7d
        triplesx(h3,h2,h1,p6,p5,p4)=triplesx(h3,h2,h1,p6,p5,p4)
      1  -t2sub(h7,p4,p5,h1)*v2tmp(h7,h3,h2,p6)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -440,12 +450,13 @@ c
       do h3=1,h3d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do h7=1,h7d
        triplesx(h3,h1,h2,p6,p5,p4)=triplesx(h3,h1,h2,p6,p5,p4)
      1   + t2sub(h7,p4,p5,h1)*v2tmp(h7,h3,h2,p6)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -492,12 +503,13 @@ c
       do h1=1,h1d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do h7=1,h7d
        triplesx(h1,h3,h2,p6,p5,p4)=triplesx(h1,h3,h2,p6,p5,p4)
      1  -t2sub(h7,p4,p5,h1)*v2tmp(h7,h3,h2,p6)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -549,12 +561,13 @@ c
       do h3=1,h3d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do h7=1,h7d
        triplesx(h3,h2,h1,p5,p4,p6)=triplesx(h3,h2,h1,p5,p4,p6)
      1  -t2sub(h7,p4,p5,h1)*v2tmp(h7,h3,h2,p6)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -601,12 +614,13 @@ c
       do h3=1,h3d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do h7=1,h7d
        triplesx(h3,h1,h2,p5,p4,p6)=triplesx(h3,h1,h2,p5,p4,p6)
      1   + t2sub(h7,p4,p5,h1)*v2tmp(h7,h3,h2,p6)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -653,12 +667,13 @@ c
       do h1=1,h1d
 !dec$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do h7=1,h7d
        triplesx(h1,h3,h2,p5,p4,p6)=triplesx(h1,h3,h2,p5,p4,p6)
      1  -t2sub(h7,p4,p5,h1)*v2tmp(h7,h3,h2,p6)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -712,7 +727,7 @@ c
       do h3=1,h3d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do h7=1,h7d
        triplesx(h3,h2,h1,p5,p6,p4)=triplesx(h3,h2,h1,p5,p6,p4)
@@ -722,6 +737,7 @@ c
      1   + t2sub(h7,p4,p5,h1)*v2sub(h3,h2,p6,h7)
 #endif
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -768,12 +784,13 @@ c
       do h3=1,h3d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do h7=1,h7d
        triplesx(h3,h1,h2,p5,p6,p4)=triplesx(h3,h1,h2,p5,p6,p4)
      1  -t2sub(h7,p4,p5,h1)*v2tmp(h7,h3,h2,p6)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -820,12 +837,13 @@ c
       do h3=1,h3d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do h7=1,h7d
        triplesx(h1,h3,h2,p5,p6,p4)=triplesx(h1,h3,h2,p5,p6,p4)
      1   + t2sub(h7,p4,p5,h1)*v2tmp(h7,h3,h2,p6)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -857,12 +875,13 @@ c
       do h3=1,h3d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do p7=1,p7d
        triplesx(h3,h2,h1,p6,p5,p4)=triplesx(h3,h2,h1,p6,p5,p4)
      1  -t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -894,12 +913,13 @@ c
       do h2=1,h2d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do p7=1,p7d
        triplesx(h2,h1,h3,p6,p5,p4)=triplesx(h2,h1,h3,p6,p5,p4)
      1  -t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -931,12 +951,13 @@ c
       do h2=1,h2d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do p7=1,p7d
        triplesx(h2,h3,h1,p6,p5,p4)=triplesx(h2,h3,h1,p6,p5,p4)
      1   + t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -968,12 +989,13 @@ c
       do h3=1,h3d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do p7=1,p7d
        triplesx(h3,h2,h1,p6,p4,p5)=triplesx(h3,h2,h1,p6,p4,p5)
      1   + t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -1005,12 +1027,13 @@ c
       do h3=1,h3d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do p7=1,p7d
        triplesx(h2,h1,h3,p6,p4,p5)=triplesx(h2,h1,h3,p6,p4,p5)
      1   + t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -1042,12 +1065,13 @@ c
       do h2=1,h2d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do p7=1,p7d
        triplesx(h2,h3,h1,p6,p4,p5)=triplesx(h2,h3,h1,p6,p4,p5)
      1  -t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -1079,12 +1103,13 @@ c
       do h3=1,h3d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do p7=1,p7d
        triplesx(h3,h2,h1,p4,p6,p5)=triplesx(h3,h2,h1,p4,p6,p5)
      1  -t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -1117,12 +1142,13 @@ c
       do h2=1,h2d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do p7=1,p7d
        triplesx(h2,h1,h3,p4,p6,p5)=triplesx(h2,h1,h3,p4,p6,p5)
      1  -t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo
@@ -1154,12 +1180,13 @@ c
       do h3=1,h3d
 !!!dir$ loop count min(8)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
 !DIR$ IVDEP
       do p7=1,p7d
        triplesx(h2,h3,h1,p4,p6,p5)=triplesx(h2,h3,h1,p4,p6,p5)
      1   + t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
       enddo
+!$omp end simd
       enddo
       enddo
       enddo

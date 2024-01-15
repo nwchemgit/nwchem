@@ -2,7 +2,7 @@ start o2_ccca
 
 title "O2, ccCA test"
 
-memory stack 1000 heap 100 global 4000 mb
+memory total 5000 mb global 4000 mb
 
 geometry units au
 O       0.0000000000   0.0000000000  -2.0000

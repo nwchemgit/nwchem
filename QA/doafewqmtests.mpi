@@ -28,6 +28,7 @@ fi
 ./runtests.mpi.unix procs $np tddft_n2+
 ./runtests.mpi.unix procs $np tddft_ac_co
 ./runtests.mpi.unix procs $np hi_zora_sf
+./runtests.mpi.unix procs $np ch3radical_unrot
 #
 # newproperty tests
 ./runtests.mpi.unix procs $np prop_ch3f 
@@ -53,4 +54,13 @@ fi
 ./runtests.mpi.unix procs $np h2o2-response-uhf
 ./runtests.mpi.unix procs $np h2o2-response-uhf-damping
 ./runtests.mpi.unix procs $np h2o2-prop-notrans
+#
+#--- localization tests
+./runtests.mpi.unix procs $np localize-ibo-aa
+./runtests.mpi.unix procs $np localize-ibo-allyl
+./runtests.mpi.unix procs $np localize-pm-allyl
+#
+#--- relativity tests
+./runtests.mpi.unix procs $np x2c-h2se
+./runtests.mpi.unix procs $np hg-1e-hfc-x2c
 #

@@ -41,6 +41,7 @@ variables:
     - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR ; fi
     - cd $NWCHEM_TOP/src
     - rm -rf tools/ga-* ||true
+    - rm -rf libext/libext_utils/cmake*macos* || true
     - make nwchem_config
     - make -j3
     - ../contrib/getmem.nwchem 
@@ -70,11 +71,13 @@ variables:
     - env|egrep  LD_LIBR || true
     - cd $NWCHEM_TOP/QA
     - NNPROCS=1
-    - if [ "$(uname -s)" == "Darwin" ]; then NNPROCS=2; fi
+    - if [ "$(uname -s)" == "Darwin" ]; then NNPROCS=3; fi
     - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=3; fi
     - if [ "$USE_CENTOS" == "1" ]; then NNPROCS=3; fi
-    - env | grep CI_ || mtrue
-    - if [[ "$NWCHEM_TARGET" != "LINUX"  && "$FC" != "ifx" && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
+    - env | grep CI_ || true
+    - env | grep PATH || true
+    - which mpirun || true
+    - if [[ "$NWCHEM_TARGET" != "LINUX"  && "$FC" != "ifx" && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" || "$CI_RUNNER_TAGS" == "ubuntu_bionic" ||  "$CI_RUNNER_TAGS" = "macos" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
   only:
     - master
     - /^release-.*$/
@@ -230,22 +233,22 @@ linux_ubuntu:run_gcc:
   tags:
     - ubuntu_xenial
 
-#macos:build_gcc:
-#  stage: build
-#  <<: *compile_step
-#  variables:
-##    BLASOPT: "-L/usr/local/opt/openblas/lib -lopenblas"
-##    LAPACK_LIB: "-L/usr/local/opt/openblas/lib -lopenblas"
-##    SCALAPACK_LIB: "-L/usr/local/opt/scalapack/lib/ -lscalapack -L/usr/local/opt/openblas/lib  -lopenblas"
-#    BUILD_SCALAPACK: 1
-#    BUILD_OPENBLAS: 1
-#    BLAS_SIZE: 8
-#    SCALAPACK_SIZE: 8
-#    ARMCI_NETWORK: "SOCKETS"
-#    USE_DCOMBSSQPATCH: "Y"
-#    PATH: "/usr/local/opt/python@3.9/bin:/opt/local/bin:/usr/local/bin/:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
-#  tags:
-#    - macos_10.13
+macos:build_gcc:
+  stage: build
+  <<: *compile_step
+  variables:
+#    BLASOPT: "-L/usr/local/opt/openblas/lib -lopenblas"
+#    LAPACK_LIB: "-L/usr/local/opt/openblas/lib -lopenblas"
+#    SCALAPACK_LIB: "-L/usr/local/opt/scalapack/lib/ -lscalapack -L/usr/local/opt/openblas/lib  -lopenblas"
+    BUILD_SCALAPACK: 1
+    BUILD_OPENBLAS: 1
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
+    ARMCI_NETWORK: "MPI-PR"
+    USE_DCOMBSSQPATCH: "Y"
+    PATH: "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
+  tags:
+    - macos
 #
 linux64_centos8:run_gcc:
   stage: test
@@ -287,11 +290,11 @@ linux64_ubuntu:run_ifx:
     - ubuntu_bionic
 
 
-#macos:run_gcc:
-#  stage: test
-#  needs: ["macos:build_gcc"]
-#  variables:
-#    PATH: "/usr/local/opt/python@3.9/bin:/opt/local/bin:/usr/local/bin/:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
-#  <<: *test_step
-#  tags:
-#    - macos_10.13
+macos:run_gcc:
+  stage: test
+  needs: ["macos:build_gcc"]
+  variables:
+    PATH: "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
+  <<: *test_step
+  tags:
+    - macos

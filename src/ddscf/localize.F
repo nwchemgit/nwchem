@@ -18,7 +18,10 @@ c
       
 
       end
-      subroutine testlocalize(rtdb)
+c
+c     =================================================================
+c      
+      subroutine testlocalize(rtdb)      
 *
 * $Id$
 *
@@ -228,9 +231,15 @@ c
 c
       end
 c
+c     =================================================================
+c      
       subroutine localizePM(basis, c, sc, nloc, iloc, nbf, nmo,
-     $     g_c, g_sc)
+     $  g_c, g_sc)
+c
+c     Pipek-Mezey localization
+c     
       implicit none
+      
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -239,37 +248,32 @@ c
 #include "bas.fh"
 #include "util.fh"
 c
-c     Localize the nloc orbitals in iloc(*) by mixing with each other
+c     Localize the nloc orbitals in iloc() by mixing with each other
 c
-      integer basis, nloc, iloc(*), nbf, nmo
-      double precision c(nbf, 2), sc(nbf, 2)
+      integer basis, nloc, iloc(nmo), nbf, nmo
       integer g_c, g_sc
-      integer maxat, nlist
-*............................   these should be dynamically allocated ?
-      parameter (maxat = nw_max_atom)
-      integer list(maxat)
-      double precision pop(maxat)
-c
-      integer iter, ss, s, tt, t, a, u, bflo, bfhi, natoms, geom
+      double precision c(nbf, 2), sc(nbf, 2)
+
+      integer iter, ss, s, tt, t, a, u, bflo, bfhi, geom, natoms
       double precision ast, bst, qast, qat, qas, gamma, cosg, sing, d,
      $     qs, dprev, tol, dmax, gamma_tol, gamma_max, tmp
-      integer nrot, set, pair, neven
+      integer nrot, set, pair, neven, locpow
 c
       if (.not. bas_geom(basis, geom)) call errquit
      $     ('localize: basis ', 0, BASIS_ERR)
       if (.not. geom_ncent(geom, natoms)) call errquit
      $     ('localize: geom',0, GEOM_ERR)
-c
-      if (natoms.gt.maxat) call errquit
-     &      ('localize: maxat too small ', 911, UNKNOWN_ERR)
-c
+
+c     locpow (localization sum exponent) should be 2 or 4
+      locpow = 2
+      
       tol = 1d-8
       gamma_tol = 1d-10
 c
       if (ga_nodeid() .eq. 0) then
-         write(6,2)
- 2       format(/10x,' iter   Max. delocal   Mean delocal    Converge'/
-     $        10x,' ----   ------------   ------------   ---------')
+        write(6,9001)
+ 9001   format(/10x,' iter   Max. delocal   Mean delocal    Converge'/
+     &          10x,' ----   ------------   ------------    --------')
          call util_flush(6)
       end if
 c
@@ -314,9 +318,9 @@ c
          call ga_dgop(2, d , 1, '+')
 c
          if (ga_nodeid() .eq. 0) then
-            write(6,1) iter, dmax, d/dble(nloc), gamma_max
- 1          format(10x, i5, 2f15.10, 1p,d12.2,d12.2)
-            call util_flush(6)
+           write(6,'(10x, i5, 2f15.10, 1p,d12.2,d12.2)')
+     &       iter, dmax, d/dble(nloc), gamma_max
+           call util_flush(6)
          end if
          call ga_sync
 c
@@ -359,8 +363,20 @@ c
                      end do
                      qast = qast * 0.5d0
 c     
+                     if (locpow.eq.2) then
                      ast = ast + qast**2 - 0.25d0*(qas - qat)**2
                      bst = bst + qast*(qas - qat)
+                     elseif (locpow.eq.4) then
+                       tmp = -1.0d0*(qas**4 + qat**4)
+                       tmp = tmp + 6.0d0*((qas**2 + qat**2)* qast**2)
+                       tmp = tmp + qas**3 * qat + qas * qat**3
+                       ast = ast + 0.25d0*tmp
+                       tmp = 4.0d0 * qast*(qas**3 - qat**3)
+                       bst = bst + 0.25d0*tmp
+                     else
+                       call errquit('pmloc: locpow ', locpow,
+     &                   UNKNOWN_ERR)
+                     end if
                   end do
 c     
                   gamma = 0.25d0*acos(-ast/sqrt(ast**2+bst**2))
@@ -391,56 +407,20 @@ c
       end do
 c
  1000 continue
-c
-c     Analyze localization of each mo:
-c     per lmo, a list of atomic populations is printed
-c     in decreasing magnitude, with the polulations in parentheses. 
-c
-      if (ga_nodeid() .eq. 0) then
-         write(6,*)
-         do ss = 1, nloc
-            s = iloc(ss)
-            call ga_get(g_c,  1, nbf, s, s, c(1,1), 1)
-            call ga_get(g_sc, 1, nbf, s, s,sc(1,1), 1)
-            nlist = 0
-            do a = 1, natoms
-               if (.not. bas_ce2bfr(basis, a, bflo, bfhi))
-     $              call errquit('localized: basis ', 0,
-     &       BASIS_ERR)
-               qas  = 0.0d0
-               do u = bflo, bfhi
-                  qas  = qas  + c(u,1)*sc(u,1)
-               end do
-               if (abs(qas) .gt. 0.01d0) then
-                  nlist = nlist + 1
-                  list(nlist) = a
-                  pop(nlist) = qas
-               end if
-            end do
-            do u = 1, nlist
-               do t = 1, u-1
-                  if (abs(pop(t)).lt.abs(pop(u))) then
-                     tmp = pop(u)
-                     pop(u) = pop(t)
-                     pop(t) = tmp
-                     tt = list(u)
-                     list(u) = list(t)
-                     list(t) = tt
-                  end if
-               end do
-            end do
-            write(6,77) s, (list(a), pop(a), a=1,nlist)
- 77         format(i5, 100(2x,i4,'(',f5.2,')'))
-         end do
-         call util_flush(6)
-      end if
-c
+
       call ga_sync
-c
       end
+c
+c     =================================================================
+c      
       subroutine localizeFB(basis, c, uc, nloc, iloc, nbf, nmo,
-     $     g_c, g_uc)
+     $  g_c, g_uc)
+c
+c     Foster-Boys localization
+c     
+      
       implicit none
+      
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -451,7 +431,7 @@ c
 c
 c     Localize the nloc orbitals in iloc(*) by mixing with each other
 c
-      integer basis, nloc, iloc(*), nbf, nmo
+      integer basis, nloc, iloc(nmo), nbf, nmo
       double precision c(nbf, 2), uc(nbf, 2, 4)
       integer g_c, g_uc(4) ! x, y, z, overlap
 c
@@ -480,10 +460,10 @@ c
       u21 = util_random(12345)
 c
       if (ga_nodeid() .eq. 0) then
-         write(6,2)
- 2       format(/10x,' iter   Max. dipole2   Mean dipole2    Converge'/
-     $        10x,' ----   ------------   ------------   ---------')
-         call util_flush(6)
+        write(6,9001)
+ 9001   format(/10x,' iter   Max. dipole2   Mean dipole2    Converge'/
+     &          10x,' ----   ------------   ------------    --------')
+        call util_flush(6)
       end if
 c
       dprev = 0.0d0
@@ -526,9 +506,9 @@ c
          call ga_dgop(2, d , 1, '+')
 c
          if (ga_nodeid() .eq. 0) then
-            write(6,1) iter, dmax, d/dble(nloc), gamma_max
- 1          format(10x, i5, 2f17.8, 1p,2d12.2)
-            call util_flush(6)
+           write(6,'(10x, i5, 2f17.8, 1p,2d12.2)')
+     &       iter, dmax, d/dble(nloc), gamma_max
+           call util_flush(6)
          end if
          call ga_sync
 c
@@ -645,8 +625,8 @@ c
                   end if
                end do
             end do
-            write(6,77) s, (list(a), pop(a), a=1,nlist)
- 77         format(i5, 100(2x,i4,'(',f5.2,')'))
+            write(6,9002) s, (list(a), pop(a), a=1,nlist)
+ 9002         format(i5, 100(2x,i4,'(',f5.2,')'))
          end do
          call util_flush(6)
       end if
@@ -654,6 +634,258 @@ c
       call ga_sync
 c
       end
+c
+c     =================================================================
+c
+      subroutine localizeIBO(minbas, c, g_c, nloc, nbf, mnbf,
+     &  natoms)
+c
+c     IBO localization.  Similar to Pipek-Mezey, but in an orthonormal
+c     IAO basis. Analysis of the resulting IBOs is done in the calling
+c     routine.
+c
+c     written by Jochen Autschbach, jochena@buffalo.edu,
+c     adapted from routine localizePM
+
+      implicit none
+
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "util.fh"
+#include "stdio.fh"
+
+c     subroutine arguments:
+
+      integer minbas  ! minimal basis for IAOs (in)
+      integer nloc    ! number of orbitals to localize (in)
+      integer nbf     ! size of AO basis (in)
+      integer mnbf    ! size of minimal basis (in)
+      integer natoms  ! number of atoms (in)
+      double precision c(nbf, 2) ! memory used for MO transformations
+      integer g_c     ! orbital coefficients in IAO basis (inout)
+
+c     local variables:
+
+      integer nlist
+      integer iter, s, t, a, u, bflo, bfhi, geom
+      double precision ast, bst, qast, qat, qas, gamma, cosg, sing, d,
+     &  qs, dprev, tol, dmax, gamma_tol, gamma_max, tmp
+      double precision minval, swap
+      integer nrot, set, pair, neven
+      logical master, debug
+      integer g_tmp
+      character*(12) pname
+
+c     -----------------------------------------------------------------
+
+      pname = 'iao-ibo iter'
+      master = (ga_nodeid() .eq. 0)
+      debug = .false.  ! true, during development
+
+      if (debug.and.master) write(luout,*) 'entering '//pname
+
+c     sanity checks, so we don't crash later:
+
+      if (.not. bas_geom(minbas, geom)) call errquit
+     &     (pname//': minbas ', 0, BASIS_ERR)
+      if (.not. geom_ncent(geom, natoms)) call errquit
+     &  (pname//': geom',0, GEOM_ERR)
+      if (mnbf>nbf) call errquit
+     &  (pname//': mnbf>nbf', 0, UNKNOWN_ERR)
+      if (nloc>nbf) call errquit
+     &  (pname//': nloc>nbf', 0, UNKNOWN_ERR)
+      if (nloc>mnbf) call errquit
+     &  (pname//': nloc>mnbf', 0, UNKNOWN_ERR)
+
+c     DEBUG some things related to the minimal basis centers
+      if (debug) then
+        do a = 1, natoms
+          if (.not. bas_ce2bfr(minbas, a, bflo, bfhi))
+     &      call errquit(pname//': minbas', 0, BASIS_ERR)
+          if (master) then
+            write(luout,'(1x,a,3i4)') 'minbas, atom = ', a, bflo, bfhi
+          end if
+        end do
+      end if ! debug
+
+c     the MOs in the orthonormal IAO basis must form an orthogonal
+c     matrix. test that before localization, and again later
+
+      if (.not. ga_create(MT_DBL, nloc, nloc , 'ibo:tmp',
+     &  0, 0, g_tmp)) call errquit(pname//': tmp',0, GA_ERR)
+
+      call ga_dgemm('t', 'n', nloc, nloc, mnbf,
+     &  1.0d0, g_c, g_c, 0.0d0, g_tmp)
+
+      call ga_add_todiag(g_tmp, -1.0d0)
+
+      call ga_maxelt(g_tmp, tmp)
+      if (master) then
+        write(luout,'(/1x,a,1x,f18.8)')
+     &    'IBO loc: largest element in C(MO,T) C(MO) -1: ',
+     &    tmp
+        write(luout,'(1x,a)')
+     &    'should be zero, for CMOs in the IAO basis'
+      end if
+
+      if (.not. ga_destroy(g_tmp))
+     &  call errquit(pname//': ga_destroy failed g_tmp',0, GA_ERR)
+
+      tol = 1d-8
+      gamma_tol = 1d-10
+c
+      if (master) then
+        write(luout,9001)
+ 9001   format(/10x,' iter   Max. delocal   Mean delocal    Converge'/
+     &          10x,' ----   ------------   ------------    --------')
+        call util_flush(luout)
+      end if
+c
+      dprev = 0.0d0
+      gamma_max = 0.0d0
+      do iter = 1, 100
+         call ga_sync
+         nrot = 0
+c
+c     Analyze convergence by forming P
+c
+        d = 0.0d0
+        dmax = 0.0d0
+        do s = 1+ga_nodeid(), nloc, ga_nnodes()
+          call ga_get(g_c, 1, mnbf, s, s, c(1,1), 1)
+          qs = 0.0d0
+          do a = 1, natoms
+            if (.not. bas_ce2bfr(minbas, a, bflo, bfhi))
+     &        call errquit(pname//': basis ', 1, BASIS_ERR)
+            qas  = 0.0d0
+            do u = bflo, bfhi
+              qas  = qas  + c(u,1)*c(u,1)
+            end do
+            qs = qs + qas**2
+          end do
+*         write(luout,*) ' ds ', s, 1.0d0/qs
+          dmax = max(dmax, 1.0d0/qs)
+          d = d + 1.0d0/qs
+        end do
+c
+#ifdef NWCHEM_USE_GOP_ABSMAX
+         call ga_dgop(1, gamma_max, 1, 'absmax')
+         call ga_dgop(1, dmax, 1, 'absmax')
+#else
+         gamma_max = abs(gamma_max)
+         dmax      = abs(dmax)
+         call ga_dgop(1, gamma_max, 1, 'max')
+         call ga_dgop(1, dmax, 1, 'max')
+#endif
+        call ga_dgop(2, d , 1, '+')
+c
+        if (ga_nodeid() .eq. 0) then
+          write(luout,'(10x, i5, 2f15.10, 1p,d12.2,d12.2)')
+     &      iter, dmax, d/dble(nloc), gamma_max
+          call util_flush(luout)
+        end if
+        call ga_sync
+
+        if (iter.gt.1 .and. gamma_max.lt.tol) goto 1000
+        gamma_max = 0.0d0
+
+c       Loop over pairs with as much parallelism as possible
+
+        neven = nloc + mod(nloc,2)
+        do set = 1, neven-1
+          do pair = 1+ga_nodeid(), neven/2, ga_nnodes()
+            call localize_pairs(neven, set, pair, s, t)
+            if (t .le. nloc) then
+
+              call ga_get(g_c, 1, mnbf, s, s, c(1,1), 1)
+              call ga_get(g_c, 1, mnbf, t, t, c(1,2), 1)
+c
+c             Form rotation information
+c
+              ast = 0.0d0
+              bst = 0.0d0
+              do a = 1, natoms
+                if (.not. bas_ce2bfr(minbas, a, bflo, bfhi))
+     &            call errquit(pname//': basis ', 2,
+     &            BASIS_ERR)
+c
+                qast = 0.0d0
+                qas  = 0.0d0
+                qat  = 0.0d0
+                do u = bflo, bfhi
+                  qast = qast + c(u,2)*c(u,1) + c(u,1)*c(u,2)
+                  qas  = qas  + c(u,1)*c(u,1)
+                  qat  = qat  + c(u,2)*c(u,2)
+                end do
+                qast = qast * 0.5d0
+c
+c               ast = ast + qast**2 - 0.25d0*(qas - qat)**2
+c               bst = bst + qast*(qas - qat)
+                tmp = -1.0d0*(qas**4 + qat**4)
+                tmp = tmp + 6.0d0*((qas**2 + qat**2)* qast**2)
+                tmp = tmp + qas**3 * qat + qas * qat**3
+                ast = ast + 0.25d0*tmp
+                tmp = 4.0d0 * qast*(qas**3 - qat**3)
+                bst = bst + 0.25d0*tmp
+              end do
+c
+              gamma = 0.25d0*acos(-ast/sqrt(ast**2+bst**2))
+              gamma = sign(gamma,bst)
+              gamma_max = max(gamma_max, abs(gamma))
+
+              if (abs(gamma) .gt. gamma_tol) then
+                nrot = nrot + 1
+                cosg = cos(gamma)
+                sing = sin(gamma)
+c
+c               Do the rotation of C
+c
+                call drot(mnbf, c(1,1), 1, c(1,2), 1, cosg, sing)
+                call ga_put(g_c, 1, mnbf, s, s, c(1,1), 1)
+                call ga_put(g_c, 1, mnbf, t, t, c(1,2), 1)
+              end if
+            end if
+          end do
+          call ga_sync
+        end do
+      end do
+c
+ 1000 continue
+
+
+c     the MOs in the orthonormal IAO basis must form an orthogonal
+c     matrix. test that after localization
+
+      if (.not. ga_create(MT_DBL, nloc, nloc , 'ibo:tmp',
+     &  mnbf, 0, g_tmp)) call errquit(pname//': tmp',0, GA_ERR)
+
+      call ga_dgemm('t', 'n', nloc, nloc, mnbf,
+     &  1.0d0, g_c, g_c, 0.0d0, g_tmp)
+
+      call ga_add_todiag(g_tmp, -1.0d0)
+
+      call ga_maxelt(g_tmp, tmp)
+      if (master) then
+        write(luout,'(/1x,a,1x,f18.8)')
+     &    'IBO loc: largest element in C(MO,T) C(MO) -1: ',
+     &    tmp
+        write(luout,'(1x,a)')
+     &    'should be zero, for IBOs in the IAO basis'
+      end if
+
+      if (.not. ga_destroy(g_tmp))
+     &  call errquit(pname//': ga_destroy failed g_tmp',0, GA_ERR)
+
+      return
+      end
+
+c
+c     =================================================================
+c      
       subroutine localize_pairs(n, set, pair, left, right)
       implicit none
       integer n, set, pair, left, right

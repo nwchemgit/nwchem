@@ -42,6 +42,7 @@ c          you have left any sense of physics well behind anyway...
 C
 C INCLUDE FILES
 #include "nwc_const.fh"
+#include "periodic.fh"
 #include "geomP.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -86,7 +87,7 @@ C
      $   18* 9,             ! K-Kr,       +3s3p
      $   18*18,             ! Rb-Xe,          +4s3d4p 
      $   32*27,             ! Cs-Rn,                +5s4d5p
-     $   26*43/             ! Fr-Mt,                      +6s4f5d6p
+     $   34*43/             ! Fr-Og,                      +6s4f5d6p
 C
       
       

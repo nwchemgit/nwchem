@@ -76,6 +76,7 @@ c     Surface Hopping
       integer ispin
       double precision dt_elec           ! electronic time step
       double precision kbt               ! k_b*T in au (for plumed)
+      double precision wall              ! wall time
       logical do_namd                    ! NAMD flag
       logical do_property                ! property flag
       logical do_tddft                   ! tddft flag
@@ -111,8 +112,8 @@ c
       logical task_freq
       external task_freq
 c
-      logical qmd_property
-      external qmd_property
+      logical qmd_property,qmd_linear
+      external qmd_property,qmd_linear
 c
 c     preliminaries
       status_qmd = .true.
@@ -160,6 +161,9 @@ c
 c     get rstfilename
       call util_file_name('qmdrst',.false.,.false.,rstfilename)
 c
+c     check defaults
+c
+      call qmd_rdinput(rtdb)
 c     initialize parameters
       call qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,print_xyz,
      &   restart,do_namd,step_property,do_property,step_tddft,do_tddft,
@@ -208,6 +212,11 @@ c
 c     set degrees of freedom depending on the type of thermostat
       ndeg = 3*nactive ! initialize ndeg for local thermostats (e.g. langevin)
       if (.not.do_langevin) then  ! for global thermostats
+         if(.not.do_linear) then
+c     check linearity of molecular geometry
+            do_linear=qmd_linear(geom,nat,dbl_mb(k_r))
+               write(6,*) ' do_linear ',do_linear
+         endif
        if (do_linear) then    ! check for linear flag
         ndeg = 3*nactive-5   ! 3N-5 (linear)
        else
@@ -304,6 +313,7 @@ c         write trajectory
      &           0,etotal,geom,dipole)
         end if
       end if  ! restart
+      wall = util_wallsec()
 c
 c     start nuclear molecular dynamics loop
       do istep_nucl = sstep_nucl,nstep_nucl
@@ -373,6 +383,17 @@ c
      $                                          nroots,ipol,nmo,nocc,
      $                                          dbl_mb(k_en),g_vecs)
           esys=dbl_mb(k_en+state-1)
+c     check nroots vs nstates (tddft might have changed nroots)
+c     get number of TDDFT roots calculated
+        if (.not.rtdb_get(rtdb,'tddft:nroots',mt_int,1,nroots))
+     &    call errquit(pname//'failed to get nroots ',0,RTDB_ERR)
+        if (nroots.lt.(nstates-1)) then
+c     call errquit(pname//'nroots<(nstates-1) ',0,RTDB_ERR)
+           if(ga_nodeid().eq.0) write(luout,124) nstates,nroots
+ 124       format(9x,'Number of states decreased from ',i8,' to ',i8)
+           nstates=nroots
+        endif
+
 c         calculate couplings
           call qmd_coup(rtdb,geom,geom_p,ipol,nstates,dt_nucl,nmo,
      $                  nocc,g_vecs,g_vecs_p,dbl_mb(k_coup),
@@ -434,6 +455,9 @@ c          for input and output, state runs from 0 to nstates-1
          else
            write(luout,'(A21)') "No dipole on RTDB"
          end if
+         write(luout,125) "Wall time/ts    (s) :",istep_nucl,
+     ,        util_wallsec()-wall
+         wall = util_wallsec()
          write(luout,*)
          write(luout,*)
 c
@@ -515,3 +539,28 @@ c
 c
       end
 c $Id$
+      logical function qmd_linear(geom,n,xyz)
+      implicit none
+      integer n,geom
+      double precision xyz(3,*)
+c
+      integer i
+      double precision angle
+      logical  geom_calc_angle,geom_cart_coords_get
+      external geom_calc_angle,geom_cart_coords_get
+c      
+      qmd_linear=.true.
+      if(n.eq.2) return
+      if(.not.geom_cart_coords_get(geom, xyz))
+     c        call errquit(' geom_cart_coords fails ',0,0)
+      do i=1,n-2
+         if(.not.geom_calc_angle(
+     1        xyz(1,i),
+     2        xyz(1,i+1),
+     3        xyz(1,i+2),
+     a        angle))
+     c        call errquit(' geom_calc_angle fails ',0,0)
+         if(abs(angle-180d0).gt.1d-5) qmd_linear=.false.
+      enddo
+      return
+      end

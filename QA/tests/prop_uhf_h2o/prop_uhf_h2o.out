@@ -1,4 +1,4 @@
- argument  1 = prop_uhf_h2o.nw
+ argument  1 = /sequim/edo/nwchem-dm3d/QA/tests/prop_uhf_h2o/prop_uhf_h2o.nw
 
 
 
@@ -42,15 +42,15 @@ task dft property
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 6.0
-              ------------------------------------------------------
+             Northwest Computational Chemistry Package (NWChem) 7.2.0
+             --------------------------------------------------------
 
 
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2010
+                              Copyright (c) 1994-2022
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -75,29 +75,32 @@ task dft property
            Job information
            ---------------
 
-    hostname      = arcen
-    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
-    date          = Mon Oct 25 15:28:31 2010
+    hostname        = s9.emsl.pnl.gov
+    program         = /opt/nwchem/bin/nwchem
+    date            = Tue Jul 18 17:16:29 2023
 
-    compiled      = Mon_Oct_25_14:31:37_2010
-    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
-    nwchem branch = Development
-    input         = prop_uhf_h2o.nw
-    prefix        = prop_hf_h2o.
-    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.db
-    status        = startup
-    nproc         =        4
-    time left     =     -1s
+    compiled        = Sun_Jul_16_03:28:09_2023
+    source          = /nwchem
+    nwchem branch   = 7.2.0
+    nwchem revision = N/A
+    ga revision     = 5.8.0
+    use scalapack   = T
+    input           = /sequim/edo/nwchem-dm3d/QA/tests/prop_uhf_h2o/prop_uhf_h2o.nw
+    prefix          = prop_hf_h2o.
+    data base       = ./prop_hf_h2o.db
+    status          = startup
+    nproc           =      105
+    time left       =     -1s
 
 
 
            Memory information
            ------------------
 
-    heap     =   16384001 doubles =    125.0 Mbytes
-    stack    =   16384001 doubles =    125.0 Mbytes
-    global   =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
-    total    =   65536002 doubles =    500.0 Mbytes
+    heap     =  123882895 doubles =    945.2 Mbytes
+    stack    =  123882897 doubles =    945.2 Mbytes
+    global   =   70790229 doubles =    540.1 Mbytes (distinct from heap & stack)
+    total    =  318556021 doubles =   2430.4 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -105,8 +108,8 @@ task dft property
            Directory information
            ---------------------
 
-  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
-  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 permanent = .
+  0 scratch   = /big_scratch
 
 
 
@@ -122,6 +125,8 @@ task dft property
           ------
           auto-z
           ------
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
 
                              Geometry "geometry" -> ""
@@ -184,9 +189,10 @@ task dft property
  h                    -0.97431500     0.00000000    -0.49494670
  h                     0.97431500     0.00000000    -0.49494670
 
-  library name resolved from: .nwchemrc
-  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
-  
+  warning:::::::::::::: from_environment
+  NWCHEM_BASIS_LIBRARY set to: </cluster/apps/nwchem/nwchem/src/basis/libraries/>
+  but file does not exist !
+  using .nwchemrc or compiled library
                               NWChem Property Module
                               ----------------------
 
@@ -209,7 +215,7 @@ task dft property
   charge          =   0.00
   wavefunction    = UHF 
   input vectors   = atomic
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.movecs
+  output vectors  = ./prop_hf_h2o.movecs
   use symmetry    = F
   symmetry adapt  = F
 
@@ -223,7 +229,7 @@ task dft property
 
 
 
- Forming initial guess at       0.0s
+ Forming initial guess at       1.5s
 
 
       Superposition of Atomic Density Guess
@@ -241,7 +247,7 @@ task dft property
  LUMO         =       0.298134
 
 
- Starting SCF solution at       0.1s
+ Starting SCF solution at       1.6s
 
 
 
@@ -254,39 +260,27 @@ task dft property
  ----------------------------------------------
 
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20851
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
-
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.8588540099  5.14D-01  3.02D-01      0.1
-                 2      -74.9121605601  1.06D-01  5.73D-02      0.1
-                 3      -74.9140697123  1.31D-03  7.30D-04      0.1
-                 4      -74.9140706449  7.03D-06  3.64D-06      0.1
+                 1      -74.8588540098  5.14D-01  3.02D-01      1.6
+                 2      -74.9121605600  1.06D-01  5.73D-02      1.9
+                 3      -74.9140697122  1.31D-03  7.30D-04      2.7
+                 4      -74.9140706449  7.03D-06  3.64D-06      3.4
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =    -74.914070644949
-      One electron energy =   -119.966128465997
-      Two electron energy =     37.237320356476
+         Total SCF energy =    -74.914070644876
+      One electron energy =   -119.966128466019
+      Two electron energy =     37.237320356572
  Nuclear repulsion energy =      7.814737464571
 
                        Sz =      0.0000
                  Sz(Sz+1) =      0.0000
                       S^2 =      0.0000
 
-        Time for solution =      0.0s
+        Time for solution =      2.0s
 
 
           Final alpha eigenvalues
@@ -317,88 +311,88 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                     ------------------------------------------
 
  Vector    2  Occ=1.000000D+00  E=-1.186011D+00
-              MO Center= -1.4D-15,  1.3D-17, -5.7D-02, r^2= 5.6D-01
+              MO Center= -4.6D-16, -7.1D-17, -5.7D-02, r^2= 5.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.892953  1 O  s                  1     -0.240442  1 O  s          
 
  Vector    3  Occ=1.000000D+00  E=-5.539740D-01
-              MO Center=  8.7D-15,  2.7D-31, -2.1D-01, r^2= 1.0D+00
+              MO Center=  1.9D-15,  2.1D-32, -2.1D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.584127  1 O  px                 7      0.451450  3 H  s          
-     6     -0.451450  2 H  s          
+     3      0.584127  1 O  px                 6     -0.451450  2 H  s          
+     7      0.451450  3 H  s          
 
  Vector    4  Occ=1.000000D+00  E=-3.948627D-01
-              MO Center= -7.4D-15,  3.2D-17,  4.3D-02, r^2= 7.4D-01
+              MO Center= -8.0D-16,  1.0D-15,  4.3D-02, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.791067  1 O  pz                 2      0.436428  1 O  s          
      6     -0.320234  2 H  s                  7     -0.320234  3 H  s          
 
  Vector    5  Occ=1.000000D+00  E=-3.725552D-01
-              MO Center=  5.4D-32, -5.2D-17,  6.2D-02, r^2= 4.2D-01
+              MO Center=  8.8D-31, -9.6D-16,  6.2D-02, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
 
  Vector    6  Occ=0.000000D+00  E= 4.209272D-01
-              MO Center= -6.1D-15,  8.2D-18, -4.0D-01, r^2= 1.3D+00
+              MO Center= -3.5D-15, -2.3D-17, -4.0D-01, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.713198  2 H  s                  7      0.713198  3 H  s          
-     2     -0.669384  1 O  s                  5      0.661755  1 O  pz         
+     6     -0.713198  2 H  s                  7     -0.713198  3 H  s          
+     2      0.669384  1 O  s                  5     -0.661755  1 O  pz         
 
  Vector    7  Occ=0.000000D+00  E= 6.126008D-01
-              MO Center=  6.1D-15, -6.6D-32, -2.4D-01, r^2= 1.2D+00
+              MO Center=  2.5D-15, -3.5D-32, -2.4D-01, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.945893  1 O  px                 7     -0.711468  3 H  s          
-     6      0.711468  2 H  s          
+     3      0.945893  1 O  px                 6      0.711468  2 H  s          
+     7     -0.711468  3 H  s          
 
 
                      UHF Final Beta Molecular Orbital Analysis
                      -----------------------------------------
 
  Vector    2  Occ=1.000000D+00  E=-1.186011D+00
-              MO Center= -1.4D-15,  1.3D-17, -5.7D-02, r^2= 5.6D-01
+              MO Center= -4.6D-16, -7.1D-17, -5.7D-02, r^2= 5.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.892953  1 O  s                  1     -0.240442  1 O  s          
 
  Vector    3  Occ=1.000000D+00  E=-5.539740D-01
-              MO Center=  8.7D-15,  2.7D-31, -2.1D-01, r^2= 1.0D+00
+              MO Center=  1.9D-15,  2.1D-32, -2.1D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.584127  1 O  px                 7      0.451450  3 H  s          
-     6     -0.451450  2 H  s          
+     3      0.584127  1 O  px                 6     -0.451450  2 H  s          
+     7      0.451450  3 H  s          
 
  Vector    4  Occ=1.000000D+00  E=-3.948627D-01
-              MO Center= -7.4D-15,  3.2D-17,  4.3D-02, r^2= 7.4D-01
+              MO Center= -8.0D-16,  1.0D-15,  4.3D-02, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.791067  1 O  pz                 2      0.436428  1 O  s          
      6     -0.320234  2 H  s                  7     -0.320234  3 H  s          
 
  Vector    5  Occ=1.000000D+00  E=-3.725552D-01
-              MO Center=  5.4D-32, -5.2D-17,  6.2D-02, r^2= 4.2D-01
+              MO Center=  8.8D-31, -9.6D-16,  6.2D-02, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
 
  Vector    6  Occ=0.000000D+00  E= 4.209272D-01
-              MO Center= -6.1D-15,  8.2D-18, -4.0D-01, r^2= 1.3D+00
+              MO Center= -3.5D-15, -2.3D-17, -4.0D-01, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.713198  2 H  s                  7      0.713198  3 H  s          
-     2     -0.669384  1 O  s                  5      0.661755  1 O  pz         
+     6     -0.713198  2 H  s                  7     -0.713198  3 H  s          
+     2      0.669384  1 O  s                  5     -0.661755  1 O  pz         
 
  Vector    7  Occ=0.000000D+00  E= 6.126008D-01
-              MO Center=  6.1D-15, -6.6D-32, -2.4D-01, r^2= 1.2D+00
+              MO Center=  2.5D-15, -3.5D-32, -2.4D-01, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.945893  1 O  px                 7     -0.711468  3 H  s          
-     6      0.711468  2 H  s          
+     3      0.945893  1 O  px                 6      0.711468  2 H  s          
+     7     -0.711468  3 H  s          
 
 
  center of mass
@@ -454,25 +448,24 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      -   - - -        -----         -----         ----         -------
      0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
 
-     1   1 0 0      0.000000      0.000000      0.000000      0.000000
-     1   0 1 0      0.000000      0.000000      0.000000      0.000000
+     1   1 0 0     -0.000000     -0.000000     -0.000000      0.000000
+     1   0 1 0     -0.000000     -0.000000     -0.000000      0.000000
      1   0 0 1     -0.560194      0.183751      0.183751     -0.927695
 
      2   2 0 0     -2.770226     -4.775088     -4.775088      6.779949
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000      0.000000
      2   0 2 0     -4.613257     -2.306628     -2.306628      0.000000
-     2   0 1 1      0.000000      0.000000      0.000000      0.000000
+     2   0 1 1     -0.000000     -0.000000     -0.000000      0.000000
      2   0 0 2     -4.068129     -2.964446     -2.964446      1.860763
-
-
- Parallel integral file used       4 records with       0 large values
 
 
       -----------------------------------
       Indirect Spin-Spin Coupling Tensors
       -----------------------------------
 
+  Spin-spin coupling atoms =                     3
+  Spin-spin coupling Number of pairs =                     3
 
       ---------------------------------------------------
       Calculating Fermi-Contact and Spin-Dipole Responses
@@ -486,44 +479,28 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   nalpha           =        5
   nbeta            =        5
   variables        =       20
-  # of vectors     =       39
+  # of vectors     =       26
   tolerance        = 0.10D-03
   level shift      = 0.00D+00
   max iterations   =       50
-  max subspace     =      390
+  max subspace     =      260
 
- FA-1: Before ev. Fock matrices ...
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20851
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
- FA-3: After ev. Fock matrices ...
+ SCF residual:    7.0289431256902728E-006
 
 
 Iterative solution of linear equations
   No. of variables       20
-  No. of equations       39
-  Maximum subspace      390
+  No. of equations       26
+  Maximum subspace      260
         Iterations       50
        Convergence  1.0D-04
-        Start time      0.2
+        Start time      4.2
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1     39    2.42D+00       0.3
-     2     78    3.75D-12       0.3
-
- Parallel integral file used       4 records with       0 large values
-
+     1     26    2.42D+00       5.8
+     2     52    3.69D-12       7.4
 
       ----------------------------------------------
       Calculating Paramagnetic Spin-Orbit Responses
@@ -537,46 +514,30 @@ Iterative solution of linear equations
   nalpha           =        5
   nbeta            =        5
   variables        =       20
-  # of vectors     =        9
+  # of vectors     =        6
   tolerance        = 0.10D-03
   level shift      = 0.00D+00
   max iterations   =       50
-  max subspace     =       90
+  max subspace     =       60
 
- FA-1: Before ev. Fock matrices ...
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20851
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
- FA-3: After ev. Fock matrices ...
+ SCF residual:    7.0289431272495029E-006
 
 
 Iterative solution of linear equations
   No. of variables       20
-  No. of equations        9
-  Maximum subspace       90
+  No. of equations        6
+  Maximum subspace       60
         Iterations       50
        Convergence  1.0D-04
-        Start time      0.4
+        Start time      9.5
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      9    7.35D+00       0.4
-     2     18    1.82D-01       0.5
-     3     27    2.46D-03       0.5
-     4     36    7.08D-05       0.5
-
- Parallel integral file used       4 records with       0 large values
-
+     1      6    7.35D+00      10.0
+     2     12    2.36D-01      10.6
+     3     18    1.08D-02      11.2
+     4     24    7.05D-05      11.7
 
       ----------------------------------
       Indirect Spin-Spin Tensors (in Hz)
@@ -589,26 +550,26 @@ Iterative solution of linear equations
       -------------------------------------------------
 
       Fermi Contact (FC) Term (Hz):
-     72.4865      0.0000      0.0000
-      0.0000     72.4865      0.0000
-      0.0000      0.0000     72.4865
+     72.4865     -0.0000     -0.0000
+     -0.0000     72.4865     -0.0000
+     -0.0000     -0.0000     72.4865
         Isotropic =      72.4865
 
       Spin-Dipole   (SD) Term (Hz):
       1.8614      0.0000      5.7124
-      0.0000      3.4597      0.0000
+     -0.0000      3.4597     -0.0000
      -0.6790      0.0000      0.5635
         Isotropic =       1.9615
 
       FC - SD  Cross Term (Hz):
-    -11.4506      0.0000    -65.2964
-      0.0000     58.2943      0.0000
+    -11.4506     -0.0000    -65.2964
+     -0.0000     58.2943      0.0000
     -65.2964      0.0000    -46.8438
         Isotropic =       0.0000
 
       Paramagnetic Spin-Orbit Term (Hz):
       1.7740      0.0000     11.1870
-      0.0000     -6.3823      0.0000
+      0.0000     -6.3823     -0.0000
      15.4524      0.0000     -5.7134
         Isotropic =      -3.4406
 
@@ -619,8 +580,8 @@ Iterative solution of linear equations
         Isotropic =      -0.3351
 
       Total Spin-Spin Coupling Tensor (Hz):
-     58.4334      0.0000    -54.2515
-      0.0000    132.2163      0.0000
+     58.4334     -0.0000    -54.2515
+     -0.0000    132.2163     -0.0000
     -56.4596      0.0000     21.3673
 
 
@@ -635,85 +596,39 @@ Iterative solution of linear equations
       -------------------------------------------------
 
       Fermi Contact (FC) Term (Hz):
-     72.4865      0.0000      0.0000
-      0.0000     72.4865      0.0000
-      0.0000      0.0000     72.4865
+     72.4865     -0.0000     -0.0000
+     -0.0000     72.4865     -0.0000
+     -0.0000     -0.0000     72.4865
         Isotropic =      72.4865
 
       Spin-Dipole   (SD) Term (Hz):
       1.8614      0.0000     -5.7124
-      0.0000      3.4597      0.0000
-      0.6790      0.0000      0.5635
+     -0.0000      3.4597     -0.0000
+      0.6790     -0.0000      0.5635
         Isotropic =       1.9615
 
       FC - SD  Cross Term (Hz):
-    -11.4506      0.0000     65.2964
-      0.0000     58.2943      0.0000
-     65.2964      0.0000    -46.8438
+    -11.4506     -0.0000     65.2964
+     -0.0000     58.2943     -0.0000
+     65.2964     -0.0000    -46.8438
         Isotropic =       0.0000
 
       Paramagnetic Spin-Orbit Term (Hz):
       1.7740      0.0000    -11.1870
-      0.0000     -6.3823      0.0000
-    -15.4524      0.0000     -5.7134
+     -0.0000     -6.3823     -0.0000
+    -15.4524     -0.0000     -5.7134
         Isotropic =      -3.4406
 
       Diamagnetic Spin-Orbit Term (Hz):
-     -6.2380      0.0000      5.8545
-      0.0000      4.3582      0.0000
+     -6.2380     -0.0000      5.8545
+     -0.0000      4.3582      0.0000
       5.9367      0.0000      0.8745
         Isotropic =      -0.3351
 
       Total Spin-Spin Coupling Tensor (Hz):
-     58.4334      0.0000     54.2515
-      0.0000    132.2163      0.0000
-     56.4596      0.0000     21.3673
-
-
-      Isotropic Spin-Spin Coupling =      70.6723 Hz
-
-
-
-      -------------------------------------------------
-      Atom    2:   1-H  and Atom    1:  17-O 
-
-      Respective Nuclear g-factors: 5.585689 & -.757520
-      -------------------------------------------------
-
-      Fermi Contact (FC) Term (Hz):
-     72.4865      0.0000      0.0000
-      0.0000     72.4865      0.0000
-      0.0000      0.0000     72.4865
-        Isotropic =      72.4865
-
-      Spin-Dipole   (SD) Term (Hz):
-      1.8614      0.0000     -0.6790
-      0.0000      3.4597      0.0000
-      5.7124      0.0000      0.5635
-        Isotropic =       1.9615
-
-      FC - SD  Cross Term (Hz):
-    -11.4506      0.0000    -65.2964
-      0.0000     58.2943      0.0000
-    -65.2964      0.0000    -46.8438
-        Isotropic =       0.0000
-
-      Paramagnetic Spin-Orbit Term (Hz):
-      1.7740      0.0000     15.4524
-      0.0000     -6.3823      0.0000
-     11.1870      0.0000     -5.7134
-        Isotropic =      -3.4406
-
-      Diamagnetic Spin-Orbit Term (Hz):
-     -6.2380      0.0000     -5.9367
-      0.0000      4.3582      0.0000
-     -5.8545      0.0000      0.8745
-        Isotropic =      -0.3351
-
-      Total Spin-Spin Coupling Tensor (Hz):
-     58.4334      0.0000    -56.4596
-      0.0000    132.2163      0.0000
-    -54.2515      0.0000     21.3673
+     58.4334     -0.0000     54.2515
+     -0.0000    132.2163     -0.0000
+     56.4596     -0.0000     21.3673
 
 
       Isotropic Spin-Spin Coupling =      70.6723 Hz
@@ -734,124 +649,32 @@ Iterative solution of linear equations
 
       Spin-Dipole   (SD) Term (Hz):
       0.3771      0.0000     -3.0499
-      0.0000     -1.9415      0.0000
-      3.0499      0.0000      2.9600
+     -0.0000     -1.9415     -0.0000
+      3.0499     -0.0000      2.9600
         Isotropic =       0.4652
 
       FC - SD  Cross Term (Hz):
-     42.5346      0.0000      0.0000
-      0.0000    -46.7566      0.0000
-      0.0000      0.0000      4.2220
-        Isotropic =       0.0000
+     42.5346     -0.0000     -0.0000
+     -0.0000    -46.7566     -0.0000
+     -0.0000     -0.0000      4.2220
+        Isotropic =      -0.0000
 
       Paramagnetic Spin-Orbit Term (Hz):
-      1.6011      0.0000     -1.3361
+      1.6011     -0.0000     -1.3361
       0.0000      1.0142      0.0000
-      1.3361      0.0000      3.8332
+      1.3361     -0.0000      3.8332
         Isotropic =       2.1495
 
       Diamagnetic Spin-Orbit Term (Hz):
-      5.3341      0.0000      5.3250
-      0.0000     -9.6584      0.0000
-     -5.3250      0.0000    -11.8481
+      5.3341     -0.0000      5.3250
+      0.0000     -9.6584     -0.0000
+     -5.3250     -0.0000    -11.8481
         Isotropic =      -5.3908
 
       Total Spin-Spin Coupling Tensor (Hz):
-    -73.4238      0.0000      0.9389
-      0.0000   -180.6129      0.0000
-     -0.9389      0.0000   -124.1035
-
-
-      Isotropic Spin-Spin Coupling =    -126.0467 Hz
-
-
-
-      -------------------------------------------------
-      Atom    3:   1-H  and Atom    1:  17-O 
-
-      Respective Nuclear g-factors: 5.585689 & -.757520
-      -------------------------------------------------
-
-      Fermi Contact (FC) Term (Hz):
-     72.4865      0.0000      0.0000
-      0.0000     72.4865      0.0000
-      0.0000      0.0000     72.4865
-        Isotropic =      72.4865
-
-      Spin-Dipole   (SD) Term (Hz):
-      1.8614      0.0000      0.6790
-      0.0000      3.4597      0.0000
-     -5.7124      0.0000      0.5635
-        Isotropic =       1.9615
-
-      FC - SD  Cross Term (Hz):
-    -11.4506      0.0000     65.2964
-      0.0000     58.2943      0.0000
-     65.2964      0.0000    -46.8438
-        Isotropic =       0.0000
-
-      Paramagnetic Spin-Orbit Term (Hz):
-      1.7740      0.0000    -15.4524
-      0.0000     -6.3823      0.0000
-    -11.1870      0.0000     -5.7134
-        Isotropic =      -3.4406
-
-      Diamagnetic Spin-Orbit Term (Hz):
-     -6.2380      0.0000      5.9367
-      0.0000      4.3582      0.0000
-      5.8545      0.0000      0.8745
-        Isotropic =      -0.3351
-
-      Total Spin-Spin Coupling Tensor (Hz):
-     58.4334      0.0000     56.4596
-      0.0000    132.2163      0.0000
-     54.2515      0.0000     21.3673
-
-
-      Isotropic Spin-Spin Coupling =      70.6723 Hz
-
-
-
-      -------------------------------------------------
-      Atom    3:   1-H  and Atom    2:   1-H 
-
-      Respective Nuclear g-factors: 5.585689 & 5.585689
-      -------------------------------------------------
-
-      Fermi Contact (FC) Term (Hz):
-   -123.2706      0.0000      0.0000
-      0.0000   -123.2706      0.0000
-      0.0000      0.0000   -123.2706
-        Isotropic =    -123.2706
-
-      Spin-Dipole   (SD) Term (Hz):
-      0.3771      0.0000      3.0499
-      0.0000     -1.9415      0.0000
-     -3.0499      0.0000      2.9600
-        Isotropic =       0.4652
-
-      FC - SD  Cross Term (Hz):
-     42.5346      0.0000      0.0000
-      0.0000    -46.7566      0.0000
-      0.0000      0.0000      4.2220
-        Isotropic =       0.0000
-
-      Paramagnetic Spin-Orbit Term (Hz):
-      1.6011      0.0000      1.3361
-      0.0000      1.0142      0.0000
-     -1.3361      0.0000      3.8332
-        Isotropic =       2.1495
-
-      Diamagnetic Spin-Orbit Term (Hz):
-      5.3341      0.0000     -5.3250
-      0.0000     -9.6584      0.0000
-      5.3250      0.0000    -11.8481
-        Isotropic =      -5.3908
-
-      Total Spin-Spin Coupling Tensor (Hz):
-    -73.4238      0.0000     -0.9389
-      0.0000   -180.6129      0.0000
-      0.9389      0.0000   -124.1035
+    -73.4238     -0.0000      0.9389
+     -0.0000   -180.6129     -0.0000
+     -0.9389     -0.0000   -124.1035
 
 
       Isotropic Spin-Spin Coupling =    -126.0467 Hz
@@ -859,7 +682,7 @@ Iterative solution of linear equations
 
 
 
- Task  times  cpu:        0.3s     wall:        0.5s
+ Task  times  cpu:       11.3s     wall:       11.3s
 
 
                                 NWChem Input Module
@@ -882,6 +705,16 @@ Iterative solution of linear equations
                                         h2o
 
 
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
   Caching 1-el integrals 
   itol2e modified to match energy
   convergence criterion.
@@ -897,12 +730,12 @@ Iterative solution of linear equations
           Charge           :     0
           Spin multiplicity:     1
           Use of symmetry is: off; symmetry adaption is: off
-          Maximum number of iterations:  30
+          Maximum number of iterations:  50
           AO basis - number of functions:     7
                      number of shells:     5
-          Convergence on energy requested: 1.00D-07
-          Convergence on density requested: 1.00D-05
-          Convergence on gradient requested: 5.00D-04
+          Convergence on energy requested:  1.00D-07
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
 
               XC Information
               --------------
@@ -931,23 +764,23 @@ Iterative solution of linear equations
           Convergence aids based upon iterative change in 
           total energy or number of iterations. 
           Levelshifting, if invoked, occurs when the 
-          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
           DIIS, if invoked, will attempt to extrapolate 
           using up to (NFOCK): 10 stored Fock matrices.
 
                     Damping( 0%)  Levelshifting(0.5)       DIIS
                   --------------- ------------------- ---------------
           dE  on:    start            ASAP                start   
-          dE off:    2 iters         30 iters            30 iters 
+          dE off:    2 iters         50 iters            50 iters 
 
 
       Screening Tolerance Information
       -------------------------------
-          Density screening/tol_rho: 1.00D-11
+          Density screening/tol_rho:  1.00D-11
           AO Gaussian exp screening on grid/accAOfunc:  16
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul: 1.00D-08
+          Schwarz screening/accCoul:  1.00D-08
 
 
       Superposition of Atomic Density Guess
@@ -964,53 +797,42 @@ Iterative solution of linear equations
  HOMO         =      -0.227821
  LUMO         =       0.298134
 
-   Time after variat. SCF:      0.4
-   Time prior to 1st pass:      0.4
+  WARNING: movecs_in_org=atomic not equal to movecs_in=./prop_hf_h2o.movecs
+   Time after variat. SCF:     12.9
+   Time prior to 1st pass:     12.9
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20851
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
-
- Grid_pts file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.gridpts.0
+ Grid_pts file          = /big_scratch/prop_hf_h2o.gridpts.000
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    111204
+ Max. records in memory =      2        Max. recs in file   =   9649999
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       16.10            16104626
-          Stack Space remaining (MW):       16.38            16383817
+           Heap Space remaining (MW):       74.35            74345815
+          Stack Space remaining (MW):      123.88           123882676
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.2240286175 -8.30D+01  9.26D-02  7.99D-02     0.5
+ d= 0,ls=0.0,diis     1    -75.2240285974 -8.30D+01  9.26D-02  7.99D-02    13.2
                                                      9.26D-02  7.99D-02
- d= 0,ls=0.0,diis     2    -75.2118934017  1.21D-02  4.91D-02  9.87D-02     0.6
+ d= 0,ls=0.0,diis     2    -75.2118898647  1.21D-02  4.91D-02  9.87D-02    13.4
                                                      4.91D-02  9.87D-02
- d= 0,ls=0.0,diis     3    -75.2870526749 -7.52D-02  1.13D-03  6.68D-05     0.6
-                                                     1.13D-03  6.68D-05
- d= 0,ls=0.0,diis     4    -75.2871025251 -4.99D-05  3.98D-05  9.03D-08     0.7
+ d= 0,ls=0.0,diis     3    -75.2870526639 -7.52D-02  1.13D-03  6.69D-05    13.5
+                                                     1.13D-03  6.69D-05
+ d= 0,ls=0.0,diis     4    -75.2871025250 -4.99D-05  3.98D-05  9.03D-08    13.7
                                                      3.98D-05  9.03D-08
- d= 0,ls=0.0,diis     5    -75.2871025925 -6.74D-08  3.85D-06  7.11D-10     0.8
+ d= 0,ls=0.0,diis     5    -75.2871025924 -6.74D-08  3.85D-06  7.11D-10    13.9
                                                      3.85D-06  7.11D-10
 
 
-         Total DFT energy =      -75.287102592513
-      One electron energy =     -119.927030566094
-           Coulomb energy =       46.169323965151
-    Exchange-Corr. energy =       -9.344133456141
+         Total DFT energy =      -75.287102592398
+      One electron energy =     -119.927030572871
+           Coulomb energy =       46.169323972704
+    Exchange-Corr. energy =       -9.344133456803
  Nuclear repulsion energy =        7.814737464571
 
- Numeric. integr. density =       10.000000133063
+ Numeric. integr. density =       10.000000133064
 
-     Total iterative time =      0.4s
+     Total iterative time =      0.9s
 
 
 
@@ -1018,102 +840,108 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                     ------------------------------------------
 
  Vector    1  Occ=1.000000D+00  E=-1.883699D+01
-              MO Center= -4.2D-16,  1.6D-15,  6.2D-02, r^2= 1.5D-02
+              MO Center= -3.5D-15,  2.8D-19,  6.2D-02, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     1      0.993732  1 O  s          
+     1      0.993732  1 O  s                  2      0.027014  1 O  s          
 
  Vector    2  Occ=1.000000D+00  E=-8.609986D-01
-              MO Center= -4.9D-13,  2.3D-13, -1.1D-01, r^2= 5.6D-01
+              MO Center= -2.7D-11,  1.6D-16, -1.1D-01, r^2= 5.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.868572  1 O  s                  1     -0.237248  1 O  s          
-     7      0.157581  3 H  s                  6      0.157581  2 H  s          
+     6      0.157581  2 H  s                  7      0.157581  3 H  s          
+     5     -0.134000  1 O  pz         
 
  Vector    3  Occ=1.000000D+00  E=-4.025992D-01
-              MO Center=  8.4D-12,  4.4D-26, -2.1D-01, r^2= 1.0D+00
+              MO Center= -1.7D-12, -3.3D-26, -2.1D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3     -0.587843  1 O  px                 7     -0.448648  3 H  s          
-     6      0.448648  2 H  s          
+     3      0.587843  1 O  px                 6     -0.448648  2 H  s          
+     7      0.448648  3 H  s          
 
  Vector    4  Occ=1.000000D+00  E=-1.989068D-01
-              MO Center= -4.0D-12,  1.8D-13,  8.0D-02, r^2= 7.4D-01
+              MO Center=  4.6D-12, -3.4D-16,  8.0D-02, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.766244  1 O  pz                 2      0.515069  1 O  s          
      6     -0.328420  2 H  s                  7     -0.328420  3 H  s          
+     1     -0.105485  1 O  s          
 
  Vector    5  Occ=1.000000D+00  E=-1.304627D-01
-              MO Center= -6.1D-26, -4.3D-13,  6.2D-02, r^2= 4.2D-01
+              MO Center= -1.2D-31,  2.3D-16,  6.2D-02, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
 
  Vector    6  Occ=0.000000D+00  E= 1.944120D-01
-              MO Center=  1.6D-11,  3.0D-14, -3.8D-01, r^2= 1.3D+00
+              MO Center= -9.6D-11, -5.6D-18, -3.8D-01, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7     -0.706667  3 H  s                  6     -0.706667  2 H  s          
+     6     -0.706667  2 H  s                  7     -0.706667  3 H  s          
      5     -0.680902  1 O  pz                 2      0.645012  1 O  s          
+     1     -0.109943  1 O  s          
 
  Vector    7  Occ=0.000000D+00  E= 3.489943D-01
-              MO Center= -2.0D-11,  4.0D-26, -2.5D-01, r^2= 1.2D+00
+              MO Center=  1.2D-10,  7.1D-27, -2.5D-01, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3     -0.943588  1 O  px                 6     -0.713238  2 H  s          
-     7      0.713238  3 H  s          
+     3      0.943588  1 O  px                 6      0.713238  2 H  s          
+     7     -0.713238  3 H  s          
 
 
                      DFT Final Beta Molecular Orbital Analysis
                      -----------------------------------------
 
  Vector    1  Occ=1.000000D+00  E=-1.883699D+01
-              MO Center= -3.8D-16,  1.8D-15,  6.2D-02, r^2= 1.5D-02
+              MO Center= -3.5D-15, -5.5D-22,  6.2D-02, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     1     -0.993732  1 O  s          
+     1      0.993732  1 O  s                  2      0.027014  1 O  s          
 
  Vector    2  Occ=1.000000D+00  E=-8.609986D-01
-              MO Center= -4.9D-13,  2.3D-13, -1.1D-01, r^2= 5.6D-01
+              MO Center= -2.7D-11, -4.5D-17, -1.1D-01, r^2= 5.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2     -0.868572  1 O  s                  1      0.237248  1 O  s          
-     7     -0.157581  3 H  s                  6     -0.157581  2 H  s          
+     2      0.868572  1 O  s                  1     -0.237248  1 O  s          
+     6      0.157581  2 H  s                  7      0.157581  3 H  s          
+     5     -0.134000  1 O  pz         
 
  Vector    3  Occ=1.000000D+00  E=-4.025992D-01
-              MO Center=  8.4D-12,  4.4D-26, -2.1D-01, r^2= 1.0D+00
+              MO Center= -1.7D-12,  4.7D-27, -2.1D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3     -0.587843  1 O  px                 7     -0.448648  3 H  s          
-     6      0.448648  2 H  s          
+     3      0.587843  1 O  px                 6     -0.448648  2 H  s          
+     7      0.448648  3 H  s          
 
  Vector    4  Occ=1.000000D+00  E=-1.989068D-01
-              MO Center= -4.0D-12,  1.8D-13,  8.0D-02, r^2= 7.4D-01
+              MO Center=  4.6D-12,  3.7D-16,  8.0D-02, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.766244  1 O  pz                 2      0.515069  1 O  s          
      6     -0.328420  2 H  s                  7     -0.328420  3 H  s          
+     1     -0.105485  1 O  s          
 
  Vector    5  Occ=1.000000D+00  E=-1.304627D-01
-              MO Center= -6.1D-26, -4.3D-13,  6.2D-02, r^2= 4.2D-01
+              MO Center= -2.6D-31, -3.4D-16,  6.2D-02, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -1.000000  1 O  py         
+     4      1.000000  1 O  py         
 
  Vector    6  Occ=0.000000D+00  E= 1.944120D-01
-              MO Center=  1.6D-11,  3.0D-14, -3.8D-01, r^2= 1.3D+00
+              MO Center= -9.6D-11,  1.0D-17, -3.8D-01, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7     -0.706667  3 H  s                  6     -0.706667  2 H  s          
+     6     -0.706667  2 H  s                  7     -0.706667  3 H  s          
      5     -0.680902  1 O  pz                 2      0.645012  1 O  s          
+     1     -0.109943  1 O  s          
 
  Vector    7  Occ=0.000000D+00  E= 3.489943D-01
-              MO Center= -2.0D-11,  4.0D-26, -2.5D-01, r^2= 1.2D+00
+              MO Center=  1.2D-10, -6.1D-28, -2.5D-01, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3     -0.943588  1 O  px                 6     -0.713238  2 H  s          
-     7      0.713238  3 H  s          
+     3      0.943588  1 O  px                 6      0.713238  2 H  s          
+     7     -0.713238  3 H  s          
 
 
    alpha - beta orbital overlaps 
@@ -1145,27 +973,26 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
      L   x y z        total         alpha         beta         nuclear
      -   - - -        -----         -----         ----         -------
-     0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
+     0   0 0 0     -0.000000     -5.000000     -5.000000     10.000000
 
      1   1 0 0      0.000000      0.000000      0.000000      0.000000
-     1   0 1 0      0.000000      0.000000      0.000000      0.000000
+     1   0 1 0     -0.000000     -0.000000      0.000000      0.000000
      1   0 0 1     -0.520589      0.203553      0.203553     -0.927695
 
      2   2 0 0     -2.842102     -4.811026     -4.811026      6.779949
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
-     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   1 0 1     -0.000000     -0.000000     -0.000000      0.000000
      2   0 2 0     -4.620483     -2.310241     -2.310241      0.000000
-     2   0 1 1      0.000000      0.000000      0.000000      0.000000
+     2   0 1 1      0.000000      0.000000     -0.000000      0.000000
      2   0 0 2     -4.072475     -2.966619     -2.966619      1.860763
-
-
- Parallel integral file used       4 records with       0 large values
 
 
       -----------------------------------
       Indirect Spin-Spin Coupling Tensors
       -----------------------------------
 
+  Spin-spin coupling atoms =                     3
+  Spin-spin coupling Number of pairs =                     3
 
       ---------------------------------------------------
       Calculating Fermi-Contact and Spin-Dipole Responses
@@ -1179,44 +1006,28 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   nalpha           =        5
   nbeta            =        5
   variables        =       20
-  # of vectors     =       39
+  # of vectors     =       26
   tolerance        = 0.10D-03
   level shift      = 0.00D+00
   max iterations   =       50
-  max subspace     =      390
+  max subspace     =      260
 
- FA-1: Before ev. Fock matrices ...
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20850
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
- FA-3: After ev. Fock matrices ...
+ SCF residual:    1.0358143941690572E-006
 
 
 Iterative solution of linear equations
   No. of variables       20
-  No. of equations       39
-  Maximum subspace      390
+  No. of equations       26
+  Maximum subspace      260
         Iterations       50
        Convergence  1.0D-04
-        Start time      1.2
+        Start time     14.7
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1     39    1.35D+00       2.4
-     2     78    1.81D-09       3.7
-
- Parallel integral file used       4 records with       0 large values
-
+     1     26    1.35D+00      16.7
+     2     52    8.21D-10      18.7
 
       ----------------------------------------------
       Calculating Paramagnetic Spin-Orbit Responses
@@ -1230,45 +1041,30 @@ Iterative solution of linear equations
   nalpha           =        5
   nbeta            =        5
   variables        =       20
-  # of vectors     =        9
+  # of vectors     =        6
   tolerance        = 0.10D-03
   level shift      = 0.00D+00
   max iterations   =       50
-  max subspace     =       90
+  max subspace     =       60
 
- FA-1: Before ev. Fock matrices ...
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20850
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
- FA-3: After ev. Fock matrices ...
+ SCF residual:    1.0358143947169996E-006
 
 
 Iterative solution of linear equations
   No. of variables       20
-  No. of equations        9
-  Maximum subspace       90
+  No. of equations        6
+  Maximum subspace       60
         Iterations       50
        Convergence  1.0D-04
-        Start time      3.8
+        Start time     20.9
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      9    3.00D+00       4.1
-     2     18    1.69D-02       4.5
-     3     27    5.81D-05       4.8
-
- Parallel integral file used       4 records with       0 large values
-
+     1      6    3.00D+00      21.6
+     2     12    2.44D-02      22.3
+     3     18    7.17D-04      23.0
+     4     24    1.49D-07      23.7
 
       ----------------------------------
       Indirect Spin-Spin Tensors (in Hz)
@@ -1281,32 +1077,32 @@ Iterative solution of linear equations
       -------------------------------------------------
 
       Fermi Contact (FC) Term (Hz):
-     87.8545      0.0000      0.0000
-      0.0000     87.8545      0.0000
-      0.0000      0.0000     87.8545
+     87.8545     -0.0000     -0.0000
+     -0.0000     87.8545     -0.0000
+     -0.0000     -0.0000     87.8545
         Isotropic =      87.8545
 
       Spin-Dipole   (SD) Term (Hz):
-      0.5992      0.0000      2.7656
+      0.5992     -0.0000      2.7656
       0.0000      1.8165      0.0000
-     -0.5667      0.0000      0.1882
+     -0.5667     -0.0000      0.1882
         Isotropic =       0.8680
 
       FC - SD  Cross Term (Hz):
      -5.4782      0.0000    -44.0265
       0.0000     35.3832      0.0000
     -44.0265      0.0000    -29.9050
-        Isotropic =       0.0000
+        Isotropic =      -0.0000
 
       Paramagnetic Spin-Orbit Term (Hz):
-      2.8452      0.0000     12.1103
-      0.0000     -6.1544      0.0000
-     19.3917      0.0000     -6.2062
+      2.8452     -0.0000     12.1103
+      0.0000     -6.1544     -0.0000
+     19.3917     -0.0000     -6.2062
         Isotropic =      -3.1718
 
       Diamagnetic Spin-Orbit Term (Hz):
      -6.2319      0.0000     -5.8622
-      0.0000      4.3740      0.0000
+     -0.0000      4.3740     -0.0000
      -5.9418      0.0000      0.8747
         Isotropic =      -0.3277
 
@@ -1327,85 +1123,39 @@ Iterative solution of linear equations
       -------------------------------------------------
 
       Fermi Contact (FC) Term (Hz):
-     87.8545      0.0000      0.0000
-      0.0000     87.8545      0.0000
-      0.0000      0.0000     87.8545
+     87.8545     -0.0000     -0.0000
+     -0.0000     87.8545     -0.0000
+     -0.0000     -0.0000     87.8545
         Isotropic =      87.8545
 
       Spin-Dipole   (SD) Term (Hz):
       0.5992      0.0000     -2.7656
-      0.0000      1.8165      0.0000
-      0.5667      0.0000      0.1882
+     -0.0000      1.8165     -0.0000
+      0.5667     -0.0000      0.1882
         Isotropic =       0.8680
 
       FC - SD  Cross Term (Hz):
-     -5.4782      0.0000     44.0265
-      0.0000     35.3832      0.0000
-     44.0265      0.0000    -29.9050
-        Isotropic =       0.0000
+     -5.4782     -0.0000     44.0265
+     -0.0000     35.3832     -0.0000
+     44.0265     -0.0000    -29.9050
+        Isotropic =      -0.0000
 
       Paramagnetic Spin-Orbit Term (Hz):
-      2.8452      0.0000    -12.1103
-      0.0000     -6.1544      0.0000
+      2.8452     -0.0000    -12.1103
+      0.0000     -6.1544     -0.0000
     -19.3917      0.0000     -6.2062
         Isotropic =      -3.1718
 
       Diamagnetic Spin-Orbit Term (Hz):
-     -6.2319      0.0000      5.8622
-      0.0000      4.3740      0.0000
-      5.9418      0.0000      0.8747
+     -6.2319     -0.0000      5.8622
+     -0.0000      4.3740     -0.0000
+      5.9418     -0.0000      0.8747
         Isotropic =      -0.3277
 
       Total Spin-Spin Coupling Tensor (Hz):
-     79.5887      0.0000     35.0129
-      0.0000    123.2739      0.0000
-     31.1434      0.0000     52.8063
-
-
-      Isotropic Spin-Spin Coupling =      85.2230 Hz
-
-
-
-      -------------------------------------------------
-      Atom    2:   1-H  and Atom    1:  17-O 
-
-      Respective Nuclear g-factors: 5.585689 & -.757520
-      -------------------------------------------------
-
-      Fermi Contact (FC) Term (Hz):
-     87.8545      0.0000      0.0000
-      0.0000     87.8545      0.0000
-      0.0000      0.0000     87.8545
-        Isotropic =      87.8545
-
-      Spin-Dipole   (SD) Term (Hz):
-      0.5992      0.0000     -0.5667
-      0.0000      1.8165      0.0000
-      2.7656      0.0000      0.1882
-        Isotropic =       0.8680
-
-      FC - SD  Cross Term (Hz):
-     -5.4782      0.0000    -44.0265
-      0.0000     35.3832      0.0000
-    -44.0265      0.0000    -29.9050
-        Isotropic =       0.0000
-
-      Paramagnetic Spin-Orbit Term (Hz):
-      2.8452      0.0000     19.3917
-      0.0000     -6.1544      0.0000
-     12.1103      0.0000     -6.2062
-        Isotropic =      -3.1718
-
-      Diamagnetic Spin-Orbit Term (Hz):
-     -6.2319      0.0000     -5.9418
-      0.0000      4.3740      0.0000
-     -5.8622      0.0000      0.8747
-        Isotropic =      -0.3277
-
-      Total Spin-Spin Coupling Tensor (Hz):
-     79.5887      0.0000    -31.1434
-      0.0000    123.2739      0.0000
-    -35.0129      0.0000     52.8063
+     79.5887     -0.0000     35.0129
+     -0.0000    123.2739     -0.0000
+     31.1434     -0.0000     52.8063
 
 
       Isotropic Spin-Spin Coupling =      85.2230 Hz
@@ -1425,125 +1175,33 @@ Iterative solution of linear equations
         Isotropic =     -42.0661
 
       Spin-Dipole   (SD) Term (Hz):
-      0.3188      0.0000     -1.4799
-      0.0000     -0.9642      0.0000
-      1.4799      0.0000      1.5724
+      0.3188     -0.0000     -1.4799
+     -0.0000     -0.9642     -0.0000
+      1.4799     -0.0000      1.5724
         Isotropic =       0.3090
 
       FC - SD  Cross Term (Hz):
-     18.7050      0.0000      0.0000
-      0.0000    -24.3491      0.0000
-      0.0000      0.0000      5.6440
+     18.7050     -0.0000      0.0000
+     -0.0000    -24.3491     -0.0000
+      0.0000     -0.0000      5.6440
         Isotropic =       0.0000
 
       Paramagnetic Spin-Orbit Term (Hz):
-      1.6842      0.0000     -1.6744
-      0.0000      1.4896      0.0000
+      1.6842     -0.0000     -1.6744
+     -0.0000      1.4896     -0.0000
       1.6744      0.0000      4.6716
         Isotropic =       2.6151
 
       Diamagnetic Spin-Orbit Term (Hz):
       5.3416      0.0000      5.3171
-      0.0000     -9.6477      0.0000
-     -5.3171      0.0000    -11.8327
+      0.0000     -9.6477     -0.0000
+     -5.3171     -0.0000    -11.8327
         Isotropic =      -5.3796
 
       Total Spin-Spin Coupling Tensor (Hz):
-    -16.0164      0.0000      2.1628
-      0.0000    -75.5376      0.0000
-     -2.1628      0.0000    -42.0108
-
-
-      Isotropic Spin-Spin Coupling =     -44.5216 Hz
-
-
-
-      -------------------------------------------------
-      Atom    3:   1-H  and Atom    1:  17-O 
-
-      Respective Nuclear g-factors: 5.585689 & -.757520
-      -------------------------------------------------
-
-      Fermi Contact (FC) Term (Hz):
-     87.8545      0.0000      0.0000
-      0.0000     87.8545      0.0000
-      0.0000      0.0000     87.8545
-        Isotropic =      87.8545
-
-      Spin-Dipole   (SD) Term (Hz):
-      0.5992      0.0000      0.5667
-      0.0000      1.8165      0.0000
-     -2.7656      0.0000      0.1882
-        Isotropic =       0.8680
-
-      FC - SD  Cross Term (Hz):
-     -5.4782      0.0000     44.0265
-      0.0000     35.3832      0.0000
-     44.0265      0.0000    -29.9050
-        Isotropic =       0.0000
-
-      Paramagnetic Spin-Orbit Term (Hz):
-      2.8452      0.0000    -19.3917
-      0.0000     -6.1544      0.0000
-    -12.1103      0.0000     -6.2062
-        Isotropic =      -3.1718
-
-      Diamagnetic Spin-Orbit Term (Hz):
-     -6.2319      0.0000      5.9418
-      0.0000      4.3740      0.0000
-      5.8622      0.0000      0.8747
-        Isotropic =      -0.3277
-
-      Total Spin-Spin Coupling Tensor (Hz):
-     79.5887      0.0000     31.1434
-      0.0000    123.2739      0.0000
-     35.0129      0.0000     52.8063
-
-
-      Isotropic Spin-Spin Coupling =      85.2230 Hz
-
-
-
-      -------------------------------------------------
-      Atom    3:   1-H  and Atom    2:   1-H 
-
-      Respective Nuclear g-factors: 5.585689 & 5.585689
-      -------------------------------------------------
-
-      Fermi Contact (FC) Term (Hz):
-    -42.0661      0.0000      0.0000
-      0.0000    -42.0661      0.0000
-      0.0000      0.0000    -42.0661
-        Isotropic =     -42.0661
-
-      Spin-Dipole   (SD) Term (Hz):
-      0.3188      0.0000      1.4799
-      0.0000     -0.9642      0.0000
-     -1.4799      0.0000      1.5724
-        Isotropic =       0.3090
-
-      FC - SD  Cross Term (Hz):
-     18.7050      0.0000      0.0000
-      0.0000    -24.3491      0.0000
-      0.0000      0.0000      5.6440
-        Isotropic =       0.0000
-
-      Paramagnetic Spin-Orbit Term (Hz):
-      1.6842      0.0000      1.6744
-      0.0000      1.4896      0.0000
-     -1.6744      0.0000      4.6716
-        Isotropic =       2.6151
-
-      Diamagnetic Spin-Orbit Term (Hz):
-      5.3416      0.0000     -5.3171
-      0.0000     -9.6477      0.0000
-      5.3171      0.0000    -11.8327
-        Isotropic =      -5.3796
-
-      Total Spin-Spin Coupling Tensor (Hz):
-    -16.0164      0.0000     -2.1628
-      0.0000    -75.5376      0.0000
-      2.1628      0.0000    -42.0108
+    -16.0164     -0.0000      2.1628
+     -0.0000    -75.5376     -0.0000
+     -2.1628     -0.0000    -42.0108
 
 
       Isotropic Spin-Spin Coupling =     -44.5216 Hz
@@ -1551,42 +1209,37 @@ Iterative solution of linear equations
 
 
 
- Task  times  cpu:        4.1s     wall:        4.3s
- Summary of allocated global arrays
------------------------------------
-  No active global arrays
-
-
-
-                         GA Statistics for process    0
-                         ------------------------------
-
-       create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 4169     4169     5.52e+04 1.11e+04 3.30e+04 3407        0      292     
-number of processes/call 1.30e+00 1.70e+00 1.87e+00 1.53e+00 0.00e+00
-bytes total:             6.86e+06 1.58e+06 3.57e+06 2.47e+05 0.00e+00 2.34e+03
-bytes remote:            2.23e+06 4.45e+05 2.23e+06 -1.46e+05 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 155144 bytes
-MA_summarize_allocated_blocks: starting scan ...
-MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
-MA usage statistics:
-
-	allocation statistics:
-					      heap	     stack
-					      ----	     -----
-	current number of blocks	         0	         0
-	maximum number of blocks	        26	        53
-	current total bytes		         0	         0
-	maximum total bytes		   2235000	  22510048
-	maximum total K-bytes		      2235	     22511
-	maximum total M-bytes		         3	        23
+ Task  times  cpu:       12.0s     wall:       12.0s
 
 
                                 NWChem Input Module
                                 -------------------
 
 
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
 
+
+MA_summarize_allocated_blocks: starting scan ...
+heap block 'gridpts', handle 22, address 0x557209a7e490:
+	type of elements:		double precision
+	number of elements:		49511629
+	address of client space:	0x557209a7e500
+	index for client space:		9142415
+	total number of bytes:		396093152
+MA_summarize_allocated_blocks: scan completed: 1 heap block, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         1	         0
+	maximum number of blocks	        26	        65
+	current total bytes		 396093152	         0
+	maximum total bytes		 396296680	  22510440
+	maximum total K-bytes		    396297	     22511
+	maximum total M-bytes		       397	        23
 
 
                                      CITATION
@@ -1594,28 +1247,52 @@ MA usage statistics:
                 Please cite the following reference when publishing
                            results obtained with NWChem:
 
-                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
-              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
-                        E. Apra, T.L. Windus, W.A. de Jong
-                 "NWChem: a comprehensive and scalable open-source
-                  solution for large scale molecular simulations"
-                      Comput. Phys. Commun. 181, 1477 (2010)
-                           doi:10.1016/j.cpc.2010.04.018
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, Y. Alexeev, J. Anchell,
+       V. Anisimov, F. W. Aquino, R. Atta-Fynn, J. Autschbach, N. P. Bauman,
+     J. C. Becca, D. E. Bernholdt, K. Bhaskaran-Nair, S. Bogatko, P. Borowski,
+         J. Boschen, J. Brabec, A. Bruner, E. Cauet, Y. Chen, G. N. Chuev,
+      C. J. Cramer, J. Daily, M. J. O. Deegan, T. H. Dunning Jr., M. Dupuis,
+   K. G. Dyall, G. I. Fann, S. A. Fischer, A. Fonari, H. Fruchtl, L. Gagliardi,
+      J. Garza, N. Gawande, S. Ghosh, K. Glaesemann, A. W. Gotz, J. Hammond,
+       V. Helms, E. D. Hermes, K. Hirao, S. Hirata, M. Jacquelin, L. Jensen,
+   B. G. Johnson, H. Jonsson, R. A. Kendall, M. Klemm, R. Kobayashi, V. Konkov,
+      S. Krishnamoorthy, M. Krishnan, Z. Lin, R. D. Lins, R. J. Littlefield,
+      A. J. Logsdail, K. Lopata, W. Ma, A. V. Marenich, J. Martin del Campo,
+   D. Mejia-Rodriguez, J. E. Moore, J. M. Mullin, T. Nakajima, D. R. Nascimento,
+    J. A. Nichols, P. J. Nichols, J. Nieplocha, A. Otero-de-la-Roza, B. Palmer,
+    A. Panyala, T. Pirojsirikul, B. Peng, R. Peverati, J. Pittner, L. Pollack,
+   R. M. Richard, P. Sadayappan, G. C. Schatz, W. A. Shelton, D. W. Silverstein,
+   D. M. A. Smith, T. A. Soares, D. Song, M. Swart, H. L. Taylor, G. S. Thomas,
+            V. Tipparaju, D. G. Truhlar, K. Tsemekhman, T. Van Voorhis,
+      A. Vazquez-Mayagoitia, P. Verma, O. Villa, A. Vishnu, K. D. Vogiatzis,
+        D. Wang, J. H. Weare, M. J. Williamson, T. L. Windus, K. Wolinski,
+        A. T. Wong, Q. Wu, C. Yang, Q. Yu, M. Zacharias, Z. Zhang, Y. Zhao,
+                                and R. J. Harrison
+                        "NWChem: Past, present, and future
+                         J. Chem. Phys. 152, 184102 (2020)
+                               doi:10.1063/5.0004997
 
-                              AUTHORS & CONTRIBUTORS
-                              ----------------------
-      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
-     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
-      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
-      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
-      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
-             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
-       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
-        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
-    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
-       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+                                      AUTHORS
+                                      -------
+  E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, D. Mejia-Rodriguez,
+       A. Kunitsa, N. P. Bauman, A. Panyala, W. A. de Jong, T. P. Straatsma,
+   H. J. J. van Dam, D. Wang, T. L. Windus, J. Hammond, J. Autschbach, A. Woods,
+    K. Bhaskaran-Nair, J. Brabec, K. Lopata, S. A. Fischer, S. Krishnamoorthy,
+     M. Jacquelin, W. Ma, M. Klemm, O. Villa, Y. Chen, V. Anisimov, F. Aquino,
+     S. Hirata, M. T. Hackler, E. Hermes, L. Jensen, J. E. Moore, J. C. Becca,
+      V. Konjkov, T. Risthaus, M. Malagoli, A. Marenich, A. Otero-de-la-Roza,
+        J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan,
+        A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr, M. Dupuis,
+     D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+     B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
 
- Total times  cpu:        4.4s     wall:        4.8s
+ Total times  cpu:       24.8s     wall:       24.8s

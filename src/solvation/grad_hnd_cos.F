@@ -133,7 +133,7 @@ C-------------------------local variables--------------------------
 
       logical status, pointforce, ateq
 
-      double precision derf, cosff, cosdff
+      double precision cosff, cosdff
       external cosff, cosdff
 
       integer nxtask, task_size
@@ -472,7 +472,7 @@ c
      $             * dbl_mb(iefc_q+ich2-1) 
      $             * (2.0d0*zeta12/sqrt(pi)/(rr**2)
      $                * exp(-(zeta12*rr)**2)
-     $                - derf(zeta12*rr)/(rr**3))
+     $                - erf(zeta12*rr)/(rr**3))
             else
               call errquit("grad_hnd_cos: panic",
      $                     do_cosmo_model,UERR)

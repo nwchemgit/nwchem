@@ -22,7 +22,7 @@
      >                            comp_charge_matrix,comp_pot_matrix,
      >                            nray,G_ray,vl_ray,vlpaw_ray,vnl_ray,
      >                            tmp_ray,
-     >                            filter,
+     >                            filter,filter_scale,
      >                            ierr)
       implicit none
       integer          version
@@ -67,6 +67,7 @@
       double precision vnl_ray(nray,nbasis,2)
       double precision tmp_ray(nray)
       logical filter
+      double precision filter_scale
 
       integer ierr
 
@@ -509,8 +510,8 @@ c     >                                    f2,2,f4,log_amesh)
 
 *     **** filter the rays ****
       if (filter) then
-         ecut = control_ecut()
-         wcut = control_wcut()
+         ecut = control_ecut()*filter_scale
+         wcut = control_wcut()*filter_scale
          call kbpp_filter_ray(nray,G_ray,ecut,vl_ray)
          call kbpp_filter_ray(nray,G_ray,ecut,vlpaw_ray)
          do i=1,nbasis

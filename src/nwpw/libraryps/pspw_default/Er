@@ -1,0 +1,65 @@
+#
+# $Id$
+#
+Comment: Erbium pseudopotential parameters
+Comment: Relativistic TM, quadratic semicore,P rojectors: 4f 5s 5p 5d 6s 6p
+Comment: Fitted 04-02-22
+Comment: by Eric Bylaska
+Comment:
+Comment: Atomic Energies for Lanthanides
+Comment:
+Comment: Ecut = 80 Ry
+Comment:               Mult 1            Mult 3            Mult 5            Mult 7            Mult 9           Mult 11
+Comment: Ce -0.2155975912E+03 -0.2156388510E+03 -0.2153399708E+03 -0.2145166299E+03 -0.2142513504E+03 -0.2135953309E+03
+Comment: Nd -0.7141857740E+02 -0.7152474551E+02 -0.7157630076E+02 -0.7153063430E+02 -0.7089481562E+02 -0.7026964790E+02
+Comment: Sm -0.9141274579E+02 -0.9154593809E+02 -0.9158565232E+02 -0.9166627185E+02 -0.9161215107E+02 -0.9096503857E+02
+Comment: Gd -0.1193921203E+03 -0.1195387108E+03 -0.1195871955E+03 -0.1196802788E+03 -0.1196965670E+03 -0.1196601871E+03
+Comment: Dy -0.1527063612E+03 -0.1528594622E+03 -0.1529208714E+03 -0.1528745134E+03 -0.1528090095E+03 -0.1526167911E+03
+Comment: Er -0.1927724351E+03 -0.1928780974E+03 -0.1928413613E+03 -0.1927564204E+03 -0.1925299540E+03 -0.1920672508E+03
+Comment: Yb -0.2447113573E+03 -0.2446194633E+03 -0.2444926315E+03 -0.2442279806E+03 -0.2438000965E+03 -0.2431644830E+03
+Comment:
+
+
+<comment> Parameterized Er TM psp (4f5s5p5d6s6p projectors, 4/2/2022 by EJB) <end>
+
+[lmax] 3
+[locp] 0
+[rlocal] 1.0
+[cutoff] 75.0
+
+<atom>
+ Er
+  68.00  167.259 9 4
+   1   0    2.00
+   2   0    2.00
+   2   1    6.00
+   3   0    2.00
+   3   1    6.00
+   3   2   10.00
+   4   0    2.00
+   4   1    6.00
+   4   2   10.00
+   4   3   11.98
+   5   0    2.00
+   5   1    6.00
+   5   2    0.02
+<end>
+<solver> pauli                         <end>
+<pseudopotential> troullier-martins    <end>
+<rcut>
+0       1.418000
+1       1.628000
+2       3.983000
+3       1.303000
+<end>
+<kb_expansion>
+0 2
+1 2
+3 2
+<end>
+<semicore> 0.900 <end>
+<semicore_type> quadratic <end>
+
+<screening_cut> 0.10 <end>
+
+

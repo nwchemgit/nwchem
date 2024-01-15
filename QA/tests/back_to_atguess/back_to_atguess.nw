@@ -1,0 +1,41 @@
+#
+# $Id$
+#
+
+title "Water geometry optimization in cc-pvdz basis set"
+
+start h2o
+
+geometry autosym
+  O    0.0    1.0    -0.02
+  H   -0.74   1.0    -0.76
+  H    0.74   1.0    -0.76
+  O    0.0    0.0    -0.02
+  H   -0.74   0.0    -0.76
+  H    0.74   0.0    -0.76
+end
+
+basis
+  H library cc-pvdz
+  O library cc-pvdz
+end
+
+driver
+  clear
+end
+
+scf; print low; end
+
+dft
+ direct
+ vectors input hcore
+ maxiter 1
+end
+task dft ignore
+
+set back_to_atguess 2
+dft
+ maxiter 99
+end
+task dft
+

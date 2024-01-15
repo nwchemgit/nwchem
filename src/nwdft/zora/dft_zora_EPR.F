@@ -362,7 +362,8 @@ c    &         f15.8,',',f15.8,')  nocc=(',
 c    &         i4,',',i4,')')
 c      endif
 c ---- calculate total occupation alpha and beta --- END
-c      if (noc(1) .ne. noc(2)) then
+c     if (noc(1) .ne. noc(2)) then
+      if(ipol.eq.2) then
       if (ac_occ(1) .ne. ac_occ(2)) then
 c      coeffpol=4.0d0/(noc(1)-noc(2))
        coeffpol=4.0d0/(ac_occ(1)-ac_occ(2))
@@ -372,7 +373,8 @@ c      coeffpol=4.0d0/(noc(1)-noc(2))
      &        'noc=(',i3,',',i3,') ',
      &        '-> closed shell system not allowed!')
        call errquit('get_dia12_par1_EPR error ',0,0)
-      endif 
+      endif
+      endif
       factor=(-0.25d0)*coeffpol*ppt
 c     if (ga_nodeid().eq.0)
 c    &  write(*,*) 'coeffpol=',coeffpol

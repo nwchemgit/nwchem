@@ -1,0 +1,546 @@
+ argument  1 = /Users/edo/nwchem/nwchem-xtb-updates/QA/tests/ccsdt_ompt_w3pvdz/ccsdt_ompt_w3pvdz.nw
+  NWChem w/ OpenMP: maximum threads =    1
+
+
+
+============================== echo of input deck ==============================
+echo
+
+start ccsdt_ompt_w3pvdz
+
+geometry units angstrom noautoz noprint
+       O          -0.167787    1.645761    0.108747
+       H           0.613411    1.102620    0.113724
+       H          -0.093821    2.209720   -0.643619
+       O           1.517569   -0.667424   -0.080674
+       H           1.989645   -1.098799    0.612047
+       H           0.668397   -1.091798   -0.139744
+       O          -1.350388   -0.964879   -0.092208
+       H          -1.908991   -1.211298    0.626207
+       H          -1.263787   -0.018107   -0.055536
+end
+
+basis "ao basis" spherical noprint
+  * library cc-pvdz
+end
+
+scf
+  direct
+  noprint "final vectors analysis" "final vector symmetries"
+end
+
+ccsd
+  freeze atomic
+  thresh 1e-2
+end
+
+set ccsd:use_trpdrv_omp T
+
+task ccsd(t) energy
+================================================================================
+
+
+                                         
+                                         
+
+
+             Northwest Computational Chemistry Package (NWChem) 7.0.1
+             --------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2020
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = WE40672
+    program         = /Users/edo/nwchem/nwchem-xtb-updates/bin/MACX64/nwchem
+    date            = Fri Apr  8 09:53:21 2022
+
+    compiled        = Fri_Apr_08_09:35:41_2022
+    source          = /Users/edo/nwchem/nwchem-xtb-updates
+    nwchem branch   = 7.0.0
+    nwchem revision = nwchem_on_git-3849-g7650c12b50
+    ga revision     = 5.8.1
+    use scalapack   = F
+    input           = /Users/edo/nwchem/nwchem-xtb-updates/QA/tests/ccsdt_ompt_w3pvdz/ccsdt_ompt_w3pvdz.nw
+    prefix          = ccsdt_ompt_w3pvdz.
+    data base       = ./ccsdt_ompt_w3pvdz.db
+    status          = startup
+    nproc           =        2
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   26214396 doubles =    200.0 Mbytes
+    stack    =   26214401 doubles =    200.0 Mbytes
+    global   =   52428800 doubles =    400.0 Mbytes (distinct from heap & stack)
+    total    =  104857597 doubles =    800.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ C1  symmetry detected
+                                 NWChem SCF Module
+                                 -----------------
+
+
+
+  ao basis        = "ao basis"
+  functions       =    72
+  atoms           =     9
+  closed shells   =    15
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./ccsdt_ompt_w3pvdz.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                          cc-pvdz                  6       14   3s2p1d
+ H                          cc-pvdz                  3        5   2s1p
+
+
+
+ Forming initial guess at       0.0s
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:        -227.28668731
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =    -227.949111
+ 1-e energy   =    -477.064312
+ 2-e energy   =     165.593459
+ HOMO         =      -0.467858
+ LUMO         =       0.064216
+
+
+ Starting SCF solution at       0.1s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-06
+ Maximum no. of iterations :           30
+ Final Fock-matrix accuracy:          1.000E-08
+ ----------------------------------------------
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1     -228.0241784205  1.31D+00  2.78D-01      0.3
+                 2     -228.1025453900  2.79D-01  6.68D-02      0.6
+                 3     -228.1086804094  2.11D-02  3.94D-03      0.9
+                 4     -228.1087172270  4.07D-04  7.56D-05      1.4
+                 5     -228.1087172404  7.52D-08  1.94D-08      2.4
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =   -228.108717240407
+      One-electron energy =   -481.194031389989
+      Two-electron energy =    169.563572618525
+ Nuclear repulsion energy =     83.521741531058
+
+        Time for solution =      2.3s
+
+
+             Final eigenvalues
+             -----------------
+
+              1      
+    1  -20.5510
+    2  -20.5494
+    3  -20.5483
+    4   -1.3549
+    5   -1.3403
+    6   -1.3387
+    7   -0.7319
+    8   -0.7073
+    9   -0.7058
+   10   -0.5844
+   11   -0.5801
+   12   -0.5546
+   13   -0.5043
+   14   -0.4927
+   15   -0.4898
+   16    0.1765
+   17    0.2197
+   18    0.2215
+   19    0.3465
+   20    0.3527
+   21    0.3573
+   22    0.7715
+   23    0.7948
+   24    0.8187
+   25    0.8496
+
+ center of mass
+ --------------
+ x =   0.00311497 y =  -0.00016223 z =  -0.01791152
+
+ moments of inertia (a.u.)
+ ------------------
+         279.032702923001           0.000000000000           0.000000000000
+           0.000000000000         275.051313939757          -0.000000000000
+           0.000000000000          -0.000000000000         542.928404278519
+
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 O    8     8.32   2.00  0.82  0.82  2.85  1.82  0.01
+    2 H    1     0.83   0.66  0.08  0.09
+    3 H    1     0.84   0.70  0.06  0.09
+    4 O    8     8.32   2.00  0.82  0.81  2.85  1.82  0.01
+    5 H    1     0.85   0.70  0.06  0.09
+    6 H    1     0.83   0.66  0.08  0.09
+    7 O    8     8.33   2.00  0.82  0.82  2.85  1.83  0.01
+    8 H    1     0.85   0.70  0.06  0.09
+    9 H    1     0.83   0.66  0.08  0.09
+
+       Multipole analysis of the density wrt the origin
+       ------------------------------------------------
+
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0     -0.000000      0.000000     30.000000
+
+     1   1 0 0     -0.078314      0.000000      0.000000
+     1   0 1 0     -0.007841      0.000000      0.000000
+     1   0 0 1      0.457091      0.000000     -0.000000
+
+     2   2 0 0    -12.681303      0.000000    152.133852
+     2   1 1 0      0.210468      0.000000      0.220405
+     2   1 0 1     -4.878156      0.000000     -5.087105
+     2   0 2 0    -12.561794      0.000000    154.497896
+     2   0 1 1      0.225303      0.000000      0.225556
+     2   0 0 2    -13.025117      0.000000      5.287361
+
+
+
+                   Four-Index Transformation
+                   -------------------------
+          Number of basis functions:             72
+          Number of shells:                      36
+          Number of occupied orbitals:           15
+          Number of occ. correlated orbitals:    12
+          Block length:                          16
+          Superscript MO index range:      4 -   15
+          Subscript MO index range:        4 -   72
+          MO coefficients read from:  ./ccsdt_ompt_w3pvdz.movec
+          Number of operator matrices in core:  156
+          Half-transformed integrals produced
+
+     Pass:    1     Index range:    4  -   15     Time:      0.93
+ ------------------------------------------
+ MP2 Energy (coupled cluster initial guess)
+ ------------------------------------------
+ Reference energy:           -228.108717240407117
+ MP2 Corr. energy:             -0.610148864270201
+ Total MP2 energy:           -228.718866104677318
+
+
+ ****************************************************************************
+              the segmented parallel ccsd program:    2 nodes
+ ****************************************************************************
+
+
+
+
+ level of theory    ccsd(t)
+ number of core         3
+ number of occupied    12
+ number of virtual     57
+ number of deleted      0
+ total functions       72
+ number of shells      36
+ basis label          566
+
+
+
+   ***** ccsd parameters *****
+   iprt   =     0
+   convi  =  0.100E-01
+   maxit  =    20
+   mxvec  =     5
+ memory             52419492
+  Using  1 OpenMP thread(s) in CCSD
+  IO offset    20.000000000000000     
+  IO error message >End of File
+  file_read_ga: failing reading from ./ccsdt_ompt_w3pvdz.t2
+  Failed reading restart vector from ./ccsdt_ompt_w3pvdz.t2
+  Using MP2 initial guess vector 
+
+
+-------------------------------------------------------------------------
+ iter     correlation     delta       rms       T2     Non-T2      Main
+             energy      energy      error      ampl     ampl      Block
+                                                time     time      time
+-------------------------------------------------------------------------
+ g_st2 size:       2 MB
+ mem. avail      399 MB
+   1     -0.6233633017 -6.234D-01  1.321D-02     2.16     0.00     1.93
+ g_st2 size:       2 MB
+ mem. avail      399 MB
+   2     -0.6332867228 -9.923D-03  6.908D-02     2.18     0.00     1.96
+ g_st2 size:       2 MB
+ mem. avail      399 MB
+   3     -0.6353641705 -2.077D-03  3.436D-03     2.18     0.00     1.96
+                  *************converged*************
+-------------------------------------------------------------------------
+
+ -----------
+ CCSD Energy
+ -----------
+ Reference energy:            -228.108717240407117
+ CCSD corr. energy:             -0.635364170455488
+ Total CCSD energy:           -228.744081410862606
+
+
+ --------------------------------
+ Spin Component Scaled (SCS) CCSD
+ --------------------------------
+ Same spin contribution:                 -0.140043507166428
+ Same spin scaling factor:                1.130000000000000
+ Opposite spin contribution:             -0.495320663289060
+ Opposite spin scaling fact.:             1.270000000000000
+ SCS-CCSD correlation energy:            -0.787306405475170
+ Total SCS-CCSD energy:                -228.896023645882281
+ memory             52419492
+
+
+*********triples calculation*********
+
+nkpass=    1; nvpass=    1; memdrv=         219792; memtrn=         810653; memavail=       52418796
+ memory available/node                       52418796
+ total number of virtual orbitals        57
+ number of virtuals per integral pass    57
+ number of integral evaluations           1
+ number of occupied per triples pass     12
+ number of triples passes                 1
+
+ commencing integral evaluation        1 at           9.91
+  symmetry use  F
+task         3 out of       666 done   0%  at       0.0 secs
+task        34 out of       666 done   5%  at       0.4 secs
+task        67 out of       666 done  10%  at       0.6 secs
+task       101 out of       666 done  15%  at       0.9 secs
+task       134 out of       666 done  20%  at       1.2 secs
+task       167 out of       666 done  25%  at       1.5 secs
+task       200 out of       666 done  30%  at       1.8 secs
+task       234 out of       666 done  35%  at       2.1 secs
+task       268 out of       666 done  40%  at       2.3 secs
+task       301 out of       666 done  45%  at       2.5 secs
+task       333 out of       666 done  50%  at       2.7 secs
+task       367 out of       666 done  55%  at       2.9 secs
+task       401 out of       666 done  60%  at       3.1 secs
+task       433 out of       666 done  65%  at       3.3 secs
+task       467 out of       666 done  70%  at       3.5 secs
+task       501 out of       666 done  75%  at       3.7 secs
+task       533 out of       666 done  80%  at       3.9 secs
+task       568 out of       666 done  85%  at       4.1 secs
+task       601 out of       666 done  90%  at       4.3 secs
+task       634 out of       666 done  95%  at       4.5 secs
+task       667 out of       666 done 100%  at       4.6 secs
+ commencing triples evaluation - OpenMP version       1 at                14.53 secs
+  Using  1 OpenMP threads in CCSD(T)
+ ccsd(t): done        1 out of       57 progress:   1%, Gflops=  0.000     at        0.0 secs
+ ccsd(t): done        3 out of       57 progress:   5%, Gflops=  0.000     at        0.2 secs
+ ccsd(t): done        6 out of       57 progress:  10%, Gflops=  0.000     at        0.5 secs
+ ccsd(t): done        9 out of       57 progress:  15%, Gflops=  0.000     at        0.7 secs
+ ccsd(t): done       12 out of       57 progress:  21%, Gflops=  0.000     at        1.0 secs
+ ccsd(t): done       15 out of       57 progress:  26%, Gflops=  0.000     at        1.3 secs
+ ccsd(t): done       18 out of       57 progress:  31%, Gflops=  0.000     at        1.6 secs
+ ccsd(t): done       20 out of       57 progress:  35%, Gflops=  0.000     at        1.8 secs
+ ccsd(t): done       23 out of       57 progress:  40%, Gflops=  0.000     at        2.1 secs
+ ccsd(t): done       26 out of       57 progress:  45%, Gflops=  0.000     at        2.4 secs
+ ccsd(t): done       29 out of       57 progress:  50%, Gflops=  0.000     at        2.6 secs
+ ccsd(t): done       32 out of       57 progress:  56%, Gflops=  0.000     at        2.9 secs
+ ccsd(t): done       35 out of       57 progress:  61%, Gflops=  0.000     at        3.1 secs
+ ccsd(t): done       38 out of       57 progress:  66%, Gflops=  0.000     at        3.4 secs
+ ccsd(t): done       40 out of       57 progress:  70%, Gflops=  0.000     at        3.5 secs
+ ccsd(t): done       43 out of       57 progress:  75%, Gflops=  0.000     at        3.8 secs
+ ccsd(t): done       46 out of       57 progress:  80%, Gflops=  0.000     at        4.0 secs
+ ccsd(t): done       49 out of       57 progress:  85%, Gflops=  0.000     at        4.3 secs
+ ccsd(t): done       52 out of       57 progress:  91%, Gflops=  0.000     at        4.6 secs
+ ccsd(t): done       55 out of       57 progress:  96%, Gflops=  0.000     at        4.8 secs
+ ccsd(t): done       57 out of       57 progress: 100%, Gflops=  0.000     at        5.0 secs
+ ccsd(t): 100% done, Aggregate Gflops=  0.000     in        5.1 secs
+ Time for integral evaluation pass     1        4.62
+ Time for triples evaluation pass      1        5.10
+
+ pseudo-e(mp4)  -0.10316840782521E-01
+ pseudo-e(mp5)   0.37163025224931E-03
+        e(t)    -0.99452105302716E-02
+
+ --------------
+ CCSD(T) Energy
+ --------------
+ Reference energy:                    -228.108717240407117
+
+ CCSD corr. energy:                     -0.635364170455488
+ T(CCSD) corr. energy:                  -0.010316840782521
+ Total CCSD+T(CCSD) energy:           -228.754398251645114
+
+ CCSD corr. energy:                     -0.635364170455488
+ (T) corr. energy:                      -0.009945210530272
+ Total CCSD(T) energy:                -228.754026621392882
+
+ routine      calls  cpu(0)   cpu-min  cpu-ave  cpu-max   i/o 
+ aoccsd          1     0.02     0.02     0.02     0.02    0.00
+ iterdrv         1     0.01     0.01     0.01     0.01    0.00
+ pampt           3     0.03     0.03     0.03     0.03    0.00
+ t2pm            3     0.10     0.10     0.10     0.10    0.00
+ sxy             3     0.11     0.10     0.11     0.11    0.00
+ ints       658233     3.87     3.87     3.88     3.90    0.00
+ t2eri         999     1.06     1.05     1.05     1.06    0.00
+ idx2          999     0.69     0.69     0.69     0.69    0.00
+ idx34           3     0.02     0.02     0.02     0.02    0.00
+ ht2pm           3     0.07     0.07     0.07     0.07    0.00
+ itm             3     0.46     0.46     0.46     0.46    0.00
+ pdiis           3     0.00     0.00     0.00     0.00    0.00
+ triples         1     0.01     0.01     0.01     0.01    0.00
+ rdtrpo          1     0.02     0.02     0.02     0.02    0.00
+ trpmos          1     4.62     4.62     4.62     4.62    0.00
+ trpdrv          1     0.12     0.12     0.12     0.12    0.00
+ doxxx       26676     3.55     3.55     3.55     3.55    0.00
+ tengy       26676     1.42     1.41     1.42     1.42    0.00
+ Total                16.18    16.18    16.18    16.18    0.00
+
+ Task  times  cpu:       19.6s     wall:       19.6s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        16	        41
+	current total bytes		         0	         0
+	maximum total bytes		     80136	 378141032
+	maximum total K-bytes		        81	    378142
+	maximum total M-bytes		         1	       379
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, Y. Alexeev, J. Anchell,
+       V. Anisimov, F. W. Aquino, R. Atta-Fynn, J. Autschbach, N. P. Bauman,
+     J. C. Becca, D. E. Bernholdt, K. Bhaskaran-Nair, S. Bogatko, P. Borowski,
+         J. Boschen, J. Brabec, A. Bruner, E. Cauet, Y. Chen, G. N. Chuev,
+      C. J. Cramer, J. Daily, M. J. O. Deegan, T. H. Dunning Jr., M. Dupuis,
+   K. G. Dyall, G. I. Fann, S. A. Fischer, A. Fonari, H. Fruchtl, L. Gagliardi,
+      J. Garza, N. Gawande, S. Ghosh, K. Glaesemann, A. W. Gotz, J. Hammond,
+       V. Helms, E. D. Hermes, K. Hirao, S. Hirata, M. Jacquelin, L. Jensen,
+   B. G. Johnson, H. Jonsson, R. A. Kendall, M. Klemm, R. Kobayashi, V. Konkov,
+      S. Krishnamoorthy, M. Krishnan, Z. Lin, R. D. Lins, R. J. Littlefield,
+      A. J. Logsdail, K. Lopata, W. Ma, A. V. Marenich, J. Martin del Campo,
+   D. Mejia-Rodriguez, J. E. Moore, J. M. Mullin, T. Nakajima, D. R. Nascimento,
+    J. A. Nichols, P. J. Nichols, J. Nieplocha, A. Otero-de-la-Roza, B. Palmer,
+    A. Panyala, T. Pirojsirikul, B. Peng, R. Peverati, J. Pittner, L. Pollack,
+   R. M. Richard, P. Sadayappan, G. C. Schatz, W. A. Shelton, D. W. Silverstein,
+   D. M. A. Smith, T. A. Soares, D. Song, M. Swart, H. L. Taylor, G. S. Thomas,
+            V. Tipparaju, D. G. Truhlar, K. Tsemekhman, T. Van Voorhis,
+      A. Vazquez-Mayagoitia, P. Verma, O. Villa, A. Vishnu, K. D. Vogiatzis,
+        D. Wang, J. H. Weare, M. J. Williamson, T. L. Windus, K. Wolinski,
+        A. T. Wong, Q. Wu, C. Yang, Q. Yu, M. Zacharias, Z. Zhang, Y. Zhao,
+                                and R. J. Harrison
+                        "NWChem: Past, present, and future
+                         J. Chem. Phys. 152, 184102 (2020)
+                               doi:10.1063/5.0004997
+
+                                      AUTHORS
+                                      -------
+     E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, W. A. de Jong,
+      T. P. Straatsma, H. J. J. van Dam, D. Wang, T. L. Windus, N. P. Bauman,
+       A. Panyala, J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec,
+    K. Lopata, S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm,
+       O. Villa, Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler,
+           Eric Hermes, L. Jensen, J. E. Moore, J. C. Becca, V. Konjkov,
+            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+      M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu,
+   T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros,
+     G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols,
+       K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski,
+       T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood,
+      E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju,
+        R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
+
+ Total times  cpu:       19.7s     wall:       19.7s

@@ -39,8 +39,8 @@ c
       double precision Exc(2)
       double precision rho_n
       integer nmat              ! [input] number of XC matrices to make;
-      double precision tmat(*)  ! XC fit
 c                               !         only used for lhs cpks
+      double precision tmat(*)  ! XC fit
       integer calc_type         ! what to calculate [input]
 c                               !   1 = XC matrices for SCF
 c                               !   2 = XC matrices for CPKS LHS
@@ -164,6 +164,12 @@ c
       integer fde_option
       integer g_s
 
+      integer nshells_bas,nbf_mxnbf_ce2
+      integer basis,g_dens_org(2)
+      integer type,ndim,dims(3)
+      integer dft_npatch, iptr
+      external dft_npatch
+
 #ifdef SOLARIS
 c     needed for -stackvar option
       save ex, dummy, ec, rho_int, rho_int_fde
@@ -181,12 +187,23 @@ c
       kslap = xc_chklap()
       ksdelrq = xc_chkdelrq()
       l3d = (ga_ndim(g_vxc).eq.3)
+
+      if (adft) then
+        basis = xc_bas_han
+      else
+        basis = ao_bas_han
+      endif
 c
       irdelchi_atom = 0
 c
       npol = (ipol*(ipol+1))/2
       if (.not.rtdb_get(rtdb,'dft:largenode', mt_log, 1, largenode))
      &     largenode=.false.
+      call nga_inquire(g_dens(1), type, ndim, dims)
+      if(ga_nodeid().eq.0.and.oprint) then
+         write(luout,*) ' ndim ',ndim
+         write(luout,*) ' dims ',(dims(ii),ii=1,ndim)
+      endif
 c
 c     Open grid pts file
 c     
@@ -403,20 +420,24 @@ c
      &   call errquit(pname//'cannot allocate hesdum',0, MA_ERR)
 c
 c     Assume this numerical density routine can be called from anywhere.
+
 c     -compute mapping vectors
-c 
+c
+      nshells_bas = nshells_ao
+      if (adft) nshells_bas = nshells_xc
+
       if (.not.ma_push_get
      &   (mt_int,nctrs*2,'cntoce map',lcetobfr,icetobfr))
      &   call errquit(pname//'push_get failed', 13, MA_ERR)
       if (.not.ma_push_get
-     &   (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
+     &   (mt_int,nshells_bas,'cntoce map',lcntoce,icntoce))
      &   call errquit(pname//'push_get failed', 13, MA_ERR)
       if (.not.ma_push_get
-     &   (mt_int,nshells_ao*2,'cntoce map',lcntobfr,icntobfr))
+     &   (mt_int,nshells_bas*2,'cntoce map',lcntobfr,icntobfr))
      &   call errquit(pname//'push_get failed', 13, MA_ERR)
 c     
-      call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
-     &                int_mb(icetobfr), nctrs, nshells_ao)
+      call build_maps(basis, int_mb(icntoce), int_mb(icntobfr), 
+     &                int_mb(icetobfr), nctrs, nshells_bas)
       if (.not.ma_chop_stack(lcntoce))
      &   call errquit(pname//'cannot pop stack',1, MA_ERR)
 c
@@ -425,6 +446,7 @@ c
       if (.not.MA_Push_Get(MT_Dbl,ipol*nctrs*nctrs,'rdens_atom',
      &   lrdens_atom,irdens_atom))
      &   call errquit(pname//'cannot allocate rdens_atom',0, MA_ERR)
+c      
       nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce*(nmat+1)
       if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &   call errquit(pname//'cannot allocate scr',0, MA_ERR)
@@ -432,19 +454,39 @@ c Daniel (1-11-13): I think we can stay similar to calc_type = 2 for
 c XC-third derivatives in this portion of the code, since this part
 c doesn't depend on having 3-dimensional GAs.
       if (calc_type.eq.2.or.calc_type.eq.5) then
+         call dfill(ipol*nctrs*nctrs, 0.0d0, dbl_mb(irdens_atom), 1)
+         if(ndim.eq.3) then
+            do isp=1,ipol
+               g_dens_org(isp)=g_dens(isp)
+            enddo
+         endif
          do isp=1,ipol
-            call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), 
-     A           g_dens(1+(isp-1)*(nmat+1)),  1, 
-     A           dbl_mb(irdens_atom+(isp-1)*nctrs*nctrs), 'absmax', 
-     &           dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
-            do ii=2,(nmat+1)
+            do ii=1,nmat+1
+               iptr=ii+(isp-1)*(nmat+1)
+               if(ndim.eq.3) then
+                  g_dens(iptr) =
+     =                 dft_npatch(g_dens_org,ii,nbf_ao,geom,ao_bas_han)
+               endif
+c DM in last position is the scf DM               
                call util_ga_mat_reduce(nbf_ao,nctrs,int_mb(icetobfr), 
-     A              g_dens(ii+(isp-1)*(nmat+1)),  1, 
+     A              g_dens(iptr),  1, 
      A              dbl_mb(irdens_atom+(isp-1)*nctrs*nctrs), 'absmax', 
      &              dbl_mb(iscr), nbf_ao_mxnbf_ce,.false.)
+               if(ndim.eq.3) then
+                  if (.not. ga_destroy(g_dens(iptr))) call errquit
+     P                 (pname//'failed destroy',g_dens,GA_ERR)
+               endif
             enddo
          enddo
-      else
+         if(ndim.eq.3) then
+            do isp=1,ipol
+               g_dens(isp)=g_dens_org(isp)
+            enddo
+         endif
+      elseif (adft) then
+        call adft_reduce(nbf_xc, nctrs, int_mb(icetobfr), tmat, ipol,
+     &                   dbl_mb(irdens_atom))
+      else   
       call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), g_dens, 
      &                        ipol, dbl_mb(irdens_atom), 'absmax', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
@@ -452,6 +494,7 @@ c doesn't depend on having 3-dimensional GAs.
 c
       if (.not.ma_pop_stack(lscr))
      &     call errquit(pname//'cannot pop stack',0, MA_ERR)
+
 c
 c
 cc AJL/BEGIN/FDE
@@ -708,6 +751,8 @@ c     compute variables for scratch space in function evaluation
 c     assumes cartesian; spherical set would only require 2*MXang + 1
 c     
       max_component = (nbf_ao_mxang+1)*(nbf_ao_mxang+2)/2 
+      if (xcfit) max_component = max(max_component,
+     $  (nbf_cd_mxang+1)*(nbf_cd_mxang+2)/2) 
 c     
 c     Allocate scratch space.
 c     
@@ -718,6 +763,15 @@ c
       else                      ! general case
          max_elem_ang_scr = max_component * 28
       endif 
+
+      if (xcfit) then
+        if (nbf_cd_mxang.le.3) then
+          max_elem_ang_scr = max(max_elem_ang_scr, max_component*9)
+        else
+          max_elem_ang_scr = max(max_elem_ang_scr, max_component*28)
+        endif
+      endif
+
       nscr = 3*n_per_rec*nbf_ao_mxcont + 
      &     max(3*n_per_rec*nbf_ao_mxprim,
      &     n_per_rec*max_elem_ang_scr) + 1
@@ -887,7 +941,7 @@ c
       if (.not.ma_chop_stack(lqxyz))
      &   call errquit(pname//'cannot pop stack',0, MA_ERR)
       call ga_sync()
-      if((do_scf.or.do_xdm).and.(.not.l3d)) then
+      if((do_scf.or.do_xdm).and.(.not.l3d).and.(.not.adft)) then
 c
 c         write(0,*) ' symmetr scf l r',do_scf,do_cpks_l,do_cpks_r,
 c     A        calc_type
@@ -905,7 +959,11 @@ cc AJL/Begin/FDE
 c Skip through as we are calculating ESP on the grid
         continue
       else
-        if(xcfit) call ga_dgop(Msg_Tmat,Tmat,nbf_xc*ipol,'+')
+        if(xcfit.and.(.not.adft)) then
+          call ga_dgop(Msg_Tmat,Tmat,nbf_xc*ipol,'+')
+        elseif(adft) then
+          call ga_dgop(Msg_Tmat,Tmat(nbf_xc*ipol+1),nbf_xc*ipol,'+')
+        endif
         if (nExc.eq.1)then
            Exc(1) = Exc(1) + Ec + Ex
         else
@@ -1006,3 +1064,4 @@ c
 c
       return
       end
+

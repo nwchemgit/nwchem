@@ -15,45 +15,38 @@ jobs:
         matrix:
           include:
             - {folder: nwchem-dev, archs: linux/aarch64, fc: gfortran}
-            - {folder: nwchem-dev, archs: linux/aarch64, fc: gfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: gfortran}
-            - {folder: nwchem-dev.xlf, archs: linux/ppc64le, fc: xlf}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: gfortran}
  
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: 'nwchemgit/nwchem-dockerfiles'
           fetch-depth: 5
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/cache
           key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchem-dockeractions-v002
       - name: Qemu
         id: qemu
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
         with:
-          image: crazymax/binfmt:v6.0.0
+          image: tonistiigi/binfmt:qemu-v6.0.0-10
       - name: Available platforms
         run: |
           echo ${{ steps.qemu.outputs.platforms }}
           docker images
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
         with:
           driver-opts: |
-              image=moby/buildkit:master
-      - name: Get Arch
-        id: get-arch
-        run: |
-          echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
-        shell: bash
+              image=moby/buildkit:v0.10.4
       - name: fetch cache
         if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
         run: |
@@ -63,14 +56,13 @@ jobs:
           rsync -av ~/cache/libext* cache/. ; \
           echo "libext cache fetched" ; \
           fi
-      - uses: haya14busa/action-cond@v1
-        id: cache-hit-reporter
-        with:
-          cond: ${{ steps.setup-cache.outputs.cache-hit != '' }}
-          if_true: "Y"
-          if_false: "N"
+          echo "cache_hit=Y" >> $GITHUB_ENV
+      - name: negative-cache-hit-reporter
+        if: (steps.setup-cache.outputs.cache-hit != 'true')
+        run: |
+          echo "cache_hit=N" >> $GITHUB_ENV
       - name: build_schedule
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           push: false
           context: ${{ matrix.folder }}
@@ -79,7 +71,9 @@ jobs:
           tags: nwchem_image
           build-args: |
             FC=${{ matrix.fc }}
-            CACHE_HIT=${{ steps.cache-hit-reporter.outputs.value }}
+            CACHE_HIT=${{ env.cache_hit }}
+            NWCHEM_BRANCH=${{ github.ref_name }}
+            GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
       - name: store cache
         run: |
             mkdir -p ~/cache/

@@ -58,7 +58,7 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dlasq4.o      dlasq6.o      dposv.o        dtrtrs.o     \
                dpotrs.o      dlaebz.o      dstedc.o       \
                dlaed0.o dlaed1.o dlaed2.o dlaed3.o dlaed4.o dlaed5.o dlaed6.o dlaed7.o dlaed8.o dlaed9.o \
-               dlamrg.o      dlaeda.o dsyevd.o \
+               dlamrg.o      dlaeda.o dsyevd.o dsyevx.o  dstebz.o dstein.o \
                ilaenv.o ieeeck.o      lsamen.o  iladlr.o iladlc.o ilazlc.o ilazlr.o iparmq.o \
 	       zbdsqr.o  zgebd2.o zgebrd.o zgelq2.o zgelqf.o zgeqr2.o \
                zgeqrf.o zgesvd.o \

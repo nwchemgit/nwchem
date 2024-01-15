@@ -195,22 +195,16 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       INTEGER p5b_1,p6b_1,h1b_1,h2b_1
       INTEGER p3b_2,p4b_2,p5b_2,p6b_2
       INTEGER dima,dimb,dimc,dim_common,dima_sort,dimb_sort
+      integer :: h21d, p43d, p65d
 #ifdef USE_F90_ALLOCATABLE
-      double precision, allocatable :: f_a(:)
-      double precision, allocatable :: f_b(:)
-      double precision, allocatable :: f_c(:)
-      double precision, allocatable :: f_t(:)
+      double precision, allocatable :: f_a(:), f_b(:), f_c(:)
 #ifdef USE_FASTMEM
-      !dec$ attributes fastmem :: f_a,f_b,f_c,f_t
+      !dec$ attributes fastmem :: f_a,f_b,f_c
 #endif
-      integer :: e_a,e_b,e_c,e_t
 #else
-      integer k_a, l_a
-      integer k_b, l_b
-      integer k_c, l_c
-      integer k_t, l_t
-      integer e_a,e_b,e_c,e_t
+      integer :: k_a, l_a, k_b, l_b, k_c, l_c
 #endif
+      integer :: e_a,e_b,e_c
       double precision alpha
       integer p5b_in,p6b_in
       INTEGER NXTASK
@@ -223,32 +217,21 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       dimpppp = maxp*maxp*maxp*maxp
       dimtemp = max(dimpppp,dimhhpp)
 
+      e_a=0
+      e_b=0
+      e_c=0
 #ifdef USE_F90_ALLOCATABLE
       allocate(f_a(1:dimhhpp),stat=e_a)
       allocate(f_b(1:dimpppp),stat=e_b)
       allocate(f_c(1:dimhhpp),stat=e_c)
-# ifndef USE_LOOPS_NOT_DGEMM
-      allocate(f_t(1:dimtemp),stat=e_t)
-# endif
 #else
-      e_a=0
       if(.not.MA_PUSH_GET(mt_dbl,dimhhpp,"a",l_a,k_a)) e_a=-1
-      e_b=0
       if(.not.MA_PUSH_GET(mt_dbl,dimpppp,"b",l_b,k_b)) e_b=-1
-      e_c=0
       if(.not.MA_PUSH_GET(mt_dbl,dimhhpp,"c",l_c,k_c)) e_c=-1
-# ifndef USE_LOOPS_NOT_DGEMM
-      e_t=0
-      if(.not.MA_PUSH_GET(mt_dbl,dimtemp,"t",l_t,k_t)) e_t=-1
-# else
-      dimtemp=-12345
-      e_t=.false.
-# endif
 #endif
       if (e_a.ne.0) call errquit("MA a",dimhhpp,MA_ERR)
       if (e_b.ne.0) call errquit("MA b",dimpppp,MA_ERR)
       if (e_c.ne.0) call errquit("MA c",dimhhpp,MA_ERR)
-      if (e_t.ne.0) call errquit("MA t",dimtemp,MA_ERR)
       DO p3b = noab+1,noab+nvab
        DO p4b = p3b,noab+nvab
         DO h1b = 1,noab
@@ -274,10 +257,10 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
               DO p5b = noab+1,noab+nvab
                DO p6b = p5b,noab+nvab
 #else
-      DO p5b_in =ga_nodeid(),ga_nodeid()+nvab-1
-         p5b=mod(p5b_in,nvab)+noab+1
-         DO p6b_in=ga_nodeid(),ga_nodeid()+nvab+noab-p5b
-            p6b=mod(p6b_in,noab+nvab-p5b+1)+p5b
+              DO p5b_in =ga_nodeid(),ga_nodeid()+nvab-1
+                p5b=mod(p5b_in,nvab)+noab+1
+                DO p6b_in=ga_nodeid(),ga_nodeid()+nvab+noab-p5b
+                 p6b=mod(p6b_in,noab+nvab-p5b+1)+p5b
 #endif
                 IF (int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1) .eq.
      &              int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1)) THEN
@@ -293,92 +276,51 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
                   dima = dim_common * dima_sort
                   dimb = dim_common * dimb_sort
                   IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
-#ifdef USE_LOOPS_NOT_DGEMM
                    CALL GET_HASH_BLOCK(d_a,f_a,dima,
      &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
      &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
-#else
-                   CALL GET_HASH_BLOCK(d_a,f_t,dima,
-     &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
-     &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
-                   CALL TCE_SORT_4(f_t,f_a,
-     &                  int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
-     &                  int_mb(k_range+h1b-1),int_mb(k_range+h2b-1),
-     &                  4,3,2,1,1.0d0)
-#endif
                    if(.not.intorb) then
-#ifdef USE_LOOPS_NOT_DGEMM
                     CALL GET_HASH_BLOCK(d_b,f_b,dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &                   (p3b_2-1)))))
-#else
-                    CALL GET_HASH_BLOCK(d_b,f_t,dimb,
-     &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
-     &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
-     &                   (p3b_2-1)))))
-#endif
                    else
-#ifdef USE_LOOPS_NOT_DGEMM
                     CALL GET_HASH_BLOCK_I(d_b,f_b,dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &                   (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
-#else
-                    CALL GET_HASH_BLOCK_I(d_b,f_t,dimb,
-     &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
-     &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
-     &                   (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
-#endif
                    end if
-#ifndef USE_LOOPS_NOT_DGEMM
-                   CALL TCE_SORT_4(f_t,f_b,
-     &                  int_mb(k_range+p3b-1),int_mb(k_range+p4b-1),
-     &                  int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
-     &                  2,1,4,3,1.0d0)
-#endif
                    if (p5b .eq. p6b) then
                     alpha = 1.0d0
                    else
                     alpha = 2.0d0
                    end if
-#ifdef USE_LOOPS_NOT_DGEMM
-                   call t2_p8(int_mb(k_range+h1b-1),
-     &                        int_mb(k_range+h2b-1),
-     &                        int_mb(k_range+p3b-1),
-     &                        int_mb(k_range+p4b-1),
-     &                        int_mb(k_range+p5b-1),
-     &                        int_mb(k_range+p6b-1),
-     &                        f_a,f_b,f_c,
-     &                        0.5d0*alpha)
-#else
-                   CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
-     &                  alpha,f_a,dim_common,f_b,
-     &                  dim_common,1.0d0,f_c,dima_sort)
-#endif
+                   h21d = int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
+                   p43d = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
+                   p65d = int_mb(k_range+p5b-1)*int_mb(k_range+p6b-1)
+                   call DGEMM('n','n',h21d,p43d,p65d,
+     &                         0.5d0*alpha,f_a,h21d,
+     &                                     f_b,p65d,
+     &                         1.0d0,      f_c,h21d)
                   END IF
                  END IF
                 END IF
                END DO
               END DO
-#ifdef USE_LOOPS_NOT_DGEMM
               CALL ADD_HASH_BLOCK(d_c,f_c,dimc,
      &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &             (p4b-noab-1+nvab*(p3b-noab-1)))))
-#else
-              CALL TCE_SORT_4(f_c,f_t,
-     &             int_mb(k_range+p4b-1),int_mb(k_range+p3b-1),
-     &             int_mb(k_range+h2b-1),int_mb(k_range+h1b-1),
-     &             2,1,4,3,0.5d0)
-              CALL ADD_HASH_BLOCK(d_c,f_t,dimc,
-     &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
-     &             (p4b-noab-1+nvab*(p3b-noab-1)))))
-#endif
 #else 
-celse// USE_F90_ALLOCATABLE
               CALL DFILL(dimc,0.0d0,dbl_mb(k_c),1)
+#if 0
               DO p5b = noab+1,noab+nvab
                DO p6b = p5b,noab+nvab
+#else
+              DO p5b_in =ga_nodeid(),ga_nodeid()+nvab-1
+                p5b=mod(p5b_in,nvab)+noab+1
+                DO p6b_in=ga_nodeid(),ga_nodeid()+nvab+noab-p5b
+                 p6b=mod(p6b_in,noab+nvab-p5b+1)+p5b
+#endif
                 IF (int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1) .eq.
      &              int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1)) THEN
                  IF (ieor(int_mb(k_sym+p5b-1),ieor(int_mb(k_sym+p6b-1),
@@ -393,89 +335,41 @@ celse// USE_F90_ALLOCATABLE
                   dima = dim_common * dima_sort
                   dimb = dim_common * dimb_sort
                   IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
-#ifdef USE_LOOPS_NOT_DGEMM
                    CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,
      &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
      &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
-#else
-                   CALL GET_HASH_BLOCK(d_a,dbl_mb(k_t),dima,
-     &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
-     &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
-                   CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_a),
-     &                  int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
-     &                  int_mb(k_range+h1b-1),int_mb(k_range+h2b-1),
-     &                  4,3,2,1,1.0d0)
-#endif
                    if(.not.intorb) then
-#ifdef USE_LOOPS_NOT_DGEMM
                     CALL GET_HASH_BLOCK(d_b,dbl_mb(k_b),dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &                   (p3b_2-1)))))
-#else
-                    CALL GET_HASH_BLOCK(d_b,dbl_mb(k_t),dimb,
-     &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
-     &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
-     &                   (p3b_2-1)))))
-#endif
                    else
-#ifdef USE_LOOPS_NOT_DGEMM
                     CALL GET_HASH_BLOCK_I(d_b,dbl_mb(k_b),dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &                   (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
-#else
-                    CALL GET_HASH_BLOCK_I(d_b,dbl_mb(k_t),dimb,
-     &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
-     &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
-     &                   (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
-#endif
                    end if
-#ifndef USE_LOOPS_NOT_DGEMM
-                   CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_b),
-     &                  int_mb(k_range+p3b-1),int_mb(k_range+p4b-1),
-     &                  int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
-     &                  2,1,4,3,1.0d0)
-#endif
                    if (p5b .eq. p6b) then
                     alpha = 1.0d0
                    else
                     alpha = 2.0d0
                    end if
-#ifdef USE_LOOPS_NOT_DGEMM
-                   call t2_p8(int_mb(k_range+h1b-1),
-     &                        int_mb(k_range+h2b-1),
-     &                        int_mb(k_range+p3b-1),
-     &                        int_mb(k_range+p4b-1),
-     &                        int_mb(k_range+p5b-1),
-     &                        int_mb(k_range+p6b-1),
-     &                        dbl_mb(k_a),dbl_mb(k_b),dbl_mb(k_c),
-     &                        0.5d0*alpha)
-#else
-                   CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
-     &                  alpha,dbl_mb(k_a),dim_common,dbl_mb(k_b),
-     &                  dim_common,1.0d0,dbl_mb(k_c),dima_sort)
-#endif
+                   h21d = int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
+                   p43d = int_mb(k_range+p3b-1)*int_mb(k_range+p4b-1)
+                   p65d = int_mb(k_range+p5b-1)*int_mb(k_range+p6b-1)
+                   call DGEMM('n','n',h21d,p43d,p65d,
+     &                         0.5d0*alpha,dbl_mb(k_a),h21d,
+     &                                     dbl_mb(k_b),p65d,
+     &                         1.0d0,      dbl_mb(k_c),h21d)
                   END IF
                  END IF
                 END IF
                END DO
               END DO
-#ifdef USE_LOOPS_NOT_DGEMM
               CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_c),dimc,
      &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &             (p4b-noab-1+nvab*(p3b-noab-1)))))
-#else
-              CALL TCE_SORT_4(dbl_mb(k_c),dbl_mb(k_t),
-     &             int_mb(k_range+p4b-1),int_mb(k_range+p3b-1),
-     &             int_mb(k_range+h2b-1),int_mb(k_range+h1b-1),
-     &             2,1,4,3,0.5d0)
-              CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_t),dimc,
-     &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
-     &             (p4b-noab-1+nvab*(p3b-noab-1)))))
-#endif
 #endif 
-cendif// USE_F90_ALLOCATABLE
               next = NXTASK(nprocs, 1)
              END IF
              count = count + 1
@@ -493,22 +387,11 @@ cendif// USE_F90_ALLOCATABLE
       deallocate(f_a,stat=e_a)
       deallocate(f_b,stat=e_b)
       deallocate(f_c,stat=e_c)
-# ifndef USE_LOOPS_NOT_DGEMM
-      deallocate(f_t,stat=e_t)
-# endif
 #else
-# ifndef USE_LOOPS_NOT_DGEMM
-      e_t=0
-      if(.not.MA_POP_STACK(l_t)) e_t=-1
-# else
-      l_t=-12345
-      e_t=0
-# endif
       e_a=0
       if(.not.MA_CHOP_STACK(l_a)) e_a=-1
 #endif
       if (e_a.ne.0) call errquit("MA pops a",0,MA_ERR)
-      if (e_t.ne.0) call errquit("MA pops t",1,MA_ERR)
       RETURN
       END
 

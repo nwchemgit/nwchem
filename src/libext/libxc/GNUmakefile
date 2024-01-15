@@ -5,8 +5,8 @@
 
 include ../../config/makefile.h
 
-install/lib/libxc.a:
-	./build_libxc.sh 
+install/lib/libnwc_xc.a:
+	./build_libxc.sh $(LIBXC_VERSION)
 
 LIB_TARGETS += libxc
 

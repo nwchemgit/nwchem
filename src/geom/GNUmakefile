@@ -8,14 +8,16 @@
      OBJ = geom.o geom_input.o geom_input2.o geom_3d.o geom_2d.o geom_1d.o geom_numcore.o \
            geom_checksum.o geom_print_ecce.o  geom_freeze.o geom_fragment.o geom_getsym.o
 
- HEADERS = geom.fh geomP.fh
+ HEADERS = geom.fh geomP.fh periodic.fh
 
  USES_BLAS = geom.F geom_input.F geom_print_ecce.F geom_hnd.F geom_3d.F geom_getsym.F geom_2d.F
  UNSET_OPENMP = 1
 include ../config/makefile.h
 include ../config/makelib.h
 
-
+  ifeq ($(FLANG_NEW),true)
+            FOPTIONS += -fno-automatic
+  endif
   ifeq ($(_FC),pgf90)
             FOPTIONS += -Mnorecursive
   endif
@@ -38,7 +40,7 @@ include ../config/makelib.h
             FOPTIMIZE += -O0
     endif
   endif
-  ifeq ($(FC),ifort)
+  ifeq ($(_FC),ifort)
             FOPTIONS += -save
   endif
   ifeq ($(_FC),xlf)

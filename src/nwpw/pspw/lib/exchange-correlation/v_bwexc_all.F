@@ -212,6 +212,8 @@
          write(luout,1131) 'M06'
       ELSE IF (gga.eq.306) THEN
          write(luout,1131) 'M06-2X'
+      ELSE IF (gga.eq.307) THEN
+         write(luout,1131) 'r2SCAN'
       ELSE
          write(luout,1131) 'unknown parameterization'
          call errquit('bad exchange_correlation',0, INPUT_ERR)

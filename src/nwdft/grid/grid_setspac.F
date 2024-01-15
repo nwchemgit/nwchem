@@ -25,6 +25,7 @@ c
       integer ncenters_scr ! no. of centers after screening
       integer ictr_scr  ! grid center in the screened reduced list
       integer k_indx,l_indx,i
+      integer basis
       integer ga_nodeid
       external ga_nodeid
 c
@@ -64,8 +65,10 @@ c
 c     call to ssw routine
 c
          if (odftps) call pstat_on(ps_ssw)
+         basis=ao_bas_han
+         if (adft) basis=cd_bas_han
          if(trunc_neigh)
-     .        call grid_signf(AO_bas_han,  ncenters_scr, 
+     .        call grid_signf(basis,  ncenters_scr, 
      &        xyz,dbl_mb(ixyzm),ictr_scr,
      &        rad, expo, int_mb(k_indx),iatype_pt_chg,
      &        nq,xyzw)

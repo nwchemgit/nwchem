@@ -206,6 +206,7 @@ c
                   if(rad_sh.ge.rmin.and.rad_sh.le.rmax) then
                      if(dogradient) then
 c Daniel (1-11-13): Added XC-third derivative stuff
+cdebug                        write(*,*) tmat(1:nbf_cd)
                         call dftg_loop(
      ,                    nq_out,iqsh,irsh,rad_sh,
      ,                    dosympts,

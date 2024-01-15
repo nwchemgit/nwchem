@@ -253,8 +253,11 @@ c     Functions
 c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
+      integer g_dens_3d,dft_dm3d_calc5
+      external dft_dm3d_calc5
       logical  grid_reopen
       external grid_reopen
+      logical dm3d
       logical  xc_gotxc   ! do we have a density functional?
       external xc_gotxc
 c
@@ -586,7 +589,7 @@ c for this gradient term in restricted triplet gradients.
         call dftgh_gridv0(rtdb,ihdl_geom,ihdl_bfao, ipol,nao,
      &       g_d, dum, dum, g_rhs_xc, calc_type,
      &       nat, log_mb(k_act), nat, dbl_mb(k_rdens_atom),
-     &       int_mb(k_cetobfr), 0, .false.)
+     &       int_mb(k_cetobfr), 0, .false., 0d0, .false.)
         call xc_exit_index(l_cntoce, l_cntobfr, l_cetobfr,
      &                     l_rdens_atom)
       endif
@@ -616,7 +619,7 @@ c
         call tddft_grad_compute_dao(ipol,nao,nocc,g_mo,g_d)
 c DEBUG
 c        call ga_print(g_d)
-        if (tddft_grad_util_print('tddft grad g',print_debug)) then
+        if (util_print('tddft grad g',print_debug)) then
           if (oroot) write(LuOut,*)'DEBUG: '//pname//'D'
           call tddft_grad_print_array(ipol,1,g_d,dble(ipol))
         endif
@@ -640,7 +643,7 @@ c
         enddo
 c DEBUG
 c        call ga_print(g_p_ao)
-        if (tddft_grad_util_print('tddft grad g',print_debug)) then
+        if (util_print('tddft grad g',print_debug)) then
           if (oroot) write(LuOut,*)'DEBUG: '//pname//'P'
 c          call tddft_grad_print_array(ipol,1,g_p_ao,dble(ipol))
           call tddft_grad_print_array(ipol,1,g_d(3),dble(ipol))
@@ -798,7 +801,7 @@ c
 c Daniel (11-30-12): Print X+Y and X-Y in the AO basis
 c DEBUG
 c        call ga_print(g_d(5))
-        if (tddft_grad_util_print('tddft grad g',print_debug)) then
+        if (util_print('tddft grad g',print_debug)) then
           if (oroot) write(LuOut,*)'DEBUG: '//pname//'(X+Y)'
           call tddft_grad_print_array(ipol,1,g_d(5),dble(ipol))
         endif
@@ -818,7 +821,7 @@ c Daniel (11-30-12): Print W (note, this contains the ground state
 c density matrix contribution as well).
 c DEBUG
 c        call ga_print(g_wp_ao)
-        if (tddft_grad_util_print('tddft grad g',print_debug)) then
+        if (util_print('tddft grad g',print_debug)) then
           if (oroot) write(LuOut,*)'DEBUG: '//pname//'W'
           call tddft_grad_print_array(1,1,g_wp_ao,dble(ipol))
         endif
@@ -849,7 +852,7 @@ c
      &         g_d, 
      &         dbl_mb(k_frc_df0), dum, idum, calc_type,
      &         nat, log_mb(k_act), nat, dbl_mb(k_rdens_atom),
-     &         int_mb(k_cetobfr), 0, otriplet)
+     &         int_mb(k_cetobfr), 0, otriplet, 0d0, .false.)
           call xc_exit_index(l_cntoce, l_cntobfr, l_cetobfr,
      &                       l_rdens_atom)
           if (ipol.eq.1) then
@@ -927,11 +930,33 @@ c Daniel (1-16-13): Here I modified the gradient routine to include
 c the number of perturbed density matrices.  This is necessary so that we
 c can define a value for looping in xc_3rd_deriv and build the
 c perturbed density in xc_rhogen.  Since we loop over the roots, 
-c the number of Fock matrices is always equal to 1.
+c     the number of Fock matrices is always equal to 1.
+          if (.not.rtdb_get(rtdb,'dft:dm3d',mt_log,1,dm3d))
+     D         dm3d=.true.
+c
+c 3d
+c
+          if(dm3d) then
+             g_dens_3d=dft_dm3d_calc5(g_dtmp,
+     D            nao,ihdl_geom,ihdl_bfao,2*ipol,0)
+             if (xc_gotxc()) then
+                do ip = 1, 2*ipol
+                   if (.not.ga_destroy(g_dtmp(ip)))
+     1                call errquit(pname//"could not destroy g_dtmp_ao",
+     2                  0,  GA_ERR) 
+                enddo
+                g_dtmp(1)=g_dens_3d
+             endif
+          endif
+
           call dftgh_gridv0(rtdb,ihdl_geom,ihdl_bfao, ipol,nao,
      &         g_dtmp, dbl_mb(k_frc_dft), dum, idum, calc_type,
      &         nat, log_mb(k_act), nat, dbl_mb(k_rdens_atom),
-     &         int_mb(k_cetobfr), 1, otriplet)
+     &            int_mb(k_cetobfr), 1, otriplet, 0d0, .false.)
+          if(dm3d) then
+             if (.not.ga_destroy(g_dens_3d)) call errquit
+     P            (pname//"could not destroy g_dens_3d",0,GA_ERR)
+          endif
 c          call dftgh_gridv0(rtdb,ihdl_geom,ihdl_bfao, ipol,nao,
 c     &         g_dtmp, dbl_mb(k_frc_dft), dum, idum, calc_type,
 c     &         nat, log_mb(k_act), nat, dbl_mb(k_rdens_atom),
@@ -1140,7 +1165,7 @@ c Daniel (4-8-13): Need conditional statement here for CAM functionals
 c
 c       Print results if so required
 c
-        if (tddft_grad_util_print('tddft grad terms',print_high)) then
+        if (util_print('tddft grad terms',print_high)) then
           if (oroot) then
             write(LuOut,5)ir
     5       format(' The Excited State Energy Gradient by Terms',
@@ -1366,7 +1391,7 @@ c
       if (.not.ga_destroy(g_rhs_xc(1))) 
      +  call errquit(pname//"could not destroy g_rhs_xc",0,GA_ERR)
 c
-      if (xc_gotxc()) then
+      if (xc_gotxc().and.(.not.dm3d)) then
         do ip = 1, 2*ipol
           if (.not.ga_destroy(g_dtmp(ip)))
      1      call errquit(pname//"could not destroy g_dtmp_ao", 0,

@@ -1,0 +1,10 @@
+#include "util_intsize.fh"
+      double precision acc, rcharge, kt, broyden
+      logical gfn1, gfn2, gff, guess
+      integer uhf, verb, nspin
+      character*255 restart_out
+      common /cxtb/
+     $    acc, rcharge, kt, broyden,
+     $    gfn1, gfn2, gff, guess,
+     $    uhf, verb, nspin,
+     $    restart_out

@@ -9,7 +9,6 @@ c
 c     max_geom = maximum no. of geometries
 c     max_cent = maximum no. of centers in a geometry
 c     max_geom_rtdb = maximum no. of geometries stored in the rtdb
-c     nelments = no. of elements that info is stored about
 c
 c     [The only thing that cannot be dynamically allocated are the
 c      character variables for the tags ... I was lazy and just statically
@@ -108,18 +107,15 @@ c     zmt_source(1:max_geom) = source of zmatrix (user or autoz)
 c     lenn(1:max_geom) = length of names(geom) minus trailing blanks
 c     lent(1:max_geom) = length of trans(geom) ...
 c     lenr(1:max_geom_rtdb) = length of names_rtdb(geom) ...
-c     symbols(1:nelements) = symbols for elements
-c     elements(1:nelements) = names of elements
 c
 
-      integer  max_geom, max_cent, max_geom_rtdb, nelements,
+      integer  max_geom, max_cent, max_geom_rtdb,
      $                   max_sym_ops
       integer  max_izmat, max_nzvar, max_zcoord
 c
       parameter (max_sym_ops   = 192)
       parameter (max_geom      = nw_max_geoms)
       parameter (max_geom_rtdb = 500)
-      parameter (nelements     = 112)
       parameter (max_cent      = nw_max_atom)
       parameter (max_nzvar     = 6*max_cent)
       parameter (max_izmat     = 4*max_nzvar)
@@ -248,4 +244,3 @@ c
       common/usgeometry/
      $     use_primitive(max_geom),
      $     primitive_center(max_geom)
-

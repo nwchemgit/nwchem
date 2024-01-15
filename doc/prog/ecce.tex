@@ -51,7 +51,7 @@ The current version of NWChem includes output for
 \item Geometry as input by the user
 \item Geometry when updated by STEPPER or DRIVER
 \item Name of basis set(s) used by the application (e.g., if {\tt ao
-    basis} was set to be \verb+6-31g*+)
+    basis} was set to be \texttt{6-31g*})
 \item Convergence of SCF/DFT (energy and orbital-gradient norm)
 \item Final converged total energies
 \item Gradients w.r.t. geometry (analytic and numerical) and norm thereof
@@ -78,16 +78,16 @@ the following general format was proposed,
 \end{verbatim}
 where:
 \begin{description}
-\item [\verb+<module stack>+]  is a white space separated list of
+\item [\texttt{<module stack>}]  is a white space separated list of
   module names representing the (logical) call tree,
-\item [\verb+<dim1> ... <dimn>+] contains the size of each dimension
+\item [\texttt{<dim1> ... <dimn>}] contains the size of each dimension
 for arrays or tensors (unity for a scalar),
-\item [\verb+<keyword>+] identifies the quantity that is being output
+\item [\texttt{<keyword>}] identifies the quantity that is being output
 (See below for more detail on the actual keywords.)
-\item [\verb+<type>+] is the data type (\verb+"char"+, \verb+"int"+,
-  \verb+"long"+, \verb+"float"+, \verb+"double"+, \verb+"complex
-  float"+, and \verb+"logical"+),
-\item [\verb+<data>+] contains the values (one character string per 
+\item [\texttt{<type>}] is the data type (\texttt{"char"}, \texttt{"int"},
+  \texttt{"long"}, \texttt{"float"}, \texttt{"double"}, \texttt{"complex
+  float"}, and \texttt{"logical"}),
+\item [\texttt{<data>}] contains the values (one character string per 
 line, multiple values per line for other data types limited to circa
 80 characters per line).
 \end{description}
@@ -124,7 +124,7 @@ If printing is enabled, prints
     <module>
     <module stack>%end%enter%1%character
 \end{verbatim}
-    and then pushes \verb+<module>+ onto the module name stack.  
+    and then pushes \texttt{<module>} onto the module name stack.  
 
     Module names will everywhere be printed with internal white space 
     replaced with underscores.
@@ -147,8 +147,8 @@ If printing is enabled, prints
     <module stack>%end%exit%2%character
 \end{verbatim}
     and (with the valid assumption that no nwchem module is reentrant) 
-    pops the module name stack until either \verb+<module>+ is popped
-    off it, or the stack is empty.  If \verb+<module>+ is not found on
+    pops the module name stack until either \texttt{<module>} is popped
+    off it, or the stack is empty.  If \texttt{<module>} is not found on
     the stack print an informative message to stderr (no more than
     one such message per calculation) and continue.
 
@@ -180,9 +180,9 @@ Print a 1-dimensional array of the specified type.
 
     \begin{quotation}
 
-      Real data will be printed with the printf format \verb+%.14e+
+      Real data will be printed with the printf format \texttt{\%.14e}
 
-      Boolean data will be printed as \verb+t+ and \verb+f+
+      Boolean data will be printed as \texttt{t} and \texttt{f}
 
      \end{quotation}
 
@@ -234,7 +234,7 @@ arrays of character strings from C is not currently provided for).
      void ecce_print_control(int status, int *old)
 \end{verbatim}
 
-Sets the boolean (0=FALSE, 1=TRUE) controling printing to \verb=status= and
+Sets the boolean (0=FALSE, 1=TRUE) controling printing to \texttt{status} and
 returns the previous setting.
 
 \subsubsection{  routine ecce\_print\_file\_open(filename)}
@@ -250,7 +250,7 @@ returns the previous setting.
     other ecce routines, and continue. 
 
     Inside NWChem only process $0$ would open the file and all other
-    processes would therefore quietly ignore all \verb+ecce_*()+ calls.
+    processes would therefore quietly ignore all \texttt{ecce\_\*()} calls.
 
 \subsubsection{ routine ecce\_print\_file\_close()}
 
@@ -299,11 +299,11 @@ status.  Some of these can be standardized, most probably cannot.
 Standard exit status values include
 
 \begin{description}
-\item [\verb+"ok"+] --- success.
-\item [\verb+"warning"+] --- success, but user should check the output for
+\item [\texttt{"ok"}] --- success.
+\item [\texttt{"warning"}] --- success, but user should check the output for
   more information.
-\item [\verb+"error"+] --- a fatal user or program error.
-\item [\verb+"failed to converge"+] --- sometimes this is OK.
+\item [\texttt{"error"}] --- a fatal user or program error.
+\item [\texttt{"failed to converge"}] --- sometimes this is OK.
 \end{description}
 
 \subsection{Standard keywords}
@@ -320,7 +320,7 @@ The NWChem electronic structure modules should output all quantities
 in atomic units and leave it to Ecce to handle any necessary
 conversions.  Exceptions to this convention can be made, but a
 distinct keyword should be used (perhaps including the actual units
-used, e.g., \verb+"vibrational frequencies (cm-1)"+).
+used, e.g., \texttt{"vibrational frequencies (cm-1)"}).
 
 Here is the master list of keywords.  All Ecce print keywords should
 be registered here.  (Note: not all keywords given by NWChem are used
@@ -329,93 +329,93 @@ by Ecce.  The ones listed below are those that NWChem uses.)
 \subsubsection{Converged/final energies}
 
 \begin{description}
-\item [\verb+total energy+] --- the total energy at level of the module stack.
-\item [\verb+mp2 energy+] --- the total MP2 energy.
-\item [\verb+ccsd total energy+] --- the total ccsd energy.
-\item [\verb+total ccsd energy+] --- the total ccsd energy.
-\item [\verb+total ccsd(t) energy+] --- the total ccsd(t) energy.
-\item [\verb+total ccsd+t(ccsd) energy+] --- the total ccsd+t(ccsd) energy.
-\item [\verb+two-electron energy+] --- the two-electron energy
+\item [\texttt{total energy}] --- the total energy at level of the module stack.
+\item [\texttt{mp2 energy}] --- the total MP2 energy.
+\item [\texttt{ccsd total energy}] --- the total ccsd energy.
+\item [\texttt{total ccsd energy}] --- the total ccsd energy.
+\item [\texttt{total ccsd(t) energy}] --- the total ccsd(t) energy.
+\item [\texttt{total ccsd}t(ccsd) energy+] --- the total ccsd+t(ccsd) energy.
+\item [\texttt{two-electron energy}] --- the two-electron energy
 (Coulomb plus exchange).
-\item [\verb+coulomb energy+] --- the (inter-electron) Coulomb
+\item [\texttt{coulomb energy}] --- the (inter-electron) Coulomb
   energy
-\item [\verb+exchange energy+] --- the exchange energy.
-\item [\verb+correlation energy+] --- the correlation energy
+\item [\texttt{exchange energy}] --- the exchange energy.
+\item [\texttt{correlation energy}] --- the correlation energy
   (relative to the pertitnent SCF or MCSCF reference function), generally refers 
   to MP2 or DFT.
-\item [\verb+ccsd correlation energy+] --- the CCSD correlation energy
+\item [\texttt{ccsd correlation energy}] --- the CCSD correlation energy
   (relative to the pertitnent SCF or MCSCF reference function).
-\item [\verb+nuclear repulsion energy+] --- the nuclear repulsion
+\item [\texttt{nuclear repulsion energy}] --- the nuclear repulsion
   energy at the current geometry.
-\item [\verb+zero point energy+] --- zero point energy from a frequency calculation.
+\item [\texttt{zero point energy}] --- zero point energy from a frequency calculation.
 \end{description}
 
 \subsubsection{Converged/final properties}
 
 \begin{description}
-\item [\verb+geometry+] --- the current geometry of the molecule.
-\item [\verb+cartesian coordinates+] --- the current cartesians of the molecule.
-\item [\verb+gradients+] --- the current gradient of the molecule.
-\item [\verb+total gradient+] --- the current gradient of the molecule.
-\item [\verb+total dipole+] --- a 3--vector of $(x,y,z)$ dipole
+\item [\texttt{geometry}] --- the current geometry of the molecule.
+\item [\texttt{cartesian coordinates}] --- the current cartesians of the molecule.
+\item [\texttt{gradients}] --- the current gradient of the molecule.
+\item [\texttt{total gradient}] --- the current gradient of the molecule.
+\item [\texttt{total dipole}] --- a 3--vector of $(x,y,z)$ dipole
   moments.
-\item [\verb+open shell dipole+] --- a 3--vector of $(x,y,z)$ dipole
+\item [\texttt{open shell dipole}] --- a 3--vector of $(x,y,z)$ dipole
   moments.
-\item [\verb+alpha electronic dipole+] --- a 3--vector of $(x,y,z)$ dipole
+\item [\texttt{alpha electronic dipole}] --- a 3--vector of $(x,y,z)$ dipole
   moments.
-\item [\verb+beta electronic dipole+] --- a 3--vector of $(x,y,z)$ dipole
+\item [\texttt{beta electronic dipole}] --- a 3--vector of $(x,y,z)$ dipole
   moments.
-\item [\verb+nuclear dipole+] --- a 3--vector of $(x,y,z)$ dipole
+\item [\texttt{nuclear dipole}] --- a 3--vector of $(x,y,z)$ dipole
   moments.
-\item [\verb+total quadrupole+] ---
-\item [\verb+open shell quadrupole+] ---
-\item [\verb+alpha electronic quadrupole+] ---
-\item [\verb+beta electronic quadrupole+] ---
-\item [\verb+nuclear quadrupole+] ---
-\item [\verb+total mulliken atomic charges+] --- an $N_{atom}$--vector of the charge
+\item [\texttt{total quadrupole}] ---
+\item [\texttt{open shell quadrupole}] ---
+\item [\texttt{alpha electronic quadrupole}] ---
+\item [\texttt{beta electronic quadrupole}] ---
+\item [\texttt{nuclear quadrupole}] ---
+\item [\texttt{total mulliken atomic charges}] --- an $N_{atom}$--vector of the charge
   assigned by the Mulliken analysis to each atom.
-\item [\verb+total mulliken shell charges+] --- an $N_{shell}$--vector of
+\item [\texttt{total mulliken shell charges}] --- an $N_{shell}$--vector of
   the charge assigned by the Mulliken analysis to each shell of basis
   functions. 
-\item [\verb+orbital symmetries+] --- symmetry information for each molecular 
+\item [\texttt{orbital symmetries}] --- symmetry information for each molecular 
   orbital.
-\item [\verb+orbital energies+] --- orbital energies for each molecular orbital.
-\item [\verb+frequencies+] --- frequencies.
-\item [\verb+projected frequencies+] --- projected frequencies.
-\item [\verb+normal modes+] --- normal modes associated with each frequency.
-\item [\verb+projected normal modes+] --- projected normal modes associated 
+\item [\texttt{orbital energies}] --- orbital energies for each molecular orbital.
+\item [\texttt{frequencies}] --- frequencies.
+\item [\texttt{projected frequencies}] --- projected frequencies.
+\item [\texttt{normal modes}] --- normal modes associated with each frequency.
+\item [\texttt{projected normal modes}] --- projected normal modes associated 
   with each frequency.
-\item [\verb+intensities+] --- frequency intensities.
-\item [\verb+intensities+] --- frequency intensities.
-\item [\verb+intensities (debye/ang)2+] --- frequency intensities in (debye/ang)2.
-\item [\verb+intensities (KM/mol)+] --- frequency intensities in (KM/mol).
-\item [\verb+projected intensities+] --- frequency projected intensities.
-\item [\verb+projected intensities (debye/ang)2+] --- frequency projected intensities 
+\item [\texttt{intensities}] --- frequency intensities.
+\item [\texttt{intensities}] --- frequency intensities.
+\item [\texttt{intensities (debye/ang)2}] --- frequency intensities in (debye/ang)2.
+\item [\texttt{intensities (KM/mol)}] --- frequency intensities in (KM/mol).
+\item [\texttt{projected intensities}] --- frequency projected intensities.
+\item [\texttt{projected intensities (debye/ang)2}] --- frequency projected intensities 
   in (debye/ang)2.
-\item [\verb+projected intensities (KM/mol)+] --- frequency projected intensities 
+\item [\texttt{projected intensities (KM/mol)}] --- frequency projected intensities 
   in (KM/mol).
 \end{description}
 
 \subsubsection{Convergence information}
 
 \begin{description}
-\item [\verb+iteration+] --- the iteration number for geometry steps, starting at 1.
-\item [\verb+iteration counter+] --- the iteration counter when optimizing the
+\item [\texttt{iteration}] --- the iteration number for geometry steps, starting at 1.
+\item [\texttt{iteration counter}] --- the iteration counter when optimizing the
   wavefunction.
-\item [\verb+iterative total energy difference+] --- the change in the total 
+\item [\texttt{iterative total energy difference}] --- the change in the total 
   energy since the previous iteration.
-\item [\verb+gradient norm+] --- an (estimate) of the norm of the
+\item [\texttt{gradient norm}] --- an (estimate) of the norm of the
   gradient vector or something proportional to it for
   minimization/transition state algorithms (e.g., SCF
   orbital-gradient, DFT norm of occupied-virtual Fock-matrix, geometry
   optimization cartesian nuclear gradient).
-\item [\verb+gradient max+] --- an (estimate) of the maximum absolute
+\item [\texttt{gradient max}] --- an (estimate) of the maximum absolute
   value element in the gradient vector.
-\item [\verb+residual norm+] --- norm of the error vector in
+\item [\texttt{residual norm}] --- norm of the error vector in
   linear/non-linear equation solution
-\item [\verb+residual max+] --- the absolute maximum value of the
+\item [\texttt{residual max}] --- the absolute maximum value of the
   residual vector
-\item [\verb+scaled residual norm+] --- the norm of the residual
+\item [\texttt{scaled residual norm}] --- the norm of the residual
   scaled by the norm of the RHS vector in the iterative solution of
   non-linear equations (roughly the negative logarithm of the number of
   significant figures)
@@ -444,11 +444,11 @@ does not do what you want then it can be extended.
 
 Additional keywords:
 \begin{description}
-\item [\verb+all tasks cpu time+] ---
-\item [\verb+single task cpu time+] ---
-\item [\verb+cpu time+] ---
-\item [\verb+all tasks wall time+] ---
-\item [\verb+single task wall time+] ---
-\item [\verb+wall time+] ---
+\item [\texttt{all tasks cpu time}] ---
+\item [\texttt{single task cpu time}] ---
+\item [\texttt{cpu time}] ---
+\item [\texttt{all tasks wall time}] ---
+\item [\texttt{single task wall time}] ---
+\item [\texttt{wall time}] ---
 \end{description}
 

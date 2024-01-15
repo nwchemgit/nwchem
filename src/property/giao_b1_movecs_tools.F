@@ -41,6 +41,7 @@ c        J. Autschbach and appears on nwchem-devtrunk (date:03-02-12)
       integer alo(3), ahi(3),
      &        blo(3), bhi(3) 
       logical debug
+      integer calc_type_save
       external new_giao_2e,giao_aotomo
       ndir=3 ! = nr directions (x,y,z)
 c     Remaining term is Perturbed (GIAO) two-electron term times
@@ -58,6 +59,7 @@ c     AO basis
       call ga_zero(g_fock)
       if(use_theory.eq.'dft') then
          ifld = 4
+         call xc_calctype_backup(rtdb,calc_type_save)
          if (.not. rtdb_put(rtdb,'fock_xc:calc_type',mt_int,1,ifld))
      $      call errquit('giao_b1: rtdb_put failed',0,RTDB_ERR)
       endif
@@ -69,9 +71,10 @@ c     AO basis
      &                  npol)
 
       if(use_theory.eq.'dft') then
-         ifld = 0
-         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
-     $      call errquit('giao_b1: rtdb_put failed',0,RTDB_ERR)
+cold         ifld = 0
+cold         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
+cold     $      call errquit('giao_b1: rtdb_put failed',0,RTDB_ERR)
+         call xc_calctype_restore(rtdb,calc_type_save)
          if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
      $       call errquit('giao_b1: rtdb_put of xc_active failed',0,
      &       RTDB_ERR)
@@ -156,6 +159,7 @@ c
      &        clo(3), chi(3)
       logical debug
       double precision jfac(12),kfac(12),tol2e
+      integer calc_type_save
       external shell_fock_build,
      &         shell_fock_build_cam,
      &         add_fock ! located in hnd_shift_zora.F
@@ -196,7 +200,8 @@ c     Build "first order fock matrix"
       if (use_theory.eq.'dft') then
          if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
      $     call errquit('hess_cphf: rtdb_put of xc_active failed',0,
-     &       RTDB_ERR)
+     &        RTDB_ERR)
+         call xc_calctype_backup(rtdb,calc_type_save)
          if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
      $     call errquit('hess_cphf: rtdb_put of calc_type failed',0,
      &       RTDB_ERR)
@@ -252,8 +257,9 @@ c      endif
      &  write(*,*) '------- g_fock-nw ---- END'
       endif ! end-if-debug
       if(use_theory.eq.'dft') then
-         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, 0))
-     $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
+         call xc_calctype_restore(rtdb,calc_type_save)
+cold         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, 0))
+cold     $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
       endif
 c Note.- add_fock() is defined in hnd_gshift_zora.F
 
@@ -729,3 +735,28 @@ c     alo(2) and ahi(2) will stay as 1 and nclosed(1) for a while
       return
       end
 c $Id$
+      subroutine xc_calctype_backup(rtdb,calc_type_save)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb
+      integer calc_type_save
+      if(.not. rtdb_get(rtdb,'fock_xc:calc_type', MT_INT, 1,
+     $     calc_type_save))
+     $     calc_type_save=0
+cdbg      write(6,*) ' $$ backup calc_type_save ',calc_type_save
+      return
+      end
+      subroutine xc_calctype_restore(rtdb,calc_type_save)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb
+      integer calc_type_save
+      if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1,
+     $     calc_type_save))
+     $     call errquit('xccalrestore: rtdb_put of calc_type failed',0,
+     &       RTDB_ERR)
+      return
+      end

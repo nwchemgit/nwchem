@@ -2,42 +2,162 @@ site_name: NWChem
 site_description: NWChem Website
 repo_url: https://github.com/nwchemgit/nwchem-wiki
 site_url: https://nwchemgit.github.io
-edit_uri: blob/master/
+edit_uri_template: 'edit/master/{path}'
 theme:
-  name: readthedocs
-  highlightjs: false
-  prev_next_buttons_location: both
+  name: material
+  logo: assets/MS3logo.png
+  font: false
+  icon:
+    edit: material/pencil
+    view: material/eye
+    repo: fontawesome/brands/github
+  palette:
+#    primary: light blue
+#    accent: indigo
+#    font: false
+    - scheme: default
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+#    - navigation.expand
+    - navigation.top
+    - navigation.instant
+    - navigation.tracking
+#    - navigation.tabs
+#    - navigation.tabs.sticky
+    - navigation.indexes
+    - navigation.footer
+    - search.highlight
+    - search.share
+    - content.action.edit
+    - content.action.view
+    - content.code.copy
+extra_css:
+  - stylesheets/extra.css
 use_directory_urls: false
 markdown_extensions:
     - smarty
     - toc:
         permalink: True
     - tables
+    - table_captions:
+        caption_top: false
+        numbering: true
+    - caption
     - footnotes:
         SEPARATOR: _footnote_
 #    - markdown_katex:
 #         no_inline_svg: True
 #         insert_fonts_css: True
 #         macro-file: macros.tex
-#    - pymdownx.arithmatex
+    - pymdownx.arithmatex:
+        generic: true
 #extra_javascript:
 #  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
     - mdx_math:
+        enable_dollar_delimiter: True
+    - pymdownx.tilde
+    - attr_list
+    - md_in_html
 extra_javascript:
-  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML
-plugins:
-  - search
-  - alternate-link
+  - css/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js
+#  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/MathJax.js?config=TeX-AMS_HTML
 nav:
+      - 'NWChem Homepage': index.md
       - 'NWChem Manual': Home.md
-      - 'How to download and install NWChem': Download.md
-      - 'Introduction ': Introduction.md
-      - Quantum-Mechanical-Methods.md
-      - Quantum-Molecular-Dynamics.md
-      - 'Hybrid Approaches': Hybrid-Approaches.md
-      - Other-Capabilities.md
-      - 'NWChem Examples': Examples.md
-      - 'How to Compile NWChem': Compiling-NWChem.md
+      - 'How to get NWChem':
+          - Download.md
+          - Compiling-NWChem.md
+      - 'Introduction ':
+          - Getting-Started.md
+          - NWChem-Architecture.md
+      - Capabilities.md
+      - Top-level.md
+      - Geometry.md
+      - Basis.md
+      - ECP.md
+      - Relativistic-All-electron-Approximations.md
+      - Quantum-Mechanical-Methods:
+          - Hartree-Fock-Theory-for-Molecules.md
+          - Density-Functional-Theory-for-Molecules.md
+          - Excited-State-Calculations.md
+          - RT-TDDFT.md
+          - 'Plane-Wave Density Functional Theory': Plane-Wave-Density-Functional-Theory.md
+          - TCE.md
+          - MP2.md
+          - CCSD.md
+          - Multiconfiguration_SCF.md
+          - 'Molecular GW': GW.md
+      - Quantum Molecular Dynamics:
+          - Plane-Wave-Density-Functional-Theory.md
+          - Gaussian-Basis-AIMD.md
+      - Hybrid Approaches:
+          - Solvation-Models.md
+          - VEM-Model.md
+          - ONIOM.md
+          - QMMM:
+              - qmmm_introduction.md
+              - QMMM table of contents: QMMM.md
+              - QMMM Restart and Topology Files:
+                  - Overview: QMMM_Restart_and_Topology_Files.md
+                  - QMMM_Preparation_Prerequisites.md
+                  - Qmmm_preparation_basic.md
+                  - Qmmm_preparation_solvation.md
+                  - Qmmm_preparation_constraints.md
+              - QMMM Input File:
+                  - Overview: QMMM_Input_File.md
+                  - QMMM_QM_Parameters.md
+                  - QMMM_MM_Parameters.md
+                  - QMMM_QMMM_Parameters.md
+              - QMMMM Single Point Calculations:
+                  - QMMM Ground State Energy and Gradient: qmmm_sp_energy.md
+                  - QMMM Excited State Energy: QMMM_Excited_States.md
+                  - QMMM Properties: qmmm_sp_property.md
+                  - QMMM ESP Charge Analysis: QMMM_ESP.md
+              - QMMM Potential Energy Surface Analysis:
+                  - QMMM Optimization: Qmmm_optimization.md
+                  - QMMM Transition States: QMMM_Transition_States.md
+                  - QMMM Hessians and Frequency: Qmmm_freq.md
+                  - QMMM Reaction Pathway Calculations with NEB: Qmmm_NEB_Calculations.md
+              - QMMM_Dynamics.md
+              - QMMM_Free_Energy.md
+              - QMMM_Appendix.md
+          - Bq.md
+          - 1D-RISM.md
+      - Potential Energy Surface Analysis:
+          - Geometry-Optimization.md
+          - Hessians-and-Vibrational-Frequencies.md
+          - Constraints.md
+          - Nudged-Elastic-Band-and-Zero-Temperature-String-Methods.md
+      - Electronic Structure Analysis:
+          - Properties.md
+          - ESP.md
+          - DPLOT.md 
+      - Other-Capabilities:
+          - Electron-Transfer.md
+          - Python.md
+          - Quantum.md
+          - VSCF.md
+          - CCCA_method.md
+          - Interface.md
+      - Molecular Mechanics:
+          - Prepare.md
+          - MD.md
+          - Analysis.md
+          - Format_of_MD_Files.md
+      - Python.md
+      - NWChem Examples:
+          - Sample.md
+          - Geometry-examples.md
       - Benchmarks.md
       - Known-Bugs.md
       - 'FAQ': FAQ.md
@@ -45,6 +165,37 @@ nav:
       - Forum.md
       - 'Archived Forum': Archived-Forum.md
       - 'EMSL Arrows': EMSL_Arrows.md
+      - Supplementary Information:
+          - Global Arrays: "https://hpc.pnl.gov/globalarrays/"
+          - ARMCI.md
+      - Interfaces-with-External-Software.md
       - Software-supporting-NWChem.md
-      - Supplementary-Information.md
-      - 'Containers': Containers.md
+      - Containers: Containers.md
+      - Documentation in PDF format: "https://nwchemgit.github.io/nwchemusermanual.pdf"
+plugins:
+  - search
+  - alternate-link
+  - bibtex:
+      bib_file: "docs/refs.bib"
+      csl_file: "docs/journal-of-chemical-theory-and-computation.csl"
+  - print-site:
+      add_to_navigation: false
+      print_page_title: 'Print Site'
+      add_print_site_banner: false
+      # Table of contents
+      add_table_of_contents: true 
+      toc_title: 'Table of Contents'
+      toc_depth: 6
+      # Content-related
+      add_full_urls: false
+      enumerate_headings: true
+      enumerate_figures: true
+      add_cover_page: true
+      cover_page_template: "docs/assets/other_cover_page.tpl"
+      path_to_pdf: ""
+      include_css: false
+      enabled: true
+      exclude:
+        - Home*
+        - Archived-Forum*
+        - EMSL*

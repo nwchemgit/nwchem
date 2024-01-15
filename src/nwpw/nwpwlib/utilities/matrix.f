@@ -137,7 +137,7 @@
    12     CONTINUE
           M=N
     2     IF(M.NE.L) THEN
-            IF(ITER.EQ.30) THEN
+            IF(ITER.EQ.300) THEN
               IERR=1
               RETURN
             ENDIF

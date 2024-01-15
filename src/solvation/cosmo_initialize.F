@@ -74,8 +74,8 @@ c
       character*(rtdb_max_file) geom_geom  ! The "geometry" value
       character*(rtdb_max_file) cosmo_geom ! The geometry for which the COSMO
                                            ! parameters were set
-      logical util_io_unit
-      external util_io_unit
+      logical util_io_unit,solv_data
+      external util_io_unit,solv_data
 c
       double precision zero, one, pt5, radtol, def
       integer          mxpass
@@ -87,7 +87,7 @@ c
 c
       me=ga_nodeid()
 c
-      odbug=.false.
+      odbug=.true.
       osome=oprint
       call util_print_push
       call util_print_rtdb_load(rtdb, 'cosmo')
@@ -168,7 +168,7 @@ c     --------------------------
      >                 nmap*16*ma_sizeof(mt_byte,1,mt_byte),0)
         call ga_sync()
 
-        if(.not.rtdb_put(rtdb,'cosmo:crad',mt_dbl,  nmap,crad))
+        if(.not.rtdb_put(rtdb,'cosmo:crad',mt_dbl,  nmap,crad(1)))
      $     call errquit('cosmo_initialize: rtdb put crad  ',914,
      &         rtdb_err)
 c
@@ -252,7 +252,8 @@ c
      &  errquit('cosmo_init,ma_pop_stack of l_tag failed',911, MA_ERR)
 c
       do_cosmo_model = DO_COSMO_YK
-      dielec   =78.4d+00 ! default water dielectric
+      if(.not.rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec))
+     D        dielec   =78.4d0 ! default water dielectric
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
       minbem   =2
@@ -260,9 +261,9 @@ c
                   ! York-Karplus model
       ificos   =0
       lineq    =-1 ! 0: direct solver, 1: iterative solver
-      rsolv    =0.50d+00
-      zeta     =4.50d+00 ! apparently for Lebedev grids zeta=4.9
-      gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
+      rsolv    =0.50d0
+      zeta     =4.50d0 ! apparently for Lebedev grids zeta=4.9
+      gammas   =1.00d0 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
                          ! Eq.62-88.
       iangleb  =-1
@@ -273,32 +274,14 @@ c MN solvation models -->
 c
 c     reset some defaults if do_cosmo_smd is true
 c
-      do_cosmo_smd = .false.
-      sola = -1.d0
-      solb = -1.d0
-      solc = -1.d0
-      solg = -1.d0
-      solh = -1.d0
-      soln = -1.d0
-      if (dielec.eq.78.4d+00) then
-         solvname_short  = 'h2o'
-         solvname_long  = 'water'
-         sola =  0.82d0
-         solb =  0.35d0
-         solc =  0.d0
-         solg =  103.62d0
-         solh =  0.d0
-         soln =  1.333d0
-         dielecinf = soln*soln ! n**2 (refractive index squarred)
-      end if
-      status = 
-     $ rtdb_get(rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd)
-c
+      if(.not. rtdb_get(rtdb,
+     O     'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd))
+     D     do_cosmo_smd=.false.
       if (do_cosmo_smd) then
-          minbem   =3
-          maxbem   =4 
-          ificos   =0
-      end if
+         minbem   =3
+         maxbem   =4 
+         ificos   =0
+      endif
 c
       status = rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo)
       status = rtdb_get(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv)
@@ -320,7 +303,16 @@ c
       status = rtdb_get(rtdb,'cosmo:zeta',mt_dbl,1,zeta) 
       status = rtdb_get(rtdb,'cosmo:gamma_s',mt_dbl,1,gammas) 
       status = rtdb_get(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol) 
-      status = rtdb_cget(rtdb,'cosmo:solvent',1,solvname_short)
+      if(.not.rtdb_cget(rtdb,'cosmo:solvent',1,solvname_short)) then
+         if(do_cosmo_smd) then
+            solvname_short='h2o'
+         else
+            solvname_short='unkn'
+         endif
+      endif
+      if(.not.rtdb_cget(rtdb,'cosmo:solvname_long',1,solvname_long))then
+         if(.not.do_cosmo_smd) solvname_long='unknown'
+      endif
       status = rtdb_get(rtdb,'cosmo:iangleb',mt_int,1,iangleb)
       status = rtdb_get(rtdb,'cosmo:fibonacci',mt_int,1,fibonacci)
       status = rtdb_get(rtdb,'cosmo:thomson',mt_int,1,thomson)
@@ -337,29 +329,50 @@ c     get sola,solb,solc,solg,solh,soln parameters, only used if cosmo_smd is tr
 c     get dielecinf, only used if cosmo_vem is true
 c     get dielec, always used 
 c
-      if(odbug.and.me.eq.0) 
-     &     write(luout,*) "calling solv_data"
-      call solv_data(solvname_short,solvname_long, !short and long solvent names
-     &          dielec,dielecinf, ! slow and fast components
-     &          sola,solb,solc,solg,solh,soln,icds) 
 c
 c     if set by the user
 c
       status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec)
-      status = rtdb_get(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf)
-      status = rtdb_get(rtdb,'cosmo:sola',mt_dbl,1,sola)
-      status = rtdb_get(rtdb,'cosmo:solb',mt_dbl,1,solb)
-      status = rtdb_get(rtdb,'cosmo:solc',mt_dbl,1,solc)
-      status = rtdb_get(rtdb,'cosmo:solg',mt_dbl,1,solg)
-      status = rtdb_get(rtdb,'cosmo:solh',mt_dbl,1,solh)
-      status = rtdb_get(rtdb,'cosmo:soln',mt_dbl,1,soln)
-      status = rtdb_get(rtdb,'cosmo:icds',mt_int,1,icds)
+      if(do_cosmo_smd) then
+         status = status.or.
+     S        rtdb_get(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf)
+         status = status.or.
+     S        rtdb_get(rtdb,'cosmo:sola',mt_dbl,1,sola)
+         status = status.or.
+     S        rtdb_get(rtdb,'cosmo:solb',mt_dbl,1,solb)
+         status = status.or.
+     S        rtdb_get(rtdb,'cosmo:solc',mt_dbl,1,solc)
+         status = status.or.
+     S        rtdb_get(rtdb,'cosmo:solg',mt_dbl,1,solg)
+         status = status.or.
+     S        rtdb_get(rtdb,'cosmo:solh',mt_dbl,1,solh)
+         status = status.or.
+     S        rtdb_get(rtdb,'cosmo:soln',mt_dbl,1,soln)
+      if(rtdb_get(rtdb,'cosmo:icds',mt_int,1,icds)) then
+         status=.true.
+      endif
+      endif
+      if (solvname_short.eq.'unkn') then
+         solvname_long='unknown'
+      else
+c         if(.not.status) then
+            if(odbug.and.me.eq.0) 
+     &           write(luout,*) "calling solv_data for solv:",
+     S           solvname_short
+            if(.not.solv_data(solvname_short,solvname_long, !short and long solvent names
+     &           dielec,dielecinf, ! slow and fast components
+     &           sola,solb,solc,solg,solh,soln,icds)) then
+               call errquit('solv_data failure',0,0)
+c            endif
+         endif
+      endif
 c
 c     set sola,solb,solc,solg,solh,soln,icds parameters (either from
 c     solv_data or user-defined)
 c
       if (.not. rtdb_put(rtdb,'cosmo:dielec',mt_dbl,1,dielec))
-     $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
+     $     call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
+      if(do_cosmo_smd) then
       if (.not. rtdb_put(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf))
      $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb,'cosmo:sola',mt_dbl,1,sola))
@@ -375,7 +388,10 @@ c
       if (.not. rtdb_put(rtdb,'cosmo:soln',mt_dbl,1,soln))
      $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb,'cosmo:icds',mt_int,1,icds))
-     $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
+     $     call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
+      if (.not.rtdb_cput(rtdb,'cosmo:solvname_long',1,solvname_long))
+     $     call errquit('cosmo_initialize:rtdb_cput failed',0, RTDB_ERR)
+      endif
 c
       if (me.eq.0) then
 c       write(luout,'(A)') " after solv_data"
@@ -389,8 +405,8 @@ c       write(luout,'(A)') " after solv_data"
          if (dielecinf.lt.zero) call errquit
      $ ('cosmo_initialize: illegal/undefined value for dielecinf',0,0)
         write(luout,'(A,F8.4)') " dielec:      ",dielec
-        write(luout,'(A,F8.4)') " dielecinf:   ",dielecinf
         if (do_cosmo_smd) then
+           write(luout,'(A,F8.4)') " dielecinf:   ",dielecinf
          if (icds.eq.1) then
           write(luout,'(A)')   " aqueous SMD model solvent descriptors"
           write(luout,'(A,F8.4)') " dielec:      ",dielec
@@ -417,10 +433,15 @@ c       write(luout,'(A)') " after solv_data"
           if (soln.lt.zero) call errquit
      $ ('cosmo_initialize: illegal/undefined value for soln',0,0)
          else
-          write(luout,'(A,I1)')   " icds:          ",icds
+            if (solvname_short.ne.'h2o'.and.solvname_long.ne.'water') 
+     T           then
+               icds = 2
+            else
+          write(luout,'(a,i1)')   " icds:          ",icds
           call errquit
      $ ('cosmo_initialize: illegal value for icds',0,0)
          endif
+        endif
         endif
       endif
 c 

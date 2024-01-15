@@ -945,7 +945,7 @@ c     >                      dcpl_mb(vpsi(1)))
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
       call D3dB_nfft3d(1,nfft3d)
-      n2ft3d = 2*nfft3d
+      call D3dB_n2ft3d(1,n2ft3d)
       value = BA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
      >        BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
@@ -1000,6 +1000,8 @@ c     >                      dcpl_mb(vpsi(1)))
       if (field_exist)
      >  call D3dB_rr_Sum2(1,v_field,dcpl_mb(vall(1)))
 
+      call D3dB_r_Zero_Ends(1,dcpl_mb(vall(1)))
+
 
 *     **************************************************************
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*psi_r +Vsic*psi_r] ****
@@ -1009,13 +1011,15 @@ c     >                      dcpl_mb(vpsi(1)))
       done  = .false.
       do while (.not.done)
          if (indx1.le.n2(ispin)) then
-            ms = 1
-            if (indx1.gt.n2(1)) ms = 2
 
 *           **** vpsi_r = (vall_r)*psi_r ****
-            call D3dB_r_Copy(1,dcpl_mb(vall(1)),dcpl_mb(vpsi(1)))
-            call D3dB_rr_Mul2(1,psi_r(1+(indx1-1)*n2ft3d),
-     >                       dcpl_mb(vpsi(1)))
+c            call D3dB_r_Copy(1,dcpl_mb(vall(1)),dcpl_mb(vpsi(1)))
+c            call D3dB_rr_Mul2(1,psi_r(1+(indx1-1)*n2ft3d),
+c     >                       dcpl_mb(vpsi(1)))
+
+            call D3dB_rr_Mul(1,dcpl_mb(vall(1)),
+     >                          psi_r(1+(indx1-1)*n2ft3d),
+     >                          dcpl_mb(vpsi(1)))
 
 *           **** put vpsi_r in k-space ****
             call D3dB_rc_pfft3f_queuein(1,dcpl_mb(vpsi(1)))

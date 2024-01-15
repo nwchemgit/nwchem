@@ -2,6 +2,10 @@
 
 include ../config/makefile.h
 
+ifdef USE_IMAX_OPENMP_TRPDRV
+SUBDIRS += module
+endif
+
  OBJ_OPTIMIZE = \
         ccden_driver.o \
         ccden_interm2.o \
@@ -88,31 +92,60 @@ endif
      ccsd_mktau_ga.F \
      ccden_2pdmb.F \
      aoccsd2.F \
+     ccsd_fsig1.F \
+     ccsd_fsig2.F \
+     ccsd_trpdrv_bgp2.F \
+     ccsd_trpdrv_offload.F \
+     ccsd_trpdrv_openacc.F \
+     ccsd_trpdrv_openmp_imax.F \
      moints_trp.F
 
 ifeq ($(TARGET),BGP)
   OBJ_OPTIMIZE += ccsd_trpdrv_bgp2.o ccsd_tengy_bgp2.o ccsd_tengy_bgp.o
-  USES_BLAS += ccsd_trpdrv_bgp2.F
   LIB_DEFINES += -DBGP
 endif
 
 ifdef USE_MIC_TRPDRV
   OBJ_OPTIMIZE += ccsd_trpdrv_offload.o
-  USES_BLAS    += ccsd_trpdrv_offload.F
   LIB_DEFINES += -DUSE_MIC_TRPDRV
 endif
 ifeq ($(_FC),xlf)
   LIB_DEFINES += -DTRPMIXP_OFF
 endif
-HAVE_SET_GA_PROPERTY_DISABLES = $(shell cat ${NWCHEM_TOP}/src/tools/build/global/src/ga-wapi.h | awk ' /wnga_set_property/ {print "Y"}')
+ifdef EXTERNAL_GA_PATH
+  GA_WAPI.H=${EXTERNAL_GA_PATH}/include/ga-wapi.h
+else
+  GA_WAPI.H=${NWCHEM_TOP}/src/tools/build/global/src/ga-wapi.h
+endif
+HAVE_SET_GA_PROPERTY_DISABLES = $(shell cat  ${GA_WAPI.H} | awk ' /wnga_set_property/ {print "Y"}')
 ifeq ($(HAVE_SET_GA_PROPERTY),Y)
       LIB_DEFINES += -DHAVE_SET_GA_PROPERTY
 endif
 
+ifdef USE_IMAX_OPENMP_TRPDRV
+
+  OBJ_OPTIMIZE += ccsd_trpdrv_openmp_imax.o
+
+  OBJ_OPTIMIZE += ccsd_trpdrv_omp_reduce_f.o
+
+  FOPTIONS += -O3 -fiopenmp  -fopenmp-targets=spir64="-mllvm -vpo-paropt-opt-data-sharing-for-reduction=false -mllvm -vpo-paropt-atomic-free-reduction-par-global=false" -switch offload_modvars -mllvm -vpo-paropt-atomic-free-reduction-slm=true -qmkl -DMKL_ILP64 -I"${MKLROOT}/include" -I ${NWCHEM_TOP}/src/ccsd/module -mllvm -vpo-paropt-dispatch-codegen-version=1 -switch -use-host-usm-for-implicit-reduction-map
+
+  COPTIONS:=$(filter-out -fopenmp,$(COPTIONS))
+  COPTIONS:=$(filter-out -O1,$(COPTIONS))
+
+  COPTIONS += -O3 -fiopenmp  -fopenmp-targets=spir64="-mllvm -vpo-paropt-opt-data-sharing-for-reduction=false -mllvm -vpo-paropt-atomic-free-reduction-par-global=false" -mllvm -vpo-paropt-atomic-free-reduction-slm=true -qmkl -DMKL_ILP64 -I"${MKLROOT}/include" -mllvm -vpo-paropt-dispatch-codegen-version=1
+
+endif
+
 ifdef USE_OPENACC_TRPDRV
   OBJ_OPTIMIZE += ccsd_trpdrv_openacc.o
-  USES_BLAS    += ccsd_trpdrv_openacc.F
-  FOPTIONS += -acc -gpu=managed -cuda -cudalib=cublas -DUSE_OPENACC_TRPDRV
+  FOPTIONS += -DUSE_OPENACC_TRPDRV
+  ifeq ($(_FC),pgf90)
+      FOPTIONS += -Mextend -acc -cuda -cudalib=cublas
+  endif
+  ifeq ($(_FC),gfortran)
+      FOPTIONS += -ffree-form -fopenacc -lcublas
+  endif
 endif
 
 

@@ -151,7 +151,15 @@ c
      $    write(LuOut,*) 'DFT+MP2 detected'
         return
       endif
+c
+c     Check for xTB
 c      
+      if (theory.eq.'xtb') then
+        if (ga_nodeid().eq.0)
+     $    write(LuOut,*) ' xTB detected'
+        return
+      endif   
+
       hess_check = .true.
 c
       return

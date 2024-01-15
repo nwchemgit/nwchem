@@ -168,13 +168,17 @@ c
       integer ifocc
       logical oskel, omp2, odft, ocdfit, status,frac_occ
       double precision xfac(numfunc), jfac, kfac
+      double precision rot(3,3),xrot(3)
 c
       logical has_frac_occ
       external has_frac_occ
 c
+      double precision fol(3),f1,f2,f3
       logical lcdft  ! Qin
       integer ipop
       logical out1
+      logical zerof
+      logical have_symrot
 c
 cc AJL/Begin/SPIN ECPs
       integer ecp_channels
@@ -232,7 +236,9 @@ c
           do_cosmo_smd = .false.
         endif
       endif
-
+c     sym rot matrix
+      have_symrot=rtdb_get(rtdb, 'geom:symrot', MT_DBL, 9, rot)
+     
 C     get SCF MO vectors for density
 
       odft = .false.
@@ -451,6 +457,15 @@ C     global density
          g_dens(i) = ga_create_atom_blocked(geom, basis, 
      $        'density matrix')
       end do
+c
+c     skip for fake forces
+c
+      if (.not. rtdb_get(rtdb,'forces:fakezero',mt_log,1,zerof))
+     z     zerof = .false.
+      if(zerof)  then
+         call dfill(lforce, 0.0D0, dbl_mb(k_force), 1)
+         goto 1984
+      endif
 c     
       if (scftype .eq. 'MCSCF') then
          if (.not. ma_push_get(mt_dbl, nopen**4, 'pdm2', 
@@ -1187,6 +1202,7 @@ C     symmetrize
      $               ((dbl_mb(k_frc_smd+i-1+3*(j-1)),i=1,3),j=1,nat)
               endif
             endif
+ 1984      continue
             write(luout,2200) 'total ',
      $           theory(1:inp_strlen(theory)), ' gradient',
      $           ((dbl_mb(k_force+i-1+3*(j-1)),i=1,3),j=1,nat)
@@ -1223,8 +1239,26 @@ C     default: print the total forces
          do 30, i=1, nat
             if (.not. geom_cent_get(geom, i, tag, crd, q)) call errquit
      $           ('gradients: geometry corrupt?',0, GEOM_ERR)
+            if(have_symrot) then
+         xrot(1) = crd(1)*rot(1,1) + crd(2)*rot(2,1) + crd(3)*rot(3,1)
+         xrot(2) = crd(1)*rot(1,2) + crd(2)*rot(2,2) + crd(3)*rot(3,2)
+         xrot(3) = crd(1)*rot(1,3) + crd(2)*rot(2,3) + crd(3)*rot(3,3)
+         crd(1)=xrot(1)
+         crd(2)=xrot(2)
+         crd(3)=xrot(3)
+         fol(1)=dbl_mb(k_force+3*(i-1))
+         fol(2)=dbl_mb(k_force+3*(i-1)+1)
+         fol(3)=dbl_mb(k_force+3*(i-1)+2)
+         f1 = fol(1)*rot(1,1) + fol(2)*rot(2,1) + fol(3)*rot(3,1)
+         f2 = fol(1)*rot(1,2) + fol(2)*rot(2,2) + fol(3)*rot(3,2)
+         f3 = fol(1)*rot(1,3) + fol(2)*rot(2,3) + fol(3)*rot(3,3)
+         else
+            f1=dbl_mb(k_force+3*(i-1))
+            f2=dbl_mb(k_force+3*(i-1)+1)
+            f3=dbl_mb(k_force+3*(i-1)+2)
+         endif
             write(luout,2000) i, tag,(crd(j),j=1,3),
-     $           (dbl_mb(k_force+3*(i-1)+j),j=0,2)
+     $           f1,f2,f3
  30      continue
          write(luout,*)
  1000    format(/,/,25X,A,' ENERGY GRADIENTS',/,/,4X,'atom',15X,

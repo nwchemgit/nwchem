@@ -9,6 +9,10 @@ then
     exit 1
 fi
 
+if [ ! -z "${BUILD_MPICH}" ] ; then
+    echo "BUILD_MPICH is set. using mpicc from BUILD_MPICH"
+    export PATH=${NWCHEM_TOP}/src/libext/bin:$PATH
+fi
 if [ ! -z "${MPICC}" ] ; then
     echo "Found MPICC=${MPICC} in your environment.  Using that."
     ARMCIMPICC=${MPICC}
@@ -22,7 +26,7 @@ elif [ ! -z "${MPI_DIR}" ] ; then
     echo "Using MPICC=${MPI_DIR}/bin/mpicc."
     ARMCIMPICC=${MPI_DIR}/bin/mpicc
 else
-    echo "Defaulting to the mpicc in your path."
+    echo "Defaulting to the mpicc in your path." `which mpicc`
     ARMCIMPICC=mpicc
 fi
 

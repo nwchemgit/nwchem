@@ -1,4 +1,4 @@
- argument  1 = ./ch3f_trans_cosmo.nw
+ argument  1 = /data/edo/nwchem/nwchemgit//QA/tests/ch3f_trans_cosmo/ch3f_trans_cosmo.nw
 
 
 
@@ -44,7 +44,7 @@ task dft property
                                          
 
 
-             Northwest Computational Chemistry Package (NWChem) 7.0.1
+             Northwest Computational Chemistry Package (NWChem) 7.2.0
              --------------------------------------------------------
 
 
@@ -52,7 +52,7 @@ task dft property
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2020
+                              Copyright (c) 1994-2022
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -77,21 +77,21 @@ task dft property
            Job information
            ---------------
 
-    hostname        = WE41476
-    program         = nwchem
-    date            = Thu Nov 11 14:59:57 2021
+    hostname        = durian
+    program         = /data/edo/nwchem/nwchemgit//bin/LINUX64/nwchem
+    date            = Wed Aug  9 16:08:06 2023
 
-    compiled        = Thu_Nov_11_13:51:38_2021
-    source          = /Users/meji656/Sources/nwchem
-    nwchem branch   = 7.0.0
-    nwchem revision = nwchem_on_git-3012-g75ff49f32d
+    compiled        = Wed_Aug_09_15:56:44_2023
+    source          = /data/edo/nwchem/nwchemgit/
+    nwchem branch   = 7.2.0
+    nwchem revision = v7.2.0-beta1-607-gcbfe8f42cb
     ga revision     = 5.8.0
-    use scalapack   = F
-    input           = ./ch3f_trans_cosmo.nw
+    use scalapack   = T
+    input           = /data/edo/nwchem/nwchemgit//QA/tests/ch3f_trans_cosmo/ch3f_trans_cosmo.nw
     prefix          = ch3f_trans_cosmo_dat.
     data base       = ./ch3f_trans_cosmo_dat.db
     status          = startup
-    nproc           =        4
+    nproc           =        3
     time left       =     -1s
 
 
@@ -99,10 +99,10 @@ task dft property
            Memory information
            ------------------
 
-    heap     =   13107196 doubles =    100.0 Mbytes
-    stack    =   13107201 doubles =    100.0 Mbytes
-    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
-    total    =   52428797 doubles =    400.0 Mbytes
+    heap     =     26214396 doubles =      200.0 Mbytes
+    stack    =     26214401 doubles =      200.0 Mbytes
+    global   =     52428800 doubles =      400.0 Mbytes (distinct from heap & stack)
+    total    =    104857597 doubles =      800.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -318,12 +318,12 @@ task dft property
  h                           6-311G                  3        3   3s
 
 
+ in cosmo_initialize ...
 
  solvent parameters
- solvname_short: h2o     
- solvname_long:  water                              
+ solvname_short: unkn    
+ solvname_long:  unknown                            
  dielec:       78.0000
- dielecinf:     1.7769
 
           ---------------
           -cosmo- solvent
@@ -455,157 +455,56 @@ task dft property
  HOMO         =      -0.441631
  LUMO         =       0.112239
 
+  WARNING: movecs_in_org=atomic not equal to movecs_in=./ch3f_trans_cosmo_dat.movecs
    Time after variat. SCF:      0.1
    Time prior to 1st pass:      0.1
 
  Grid_pts file          = ./ch3f_trans_cosmo_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     18        Max. recs in file   =    640091
+ Max. records in memory =     24        Max. recs in file   =    515876
 
- Grid integrated density:      17.999997593075
- Requested integration accuracy:   0.10E-06
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.88            12883620
-          Stack Space remaining (MW):       13.11            13106836
+           Heap Space remaining (MW):       25.92            25917084
+          Stack Space remaining (MW):       26.21            26214036
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
      COSMO gas phase
- d= 0,ls=0.0,diis     1   -139.7045924125 -1.77D+02  1.78D-02  5.05D-01     0.5
- Grid integrated density:      17.999997646651
- Requested integration accuracy:   0.10E-06
- d= 0,ls=0.0,diis     2   -139.6932236273  1.14D-02  1.02D-02  6.68D-01     0.7
- d= 0,ls=0.0,diis     3   -139.7494357231 -5.62D-02  1.59D-03  3.42D-02     0.9
- d= 0,ls=0.0,diis     4   -139.7513769998 -1.94D-03  6.05D-04  1.59D-03     1.1
- d= 0,ls=0.0,diis     5   -139.7515473797 -1.70D-04  1.23D-04  7.02D-05     1.3
+ d= 0,ls=0.0,diis     1   -139.7045928135 -1.77D+02  1.78D-02  5.05D-01     0.6
+ d= 0,ls=0.0,diis     2   -139.6932240703  1.14D-02  1.02D-02  6.68D-01     0.7
+ d= 0,ls=0.0,diis     3   -139.7494357153 -5.62D-02  1.59D-03  3.42D-02     0.9
+ d= 0,ls=0.0,diis     4   -139.7513770011 -1.94D-03  6.05D-04  1.59D-03     1.1
+ d= 0,ls=0.0,diis     5   -139.7515473795 -1.70D-04  1.23D-04  7.02D-05     1.3
   Resetting Diis
- d= 0,ls=0.0,diis     6   -139.7515542174 -6.84D-06  5.14D-06  8.51D-08     1.5
- d= 0,ls=0.0,diis     7   -139.7515542266 -9.24D-09  3.96D-07  1.74D-10     1.7
- Alternative 1
- -atmefc- energy =       0.077325997609
- -elcefc- energy =      -0.087408735259
- -efcefc- energy =       0.005041368825
- -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.005041368825
- -allefc- energy =      -0.010082737649     -0.010082737649
- -ecos  - energy =       0.082367366434
- Alternative 2
- -atmefc- energy =       0.077325997609
- -elcefc- energy =      -0.087408735259
- -allefc- energy =      -0.010082737649
- -solnrg- energy =      -0.005041368825
- -ecos  - energy =       0.082367366434
+ d= 0,ls=0.0,diis     6   -139.7515542172 -6.84D-06  5.14D-06  8.51D-08     1.5
+ d= 0,ls=0.0,diis     7   -139.7515542264 -9.24D-09  3.96D-07  1.74D-10     1.7
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.88            12883260
-          Stack Space remaining (MW):       13.11            13106836
+           Heap Space remaining (MW):       25.92            25916724
+          Stack Space remaining (MW):       26.21            26214036
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
      COSMO solvation phase
- d= 0,ls=0.0,diis     1   -139.7565955954 -5.04D-03  2.68D-03  2.05D-03     1.9
- Alternative 1
- -atmefc- energy =       0.092235634098
- -elcefc- energy =      -0.105500013107
- -efcefc- energy =       0.006632189505
- -lambda- energy =      -0.000000000000
- -solnrg- energy =      -0.006632189505
- -allefc- energy =      -0.013264379009     -0.013264379009
- -ecos  - energy =       0.098867823602
- Alternative 2
- -atmefc- energy =       0.092235634098
- -elcefc- energy =      -0.105500013107
- -allefc- energy =      -0.013264379009
- -solnrg- energy =      -0.006632189505
- -ecos  - energy =       0.098867823602
- d= 0,ls=0.0,diis     2   -139.7571545930 -5.59D-04  5.03D-04  1.62D-03     2.1
- Alternative 1
- -atmefc- energy =       0.090520009850
- -elcefc- energy =      -0.103336509882
- -efcefc- energy =       0.006408250016
- -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.006408250016
- -allefc- energy =      -0.012816500032     -0.012816500032
- -ecos  - energy =       0.096928259866
- Alternative 2
- -atmefc- energy =       0.090520009850
- -elcefc- energy =      -0.103336509882
- -allefc- energy =      -0.012816500032
- -solnrg- energy =      -0.006408250016
- -ecos  - energy =       0.096928259866
- d= 0,ls=0.0,diis     3   -139.7572605344 -1.06D-04  1.56D-04  2.38D-04     2.3
- Alternative 1
- -atmefc- energy =       0.090871236904
- -elcefc- energy =      -0.103827034509
- -efcefc- energy =       0.006477898802
- -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.006477898802
- -allefc- energy =      -0.012955797605     -0.012955797605
- -ecos  - energy =       0.097349135707
- Alternative 2
- -atmefc- energy =       0.090871236904
- -elcefc- energy =      -0.103827034509
- -allefc- energy =      -0.012955797605
- -solnrg- energy =      -0.006477898802
- -ecos  - energy =       0.097349135707
- d= 0,ls=0.0,diis     4   -139.7572748787 -1.43D-05  4.60D-05  4.97D-06     2.5
- Alternative 1
- -atmefc- energy =       0.091126310529
- -elcefc- energy =      -0.104104598800
- -efcefc- energy =       0.006489144135
- -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.006489144135
- -allefc- energy =      -0.012978288270     -0.012978288270
- -ecos  - energy =       0.097615454665
- Alternative 2
- -atmefc- energy =       0.091126310529
- -elcefc- energy =      -0.104104598800
- -allefc- energy =      -0.012978288270
- -solnrg- energy =      -0.006489144135
- -ecos  - energy =       0.097615454665
- d= 0,ls=0.0,diis     5   -139.7572752952 -4.17D-07  1.58D-05  1.67D-06     2.7
- Alternative 1
- -atmefc- energy =       0.091096851534
- -elcefc- energy =      -0.104080803858
- -efcefc- energy =       0.006491976162
- -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.006491976162
- -allefc- energy =      -0.012983952324     -0.012983952324
- -ecos  - energy =       0.097588827696
- Alternative 2
- -atmefc- energy =       0.091096851534
- -elcefc- energy =      -0.104080803858
- -allefc- energy =      -0.012983952324
- -solnrg- energy =      -0.006491976162
- -ecos  - energy =       0.097588827696
- d= 0,ls=0.0,diis     6   -139.7572754916 -1.96D-07  6.93D-07  1.24D-09     2.9
- Alternative 1
- -atmefc- energy =       0.091098565631
- -elcefc- energy =      -0.104082614582
- -efcefc- energy =       0.006492024475
- -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.006492024475
- -allefc- energy =      -0.012984048951     -0.012984048951
- -ecos  - energy =       0.097590590106
- Alternative 2
- -atmefc- energy =       0.091098565631
- -elcefc- energy =      -0.104082614582
- -allefc- energy =      -0.012984048951
- -solnrg- energy =      -0.006492024475
- -ecos  - energy =       0.097590590106
- d= 0,ls=0.0,diis     7   -139.7572754918 -1.67D-10  4.96D-08  5.04D-12     3.1
+ d= 0,ls=0.0,diis     1   -139.7565955953 -5.04D-03  2.68D-03  2.05D-03     1.9
+ d= 0,ls=0.0,diis     2   -139.7571545929 -5.59D-04  5.03D-04  1.62D-03     2.1
+ d= 0,ls=0.0,diis     3   -139.7572605342 -1.06D-04  1.56D-04  2.38D-04     2.3
+ d= 0,ls=0.0,diis     4   -139.7572748786 -1.43D-05  4.60D-05  4.97D-06     2.5
+ d= 0,ls=0.0,diis     5   -139.7572752951 -4.17D-07  1.58D-05  1.67D-06     2.7
+ d= 0,ls=0.0,diis     6   -139.7572754914 -1.96D-07  6.93D-07  1.24D-09     2.9
+ d= 0,ls=0.0,diis     7   -139.7572754916 -1.67D-10  4.96D-08  5.04D-12     3.1
 
 
-         Total DFT energy =     -139.757275491756
-      One electron energy =     -266.795150021411
-           Coulomb energy =      106.566264314981
-    Exchange-Corr. energy =      -17.043382970339
+         Total DFT energy =     -139.757275491582
+      One electron energy =     -266.795150021599
+           Coulomb energy =      106.566264315186
+    Exchange-Corr. energy =      -17.043382970183
  Nuclear repulsion energy =       37.417402594906
 
-             COSMO energy =        0.097590590106
+             COSMO energy =        0.097590590107
 
- Numeric. integr. density =       18.000000076977
+ Numeric. integr. density =       18.000000076626
 
      Total iterative time =      3.0s
 
@@ -613,9 +512,9 @@ task dft property
                                    COSMO solvation results
                                    -----------------------
 
-                 gas phase energy =      -139.751554226599
-                 sol phase energy =      -139.757275491756
- (electrostatic) solvation energy =         0.005721265157 (    3.59 kcal/mol)
+                 gas phase energy =      -139.751554226427
+                 sol phase energy =      -139.757275491582
+ (electrostatic) solvation energy =         0.005721265156 (    3.59 kcal/mol)
 
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
@@ -680,7 +579,7 @@ task dft property
     25      0.246519  2 F  py                17      0.193276  2 F  py         
     12      0.172362  1 C  py                 4      0.168427  1 C  py         
     31      0.111799  4 H  s                 34     -0.111799  5 H  s          
-    30      0.106100  4 H  s                 33     -0.106100  5 H  s          
+    30      0.106101  4 H  s                 33     -0.106100  5 H  s          
 
  Vector    8  Occ=2.000000D+00  E=-3.450884D-01
               MO Center=  1.1D+00,  3.0D+00,  5.7D+00, r^2= 1.5D+00
@@ -736,7 +635,7 @@ task dft property
               MO Center=  2.7D-01,  3.0D+00,  4.5D+00, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    32      1.718375  4 H  s                 35     -1.718374  5 H  s          
+    32      1.718375  4 H  s                 35     -1.718375  5 H  s          
     12     -1.079840  1 C  py                 8     -0.254375  1 C  py         
      4     -0.176490  1 C  py                25      0.104835  2 F  py         
     31      0.053453  4 H  s                 34     -0.053453  5 H  s          
@@ -787,8 +686,8 @@ task dft property
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     29     -1.935847  3 H  s                 11      1.919330  1 C  px         
-     7     -1.044995  1 C  px                32      0.968113  4 H  s          
-    35      0.968115  5 H  s                 28      0.529527  3 H  s          
+     7     -1.044995  1 C  px                32      0.968114  4 H  s          
+    35      0.968114  5 H  s                 28      0.529527  3 H  s          
      3     -0.273424  1 C  px                31     -0.265514  4 H  s          
     34     -0.265515  5 H  s                 24     -0.131201  2 F  px         
 
@@ -840,7 +739,7 @@ task dft property
     11     -0.758129  1 C  px                28      0.342820  3 H  s          
     16     -0.260525  2 F  px                31     -0.171640  4 H  s          
     34     -0.171639  5 H  s                 29      0.139247  3 H  s          
-    32     -0.069751  4 H  s                 35     -0.069750  5 H  s          
+    32     -0.069751  4 H  s                 35     -0.069751  5 H  s          
 
  Vector   24  Occ=0.000000D+00  E= 1.693453D+00
               MO Center=  1.0D+00,  3.0D+00,  6.0D+00, r^2= 1.3D+00
@@ -867,18 +766,18 @@ task dft property
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     28      1.772131  3 H  s                 27     -1.158101  3 H  s          
-    29     -0.977069  3 H  s                 31     -0.885140  4 H  s          
-    34     -0.885114  5 H  s                  7     -0.703172  1 C  px         
-    30      0.578412  4 H  s                 33      0.578395  5 H  s          
-     3      0.494623  1 C  px                32      0.488206  4 H  s          
+    29     -0.977069  3 H  s                 31     -0.885134  4 H  s          
+    34     -0.885120  5 H  s                  7     -0.703172  1 C  px         
+    30      0.578408  4 H  s                 33      0.578399  5 H  s          
+     3      0.494623  1 C  px                32      0.488202  4 H  s          
 
  Vector   27  Occ=0.000000D+00  E= 2.205897D+00
               MO Center=  4.8D-01,  3.0D+00,  4.6D+00, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    31      1.534278  4 H  s                 34     -1.534293  5 H  s          
-    30     -1.002673  4 H  s                 33      1.002683  5 H  s          
-    32     -0.846115  4 H  s                 35      0.846123  5 H  s          
+    31      1.534282  4 H  s                 34     -1.534290  5 H  s          
+    30     -1.002675  4 H  s                 33      1.002681  5 H  s          
+    32     -0.846117  4 H  s                 35      0.846121  5 H  s          
      8     -0.702818  1 C  py                 4      0.494408  1 C  py         
     12      0.115219  1 C  py                25      0.053690  2 F  py         
 
@@ -897,9 +796,9 @@ task dft property
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      1.598800  1 C  py                 4     -1.258823  1 C  py         
-    12     -1.100500  1 C  py                30     -0.532154  4 H  s          
+    12     -1.100500  1 C  py                30     -0.532155  4 H  s          
     33      0.532155  5 H  s                 31      0.417514  4 H  s          
-    34     -0.417515  5 H  s                 32      0.365186  4 H  s          
+    34     -0.417514  5 H  s                 32      0.365186  4 H  s          
     35     -0.365187  5 H  s                 25      0.046693  2 F  py         
 
  Vector   30  Occ=0.000000D+00  E= 2.840090D+00
@@ -909,7 +808,7 @@ task dft property
      7      1.598604  1 C  px                 3     -1.258742  1 C  px         
     11     -1.100585  1 C  px                27     -0.614626  3 H  s          
     28      0.482439  3 H  s                 29      0.421415  3 H  s          
-    30      0.307394  4 H  s                 33      0.307392  5 H  s          
+    30      0.307393  4 H  s                 33      0.307392  5 H  s          
     31     -0.241258  4 H  s                 34     -0.241257  5 H  s          
 
  Vector   31  Occ=0.000000D+00  E= 6.083968D+00
@@ -996,16 +895,18 @@ task dft property
           Chemical Shielding Tensors (GIAO, in ppm)
           -----------------------------------------
 
+  fock_xc: ctype                     2
+  fock_xc: ctype                     4
                                 NWChem CPHF Module
                                 ------------------
 
 
+ in cosmo_initialize ...
 
  solvent parameters
- solvname_short: h2o     
- solvname_long:  water                              
+ solvname_short: unkn    
+ solvname_long:  unknown                            
  dielec:       78.0000
- dielecinf:     1.7769
 
           ---------------
           -cosmo- solvent
@@ -1063,7 +964,8 @@ task dft property
   max iterations   =       50
   max subspace     =       30
 
- SCF residual:    1.9901470139926053E-007
+  fock_xcd3d: ctype                     1
+ SCF residual:    1.9901471702303653E-007
 
 
 Iterative solution of linear equations
@@ -1072,23 +974,27 @@ Iterative solution of linear equations
   Maximum subspace       30
         Iterations       50
        Convergence  1.0D-04
-        Start time      5.8
+        Start time      6.6
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      3    8.10D-01       6.5
-     2      6    2.63D-02       7.2
-     3      9    6.95D-04       7.9
-     4     12    6.40D-05       8.6
+  fock_xc: ctype                     2
+     1      3    8.10D-01       7.5
+  fock_xc: ctype                     2
+     2      6    2.63D-02       8.3
+  fock_xc: ctype                     2
+     3      9    6.95D-04       9.2
+  fock_xc: ctype                     2
+     4     12    6.40D-05      10.1
 
  Wrote CPHF data to ./ch3f_trans_cosmo_dat.shieldcphf
 
  Calc. par tensor-> nonrel
       Atom:    1  C 
         Diamagnetic
-    243.2752      0.0000     -0.0052
-      0.0000    243.2847      0.0000
+    243.2752     -0.0000     -0.0052
+     -0.0000    243.2847      0.0000
      -0.0052      0.0000    258.4060
 
         Paramagnetic
@@ -1145,8 +1051,8 @@ Iterative solution of linear equations
 
       Atom:    3  H 
         Diamagnetic
-     35.4669      0.0000     -6.1013
-      0.0000     22.8916      0.0000
+     35.4669     -0.0000     -6.1013
+     -0.0000     22.8916      0.0000
      -6.1013      0.0000     28.6956
 
         Paramagnetic
@@ -1231,7 +1137,7 @@ Iterative solution of linear equations
 
 
 
- Task  times  cpu:        8.8s     wall:        8.8s
+ Task  times  cpu:       10.4s     wall:       10.4s
 
 
                                 NWChem Input Module
@@ -1243,17 +1149,6 @@ Iterative solution of linear equations
   No active global arrays
 
 
-
-                         GA Statistics for process    0
-                         ------------------------------
-
-       create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  682      682     1.94e+05 1915     1.08e+05  136        0     1072     
-number of processes/call 3.68e+13 -2.21e+15 5.18e+13 0.00e+00 0.00e+00
-bytes total:             2.07e+07 2.39e+06 1.63e+07 5.41e+03 0.00e+00 8.58e+03
-bytes remote:            9.36e+06 6.23e+05 1.05e+07 -4.39e+03 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 216800 bytes
-
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -1264,9 +1159,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        29	        53
 	current total bytes		         0	         0
-	maximum total bytes		   1791256	  22511656
-	maximum total K-bytes		      1792	     22512
-	maximum total M-bytes		         2	        23
+	maximum total bytes		   2381144	  22511656
+	maximum total K-bytes		      2382	     22512
+	maximum total M-bytes		         3	        23
 
 
                                      CITATION
@@ -1302,24 +1197,24 @@ MA usage statistics:
 
                                       AUTHORS
                                       -------
-     E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, W. A. de Jong,
-      T. P. Straatsma, H. J. J. van Dam, D. Wang, T. L. Windus, N. P. Bauman,
-       A. Panyala, J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec,
-    K. Lopata, S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm,
-       O. Villa, Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler,
-           Eric Hermes, L. Jensen, J. E. Moore, J. C. Becca, V. Konjkov,
-            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
-   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
-        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
-      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
-      M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu,
-   T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros,
-     G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols,
-       K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski,
-       T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood,
-      E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju,
-        R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
-      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
-      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
+  E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, D. Mejia-Rodriguez,
+       A. Kunitsa, N. P. Bauman, A. Panyala, W. A. de Jong, T. P. Straatsma,
+   H. J. J. van Dam, D. Wang, T. L. Windus, J. Hammond, J. Autschbach, A. Woods,
+    K. Bhaskaran-Nair, J. Brabec, K. Lopata, S. A. Fischer, S. Krishnamoorthy,
+     M. Jacquelin, W. Ma, M. Klemm, O. Villa, Y. Chen, V. Anisimov, F. Aquino,
+     S. Hirata, M. T. Hackler, E. Hermes, L. Jensen, J. E. Moore, J. C. Becca,
+      V. Konjkov, T. Risthaus, M. Malagoli, A. Marenich, A. Otero-de-la-Roza,
+        J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan,
+        A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr, M. Dupuis,
+     D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+     B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
 
- Total times  cpu:        8.8s     wall:        8.8s
+ Total times  cpu:       10.4s     wall:       10.4s

@@ -1,0 +1,51 @@
+#
+# $Id$
+#
+Comment: Thulium pseudopotential parameters
+Comment: Relativistic TM, quadratic semicore,P rojectors: 4f 5s 5p 5d 6s 6p
+Comment: Fitted 03-31-22
+Comment: by Eric Bylaska
+Comment:
+
+<comment> Parameterized Tm TM psp (4f5s5p5d6s6p projectors, 4/2/2022 by EJB) <end>
+
+[lmax] 3
+[locp] 0
+[rlocal] 1.0
+[cutoff] 75.0
+
+<atom>
+ Tm
+  69.00  168.93421 9 3
+   1   0    2.00
+   2   0    2.00
+   2   1    6.00
+   3   0    2.00
+   3   1    6.00
+   3   2   10.00
+   4   0    2.00
+   4   1    6.00
+   4   2   10.00
+   4   3   13.00
+   5   0    2.00
+   5   1    6.00
+<end>
+<solver> pauli                         <end>
+<pseudopotential> troullier-martins    <end>
+<rcut>
+0       1.618000
+1       1.828000
+2       1.213000
+3       1.403000
+<end>
+<kb_expansion>
+0 2
+1 2
+3 2
+<end>
+<semicore> 0.800 <end>
+<semicore_type> quadratic <end>
+
+<screening_cut> 0.10 <end>
+
+

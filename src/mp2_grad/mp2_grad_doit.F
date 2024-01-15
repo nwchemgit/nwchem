@@ -142,7 +142,7 @@ c
       call util_file_name('kh',.true.,.true.,fnamek)
       if(rtdb_get(rtdb,'mp2:scratchdisk',mt_dbl,1,avail_file)) then
          avail_file=avail_file*1024d0*128d0
-         write(0,*) ' #avail ',avail_file
+cdbg         write(0,*) ' #avail ',avail_file
       else
          avail_file=util_scratch_dir_avail_for_me()*128.0d0
       endif
@@ -333,7 +333,7 @@ c
 
          end if
          call pstat_on(ps_maket)
-         call mp2_make_tuhf(nbf,noa_lo,noa_hi,nva_lo,nva_hi,
+         call mp2_make_tuhf(rtdb,nbf,noa_lo,noa_hi,nva_lo,nva_hi,
      $        sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,num_va,
      $        nob_lo,nob_hi,nvb_lo,nvb_hi,sym_lo_ob,sym_hi_ob,
      $        sym_lo_vb,sym_hi_vb,num_ob,num_vb,oseg_lo,oseg_hi,

@@ -42,7 +42,7 @@ set nwpw:minimizer 2
 task pspw energy
 
 nwpw
-  tolerances 1.0d-9 1.0d-9
+  tolerances 1d-12 1d-12
 end
 driver
    clear

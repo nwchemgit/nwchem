@@ -21,7 +21,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
         property solvation nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm rism qmd etrans tce geninterface bq mm cons\
         perfm dntmc smd nbo dangchang leps ccca lucia dimqm rdmft fcidump\
-        gwmol
+        gwmol xtb nwc_columbus
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -30,13 +30,13 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 KNOWN_MODULE_LIBS = -ltest -lccsd -llucia -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -loptim -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lesp -lddscf -ldangchang -lleps -lguess -lhessian \
-                    -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lsolvation -lnwints \
+                    -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lsolvation -lnwints -lnwc_columbus \
 		    -largos -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib \
                     -lnwxc -lsmd -lsmddb\
                     -lcafe -lspace -lanalyze -ldiana -lqhop \
                     -lpfft -ldplot -lnwpython -ldrdy -lvscf -lqmmm -lrism -lqmd -letrans\
                     -lpspw -ltce  -lgeninterface -lbq -lmm  -lcons -lperfm -lnbo -ldntmc -lccca\
-                    -ldimqm -lrdmft -lfcidump -lgwmol
+                    -ldimqm -lrdmft -lfcidump -lgwmol -lnwxtb
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -71,7 +71,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md classical tps alldev pnnl pnnldev smallqm smallqmmm notce
 
-EXP_all = $(filter-out argos leps smd uccsdt python develop scfaux rimp2_grad geninterface diana nbo rism lucia nwxc rdmft,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out argos leps smd uccsdt python develop scfaux rimp2_grad geninterface diana nbo rism lucia nwxc rdmft xtb nwc_columbus,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python dntmc
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -189,6 +189,10 @@ MODULES := $(patsubst gwmol, gwmol nwdft ddscf gradients hessian atomscf NWints,
 
 MODULES := $(patsubst lucia, lucia mp2_grad ddscf nwdft property cphf gradients hessian atomscf NWints moints,$(MODULES) )
 
+MODULES := $(patsubst xtb, xtb nwdft ddscf gradients hessian atomscf NWints,$(MODULES) )
+
+MODULES := $(patsubst nwc_columbus, nwc_columbus NWints,$(MODULES) )
+
 # This dependency is the other way round (matchnxyz used by symmetry)
 # but is required for correct linking on SOLARIS.  Nasty kludge.
 #
@@ -269,6 +273,8 @@ MOD_LIBS := $(patsubst dimqm,-ldimqm,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst rdmft,-lrdmft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fcidump,-lfcidump,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst gwmol,-lgwmol,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst xtb,-lnwxtb,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst nwc_columbus,-lnwc_columbus,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------
@@ -315,7 +321,7 @@ STUBROUTINES := $(patsubst rism,task_rism rism_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmmm, qmmm_input task_qmmm_fep task_qmmm_abc qmmm_print_energy1 qmmm_forces qmmm_init qmmm_end task_qmmm_energy task_qmmm_gradient task_qmmm_optimize task_qmmm_dynamics task_qmmm_esp task_qmmm_pes task_qmmm_thermo qmmm_bq_forces,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mm, mm_add_energy mm_add_egrad mm_input mmi_init mmi_end mm_task_gradient mm_task_energy,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dplot,dplot dplot_input player,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst property,property raman_input task_raman prop_input hnd_nwhnd_tran hnd_prp_vec_read hnd_diag hnd_elfcon_symm hnd_elfcon hnd_elfcon_fde get_slctd_atoms xc_tabcd_giao_nmr_rhs int_giao_1ega fiao_b1_movecs giao_b1_movecs,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst property,property raman_input task_raman prop_input hnd_nwhnd_tran hnd_prp_vec_read hnd_diag hnd_elfcon_symm hnd_elfcon hnd_elfcon_fde get_slctd_atoms xc_tabcd_giao_nmr_rhs int_giao_1ega fiao_b1_movecs giao_b1_movecs int_mpole_1ega atom_gfac,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst solvation,cosmo_input cosmo_initialize cosmo_charges cosmo_charges_from_dmat cosmo_def_radii cosmo_tidy cosff cosdff grad_hnd_cos cosmo_smd_output cosmo_vem_output,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dntmc,task_dntmc dntmc_input,$(STUBROUTINES) )
@@ -332,6 +338,8 @@ STUBROUTINES := $(patsubst solvation, solvation,$(STUBROUTINES))
 STUBROUTINES := $(patsubst dimqm,dimqm_addop dimqm_addop_uhf_damp dimqm_addop_uhf dimqm_tidy dimqm_input dimpar_input dimqm_main fock_dim dimqm_prep dim_grid_quadv0 dimqm_lclfld dimqm_polarizability dimqm_broadcast dimqm_Dens2Dipoles dimqm_rohf_calcDIM dimqm_rohf_wrap dimqm_used dimqm_setgo dimqm_getgo dimqm_getenergy dimqm_setlfirst dimqm_getlrsp dimqm_lrsp dimqm_getlclfld dimqm_getgdipeli dimqm_energy dimqm_init,$(STUBROUTINES) )
 #STUBROUTINES := $(patsubst cons, cons_end cons_input cons_add_egrad cons_add_energy cons_init cons_print_summary cons_active,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gwmol, gw_input gwmol, $(STUBROUTINES) )
+STUBROUTINES := $(patsubst xtb, xtb_input xtb_energy xtb_energy_gradient, $(STUBROUTINES) )
+STUBROUTINES := $(patsubst nwc_columbus, sifcfg sifwh sodft_aoints, $(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 STUBROUTINES := $(sort $(STUBROUTINES))
 

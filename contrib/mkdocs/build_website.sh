@@ -18,22 +18,16 @@ if [ -d "docs" ]; then
     echo ' '
     cd docs
 else    
-rm -rf docs #archivedforum
-git clone --depth 1 git@github.com:nwchemgit/nwchem-wiki.git docs
+    rm -rf docs #archivedforum
+#git clone --depth 1 git@github.com:nwchemgit/nwchem-wiki.git docs
+wget -q https://github.com/nwchemgit/nwchem-wiki/tarball/master -O - | tar -xz
+mv nwchemgit-nwchem-wiki-* docs
 cd docs
-git clone --depth 1 git@github.com:nwchemgit/archivedforum.git
-mv archivedforum/Special_AWCforum .
+wget -q  https://github.com/nwchemgit/archivedforum/tarball/master -O - | tar -xz --wildcards   nwchemgit-archivedforum-*/Special_AWCforum/*
+mv nwchemgit-archivedforum-*/Special_AWCforum .
+#git clone --depth 1 git@github.com:nwchemgit/archivedforum.git
+#mv archivedforum/Special_AWCforum .
 fi
-#rsync -av archivedforum/Special_AWCforum docs/.
-#cd docs
-#git pull
-while read fname; do
-    ls "$fname"
-    rm -f tmptmp.txt
-    ../remove_svg.sh $fname > tmptmp.txt
-    cp $fname "$fname".tmp
-    mv tmptmp.txt $fname
-done <../mathfiles.txt
 cd ..
 if [[ -z "${MKDOCS_SERVE}" ]]; then
     #git clone --depth 1 https://github.com/nwchemgit/nwchemgit.github.io  nwchemgit.github.io_temp

@@ -1,4 +1,5 @@
 
+
 # $Id$
 #
 
@@ -19,7 +20,7 @@
 # For development tree 
 #RELEASE := 
 # For current release tree
-RELEASE := 7.0.0
+RELEASE := 7.2.1
 
 #
 ifndef NWCHEM_TOP
@@ -243,18 +244,24 @@ endif
 # specified below.  Use of MPI requires substituting the tcgmsg-mpi
 # wrapper for the normal tcgmsg library.
 # the 2 following environmental variables are need for linking
-# LIBMPI - represents the name of mpi library (with -l)
-# MPI_LIB - represents the path to the mpi library
-#LIBMPI =  -lmpich
-#MPI_LIB= /usr/local/lib
+# NWLIBMPI - represents the name of mpi library (with -l)
+# NWMPI_LIB - represents the path to the mpi library
+#NWLIBMPI =  -lmpich
+#NWMPI_LIB= /usr/local/lib
 
 #JN: under the new structure, tools should be listed first as
 # their header files are needed for dependency analysis of
 # other NWChem modules
+ifdef USE_INTERNALBLAS
+    NW_CORE_SUBDIRS += blas lapack
+endif
 ifdef USE_LIBXC
     NW_CORE_SUBDIRS += libext
 endif
 
+ifdef USE_TBLITE
+    NW_CORE_SUBDIRS += libext
+endif
 
 ifdef BUILD_OPENBLAS
     ifndef BLAS_SIZE
@@ -277,6 +284,10 @@ ifdef BUILD_OPENBLAS
     BLAS_LIB=$(BLASOPT)
 endif
 
+ifdef USE_INTERNALBLAS
+    BLASOPT=-L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/ -lnwcblas
+    LAPACK_LIB=-L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/ -lnwclapack
+endif
 
 ifdef BUILD_SCALAPACK
     NW_CORE_SUBDIRS += libext
@@ -289,9 +300,6 @@ ifdef BUILD_SCALAPACK
         $(error )
     endif
 
-    ifndef SCALAPACK_SIZE
-        SCALAPACK_SIZE=8
-    endif
     SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_scalapack
 endif
 
@@ -313,14 +321,6 @@ ifdef BUILD_ELPA
     ELPA=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_elpa -I$(NWCHEM_TOP)/src/libext/include/elpa/modules
 endif
 
-
-ifdef BUILD_MPICH
-    NW_CORE_SUBDIRS += libext
-    PATH := $(NWCHEM_TOP)/src/libext/bin:$(PATH)
-    MPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
-    MPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
-    LIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-endif
 
 
 ifndef EXTERNAL_GA_PATH
@@ -427,7 +427,7 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
 # Establish some required defaults which may need overriding
 # for some machines
 
-SHELL = /bin/sh
+SHELL = /usr/bin/env bash
 ARFLAGS = r
 FDEBUG = -g
 CDEBUG = -g
@@ -463,7 +463,7 @@ ifeq ($(USE_ARUR),Y)
     ARFLAGS = rU 
 endif
 
-
+ifndef SKIP_COMPILERS
 # strip long paths when FC and/or CC are set from user
 ifneq ($(FC),f77)
     _FC = $(notdir $(FC))
@@ -491,9 +491,6 @@ ifeq ($(TARGET),SOLARIS)
 
     # Don\'t need this if using the SUN performance library
     #  need for BLASOPT business because of lapack and other possible missing entries
-    ifndef BLASOPT
-        CORE_SUBDIRS_EXTRA = blas lapack 
-    endif
 
     DEFINES = -DSOLARIS  -DNOAIO
     # Note that WS6 does not optimize robustly and if using this you must 
@@ -508,7 +505,7 @@ ifeq ($(TARGET),SOLARIS)
         # Fujitsu SPARC systems (thanks to Herbert Fruchtl)
         COPTIONS = -Kdalign
         COPTIMIZE = -Kfast_GP=2
-        DEFINES += -DFUJITSU_SOLARIS
+        DEFINES += -DFUJITSU -DFUJITSU_SOLARIS
     endif
 
     ifeq ($(FC),frt)
@@ -516,7 +513,7 @@ ifeq ($(TARGET),SOLARIS)
         # Fujitsu with Parallelnavi compilers
         # If using Fujitsu compilers on Sun hardware, replace -Kfast_GP=2 with
         #  -Kfast
-        DEFINES += -DFUJITSU_SOLARIS -DEXTNAME
+        DEFINES += -DFUJITSU -DFUJITSU_SOLARIS -DEXTNAME
         FOPTIONS = -Kdalign -w -fw -X9 
         FOPTIMIZE = -Kfast_GP=2 
         FDEBUG=
@@ -532,7 +529,7 @@ ifeq ($(TARGET),SOLARIS)
         CORE_LIBS +=  -SSL2
     else
         LDOPTIONS = -xildoff
-        CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas  -lmvec
+        CORE_LIBS += -lmvec
     endif
  
  
@@ -563,7 +560,6 @@ ifeq ($(TARGET),SOLARIS64)
 #
 
     SHELL := $(NICE) /bin/sh
-    CORE_SUBDIRS_EXTRA = blas lapack
     CC = cc
     FC = f77
     DEFINES = -DSOLARIS  -DNOAIO -DSOLARIS64
@@ -578,7 +574,7 @@ ifeq ($(TARGET),SOLARIS64)
         # Fujitsu SPARC systems (thanks to Herbert Fruchtl)
         COPTIONS = -Kdalign -KV9FMADD
         COPTIMIZE = -Kfast_GP=2 -KV9FMADD
-        DEFINES += -DFUJITSU_SOLARIS
+        DEFINES += -DFUJITSU -DFUJITSU_SOLARIS
     else
         # SUN/Solaris options for WS6.1
         COPTIONS = -xarch=v9 -dalign
@@ -589,7 +585,7 @@ ifeq ($(TARGET),SOLARIS64)
         # Fujitsu with Parallelnavi compilers
         # If using Fujitsu compilers on Sun hardware, replace -Kfast_GP=2 with
         #  -Kfast
-        DEFINES += -DFUJITSU_SOLARIS -DEXTNAME
+        DEFINES += -DFUJITSU -DEXTNAME -DFUJITSU_SOLARIS
         FOPTIONS = -Kdalign -w -fw -X9  -KV9FMADD
         ifdef USE_I4FLAGS
             FOPTIONS += -CcdLL8
@@ -613,14 +609,9 @@ ifeq ($(TARGET),SOLARIS64)
     LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
     ifeq ($(FC),frt)
         LDOPTIONS = -SSL2
-        CORE_LIBS +=  -lnwclapack -lnwcblas
     else
         LDOPTIONS = -xs -xildoff
-        ifdef BLASOPT
-            CORE_LIBS +=   $(BLASOPT)   -lmvec
-        else
-            CORE_LIBS +=  -lnwclapack -lnwcblas  -lmvec
-        endif
+        CORE_LIBS += -lmvec
         CORE_LIBS += -lsocket -lrpcsvc -lnsl
         EXTRA_LIBS =  -ldl -lfsu
     endif
@@ -653,7 +644,6 @@ ifeq ($(TARGET),HPUX)
 # removed reference to MLIB since 8.3 version of MLIB 
 # does not support +ppu
 #
-    CORE_SUBDIRS_EXTRA = blas lapack
     MAKEFLAGS = -j 1 --no-print-directory
     CPP = /lib/cpp -P
     CC = cc
@@ -662,7 +652,7 @@ ifeq ($(TARGET),HPUX)
     LDOPTIONS +=  +DA2.0 +DS2.0 +O2
     LDOPTIONS +=   +O2
     LINK.f = f90   $(LDFLAGS) 
-    CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas   -lm
+    CORE_LIBS +=  -lm
     FDEBUG = -g
     FOPTIONS =  +ppu -Wl,-a,archive
     COPTIONS = -Aa -D_HPUX_SOURCE +e 
@@ -685,14 +675,13 @@ ifeq ($(TARGET),HPUX64)
 #
 # HPUX 11.0
 #
-    CORE_SUBDIRS_EXTRA = blas lapack
     _CPU = $(shell uname -m  )
     MAKEFLAGS = -j 1 --no-print-directory
     CPP = /lib/cpp -P
     CC = cc
     FC = f90
     LDOPTIONS = -Wl,+vallcompatwarnings  +U77   
-    CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas  -lm
+    CORE_LIBS += -lm
     CDEBUG =
     FDEBUG = -g
     FOPTIONS =  +ppu  #+U77  
@@ -728,7 +717,6 @@ ifeq ($(TARGET),IBM)
 # IBM AIX
 #
 
-    CORE_SUBDIRS_EXTRA = lapack blas
     FC = xlf
     ifeq ($(FC),xlf)
         _FC=xlf
@@ -776,7 +764,7 @@ ifeq ($(TARGET),IBM)
     LIBPATH += -L/usr/lib 
 
     LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 -bloadmap:nwchem.lapi_map
-    CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas \
+    CORE_LIBS +=   \
               -brename:.daxpy_,.daxpy \
               -brename:.dcopy_,.dcopy \
               -brename:.ddot_,.ddot \
@@ -845,13 +833,6 @@ ifeq ($(TARGET),IBM64)
 # tested on ecs1 May 10 2000 AIX 4.3.3.10
 # does not run on AIX  4.3.2.1 (skunkworks)
 #
-    ifeq ($(LAPACK_LIB),)
-        CORE_SUBDIRS_EXTRA += lapack
-    endif
-
-    ifeq ($(BLASOPT),)
-        CORE_SUBDIRS_EXTRA += blas
-    endif
 
     FC = xlf
     ifeq ($(FC),xlf)
@@ -914,13 +895,6 @@ ifeq ($(TARGET),IBM64)
 
     LDOPTIONS += -bloadmap:nwchem.ibm64map -bbigtoc # bigtoc requires bmaxdata
     LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x200000000 # this limits MA to 8GB
-    ifeq ($(LAPACK_LIB),)
-        CORE_LIBS += -lnwclapack
-    endif
-    CORE_LIBS += $(BLASOPT)
-    ifeq ($(BLASOPT),)
-        CORE_LIBS += -lnwcblas
-    endif
     XLFBREN = y
     EXPLICITF = TRUE
 #
@@ -930,7 +904,6 @@ endif
 
 ifeq ($(TARGET),LAPI)
 #
-    CORE_SUBDIRS_EXTRA = lapack blas
     FC = mpxlf_r 
     ifdef OLDXLF
         FC += -qnohpf
@@ -983,8 +956,6 @@ ifeq ($(TARGET),LAPI)
      # Need ESSL before our own BLAS library but still need our
      # own stuff for misc. missing routines
 
-     CORE_LIBS +=  -lnwclapack -lnwcblas
-
      LDOPTIONS += -bloadmap:nwchem.lapimap -bbigtoc
      LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 # needed because of bigtoc
 
@@ -996,7 +967,6 @@ endif
 
 ifeq ($(TARGET),LAPI64)
 #
-    CORE_SUBDIRS_EXTRA = lapack blas
     FC = mpxlf_r 
     CC = mpcc_r
     ARFLAGS = urs
@@ -1042,7 +1012,6 @@ ifeq ($(TARGET),LAPI64)
     endif
 
     DEFINES += -DEXT_INT
-    CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
     LDOPTIONS += -bloadmap:nwchem.lapi64map -bbigtoc
     LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed because of bigtoc
     # LDOPTIONS += -bmaxstack:0xe0000000 -bmaxdata:0xe0000000 # this for large memory
@@ -1060,11 +1029,6 @@ ifeq ($(TARGET),MACX)
     #
     # MacOSX 
     #
-    ifdef USE_VECLIB
-        CORE_SUBDIRS_EXTRA =  blas
-    else
-        CORE_SUBDIRS_EXTRA =  blas lapack
-    endif
 
     _CPU = $(shell machine  )
     FC = gfortran
@@ -1101,7 +1065,7 @@ ifeq ($(TARGET),MACX)
     ifeq ($(FC),g77)
         #g77, only decent one form Fink http://fink.sf.net
         #gcc version 3.4 20031015 (experimental)
-        _G77V33= $(shell g77 -v  2>&1|egrep spec|head -n 1|awk ' /3.3/  {print "Y"}')
+        _G77V33= $(shell g77 -v  2>&1|grep spec|head -n 1|awk ' /3.3/  {print "Y"}')
         FDEBUG= -O1 -g
         FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
         FOPTIMIZE  = -O3 -fno-inline-functions -funroll-loops
@@ -1138,7 +1102,7 @@ ifeq ($(TARGET),MACX)
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 
         ifdef GNUMAJOR
-            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
+            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
             GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
             GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
             GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
@@ -1248,16 +1212,14 @@ ifeq ($(TARGET),MACX)
     endif
 
     ifdef USE_VECLIB
-        CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lnwcblas
-    else
-        CORE_LIBS +=   -lnwclapack $(BLASOPT)  -lnwcblas
+        CORE_LIBS +=  -Wl,-framework -Wl,vecLib 
     endif
 
     ifeq ($(FC),xlf) 
         LDOPTIONS = -Wl,-multiply_defined -Wl,warning
     else
-#       _GCC4= $(shell gcc -v  2>&1|egrep spec|head -n 1|awk ' / 3./  {print "N";exit}; / 2./ {print "N";exit};{print "Y"}')
-        _GCC4= $(shell $(CC) -dM -E - < /dev/null | egrep __VERS | cut -c22|awk ' /3/  {print "N";exit}; /2/ {print "N";exit};{print "Y"}')
+#       _GCC4= $(shell gcc -v  2>&1|grep spec|head -n 1|awk ' / 3./  {print "N";exit}; / 2./ {print "N";exit};{print "Y"}')
+        _GCC4= $(shell $(CC) -dM -E - < /dev/null | grep __VERS | cut -c22|awk ' /3/  {print "N";exit}; /2/ {print "N";exit};{print "Y"}')
         ifeq ($(_GCC4),Y) 
 #           EXTRA_LIBS += 
         else
@@ -1297,13 +1259,6 @@ ifeq ($(TARGET),MACX64)
 	        @echo You must also set USE_64TO32 and do a "make 64_to_32" to change the source code
 	        @exit 1
         endif
-    else
-        ifeq ($(BLASOPT),)
-            CORE_SUBDIRS_EXTRA += blas
-        endif
-        ifeq ($(LAPACK_LIB),)
-            CORE_SUBDIRS_EXTRA += lapack
-        endif
     endif
 
     INSTALL = @echo nwchem is built
@@ -1312,9 +1267,18 @@ ifeq ($(TARGET),MACX64)
     DEFINES   = -DMACX
     DEFINES  += -DEXT_INT
     LINK.f    = $(FC) $(LDFLAGS) -Wl,-flat_namespace
+    LINK.f   += -Wl,-headerpad_max_install_names
     GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
     ifeq ($(GOTCLANG),1)
         COPTIONS   += -fPIC
+    endif
+
+    ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(FC)),flang)
+        _FC=gfortran
+        USE_FLANG=1
+    endif
+    ifeq ($(USE_FLANG),1)
+        FLANG_NEW = $(shell [ $(shell $(FC) --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
     endif
 
     ifeq ($(_FC),gfortran)
@@ -1327,6 +1291,19 @@ ifeq ($(TARGET),MACX64)
         endif
 
         FOPTIMIZE = -O2 -ffast-math
+
+        ifdef USE_OPENMP
+            FOPTIONS  += -fopenmp
+            LDOPTIONS += -fopenmp
+        endif
+
+        ifeq ($(USE_FLANG),1)
+            GNU_GE_4_6=true
+            FOPTIONS+=-fno-backslash
+            ifeq ($(FLANG_NEW),true)
+#            FOPTIONS+=-fstack-arrays
+            endif
+	else
         ifeq ($(V),-1)
             FOPTIONS += -w
         else
@@ -1349,7 +1326,7 @@ ifeq ($(TARGET),MACX64)
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 
         ifneq ($(strip $(GNUMAJOR)),)
-            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
+            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
             GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
             GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
             GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
@@ -1382,19 +1359,18 @@ ifeq ($(TARGET),MACX64)
             FOPTIONS   += -std=legacy
         endif
 
-        ifdef USE_OPENMP
-            FOPTIONS  += -fopenmp
-            LDOPTIONS += -fopenmp
-        endif
-
         ifdef  USE_ASAN
             FOPTIONS += -fsanitize=address -fsanitize-recover=address
             LDOPTIONS += -fsanitize=address -fsanitize-recover=address
+        endif
+        ifdef OPENBLAS_USES_OPENMP
+            LDOPTIONS += -fopenmp
         endif
 
         ifdef  USE_FPE
             FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
         endif
+    endif # not USE_FLANG
     endif # gfortran
 
     ifdef  USE_GPROF
@@ -1410,24 +1386,16 @@ ifeq ($(TARGET),MACX64)
     endif
 
     ifdef USE_VECLIB
-        CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lnwcblas
-    else
-        ifeq ($(LAPACK_LIB),)
-            CORE_LIBS += -lnwclapack
-        endif
-        CORE_LIBS +=    $(BLASOPT)
-        ifeq ($(BLASOPT),)
-            CORE_LIBS += -lnwcblas
-        endif
+        CORE_LIBS +=   -Wl,-framework -Wl,vecLib
     endif
 
 
     ifeq ($(FC),ifort)
-        _IFCV11= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
-        _IFCV12= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
-        _IFCV14= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
-        _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
-        _IFCV17=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
+        _IFCV11= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
+        _IFCV12= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
+        _IFCV14= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
+        _IFCV15ORNEWER=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+        _IFCV17=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
         DEFINES  += -DIFCV8 -DIFCLINUX
 
         ifdef USE_I4FLAGS
@@ -1436,6 +1404,9 @@ ifeq ($(TARGET),MACX64)
         endif
 
         FOPTIONS += -fpp -g -no-save-temps
+        ifneq ($(V),1)
+           FOPTIONS += -Qoption,fpp,-w0
+	endif
         FDEBUG    = -O2 -g
         FOPTIMIZE = -O3
 
@@ -1510,15 +1481,8 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
 # Linux or Cygwin under Windows running on an x86 using g77
 #
     NICE = nice -n 2
-    SHELL := $(NICE) /bin/sh
+    SHELL := $(NICE) /usr/bin/env bash
 
-    ifeq ($(BLASOPT),)
-        CORE_SUBDIRS_EXTRA += blas
-    endif
-
-    ifeq ($(LAPACK_LIB),)
-        CORE_SUBDIRS_EXTRA += lapack
-    endif
 
     CC = gcc
     RANLIB = ranlib
@@ -1590,7 +1554,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 
         ifdef GNUMAJOR
-            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
+            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __VERS | cut -c24)
             GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
             GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
             GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
@@ -1639,7 +1603,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
         _CPU = $(shell uname -m  )
 
         ifeq ($(FC),g77)
-            _G77V33= $(shell g77 -v  2>&1|egrep spec|head -n 1|awk ' /3.3/  {print "Y"}')
+            _G77V33= $(shell g77 -v  2>&1|grep spec|head -n 1|awk ' /3.3/  {print "Y"}')
             FOPTIONS   += -fno-second-underscore   
             FOPTIONS   += -fno-f90  -ffixed-line-length-72 -ffixed-form
             FOPTIMIZE  +=  -O2  -malign-double -finline-functions 
@@ -1665,7 +1629,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
             _CPU=i786
         else
             ifeq ($(_CPU),i686)
-                _GOTSSE2= $(shell cat /proc/cpuinfo | egrep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
+                _GOTSSE2= $(shell cat /proc/cpuinfo | grep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
                 ifeq ($(_GOTSSE2),Y) 
                     _CPU=i786
                 endif
@@ -1746,7 +1710,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
             ifdef  USE_DEBUG
                 FOPTIONS += -g
             endif
-            _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk '/7./ {print "Y"; exit}')
+            _IFCV7= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk '/7./ {print "Y"; exit}')
             ifneq ($(_IFCV7),Y)
                 DEFINES+= -DIFCV8
                 ifeq ($(FC),ifc)
@@ -1925,8 +1889,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
     endif
 
 
-#   EXTRA_LIBS +=-lefence # link against Electricfence
-#   CORE_LIBS += -lnwclapack $(BLASOPT) -lnwcblas
 # end of Linux, Cygnus
 endif
 
@@ -1936,10 +1898,15 @@ ifneq ($(TARGET),LINUX)
     ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CYGWIN64 CATAMOUNT))
 
         GOTMINGW64=$(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21)
+        GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
         ifeq ($(GOTMINGW64),1)
             _CPU = x86_64
         else
-            _CPU = $(shell uname -m  )
+            ifeq ($(GOTFREEBSD),1)
+                _CPU = $(shell uname -p  )
+            else
+                _CPU = $(shell uname -m  )
+            endif
         endif
 
 #       ifeq ($(NWCHEM_TARGET),LINUX64)
@@ -2071,6 +2038,14 @@ ifneq ($(TARGET),LINUX)
             USE_FLANG=1
         endif
 
+        ifeq ($(USE_FLANG),1)
+		FLANG_NEW = $(shell [ $(shell $(FC) --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
+	endif
+
+#@info 
+#@info FLANG_NEW $(FLANG_NEW)
+#@info 
+
         ifeq ($(CC),clang)
             _CC=gcc
         endif
@@ -2087,6 +2062,27 @@ ifneq ($(TARGET),LINUX)
             _FC=xlf
         endif
 
+        ifeq ($(FC),frt)
+            _FC=frt
+        endif
+        ifeq ($(FC),frtpx)
+            _FC=frt
+        endif
+
+        ifeq ($(CC),fcc)
+            _CC=fcc
+        endif
+        ifeq ($(CC),fccpx)
+            _CC=fcc
+        endif
+#cross-compilation
+        ifeq ($(CC),fccpx)
+            _CPU=aarch64
+        endif
+        ifeq ($(FC),frtpx)
+            _CPU=aarch64
+        endif
+
         ifndef _FC
             FC=gfortran
             _FC=gfortran
@@ -2098,12 +2094,11 @@ ifneq ($(TARGET),LINUX)
 
         FOPTIMIZE  = -O2 
 
-        ifeq ($(_CPU),aarch64)
+        ifeq ($(_CPU),$(findstring $(_CPU),aarch64 mips64 loongarch64 riscv64 alpha ia64 hppa))
             DONTHAVEM64OPT=Y
         endif
 
         ifeq ($(_CPU),mips64)
-            DONTHAVEM64OPT=Y
             COPTIONS   = -mabi=64
             FOPTIONS   = -mabi=64
             FFLAGS_FORGA   = -mabi=64
@@ -2111,7 +2106,6 @@ ifneq ($(TARGET),LINUX)
         endif
 
         ifeq ($(_CPU),riscv64)
-            DONTHAVEM64OPT=Y
             COPTIONS   =  -march=rv64gc -mabi=lp64d
             FOPTIONS   =  -march=rv64gc -mabi=lp64d
             FFLAGS_FORGA   = -march=rv64gc -mabi=lp64d
@@ -2127,11 +2121,13 @@ ifneq ($(TARGET),LINUX)
         GOTCLANG= $(shell $(_CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
         ifeq ($(GOTCLANG),1)
             COPTIONS   += -fPIC
+	    COPTIONS   += -Wno-deprecated-non-prototype
         endif
 
         GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
         ifeq ($(GOTFREEBSD),1)
             DEFINES  +=-DMPICH_NO_ATTR_TYPE_TAGS
+	    DEFINES  += -DNOIO -DEAFHACK
 #	    LDOPTIONS +=-Wl,-rpath=/usr/local/lib/gcc7
             LDOPTIONS += $(shell mpif90  -show 2>&1 |cut -d " " -f 2) 
             ARFLAGS = rU
@@ -2146,7 +2142,7 @@ ifneq ($(TARGET),LINUX)
                 LDOPTIONS += -fsanitize=address -fsanitize-recover=address
             endif
             ifdef  USE_FPE
-                ifdef USE_FLANG
+                ifeq ($(USE_FLANG),1)
                     $(info     )
                     $(info     USE_FPE not ready for flang)
                     $(info     )
@@ -2158,36 +2154,42 @@ ifneq ($(TARGET),LINUX)
                 FOPTIONS   += -ffast-math #-Wunused  
             endif
             ifeq ($(V),-1)
+                ifeq ($(FLANG_NEW),false)
                 FOPTIONS += -w
+		endif
                 COPTIONS += -w
             else
-                FOPTIMIZE  += -Wuninitialized
+                    ifneq ($(USE_FLANG),1)
+                        FOPTIMIZE  += -Wuninitialized
+	            endif
                 ifeq ($(_CC),$(findstring $(_CC),gcc clang))
                     COPTIONS += -Wall
 		endif
-                ifeq ($(GNU_GE_4_8),true)
-                    ifndef USE_FLANG
+                ifneq ($(USE_FLANG),1)
+                    ifeq ($(GNU_GE_4_8),true)
                         FOPTIMIZE  += -Wno-maybe-uninitialized
+                    else
+                        FOPTIONS   += -Wuninitialized
                     endif
-                else
-                    FOPTIONS   += -Wuninitialized
                 endif
             endif
 
             DEFINES  += -DGFORTRAN
             DEFINES  += -DCHKUNDFLW -DGCC4
-
             ifeq ($(USE_FLANG),1)
+
                 GNU_GE_4_6=true
-                FOPTIONS+=-mcmodel=medium
-                FOPTIONS+=-mcmodel=medium -fno-backslash
-                COPTIONS+=-mcmodel=medium
-                CFLAGS_FORGA = -mcmodel=medium
-                FFLAGS_FORGA = -mcmodel=medium
+                FOPTIONS+=-fno-backslash
+                ifeq ($(FLANG_NEW),false)
+                    FOPTIONS+=-mcmodel=medium
+                    COPTIONS+=-mcmodel=medium
+                    CFLAGS_FORGA = -mcmodel=medium
+                    FFLAGS_FORGA = -mcmodel=medium
+		endif
             else
                 GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
                 ifdef GNUMAJOR
-                    GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
+                    GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
                     GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
                     GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
                 endif
@@ -2220,9 +2222,12 @@ ifneq ($(TARGET),LINUX)
                 FOPTIONS  += -fopenmp
                 LDOPTIONS += -fopenmp
                 ifdef USE_OFFLOAD
-                    DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
+#                    DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
                 endif
             endif
+	    ifdef OPENBLAS_USES_OPENMP
+                LDOPTIONS += -fopenmp
+	    endif
         endif
 
 
@@ -2256,12 +2261,6 @@ ifneq ($(TARGET),LINUX)
 
         DEFINES  += -DEXT_INT
 #       MAKEFLAGS = -j 1 --no-print-directory
-        ifeq ($(BLASOPT),)
-            CORE_SUBDIRS_EXTRA += blas
-        endif
-        ifeq ($(LAPACK_LIB),)
-            CORE_SUBDIRS_EXTRA += lapack
-        endif
         RANLIB = echo
         DEFINES   +=   -DLINUX -DLINUX64
 
@@ -2279,9 +2278,9 @@ ifneq ($(TARGET),LINUX)
             endif
 
             ifeq ($(FC),ifort)
-                _IFCV9= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk '/9./ {print "Y"}; /10./ {print "Y"; exit}')
-                _IFCV81= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8.1/  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
-                _IFCV8= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8./  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
+                _IFCV9= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk '/9./ {print "Y"}; /10./ {print "Y"; exit}')
+                _IFCV81= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk ' /8.1/  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
+                _IFCV8= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk ' /8./  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
 
                 ifeq ($(_IFCV8),Y)
                     DEFINES+= -DIFCV8
@@ -2290,7 +2289,7 @@ ifneq ($(TARGET),LINUX)
                 ifeq ($(_IFCV81),Y)
                     DEFINES+= -DIFCV81
                 endif
-                ITANIUMNO = $(shell   cat /proc/cpuinfo | egrep family | head -n 1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
+                ITANIUMNO = $(shell   cat /proc/cpuinfo | grep family | head -n 1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
                 FOPTIONS   += -auto -w -ftz $(ITANIUMNO)
                 ifdef  USE_GPROF
                     FOPTIONS += -qp
@@ -2342,7 +2341,6 @@ ifneq ($(TARGET),LINUX)
                 COPTIONS += -fPIC
             endif
 
-#           CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
         endif # end of ia64 bit
 
 
@@ -2360,45 +2358,25 @@ ifneq ($(TARGET),LINUX)
             endif
 
             # support for Intel(R) Fortran compiler
-            ifeq ($(_FC),ifxold)
-                DEFINES += -DIFCV8 -DIFCLINUX
-                FOPTIONS += -fpp -align
-                FOPTIMIZE = -g -O3 -fimf-arch-consistency=true
-                ifdef USE_I4FLAGS
-                else
-                    FOPTIONS += -i8
-                endif
-                ifdef USE_OPENMP
-                    FOPTIONS += -fopenmp
-                    ifdef USE_OFFLOAD
-                        FOPTIONS += -fopenmp-targets=spirv64
-                    endif
-                endif
-                ifdef IFX_DEBUG
-                    # debugging remove at some point
-                    FOPTIONS += -std95 -what
-                endif
-                FDEBUG = $(FOPTIMIZE)
-            endif
 
 
             # support for traditional Intel(R) Fortran compiler
             ifeq ($(_FC),ifort)
                 ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
-                    _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
-                    _GOTSSE42= $(shell cat /proc/cpuinfo | egrep sse4_2 | tail -n 1 | awk ' /sse4_2/  {print "Y"}')
-                    _GOTAVX= $(shell cat /proc/cpuinfo | egrep avx | tail -n 1 | awk ' /avx/  {print "Y"}')
-                    _GOTAVX2= $(shell cat /proc/cpuinfo | egrep fma | tail -n 1 | awk ' /fma/  {print "Y"}')
-                    _GOTAVX512F= $(shell cat /proc/cpuinfo | egrep avx512f | tail -n 1 | awk ' /avx512f/  {print "Y"}')
+                    _GOTSSE3= $(shell cat /proc/cpuinfo | grep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
+                    _GOTSSE42= $(shell cat /proc/cpuinfo | grep sse4_2 | tail -n 1 | awk ' /sse4_2/  {print "Y"}')
+                    _GOTAVX= $(shell cat /proc/cpuinfo | grep avx | tail -n 1 | awk ' /avx/  {print "Y"}')
+                    _GOTAVX2= $(shell cat /proc/cpuinfo | grep fma | tail -n 1 | awk ' /fma/  {print "Y"}')
+                    _GOTAVX512F= $(shell cat /proc/cpuinfo | grep avx512f | tail -n 1 | awk ' /avx512f/  {print "Y"}')
                 endif
                 _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
-                _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
-                _IFCV11= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
-                _IFCV12= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
-                _IFCV14= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
-                _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
-                _IFCV17=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
-                _IFCV18=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 18) {print "Y";exit}}')
+                _IFCV7= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
+                _IFCV11= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
+                _IFCV12= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
+                _IFCV14= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
+                _IFCV15ORNEWER=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+                _IFCV17=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
+                _IFCV18=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 18) {print "Y";exit}}')
 
 #               Intel EM64T is required
                 ifneq ($(_IFCE),Y)
@@ -2425,11 +2403,21 @@ ifneq ($(TARGET),LINUX)
                 endif
 
                 FOPTIONS += -align -fpp
+                ifneq ($(V),1)
+                    FOPTIONS += -Qoption,fpp,-w0
+		endif
 
 #               might be not need and the root cause for https://github.com/nwchemgit/nwchem/issues/255
 #               CPP=fpp -P
 #
                 ifeq ($(_IFCV15ORNEWER), Y)
+		  IFORTVER=$(shell ifort -v 2>&1|cut -d " " -f 3)
+#                ifeq ($(IFORTVER),2021.7.0)
+#                   $(info     )
+#                   $(info     ifort 2021.7.0 not validated)
+#                   $(info     )
+#                   $(error )
+#                endif
 #                   fpp seems to get lost with ifort 15 in the offload bit
 #                   only use EXPLICITF for offload because otherwise we want debugging to be easy
 #                   FOPTIONS +=  -Qoption,fpp,-P -Qoption,fpp,-c_com=no  -allow nofpp_comments 
@@ -2452,7 +2440,10 @@ ifneq ($(TARGET),LINUX)
                         ifdef USE_IFX
                             FOPTIONS += -fiopenmp
                             ifdef USE_OFFLOAD
-                                FOPTIONS += -fopenmp-targets=spirv64
+                                FOPTIONS += -fopenmp-targets=spir64
+                                ifdef USE_IMAX_OPENMP_TRPDRV
+                                    DEFINES += -DUSE_IMAX_OPENMP_TRPDRV
+                                endif
                             endif
                         else
                             FOPTIONS += -qopenmp
@@ -2507,7 +2498,7 @@ ifneq ($(TARGET),LINUX)
 #                       FOPTIMIZE += -xHost
                         ifndef USE_IFX
 #                           crazy simd options
-                            ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
+#                            ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
                                 ifeq ($(_IFCV17), Y)
                                     ifeq ($(_GOTAVX512F),Y)
                                         FOPTIMIZE += -axCORE-AVX512
@@ -2520,7 +2511,7 @@ ifneq ($(TARGET),LINUX)
                                     else ifeq ($(_GOTSSE3),Y) 
                                         FOPTIMIZE += -axSSE3
                                     endif
-                                endif
+#                                endif
                             endif
                             FOPTIONS += -finline-limit=250
                         endif
@@ -2587,7 +2578,7 @@ ifneq ($(TARGET),LINUX)
             endif
 
             ifeq ($(_CC),icc)
-                ICCV15ORNEWER=$(shell icc -V  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+                ICCV15ORNEWER=$(shell icc -V  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
                 ifdef USE_KNL
                     COPTIONS   +=   -xMIC-AVX512 -ftz
                     DEFINES+= -DINTEL_64ALIGN
@@ -2632,7 +2623,6 @@ ifneq ($(TARGET),LINUX)
                 endif
             endif
 
-#           CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
             ifdef  USE_GPROF
                 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
                     FOPTIONS   += -Mprof=func#,lines
@@ -2671,7 +2661,9 @@ ifneq ($(TARGET),LINUX)
 
                 LINK.f = $(FC)  $(LDFLAGS) 
                 FOPTIMIZE  += -O3 
-                FOPTIMIZE  += -mfpmath=sse # 
+                ifneq ($(USE_FLANG),1)
+                    FOPTIMIZE  += -mfpmath=sse #
+		endif
 
                 ifeq ($(GNU_GE_6),true)
                     FOPTIMIZE += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
@@ -2683,7 +2675,7 @@ ifneq ($(TARGET),LINUX)
                     FOPTIMIZE  += -ffast-math #2nd time
                 endif
 
-                ifdef USE_FLANG
+                ifeq ($(USE_FLANG),1)
                     ifdef USE_OPTREPORT
                         FOPTIMIZE  += -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize
                     endif
@@ -2717,7 +2709,12 @@ ifneq ($(TARGET),LINUX)
 
             ifeq ($(GNU_GE_4_6),true)
                 ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
-                    FOPTIMIZE +=  -mtune=native
+                    ifneq ($(USE_FLANG),1)
+                        FOPTIMIZE +=  -mtune=native
+		    endif
+                endif
+                ifdef GFORTRAN_MARCH
+                    FOPTIMIZE += -march=$(GFORTRAN_MARCH)
                 endif
 #               causes slowdows in mp2/ccsd
 #               FOPTIONS += -finline-functions
@@ -2746,7 +2743,10 @@ ifneq ($(TARGET),LINUX)
         ifeq ($(_FC),crayftn)
 #           Jeff: Cray Fortran supports preprocessing as of version 8.2.2 (at least)
 #           EXPLICITF = FALSE
-            FOPTIONS += -hsystem_alloc -hoverindex
+            FOPTIONS += -hoverindex
+            FOPTIONS += -dC   # fix rt-tddft hacking for derived types
+            FOPTIONS += -ef   # create f90 .mod
+            LDOPTIONS += -hsystem_alloc
 #           workaround for vectorization failures with cce 11
             FOPTIONS += -hfp1
             ifdef BUILD_OPENBLAS
@@ -2792,7 +2792,7 @@ ifneq ($(TARGET),LINUX)
                     ifdef USE_A64FX
                         COPTIMIZE += -mtune=a64fx -mcpu=a64fx 
                     else
-                        COPTIMIZE += -mtune=native -march=native
+                        COPTIMIZE += -mtune=native
                     endif 
                 endif
 
@@ -2860,7 +2860,7 @@ ifneq ($(TARGET),LINUX)
             endif  # end of gfortran
 
             # A64fx
-            ifeq ($(FC),frt)
+            ifeq ($(_FC),frt)
 
                 DEFINES += -DFUJITSU
                 FOPTIONS += -fs
@@ -2890,6 +2890,9 @@ ifneq ($(TARGET),LINUX)
                 ifdef USE_OPENMP
                   FOPTIONS  += -fopenmp
                   LDOPTIONS += -fopenmp
+                endif
+                ifdef OPENBLAS_USES_OPENMP
+                     LDOPTIONS += -fopenmp
                 endif
 
                 DEFINES   +=   -DARMFLANG
@@ -2973,7 +2976,7 @@ ifneq ($(TARGET),LINUX)
                     FOPTIONS  += -qsmp=omp
 		    LDOPTIONS += -qsmp=omp
                     ifdef USE_OFFLOAD
-                        DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
+#                        DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
                         OFFLOAD_FOPTIONS = -qtgtarch=sm_70 -qoffload
                         LDOPTIONS += -qoffload -lcudart -L$(NWC_CUDAPATH)
                     endif
@@ -2990,12 +2993,6 @@ ifneq ($(TARGET),LINUX)
                 endif
             endif
 
-            ifdef USE_ESSL
-                CORE_SUBDIRS_EXTRA = lapack
-                CORE_LIBS +=  -lnwclapack
-            endif
-#           CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
-#           EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
         endif # end of ppc64 arch
 
 	ifeq ($(_CC),pgcc)
@@ -3035,13 +3032,31 @@ ifneq ($(TARGET),LINUX)
                 endif
                 LDOPTIONS += -mp
 	      endif
+		ifdef USE_OFFLOAD
+		  FOPTIONS += -mp=gpu #-gpu=cc70
+		  LDOPTIONS += -mp=gpu # -gpu=cc70
+		endif
             endif
 	    ifdef USE_FPE
 	        FOPTIONS += -traceback
 		FOPTIONS += -Ktrap=inv,divz,ovf
 	    endif
+            PGF90VER=$(shell $(FC) -V| head -2|tail -1 |cut -d ' ' -f 2)
+            ifeq ($(PGF90VER),22.5-0)
+                $(info     )
+                $(info     nvfortran 22.5 not validated)
+                $(info     )
+                $(error )
+                DEFINES  += -DPGI_NOSIMD
+            endif
         endif
 
+        ifdef USE_OPENMP
+            ifdef USE_OFFLOAD
+                DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
+#                DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
+            endif
+        endif
 
         ifeq ($(NWCHEM_TARGET),CATAMOUNT)
             DEFINES  += -DCATAMOUNT
@@ -3051,9 +3066,14 @@ ifneq ($(TARGET),LINUX)
         # Jeff: FreeBSD does not link libm automatically with flang
         ifeq ($(USE_FLANG),1)
             EXTRA_LIBS += -lm
+            DEFINES  += -DUSE_FLANG
         endif
-
+        # Jeff: F18 does not support GETLOG _or_ PXF
+        ifeq ($(USE_FLANG),1)
+           DEFINES  += -DUSE_GETENV_LOGNAME
+        endif
     endif
+
 endif
 #endof of LINUX64
 
@@ -3061,7 +3081,6 @@ endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 #
-    CORE_SUBDIRS_EXTRA = lapack blas
     ARFLAGS = urs
     INSTALL = @echo $@ is built
     CPP=/usr/bin/cpp  -P -C -traditional
@@ -3135,7 +3154,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
             endif
 
             # linking ESSL is painful with gfortran
-            CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas
 
             # Here is an example for ALCF:
             # IBMCMP_ROOT=${IBM_MAIN_DIR}
@@ -3190,7 +3208,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
             FOPTIMIZE += -qreport -qsource -qlistopt -qlist # verbose compiler output
 
             # ESSL dependencies should be provided by XLF linker
-            CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas
         endif
 
     endif # end BGQ
@@ -3266,7 +3283,7 @@ ifeq ($(BUILDING_PYTHON),python)
 
     ifndef GOT_PYTHONCONFIG	  
         PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
-        errorpythonconfig:$
+        errorpythonconfig:
 	    $(info )
 	    $(info python-config not found in your PATH)
 	    $(info Please install the packages)
@@ -3392,21 +3409,28 @@ endif
 
 
 ifeq ($(LAPACK_LIB),)
-    CORE_LIBS +=  -lnwclapack 
+       lapackliberr:
+	$(info     )
+	$(info makefile error for lapack definition)
+	$(info please set LAPACK_LIB)
+	$(info     )
+	$(error )
 else
     CORE_LIBS += $(LAPACK_LIB)
 endif
 
 
 ifeq ($(BLASOPT),)
-    CORE_LIBS +=  -lnwcblas 
+       blasliberr:
+	$(info     )
+	$(info makefile error for blas definition)
+	$(info please set BLASOPT)
+	$(info     )
+	$(error )
 else
-    CORE_LIBS += $(BLASOPT)
+     CORE_LIBS += $(BLASOPT)
 endif
 
-ifdef NWCHEM_LINK_CUDA
-    CORE_LIBS += -acc -gpu=managed -cuda -cudalib=cublas
-endif
 
 
 ifdef BLASOPT
@@ -3456,71 +3480,11 @@ endif
 #  All machine dependent sections should be above here, otherwise #
 #  some of the definitions below will be 'lost'                   #
 ###################################################################
-#the new GA uses ARMCI library
-ifdef OLD_GA
-    ORE_LIBS += -larmci
-else
-    ifeq ($(ARMCI_NETWORK),ARMCI)
-        ifdef EXTERNAL_ARMCI_PATH
-            CORE_LIBS += -L$(EXTERNAL_ARMCI_PATH)/lib -larmci
-        else
-            CORE_LIBS += -larmci
-        endif
-    else
-        CORE_LIBS +=
-    endif
-endif
-
-
-# MPI version requires tcgmsg-mpi library
-ifdef USE_MPI 
-    #ifeq ($(FC),$(findstring $(FC),mpifrt mpfort mpif77 mpxlf mpif90 ftn scorep-ftn))
-    ifeq ($(FC),$(findstring $(FC), ftn scorep-ftn))
-        LIBMPI =
-        MPI_INCLUDE =
-        MPI_LIB =
-    else
-        ifndef MPI_INCLUDE
-            # check if mpif90 is present
-            MPIF90YN = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
-            ifeq ($(MPIF90YN),mpif90notfound)
-                errormpif90:
-	            $(info )
-	            $(info mpif90 not found. Please add its location to PATH)
-	            $(info e.g. export PATH=/usr/local/bin:/usr/lib64/openmpi/bin:...)
-	            $(info )
-            endif
-            MPI_INCLUDE = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
-        endif
-        ifndef MPI_LIB
-            MPI_LIB     = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
-        endif
-        ifndef LIBMPI
-            LIBMPI      = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-        endif
-    endif
-
-    ifdef MPI_LIB 
-        CORE_LIBS += $(patsubst -L-L%,-L%,-L$(MPI_LIB))
-    endif 
-    ifdef OLD_GA
-        CORE_LIBS += -ltcgmsg-mpi $(LIBMPI) 
-    else
-        CORE_LIBS += $(LIBMPI) 
-    endif
-else 
-    ifdef OLD_GA
-      CORE_LIBS += -ltcgmsg 
-    else
-      CORE_LIBS += 
-    endif
-endif 
-
 
 # FFTW3 library inclusion
 ifdef USE_FFTW3
     ifndef LIBFFTW3
-        LIBFFTW3 = -lfftw3
+        LIBFFTW3 = -lfftw3 -lfftw3f
     endif
     ifdef FFTW3_LIB
         CORE_LIBS += -L$(FFTW3_LIB)
@@ -3552,13 +3516,13 @@ endif
 ifdef USE_LIBXC
     DEFINES += -DUSE_LIBXC
     EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/libxc/install/lib
-    EXTRA_LIBS += -lxcf03 -lxc
+    EXTRA_LIBS += -lnwc_xcf03 -lnwc_xc
 endif
 
 # we use an external libxc library out of LIBXC_DIR
-ifdef LIBXC_DIR
+ifdef LIBXC_LIB
     DEFINES += -DUSE_LIBXC
-    EXTRA_LIBS += -L$(LIBXC_DIR)/lib
+    EXTRA_LIBS += -L$(LIBXC_LIB)
     EXTRA_LIBS += -lxcf03 -lxc
 endif
 
@@ -3574,6 +3538,15 @@ ifdef USE_SIMINT
 endif
 
 
+ifdef BUILD_PLUMED
+    NW_CORE_SUBDIRS += libext
+    PATH := $(NWCHEM_TOP)/src/libext/bin:$(PATH)
+    LD_LIBRARY_PATH := $(NWCHEM_TOP)/src/libext/lib:$(LD_LIBRARY_PATH)
+    DEFINES += -DUSE_PLUMED
+    PLUMED_HOME=$(NWCHEM_TOP)/src/libext
+    PLUMED_DYNAMIC_LIBS=$(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep DYNAMIC_LIBS| cut -c 14-)
+    PLUMED_HASMPI = $(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
+endif
 ifdef USE_PLUMED
     DEFINES += -DUSE_PLUMED
     #check presence of plumed command. TODO
@@ -3585,22 +3558,55 @@ ifdef USE_PLUMED
 	    $(info  Please add to your PATH the directory where the plumed command is found )
 	    $(info )
     endif
-    PLUMED_HOME = $(shell plumed info --configuration|egrep prefix=|head -1|cut -c 8-)
-    PLUMED_DYNAMIC_LIBS = $(shell plumed info --configuration|egrep DYNAMIC_LIBS| cut -c 14-)
+    PLUMED_HOME = $(shell plumed info --configuration|grep prefix=|head -1|cut -c 8-)
+    PLUMED_DYNAMIC_LIBS = $(shell plumed info --configuration|grep DYNAMIC_LIBS| cut -c 14-)
     PLUMED_HASMPI = $(plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
-    ifeq ($(PLUMED_HASMPI),y)
-        DEFINES += -DPLUMED_HASMPI
-    endif
     #PLUMED_LOAD= /home/edo/tahoma/apps/plumed262.intel20u2/lib/libplumed.a -ldl  -lstdc++ -lfftw3 -lz -ldl -llapack -lblas   -rdynamic -Wl,-Bsymbolic -fopenmp 
-    ifdef PLUMED_DYNAMIC_LIBS
-        EXTRA_LIBS += -L$(PLUMED_HOME)/lib -lplumed $(PLUMED_DYNAMIC_LIBS)
-    else
+    ifndef PLUMED_DYNAMIC_LIBS
         errorplumed:
 	    $(info )
 	    $(info  PLUMED info command not returning the expected output)
 	    $(info  Please file an issue at https://github.com/nwchemgit/nwchem/issues )
 	    $(info )
     endif
+endif
+    ifdef PLUMED_DYNAMIC_LIBS
+        EXTRA_LIBS += -L$(PLUMED_HOME)/lib  -lplumed  $(PLUMED_DYNAMIC_LIBS)
+    endif
+    ifeq ($(PLUMED_HASMPI),y)
+        DEFINES += -DPLUMED_HASMPI
+    endif
+
+#endif #SKIP_COMPILERS
+
+
+#TBLITE
+ifeq ("$(wildcard $(NWCHEM_TOP)/src/config/NWCHEM_CONFIG)","")
+    ifeq (xtb, $(findstring xtb, $(NWCHEM_MODULES)))
+        MODULES_HAS_XTB=Y
+    endif
+else
+    MODULES_HAS_XTB = $(shell head -2 $(NWCHEM_TOP)/src/config/NWCHEM_CONFIG| awk '/xtb/ {print "Y"}')
+endif
+
+ifeq ($(MODULES_HAS_XTB),Y)
+    ifndef USE_TBLITE
+        $(error the xtb module requires setting the env variable USE_TBLITE)
+    endif
+endif
+
+ifdef USE_TBLITE
+    ifneq ($(MODULES_HAS_XTB),Y)
+        $(error Add xtb to NWCHEM_MODULES when setting USE_TBLITE )
+    endif
+    DEFINES  += -DUSE_TBLITE
+    EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/lib
+    ifdef TBLITE_MESON
+        EXTRA_LIBS += -ltblite
+    else
+        EXTRA_LIBS += -ltblite -ltoml-f -ldftd4 -lmulticharge -ls-dftd3 -lmctc-lib
+    endif
+    EXTRA_LIBS += $(LAPACK_LIB) $(BLASOPT)
 endif
 
 # CUDA
@@ -3620,6 +3626,22 @@ ifdef TCE_CUDA
     endif
 endif
 
+ifdef TCE_OPENACC
+    ifdef USE_OPENMP
+        $(error USE_OPENMP must be unset when TCE_OPENACC is set)
+    endif
+    DEFINES +=-DUSE_F90_ALLOCATABLE -DTCE_OPENACC
+    ifeq ($(_FC),gfortran)
+        FOPTIONS += -fopenacc
+        LDOPTIONS += -fopenacc
+    endif
+    ifeq ($(_FC),pgf90)
+        FOPTIONS += -acc
+        LDOPTIONS += -acc
+    endif
+    NWCHEM_LINK_CUDA=1
+endif
+
 ifndef HIP
     HIP = hipcc
 endif
@@ -3634,17 +3656,17 @@ ifdef USE_F90_ALLOCATABLE
     DEFINES += -DUSE_F90_ALLOCATABLE
 endif
 
-ifdef GWCMPLX
-  ifdef GWEN
-    errorgw:
-$(info  GWCMPLX and GWEN are incompatible )
-$(error )
-  endif
-  DEFINES += -DGWCMPLX
+ifdef NWCHEM_LINK_CUDA
+    ifeq ($(_FC),pgf90)
+       CORE_LIBS += -acc -cuda -cudalib=cublas
+    endif
+    ifeq ($(_FC),gfortran)
+       CORE_LIBS +=  -fopenacc -lcublas
+    endif
 endif
 
-ifdef GWEN
-  DEFINES += -DGWEN
+ifdef GWCMPLX
+  DEFINES += -DGWCMPLX
 endif
 
 ifdef GWDEBUG
@@ -3691,24 +3713,27 @@ else
     CFLAGS += $(EXTRA_COPTIONS) $(EXTRA_CDEBUG)
 endif
 
-INCLUDES = -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
-CPPFLAGS = $(INCLUDES) $(DEFINES) $(LIB_DEFINES)
-LDFLAGS = $(LDOPTIONS) -L$(LIBDIR) $(LIBPATH)
-LIBS = $(NW_MODULE_LIBS) $(CORE_LIBS) 
-
 # I think this will work everywhere, but it might have to become
 # machine-dependent 
 
-MKDIR = mkdir
 #extract defines to be used with linear algebra libraries
 ifdef USE_INTERNALBLAS
     DEFINES += -DBLAS_NOTHREADS
+#    BLAS_SIZE=8
 endif
 ifdef BUILD_OPENBLAS
     DEFINES += -DOPENBLAS
 endif
 ifeq ($(shell echo $(BLASOPT) |awk '/openblas/ {print "Y"; exit}'),Y)
-    DEFINES += -DOPENBLAS
+    ifeq ($(shell $(NWCHEM_TOP)/src/config/oblas_ompcheck.sh $(NWCHEM_TOP)),1)
+        OPENBLAS_USES_OPENMP = 1
+        LDOPTIONS += -fopenmp
+    endif
+    ifdef OPENBLAS_USES_OPENMP
+        DEFINES += -DBLAS_OPENMP
+    else
+        DEFINES += -DOPENBLAS
+    endif
 endif
 # NVHPC compilers are distributed wtih OpenBLAS named as libblas/liblapack
 ifeq ($(shell echo $(BLASOPT) |awk '/\/nvidia\/hpc_sdk\// {print "Y"; exit}'),Y)
@@ -3740,6 +3765,11 @@ ifeq ($(shell echo $(BLASOPT) |awk '/[Ss][Ss][Ll]2[Bb][Ll][Aa][Mm][Pp]/ {print "
 else ifeq ($(shell echo $(BLASOPT) |awk '/[Ss][Ss][Ll]2/ {print "Y"; exit}'),Y)
     DEFINES += -DBLAS_NOTHREADS
 endif
+ifeq ($(shell echo $(BLASOPT) |awk '/lfjlapackex/ {print "Y"; exit}'),Y)
+    DEFINES += -DBLAS_OPENMP
+  else ifeq ($(shell echo $(BLASOPT) |awk '/lfjlapack/ {print "Y"; exit}'),Y)
+    DEFINES += -DBLAS_NOTHREADS
+endif
 
 ifeq ($(shell echo $(BLASOPT) |awk '/lessl/ {print "Y"; exit}'),Y)
     ifeq ($(shell echo $(BLASOPT) |awk '/smp/ {print "Y"; exit}'),Y)
@@ -3756,14 +3786,166 @@ ifeq ($(shell echo $(BLASOPT) |awk '/lessl/ {print "Y"; exit}'),Y)
     EXTRA_LIBS += -lnwclapack
     CORE_SUBDIRS_EXTRA = lapack
 endif
+ifeq ($(shell echo $(BLASOPT) |awk '/lblas/ {print "Y"; exit}'),Y)
+    DEFINES += -DBLAS_NOTHREADS
+endif
 
+ifneq ($(or $(SCALAPACK),$(SCALAPACK_LIB)),)
+   ifndef SCALAPACK_SIZE
+      $(info     )
+      $(info You must set)
+      $(info SCALAPACK_SIZE)
+      $(info )
+      $(error )
+   endif
+endif
+ifneq ($(or $(BLASOPT),$(BLAS_LIB)),)
+   ifndef BLAS_SIZE
+      $(info     )
+      $(info You must set)
+      $(info BLAS_SIZE)
+      $(info see https://nwchemgit.github.io/Compiling-NWChem.html#how-to-deal-with-integer-size-of-linear-algebra-libraries)
+      $(info )
+      $(error )
+   endif
+endif
+ifeq ($(BLAS_SIZE),8)
+    LIB_DEFINES += -DUSE_INTEGER8
+endif
+
+endif #SKIP_COMPILERS
+#the new GA uses ARMCI library
+ifdef OLD_GA
+    CORE_LIBS += -larmci
+else
+    ifeq ($(ARMCI_NETWORK),ARMCI)
+        ifdef EXTERNAL_ARMCI_PATH
+            CORE_LIBS += -L$(EXTERNAL_ARMCI_PATH)/lib -larmci
+        else
+            CORE_LIBS += -larmci
+        endif
+    else
+        CORE_LIBS +=
+    endif
+endif
+
+
+# MPI version requires tcgmsg-mpi library
+ifdef USE_MPI 
+    #ifeq ($(FC),$(findstring $(FC),mpifrt mpfort mpif77 mpxlf mpif90 ftn scorep-ftn))
+    ifeq ($(FC),$(findstring $(FC), ftn scorep-ftn))
+        NWLIBMPI =
+        NWMPI_INCLUDE =
+        NWMPI_LIB =
+    else ifdef BUILD_MPICH
+        NW_CORE_SUBDIRS += libext
+        PATH := $(NWCHEM_TOP)/src/libext/bin:$(PATH)
+        NWMPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+        NWMPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+        NWLIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+        NWLIBMPI	+= $(shell pkg-config --libs-only-L hwloc 2> /dev/null)
+        ifeq ($(NWCHEM_TARGET),MACX64)
+           GOT_BREW = $(shell command -v brew 2> /dev/null)
+           ifdef GOT_BREW
+              NWLIBMPI	+= -L$(shell brew --prefix)/lib
+           endif
+	endif
+    else ifdef FORCE_MPI_ENV
+        ifndef MPI_INCLUDE
+            errormpi1:
+                $(info )
+                $(info FORCE_MPI_ENV set but MPI_INCLUDE not set)
+                $(info )
+                $(error )
+        else
+            NWMPI_INCLUDE = $(MPI_INCLUDE)
+        endif
+        ifndef MPI_LIB
+            errormpi2:
+                $(info )
+                $(info FORCE_MPI_ENV set but MPI_LIB not set)
+                $(info )
+                $(error )
+        else
+           NWMPI_LIB = $(MPI_LIB)
+	endif
+        ifndef LIBMPI
+            errormpi3:
+                $(info )
+                $(info FORCE_MPI_ENV set but LIBMPI not set)
+                $(info )
+                $(error )
+        else
+           NWLIBMPI = $(LIBMPI)
+	endif
+    else
+        ifeq ($(shell pwd), $(NWCHEM_TOP)/src)
+	    ifndef FORCE_MPI_ENV
+                ifdef LIBMPI
+                    $(info ***warning LIBMPI ignored since FORCE_MPI_ENV not set***)
+                endif
+                ifdef MPI_LIB
+                    $(info ***warning MPI_LIB ignored since FORCE_MPI_ENV not set***)
+                endif
+                ifdef MPI_INCLUDE
+                    $(info ***warning MPI_INCLUDE ignored since FORCE_MPI_ENV not set***)
+                endif
+	    endif
+	endif
+        # check if mpif90 is present
+	MPIF90YN=$(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh)
+        ifeq ($(MPIF90YN),mpif90notfound)
+            errormpif90:
+                $(info )
+                $(info mpif90 not found. Please add its location to PATH)
+                $(info e.g. export PATH=/usr/local/bin:/usr/lib64/openmpi/bin:...)
+                $(info )
+                $(error )
+        endif
+        NWMPI_INCLUDE = $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh)
+        NWMPI_LIB     = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+        NWLIBMPI      = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+    endif
+
+    ifdef NWMPI_INCLUDE
+      LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(NWMPI_INCLUDE))
+    endif
+    ifdef NWMPI_LIB 
+        CORE_LIBS += $(patsubst -L-L%,-L%,-L$(NWMPI_LIB))
+    endif 
+    ifdef OLD_GA
+        CORE_LIBS += -ltcgmsg-mpi $(NWLIBMPI) 
+    else
+        CORE_LIBS += $(NWLIBMPI) 
+    endif
+else 
+   ifneq ($(MAKECMDGOALS),$(findstring $(MAKECMDGOALS), clean realclean distclean dependencies include_stamp deps_stamp directories $(BINDIR)/depend.x))
+    errornousempi:
+        $(info )
+        $(info MAKECMDGOALS $(MAKECMDGOALS))
+        $(info please set the env. variable USE_MPI)
+        $(info and provide a working MPI installation)
+        $(info )
+        $(error )
+    ifdef OLD_GA
+      CORE_LIBS += -ltcgmsg 
+    else
+      CORE_LIBS += 
+    endif
+    endif
+endif 
+
+INCLUDES = -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
+CPPFLAGS = $(INCLUDES) $(DEFINES) $(LIB_DEFINES)
+LDFLAGS = $(LDOPTIONS) -L$(LIBDIR) $(LIBPATH)
+LIBS = $(NW_MODULE_LIBS) $(CORE_LIBS) 
 
 #
 # Define known suffixes mostly so that .p files don\'t cause pc to be invoked
 #
 V = 0
 ACTUAL_FC := $(FC)
-NWFC_-1 = @echo "Compiling $<..."; $(ACTUAL_FC)
+NWFC_-1 = @echo "Compiling $<..."; $(ACTUAL_FC) 2> >(grep -v warning|grep -v  '\^\^' |grep -v previous\ ref >&2)
 NWFC_0 = @echo "Compiling $<..."; $(ACTUAL_FC)
 NWFC_1 = $(ACTUAL_FC)
 NWFC = $(NWFC_$(V))
@@ -3836,7 +4018,7 @@ ifndef FLINT
 
     ifdef TCE_CUDA
         ifdef USE_TTLG
-            CUDA_VERS_GE8=$(shell nvcc --version|egrep rel|  awk '/release 9/ {print "Y";exit}; /release 8/ {print "Y";exit};{print "N"}')
+            CUDA_VERS_GE8=$(shell nvcc --version|grep rel|  awk '/release 9/ {print "Y";exit}; /release 8/ {print "Y";exit};{print "N"}')
             ifeq ($(CUDA_VERS_GE8),N)
                 CUDA_FLAGS = -O3 -Xcompiler -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH) 
             else
@@ -3889,5 +4071,4 @@ else
 .f.o:; flint $(CPPFLAGS) -g -f -u $(SRCDIR)/nwchem.lbt $<
 
     endif
-
 endif

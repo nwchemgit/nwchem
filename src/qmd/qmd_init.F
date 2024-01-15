@@ -19,6 +19,7 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 #include "msgtypesf.h"
+#include "util_params.fh"
 c
 #include "qmd_common.fh"
 c
@@ -41,7 +42,7 @@ c
       character*32 integrator_nucl  ! nuclear md integrator
       character*32 integrator_elec  ! electronic dynamics integrator
       integer ichain
-      double precision nh_mass(2)   ! nose-hoover mass
+      double precision nhfreq   ! nose-hoover mass
       logical do_none
       logical restart
       logical do_namd
@@ -114,12 +115,6 @@ c     thermostat
          do_berendsen = .true.
       else if (thermostat.eq.'nose-hoover') then
          do_nosehoover = .true.
-         do ichain = 1,maxchain
-            r_nh(ichain) = 0.d0            ! position of chains
-            v_nh(ichain) = 0.d0            ! velocity of chains
-            m_nh(ichain) = nh_mass(ichain) ! mass of chains
-            g_nh(ichain) = 0.d0            ! bath coupling
-         end do
        else if (thermostat.eq.'langevin') then
          do_langevin = .true.
        else if (thermostat.eq.'rescale') then
@@ -137,13 +132,38 @@ c     thermostat
       end if
 c
 c     nose-hoover mass parameter
-      if (.not.rtdb_get(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass))
+      if (.not.rtdb_get(rtdb,'qmd:nhfreq',mt_dbl,1,nhfreq))
      & call errquit(pname//'failed to read nh_mass',0,RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'qmd:nnhos',mt_int,1,nnhos))
+     & call errquit(pname//'failed to read nh_nchain',0,RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'qmd:nnhsy',mt_int,1,nnhsy))
+     & call errquit(pname//'failed to read nh_nsy',0,RTDB_ERR)
       if (do_nosehoover) then
+        do ichain = 1,nnhos
+           r_nh(ichain) = 0.d0                                          ! position of chains
+           m_nh(ichain) = kb_au*targ_temp/nhfreq**2                     ! mass of chains
+           v_nh(ichain) = 0.d0                     ! velocity of chains
+           g_nh(ichain) = 0.d0                                          ! bath coupling
+        end do
+
+       if (nnhsy.eq.1) then
+         syw_nh(1) = 1d0
+       elseif (nnhsy.eq.3) then
+         syw_nh(1) = 1d0/(2d0 - 2d0**(1d0/3d0))
+         syw_nh(2) = 1 - 2*syw_nh(1)
+         syw_nh(3) = syw_nh(1)
+       elseif (nnhsy.eq.7) then
+         syw_nh(1) =  0.784513610477560d0
+         syw_nh(2) =  0.235573213359357d0
+         syw_nh(3) = -1.17767998417887d0
+         syw_nh(4) = 1d0 - 2*sum(syw_nh(1:3))
+         syw_nh(5) = syw_nh(3)
+         syw_nh(6) = syw_nh(2)
+         syw_nh(7) = syw_nh(1)
+       endif
+
        if (ga_nodeid().eq.0) 
-     &      write(luout,130) "NH mass(1):",nh_mass(1)
-       if (ga_nodeid().eq.0) 
-     &      write(luout,130) "NH mass(2):",nh_mass(2)
+     &      write(luout,130) "NH frequency:",nhfreq
       end if
 c
 c     langevin friction parameter

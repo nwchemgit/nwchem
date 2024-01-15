@@ -1818,7 +1818,6 @@ c
       double precision zero, one, two
       parameter (zero=0.0d0, one=1.0d0, two=2.0d0)
       double precision pi
-      double precision derf
 c
       pi    =acos(-1.0d0)
       allefc=zero
@@ -1880,7 +1879,7 @@ c
               if (dij.lt.1.0d-8) then
                 aij=2.0d0*zetaij/sqrt(pi)
               else
-                aij=derf(zetaij*dij)/dij
+                aij=erf(zetaij*dij)/dij
               endif
               efcefc=efcefc+2*qi*aij*qj
            enddo
@@ -1920,7 +1919,6 @@ c
       parameter (one = 1.0d0)
 c
 c
-      double precision derf
       double precision factor, factor2
 
       double precision pi
@@ -1965,7 +1963,7 @@ c
             if (dij.lt.1.0d-5) then
               a(ief,jef)=factor2*zetaij*(1d0 - (zetaij*dij)**2/3d0)
             else
-              a(ief,jef)=derf(zetaij*dij)/dij
+              a(ief,jef)=erf(zetaij*dij)/dij
             endif
             a(jef,ief) = a(ief,jef)
           enddo
@@ -2005,7 +2003,6 @@ c
       parameter (zero=0.0d+00, one=1.0d+00)
 c
 c
-      double precision derf
 c
 c     Introduced a trivial replicated data parallelization of this
 c     matrix-vector multiplication
@@ -2042,7 +2039,7 @@ c
             if (dij.lt.1.0d-8) then
               aij=factor2*zetaij*(1d0 - (zetaij*dij)**2/3d0)
             else
-              aij=derf(zetaij*dij)/dij
+              aij=erf(zetaij*dij)/dij
             endif
             ax(i)=ax(i)+aij*x(j)
             ax(j)=ax(j)+aij*x(i)

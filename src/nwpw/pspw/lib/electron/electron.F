@@ -2098,6 +2098,8 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
 
 *     **** local variables ****
       integer n,nemax,n2ft3d
+      integer i,taskid
+      call Parallel_taskid(taskid)
 
 
 *     ***** generate compensation charge ****
@@ -2122,9 +2124,9 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       end
 
 *     ***********************************
-*     *				        *
-*     *	    electron_gen_psi_r_orb	*
-*     *				        *
+*     *                                 *
+*     *      electron_gen_psi_r_orb     *
+*     *                                 *
 *     ***********************************
 
       subroutine electron_gen_psi_r_orb(n,psi_k)

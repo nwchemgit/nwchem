@@ -34,7 +34,10 @@ c     start clock
 c
 c     invoke the qmd driver
 c     if (ga_nodeid().eq.0) write(luout,*) "calling qmd_driver"
+      call util_print_push()
+      call util_print_rtdb_load(rtdb,'qmd')
       status = qmd_driver(rtdb)
+      call util_print_pop()
 c
 c     stop clock
       cpu  = util_cpusec() - cpu

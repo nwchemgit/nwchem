@@ -309,6 +309,7 @@ C>
 c
       integer q,iat,jf
       double precision sum,mxsum
+      double precision,external :: ddot
 c
       mxsum=0d0
       do iat=1,natoms
@@ -325,6 +326,28 @@ c
         endif
       enddo
       return
+      end
+      subroutine adft_reduce(nbf, nat, cetobfr, coef, ipol, rdens_atom)
+      implicit none
+      integer nbf, nat, ipol, mxnbf
+      integer cetobfr(2,nat)
+      double precision rdens_atom(nat,nat,ipol),coef(nbf,ipol)
+      double precision dabsmax
+      external dabsmax
+
+      integer iat,istart,iend
+
+      rdens_atom(:,:,:) = 0d0
+
+      do iat=1,nat
+        istart = cetobfr(1,iat)
+        iend   = cetobfr(2,iat)
+        rdens_atom(1,iat,1) = dabsmax(iend-istart+1,coef(istart,1))
+        if (ipol.gt.1) then
+          rdens_atom(1,iat,2) = dabsmax(iend-istart+1,coef(istart,2))
+        endif
+      enddo
+
       end
 C>
 C> @}

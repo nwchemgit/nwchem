@@ -64,6 +64,14 @@ c
       else if ((h1b.eq.h2b).or.(h2b.eq.h3b)) then
         factor = factor / 2.0d0
       endif
+
+#ifdef TCE_OPENACC
+!$acc  parallel loop collapse(3)
+!$acc& private(p4,p5,p6,h1,h2,h3,sing,doub,denom)
+!$acc& private(d_p4,d_p5,d_p6,d_h1,d_h2,d_h3)
+!$acc& reduction(+:energy1) reduction(+:energy2)
+
+#else
 #ifdef OFFLOAD_CODE
 #ifdef VERY_VERBOSE
       write (*,'(A)') "X"
@@ -87,6 +95,7 @@ c
 !$omp& private(p4,p5,p6,h1,h2,h3,sing,doub,denom)
 !$omp& private(d_p4,d_p5,d_p6,d_h1,d_h2,d_h3)
 !$omp& reduction(+:energy1) reduction(+:energy2)
+#endif
 #endif
 #endif
       do p4 = 1, r_p4
@@ -113,12 +122,16 @@ c
         enddo
        enddo
       enddo
+#ifdef TCE_OPENACC
+!$acc end parallel loop
+#else
 #ifdef OFFLOAD_CODE
 !$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
 #else
 #ifdef USE_OPENMP
 !$omp end parallel do
+#endif
 #endif
 #endif
       return

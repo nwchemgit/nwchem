@@ -49,7 +49,7 @@ endif
           int_1eelec.o \
           int_giaoh01.o  int_giaoh11.o  int_giaol10.o int_giaos10.o \
           int_giaotv10.o int_giaobq10.o int_giao_2e.o  int_pso.o	\
-          int_dso.o intd_1epot.o \
+          int_dso.o int_ops.o intd_1epot.o \
           intd_1epot_cosmo.o \
           int_veloc.o    int_angmom.o   int_giaos100.o \
 	  cosmo_screen.o

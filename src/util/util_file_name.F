@@ -1,3 +1,11 @@
+      block data scrperm
+      implicit none
+#include "cfileprefix.fh"
+c
+      data scratch_dir /'null'/
+      data permanent_dir /'null'/
+c
+      end
       subroutine util_file_info_rtdb(rtdb)
       implicit none
 #include "errquit.fh"
@@ -728,28 +736,55 @@ c
       character*1024 envscr
       integer util_getblnk
       external util_getblnk
+      logical envok,util_getenvf
+      external util_getenvf
 c
 c     return the name of the scratch/permanent directory for the
 c     specified process
 c
+      dir='. '
+      envok=.false.
       if (oscratch) then
-         call util_getenv('SCRATCH_DIR',envscr) 
-         if(.not.util_file_parse_dir(envscr, dir, ga_nodeid()))
-     I    then
-         if (.not. util_file_parse_dir(scratch_dir, dir, node)) then
-            dir = '. ' ! Final default is blank
+         if(util_getenvf('SCRATCH_DIR',envscr)) then
+            envok =
+     U           util_file_parse_dir(envscr, dir, ga_nodeid())
          endif
+         if(.not.envok)   then
+            if(scratch_dir.eq.'null') call
+     E           errquit('scratch_dir not set ',0,0)
+            if (.not. util_file_parse_dir(scratch_dir, 
+     d           dir, node)) then
+               dir = '. '       ! Final default is blank
+            endif
          endif
       else
-         call util_getenv('PERMANENT_DIR',envscr) 
-         if(.not.util_file_parse_dir(envscr, dir, ga_nodeid()))
-     I    then
-         if (.not. util_file_parse_dir(permanent_dir, dir, node)) then
-            dir = '. ' ! Final default is blank
+         if(util_getenvf('PERMANENT_DIR',envscr)) then
+            envok = 
+     U           util_file_parse_dir(envscr, dir, ga_nodeid())
          endif
+         if(.not.envok) then
+            if(permanent_dir.eq.'null') call
+     E           errquit('permanent_dir not set ',0,0)
+            if (.not. util_file_parse_dir(permanent_dir, 
+     D           dir, node)) then
+               dir = '. '       ! Final default is blank
+            endif
          endif
       endif
 c
+      end
+      logical function util_getenvf(env_name,env_value)
+      implicit none
+      character*(*) env_name  ! [input] the name of the environment variable to check for
+      character*(*) env_value ! [output] the value of the named environement variable
+c
+      integer len, status
+c
+      call get_environment_variable(env_name, env_value, len, status)
+cdbg      write(6,*) ' value is !', trim(env_value),'!'
+cdbg      write(6,*) ' len= ',len,' ; status= ',status
+      util_getenvf=status.eq.0
+      return
       end
       double precision function util_scratch_dir_avail_for_me()
       implicit none
@@ -781,7 +816,7 @@ c
       character*(nw_max_path_len) mine
       integer nuse
       integer avail0,avail1
-      integer fd
+      integer fd,fd_in
       character*8 fstype
       integer l1megabyte,i_k,l_k,nuse_fail,nattpt,
      ,     availmax
@@ -812,11 +847,14 @@ c
 #else
       call util_getppn(ppn)
       io_node=mod(me,ppn).eq.0
+      call ga_sync()
       if(io_node) then
          call util_file_name('junk',.true.,.true.,mine)
          ierr=eaf_delete(mine)
          ierr=eaf_open(mine, eaf_rw, fd)
+         call util_fsync(mine)
          ierr = eaf_stat(mine, avail0, fstype)
+c         write(6,*) ga_nodeid(), 'avail0 ',avail0
          if(avail0.gt.fiftytb) toolarge=1
       else
          ierr=0
@@ -846,7 +884,9 @@ c
       call ga_sync()
       nuse_fail=0
       if(io_node) then
+         call util_fsync(mine)
          ierr = eaf_stat(mine, avail1, fstype)
+c         write(6,*) ga_nodeid(), 'avail1 ',avail1
          if (ierr .ne. 0) call errquit(
      U        'util_scratch_avail: eaf_stat',ierr,DISK_ERR)
          ierr=eaf_delete(mine)
@@ -1124,5 +1164,37 @@ c      scratch_dir, parallel
      S     cphf_str2)
       write(6,*) ga_nodeid(),' fparal ',cphf_str1(1:str1len),
      A     cphf_str2(1:inp_strlen(cphf_str2))
+      return
+      end
+      subroutine util_fsync(fname)
+      implicit none
+      character*(*),intent(in) :: fname
+c
+      integer iunit
+      integer*4 fd_in,code
+      integer ga_nodeid
+      external ga_nodeid
+c
+#if !defined(CYGNUS) && !defined(WIN32)
+      interface
+         function fsync (fd) bind(c,name="fsync")
+         use iso_c_binding, only: c_int
+         integer(c_int), value :: fd
+         integer(c_int) :: fsync
+         end function fsync
+      end interface
+#endif
+      iunit=10
+      open (iunit,file=fname)
+      call util_flush(iunit)
+#if !defined(CYGNUS) && !defined(WIN32)
+#if defined(GFORTRAN) && !defined(USE_FLANG) && !defined(__llvm__) && !defined(___PGLLVM__)
+      fd_in=fnum(iunit)
+c     Flush and sync
+      code=fsync(fd_in)
+      if(code.ne.0) call
+     c     errquit("Error calling FSYNC",ga_nodeid(),0)
+#endif
+#endif
       return
       end

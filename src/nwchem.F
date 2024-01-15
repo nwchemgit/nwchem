@@ -29,7 +29,7 @@ c
 c  $Id$
 c
 c  ======================================================================================================
-C> \mainpage Northwest Computational Chemistry Package (NWChem) 7.0.1
+C> \mainpage Northwest Computational Chemistry Package (NWChem) 7.2.1
 C>
 C> NWChem is an open-source computational chemistry package distributed under the terms of
 C> the Educational Community License (ECL) 2.0
@@ -60,7 +60,7 @@ C>   <I>Computer Physics Communications</I>, <b>181</b>, 1477–1489, DOI: <a hr
 C>
 C> provides details on the codes capabilities.
 C>
-C> Copyright (c) 1994-2020 Pacific Northwest National Laboratory, Battelle Memorial Institute
+C> Copyright (c) 1994-2022 Pacific Northwest National Laboratory, Battelle Memorial Institute
 C>
 C> Environmental Molecular Sciences Laboratory (EMSL)<br>
 C> Pacific Northwest National Laboratory<br>
@@ -85,8 +85,9 @@ c
       integer omp_get_max_threads
       external omp_get_max_threads
 #endif
-      logical do_printaff
+      logical do_printaff,do_checkmpi
       integer linux_printaff
+      integer mpirun_code
 c
 c     Create parallel processes and initialize IPC layer
 c
@@ -313,6 +314,14 @@ c
 #ifdef CATAMOUNT
          call util_allocga()
 #endif
+      if (.not.rtdb_get(rtdb,'check_mpirun',mt_log,1,do_checkmpi))
+     &     do_checkmpi = .false.
+      if(do_checkmpi) then
+         mpirun_code=0
+         call util_checkmpirun(mpirun_code)
+         if(mpirun_code.eq.0) call errquit('mpirun incompatible ',
+     *        0      ,UERR)
+      endif
       if (.not.rtdb_get(rtdb,'do_printaff',mt_log,1,do_printaff))
      &     do_printaff = .false.
       if(do_printaff) then
@@ -456,7 +465,7 @@ c
       write(LuOut,*)
       write(LuOut,*)
       call util_print_centered(LuOut,
-     $     'Northwest Computational Chemistry Package (NWChem) 7.0.1',
+     $     'Northwest Computational Chemistry Package (NWChem) 7.2.1',
      $     40, .true.)
       write(LuOut,*)
       write(LuOut,*)
@@ -469,7 +478,7 @@ c
       call util_print_centered(LuOut,'Richland, WA 99352',
      $     40, .false.)
       write(LuOut,*)
-      call util_print_centered(LuOut,'Copyright (c) 1994-2020',
+      call util_print_centered(LuOut,'Copyright (c) 1994-2022',
      $     40, .false.)
       call util_print_centered(LuOut,
      $     'Pacific Northwest National Laboratory',
@@ -552,7 +561,7 @@ C
 C  Print version information to ecce.out file
 C
       compiled(inp_strlen(compiled)+1:inp_strlen(compiled)+25) = 
-     $         ' Version 7.0.1'
+     $         ' Version 7.2.1'
       call ecce_print_version(compiled(1:inp_strlen(compiled)))
 C
       If ( Inp_StrLen(BatchID) .gt. 0) then
@@ -651,11 +660,11 @@ c
      &    cstatus,
      &    fstatus
  3    format(/
-     $     '    heap     = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
-     $     '    stack    = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
-     $     '    global   = ', i10,' doubles',' = ',f8.1,' Mbytes',
+     $     '    heap     = ', i12,' doubles',' = ',f10.1,' Mbytes',/,
+     $     '    stack    = ', i12,' doubles',' = ',f10.1,' Mbytes',/,
+     $     '    global   = ', i12,' doubles',' = ',f10.1,' Mbytes',
      &     ' ',A,/,
-     $     '    total    = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
+     $     '    total    = ', i12,' doubles',' = ',f10.1,' Mbytes',/,
      $     '    verify   = ', a3,/,
      $     '    hardfail = ', a3,//)
 c

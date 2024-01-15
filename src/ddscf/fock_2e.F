@@ -39,7 +39,7 @@ c     !!! BGJ test !!!
       integer vg_fockc
       integer dims(3), chunk(3),alo(3),ahi(3),blo(3),bhi(3)
       external ga_create_atom_blocked
-      logical xc_active, jfit,oprint,odft,cphf_uhf
+      logical xc_active, jfit,oprint,odft,cphf_uhf,dm3d
       oprint= util_print('fock_2e',print_debug)
       cphf_uhf = .false.
       if (.not. rtdb_get(rtdb, 

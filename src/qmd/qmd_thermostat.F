@@ -69,9 +69,9 @@ c
 c
       double precision dt2,dt4,dt8
 c
-      integer i,j
-      double precision scalefac
-      double precision kbt
+      integer i,j,ios,isy,ims,mdeg
+      double precision scalefac,aa,kbt
+
 c
       character*30 pname
 c
@@ -81,43 +81,75 @@ c     preliminaries
       dt4 = 0.25d0*dt
       dt8 = 0.125d0*dt
       kbt = kb_au*targ_temp
+
+      mdeg = ndeg + 6
+      if (do_linear) mdeg = mdeg - 1
+
+      scalefac = 1d0
+      m_nh(1) = m_nh(1)*mdeg
+
+      g_nh(1) = (2d0*KE_in - mdeg*kbt)/m_nh(1)
+
+      do ims=1,3
+      do isy=1,nnhsy
+        v_nh(nnhos) = v_nh(nnhos) + g_nh(nnhos)*dt4*syw_nh(isy)/3
+        do ios=1,nnhos-1
+          aa = dexp(-dt8*syw_nh(isy)*v_nh(nnhos+1-ios)/3)
+          v_nh(nnhos-ios) = v_nh(nnhos-ios)*aa**2 +
+     $                      dt4*syw_nh(isy)*g_nh(nnhos-ios)*aa/3
+        enddo
+        aa = dexp(-dt2*syw_nh(isy)*v_nh(1)/3)
+        scalefac = scalefac*aa
+        g_nh(1) = (2d0*KE_in*scalefac**2 - mdeg*kbt)/m_nh(1)
+        do ios=1,nnhos
+          r_nh(ios) = r_nh(ios) + v_nh(ios)*dt2*syw_nh(isy)/3
+        enddo
+        do ios=1,nnhos-1
+          aa = dexp(-dt8*syw_nh(isy)*v_nh(ios+1)/3)
+          v_nh(ios) = v_nh(ios)*aa**2 + dt4*syw_nh(isy)*g_nh(ios)*aa/3
+          g_nh(ios+1) = (m_nh(ios)*v_nh(ios)**2 - kbt)/m_nh(ios+1)
+        enddo
+        v_nh(nnhos) = v_nh(nnhos) + g_nh(nnhos)*dt4*syw_nh(isy)/3
+      enddo
+      enddo
+
+      do i=1,n
+        v(1:3,i) = scalefac*v(1:3,i)
+      enddo
+
+      m_nh(1) = m_nh(1)/mdeg
+
 c
 c     nose-hoover 2 chain formula: Frenkel & Smit
-      g_nh(2) = (m_nh(1)*v_nh(1)*v_nh(1)-kbt)/m_nh(2)
+
+c      g_nh(2) = (m_nh(1)*v_nh(1)*v_nh(1)-kbt)/m_nh(2)
 c
-      v_nh(2) = v_nh(2) + g_nh(2)*dt4
-      v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
+c      v_nh(2) = v_nh(2) + g_nh(2)*dt4
+c      v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
 c
-      g_nh(1) = (2.0d0*KE_in - ndeg*kbt)/m_nh(1)
+c      g_nh(1) = (2.0d0*KE_in - ndeg*kbt)/m_nh(1)
 c
-      v_nh(1) = v_nh(1) + g_nh(1)*dt4
-      v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
+c      v_nh(1) = v_nh(1) + g_nh(1)*dt4
+c      v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
 c
-      r_nh(1) = r_nh(1) + v_nh(1)*dt2
-      r_nh(2) = r_nh(2) + v_nh(2)*dt2
+c      r_nh(1) = r_nh(1) + v_nh(1)*dt2
+c      r_nh(2) = r_nh(2) + v_nh(2)*dt2
 c
-      scalefac = dexp(-v_nh(1)*dt2)
+c      scalefac = dexp(-v_nh(1)*dt2)
 c
 c     scale kinetic energy
-      KE_in = KE_in*scalefac*scalefac
+c      KE_in = KE_in*scalefac*scalefac
 c
 c     nose-hoover 2 chain formula: Frenkel & Smit
-      g_nh(1) = (2.0d0*KE_in - ndeg*kbt)/m_nh(1)
+c      g_nh(1) = (2.0d0*KE_in - ndeg*kbt)/m_nh(1)
 c
-      v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
-      v_nh(1) = v_nh(1) + g_nh(1)*dt4
-      v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
+c      v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
+c      v_nh(1) = v_nh(1) + g_nh(1)*dt4
+c      v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
 c
-      g_nh(2) = (m_nh(1)*v_nh(1)*v_nh(1)-kbt)/m_nh(2)
+c      g_nh(2) = (m_nh(1)*v_nh(1)*v_nh(1)-kbt)/m_nh(2)
 c
-      v_nh(2) = v_nh(2) + g_nh(2)*dt4
-c
-c     scale velocity
-      do i = 1,n
-        v(1,i) = scalefac*v(1,i)
-        v(2,i) = scalefac*v(2,i)
-        v(3,i) = scalefac*v(3,i)
-      end do
+c      v_nh(2) = v_nh(2) + g_nh(2)*dt4
 c
       return
       end

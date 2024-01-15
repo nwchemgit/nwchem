@@ -1,0 +1,1266 @@
+running on 1 processors
+ argument  1 = hg-1e-hfc-x2c.nw
+ 
+
+
+============================== echo of input deck ==============================
+echo
+start testjob
+
+memory 500 mb
+
+geometry noautoz units angstrom
+symmetry c1
+Hg 0. 0. 0.
+end
+
+BASIS "ao basis" spherical  PRINT
+#BASIS SET: ANO-RCC uncontracted s set minus the most
+# diffuse exponent, plus added tight fcts
+Hg  s
+ 261555477.5   1.0
+Hg  s
+ 1307777387.5   1.0
+Hg  s
+ 6538886937.5   1.0
+Hg  s
+ 32694434687.5   1.0
+Hg  s
+ 163472173437.5   1.0
+Hg  s
+ 817360867187.5   1.0
+Hg  s
+ 4086804335937.5   1.0
+Hg  s
+ 20434021679687.5   1.0
+Hg  s
+ 102170108398437.5   1.0
+Hg  s
+ 510850541992187.5   1.0
+
+Hg    S
+ 52311095.50000000    1.0
+Hg    S
+ 12004904.50000000    1.0
+Hg    S
+ 3398412.620000000    1.0
+Hg    S
+ 1053466.230000000    1.0
+Hg    S
+ 352643.1210000000    1.0
+Hg    S
+ 125378.8030000000    1.0
+Hg    S
+  46972.2738000000    1.0
+Hg    S
+  18358.5908000000    1.0
+Hg    S
+   7416.8461800000    1.0
+Hg    S
+   3086.3636900000    1.0
+Hg    S
+   1323.9649700000    1.0
+Hg    S
+    582.7863440000    1.0
+Hg    S
+    265.3934500000    1.0
+Hg    S
+    125.7373690000    1.0
+Hg    S
+     61.4474879000    1.0
+Hg    S
+     30.7434147000    1.0
+Hg    S
+     15.1121715000    1.0
+Hg    S
+      7.3294646500    1.0
+Hg    S
+      3.4863874400    1.0
+Hg    S
+      1.4995717300    1.0
+Hg    S
+      0.5971311500    1.0
+Hg    S
+      0.2083253300    1.0
+Hg    S
+      0.0662640000    1.0
+Hg    S
+      0.0265056000    1.0
+end
+
+charge 79
+
+dft
+grid xfine
+convergence energy 1e-11
+XC hfexch
+odft
+mult 2
+direct
+noio
+vectors input hcore
+end
+
+relativistic
+ x2c on
+ clight 137.036
+end
+
+set x2c:hfc T
+set x2c:analyticpvp T
+set x2c:noatm T
+set dft:no2e T
+
+task dft energy
+
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+             Northwest Computational Chemistry Package (NWChem) 7.0.1
+             --------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                              Copyright (c) 1994-2020
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+ 
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+ 
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = ja14.chem.buffalo.edu
+    program         = /ja14-1/home/jochena/workspace/nwchem/github-fork-x2c-devel/bin/LINUX64/nwchem
+    date            = Fri Apr 22 13:59:20 2022
+
+    compiled        = Fri_Apr_22_13:59:13_2022
+    source          = /ja14-1/home/jochena/workspace/nwchem/github-fork-x2c-devel
+    nwchem branch   = 7.0.0
+    nwchem revision = nwchem_on_git-3943-ga7ebc2862e
+    ga revision     = 5.8.1
+    use scalapack   = T
+    input           = hg-1e-hfc-x2c.nw
+    prefix          = testjob.
+    data base       = ./testjob.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   16383998 doubles =    125.0 Mbytes
+    stack    =   16383995 doubles =    125.0 Mbytes
+    global   =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
+    total    =   65535993 doubles =    500.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = /tmp
+ 
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Hg                  80.0000     0.00000000     0.00000000     0.00000000
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      Hg               201.970600
+ 
+
+ Effective nuclear repulsion energy (a.u.)       0.0000000000
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+ 
+ 
+            XYZ format geometry
+            -------------------
+     1
+ geometry
+ Hg                    0.00000000     0.00000000     0.00000000
+ 
+  library name resolved from: environment
+  library file name is: <
+ /ja14-1/home/jochena/workspace/nwchem/github-fork-x2c-devel/src/basis/libraries
+ />
+  
+                      Basis "ao basis" -> "" (spherical)
+                      -----
+  Hg (Mercury)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  2.61555478E+08  1.000000
+ 
+  2 S  1.30777739E+09  1.000000
+ 
+  3 S  6.53888694E+09  1.000000
+ 
+  4 S  3.26944347E+10  1.000000
+ 
+  5 S  1.63472173E+11  1.000000
+ 
+  6 S  8.17360867E+11  1.000000
+ 
+  7 S  4.08680434E+12  1.000000
+ 
+  8 S  2.04340217E+13  1.000000
+ 
+  9 S  1.02170108E+14  1.000000
+ 
+ 10 S  5.10850542E+14  1.000000
+ 
+ 11 S  5.23110955E+07  1.000000
+ 
+ 12 S  1.20049045E+07  1.000000
+ 
+ 13 S  3.39841262E+06  1.000000
+ 
+ 14 S  1.05346623E+06  1.000000
+ 
+ 15 S  3.52643121E+05  1.000000
+ 
+ 16 S  1.25378803E+05  1.000000
+ 
+ 17 S  4.69722738E+04  1.000000
+ 
+ 18 S  1.83585908E+04  1.000000
+ 
+ 19 S  7.41684618E+03  1.000000
+ 
+ 20 S  3.08636369E+03  1.000000
+ 
+ 21 S  1.32396497E+03  1.000000
+ 
+ 22 S  5.82786344E+02  1.000000
+ 
+ 23 S  2.65393450E+02  1.000000
+ 
+ 24 S  1.25737369E+02  1.000000
+ 
+ 25 S  6.14474879E+01  1.000000
+ 
+ 26 S  3.07434147E+01  1.000000
+ 
+ 27 S  1.51121715E+01  1.000000
+ 
+ 28 S  7.32946465E+00  1.000000
+ 
+ 29 S  3.48638744E+00  1.000000
+ 
+ 30 S  1.49957173E+00  1.000000
+ 
+ 31 S  5.97131150E-01  1.000000
+ 
+ 32 S  2.08325330E-01  1.000000
+ 
+ 33 S  6.62640000E-02  1.000000
+ 
+ 34 S  2.65056000E-02  1.000000
+ 
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ Hg                      user specified             34       34   34s
+
+
+  xc_inp: hfexch multiplicative factor not found.
+
+The speed of light used in the relativistic calculations is   0.1370360E+03au.
+
+ 
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ Hg                      user specified             34       34   34s
+
+
+  Caching 1-el integrals 
+  itol2e modified to match energy
+  convergence criterion.
+  tol_rho modified to match energy
+  convergence criterion.
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     1
+          No. of electrons :     1
+           Alpha electrons :     1
+            Beta electrons :     0
+          Charge           :    79
+          Spin multiplicity:     2
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  50
+          This is a Direct SCF calculation.
+          AO basis - number of functions:    34
+                     number of shells:    34
+          Convergence on energy requested:  1.00D-11
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+ 
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-14
+          AO Gaussian exp screening on grid/accAOfunc:  25
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-12
+
+ dft: using X2C
+ allocating g_x2c                    34
+ calling calc_x2c_1e_scalar
+ entering x2c_1e_scalar
+ x2c_1e_scalar: nu, nc =                    34                    34
+ x2c INFO: Assuming that the AO basis is fully uncontracted
+ x2c_1e_scalar: T,V,S done
+ g_densu, g_dens(1) =                   -993                  -993
+ x2c_1e_scalar: debug S:
+ x2c_1e_scalar: tr(P * S) :    0.0000000E+00
+ x2c_1e_scalar: debug T:
+ x2c_1e_scalar: tr(P * T) :    0.0000000E+00
+ x2c_1e_scalar: debug V:
+ x2c_1e_scalar: tr(P * V) :    0.0000000E+00
+ x2c_1e_scalar: 1e energy :    0.0000000E+00
+ x2c_1e_scalar: calculating analytic p.Vp integrals
+ x2c_1e_scalar: skipping numerical W integrals
+ calling ga_diag
+ calling ma_solve
+ largest element in A'X'-B':   3.952393967665557E-014
+ leaving x2c_1e_scalar
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =       0.000000
+ 1-e energy   =       0.000000
+ 2-e energy   =       0.000000
+ HOMO         =   -3200.000793
+ LUMO         =    -800.013739
+ 
+   Time after variat. SCF:      0.1
+   Time prior to 1st pass:      0.1
+ WARNING: dft:no2e set. Disabling Coulomb and XC Fock terms
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       16.38            16381030
+          Stack Space remaining (MW):       16.38            16383548
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1  -3323.5228037660 -3.32D+03  3.06D-03  8.33D+06     0.1
+                                                     0.00D+00  0.00D+00
+ WARNING: dft:no2e set. Disabling Coulomb and XC Fock terms
+ d= 0,ls=0.0,diis     2  -3532.1900309694 -2.09D+02  1.99D-12  1.48D-14     0.2
+                                                     0.00D+00  0.00D+00
+ WARNING: dft:no2e set. Disabling Coulomb and XC Fock terms
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis     3  -3532.1900309693  2.73D-12  5.04D-15  5.71D-14     0.2
+                                                     0.00D+00  0.00D+00
+ calling calc_x2c_hfc_scalar
+ entering x2c_hfc_scalar
+ accval =   1.000000000000000E-015
+ cau =    137.036000000000     
+ x2c_hfc_scalar: the basis seems to be fully uncontracted ...
+ x2c_hfc_scalar: nubas =                    34
+ x2c: nat =                     1
+ x2c_hfc_scalar: origin=  0.000000000000000E+000  0.000000000000000E+000
+  0.000000000000000E+000
+ x2c_hfc_scalar: AO integrals done
+ x2c_hfc_scalar: tr[P(alfa) * S] :    0.1000000E+01
+ x2c_hfc_scalar: tr[P(beta) * S] :    0.0000000E+00
+ x2c_hfc_scalar: tr[P(spin) * S] :    0.1000000E+01
+ x2c_hfc_scalar before hfc step
+ x2c_hfc_scalar: kat=                     1
+ x2c_hfc_scalar: con,gnu:    95.5213160024483        1.01177040000000     
+ 
+ X2C HFC (au and MHz):
+     1 199-Hg     0.00000   0.00000   0.00000
+     0.1347286808E+07    0.0000000000E+00    0.0000000000E+00
+     0.0000000000E+00    0.1347286808E+07    0.0000000000E+00
+     0.0000000000E+00    0.0000000000E+00    0.1347286808E+07
+
+     0.2604187920E+09    0.0000000000E+00    0.0000000000E+00
+     0.0000000000E+00    0.2604187920E+09    0.0000000000E+00
+     0.0000000000E+00    0.0000000000E+00    0.2604187920E+09
+
+ X2C HFC isotropic =           1347286.81 au
+                   =         260418792.01 MHz
+ 
+ leaving x2c_hfc_scalar
+
+
+         Total DFT energy =    -3532.190030969348
+      One electron energy =    -3532.190030969348
+           Coulomb energy =       31.042237521926
+    Exchange-Corr. energy =      -31.042237521926
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =        0.000000000000
+
+     Total iterative time =      0.2s
+
+
+ 
+                    DFT Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+ 
+ Vector    1  Occ=1.000000D+00  E=-3.532190D+03
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 9.5D-05
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.335643  1 Hg s                 20      0.304951  1 Hg s          
+    19      0.191209  1 Hg s                 22      0.162594  1 Hg s          
+    18      0.103469  1 Hg s                 17      0.053634  1 Hg s          
+    16      0.027865  1 Hg s          
+ 
+ Vector    2  Occ=0.000000D+00  E=-9.048470D+02
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.4D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      0.543653  1 Hg s                 23      0.526699  1 Hg s          
+    21     -0.217644  1 Hg s                 20     -0.166818  1 Hg s          
+    19     -0.093357  1 Hg s                 25      0.061450  1 Hg s          
+    18     -0.047338  1 Hg s                 22     -0.025264  1 Hg s          
+ 
+ Vector    3  Occ=0.000000D+00  E=-3.920828D+02
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 7.4D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      0.828450  1 Hg s                 26      0.770474  1 Hg s          
+    24     -0.746118  1 Hg s                 23     -0.568263  1 Hg s          
+    21      0.131533  1 Hg s                 20      0.097004  1 Hg s          
+    19      0.052857  1 Hg s                 27     -0.029040  1 Hg s          
+    18      0.026465  1 Hg s                 28      0.025380  1 Hg s          
+ 
+ Vector    4  Occ=0.000000D+00  E=-2.164134D+02
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      2.000446  1 Hg s                 25     -1.655218  1 Hg s          
+    26     -0.916466  1 Hg s                 24      0.770358  1 Hg s          
+    23      0.439902  1 Hg s                 21     -0.091011  1 Hg s          
+    29      0.069514  1 Hg s                 20     -0.062929  1 Hg s          
+    28     -0.056812  1 Hg s                 19     -0.034879  1 Hg s          
+ 
+ Vector    5  Occ=0.000000D+00  E=-1.366381D+02
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 6.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      4.131270  1 Hg s                 28     -3.280627  1 Hg s          
+    25     -2.131773  1 Hg s                 24      0.770889  1 Hg s          
+    23      0.307592  1 Hg s                 26     -0.216707  1 Hg s          
+    29      0.186564  1 Hg s                 30     -0.107032  1 Hg s          
+    21     -0.070431  1 Hg s                 20     -0.043458  1 Hg s          
+ 
+ Vector    6  Occ=0.000000D+00  E=-9.373379D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      7.366984  1 Hg s                 29     -4.651010  1 Hg s          
+    27     -4.061122  1 Hg s                 25      2.447153  1 Hg s          
+    26     -1.023297  1 Hg s                 24     -0.800944  1 Hg s          
+    30      0.619519  1 Hg s                 31     -0.213883  1 Hg s          
+    23     -0.183416  1 Hg s                 32      0.076381  1 Hg s          
+ 
+ Vector    7  Occ=0.000000D+00  E=-6.696867D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 3.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      8.227367  1 Hg s                 28     -6.410277  1 Hg s          
+    30     -5.041091  1 Hg s                 25     -2.673527  1 Hg s          
+    26      2.550584  1 Hg s                 27      1.242974  1 Hg s          
+    31      1.098379  1 Hg s                 24      0.850248  1 Hg s          
+    32     -0.345823  1 Hg s                 33      0.135674  1 Hg s          
+ 
+ Vector    8  Occ=0.000000D+00  E=-4.694787D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 7.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    30      6.249308  1 Hg s                 29     -4.883899  1 Hg s          
+    31     -4.341232  1 Hg s                 26     -3.954646  1 Hg s          
+    25      2.905515  1 Hg s                 27      2.342897  1 Hg s          
+    28      1.343100  1 Hg s                 32      1.096059  1 Hg s          
+    24     -0.911020  1 Hg s                 33     -0.393574  1 Hg s          
+ 
+ Vector    9  Occ=0.000000D+00  E=-3.116357D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      7.085709  1 Hg s                 27     -7.055301  1 Hg s          
+    28      4.642173  1 Hg s                 25     -4.471269  1 Hg s          
+    31      3.573152  1 Hg s                 32     -3.148548  1 Hg s          
+    30     -1.784290  1 Hg s                 24      1.366011  1 Hg s          
+    29     -1.242177  1 Hg s                 33      0.966394  1 Hg s          
+ 
+ Vector   10  Occ=0.000000D+00  E=-2.342455D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 7.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27     20.299785  1 Hg s                 26    -18.318792  1 Hg s          
+    28    -17.361595  1 Hg s                 29     11.893156  1 Hg s          
+    25     11.021076  1 Hg s                 30     -6.935168  1 Hg s          
+    31      3.688910  1 Hg s                 24     -3.299358  1 Hg s          
+    32     -1.290971  1 Hg s                 22     -0.260446  1 Hg s          
+ 
+ Vector   11  Occ=0.000000D+00  E=-1.810090D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 5.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      5.896235  1 Hg s                 28     -5.544109  1 Hg s          
+    26     -5.060012  1 Hg s                 29      4.511970  1 Hg s          
+    32     -3.688970  1 Hg s                 30     -3.660545  1 Hg s          
+    31      3.468119  1 Hg s                 33      3.136255  1 Hg s          
+    25      2.964736  1 Hg s                 24     -0.872539  1 Hg s          
+ 
+ Vector   12  Occ=0.000000D+00  E=-1.075602D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.7D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    33      3.005420  1 Hg s                 34     -2.484295  1 Hg s          
+    32     -1.778884  1 Hg s                 28     -1.310202  1 Hg s          
+    27      1.285824  1 Hg s                 31      1.255010  1 Hg s          
+    29      1.193308  1 Hg s                 30     -1.120389  1 Hg s          
+    26     -1.049039  1 Hg s                 25      0.595978  1 Hg s          
+ 
+ Vector   13  Occ=0.000000D+00  E= 2.806593D+02
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.5D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25     20.822557  1 Hg s                 26    -18.111303  1 Hg s          
+    24    -17.023465  1 Hg s                 27     12.475480  1 Hg s          
+    23      8.479928  1 Hg s                 28     -7.470601  1 Hg s          
+    29      3.830665  1 Hg s                 22     -1.840457  1 Hg s          
+    30     -1.680999  1 Hg s                 31      0.707417  1 Hg s          
+ 
+ Vector   14  Occ=0.000000D+00  E= 1.300056D+03
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 6.2D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24    -15.415040  1 Hg s                 23     14.579846  1 Hg s          
+    25     13.071810  1 Hg s                 22     -9.384229  1 Hg s          
+    26     -9.410952  1 Hg s                 27      5.927822  1 Hg s          
+    28     -3.417157  1 Hg s                 21      2.999355  1 Hg s          
+    29      1.720033  1 Hg s                 30     -0.744001  1 Hg s          
+ 
+ Vector   15  Occ=0.000000D+00  E= 3.929728D+03
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.9D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22     11.313644  1 Hg s                 23    -10.812922  1 Hg s          
+    24      9.066205  1 Hg s                 21     -8.733449  1 Hg s          
+    25     -7.023119  1 Hg s                 26      4.922415  1 Hg s          
+    20      3.524947  1 Hg s                 27     -3.086183  1 Hg s          
+    28      1.780716  1 Hg s                 29     -0.896996  1 Hg s          
+ 
+ Vector   16  Occ=0.000000D+00  E= 9.626669D+03
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 6.8D-04
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      8.895217  1 Hg s                 22     -7.787779  1 Hg s          
+    20     -7.735507  1 Hg s                 23      6.336584  1 Hg s          
+    24     -5.066540  1 Hg s                 25      3.898382  1 Hg s          
+    19      3.570718  1 Hg s                 26     -2.742184  1 Hg s          
+    27      1.727071  1 Hg s                 28     -0.999568  1 Hg s          
+ 
+ Vector   17  Occ=0.000000D+00  E= 2.047204D+04
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.5D-04
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20     -7.217767  1 Hg s                 19      6.765377  1 Hg s          
+    21      5.941208  1 Hg s                 22     -4.602317  1 Hg s          
+    23      3.642339  1 Hg s                 18     -3.393670  1 Hg s          
+    24     -2.915567  1 Hg s                 25      2.256928  1 Hg s          
+    26     -1.595495  1 Hg s                 27      1.008204  1 Hg s          
+ 
+ Vector   18  Occ=0.000000D+00  E= 3.960879D+04
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 9.7D-05
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19     -5.981258  1 Hg s                 18      5.921489  1 Hg s          
+    20      4.713697  1 Hg s                 21     -3.512619  1 Hg s          
+    17     -3.120950  1 Hg s                 22      2.674684  1 Hg s          
+    23     -2.127087  1 Hg s                 24      1.714458  1 Hg s          
+    25     -1.333759  1 Hg s                 26      0.945742  1 Hg s          
+ 
+ Vector   19  Occ=0.000000D+00  E= 7.238647D+04
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 3.7D-05
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      5.151299  1 Hg s                 18     -5.000132  1 Hg s          
+    19      3.805451  1 Hg s                 16     -2.809080  1 Hg s          
+    20     -2.755371  1 Hg s                 21      2.032245  1 Hg s          
+    22     -1.558371  1 Hg s                 23      1.248443  1 Hg s          
+    24     -1.011108  1 Hg s                 25      0.788794  1 Hg s          
+ 
+ Vector   20  Occ=0.000000D+00  E= 1.286743D+05
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.3D-05
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      4.420348  1 Hg s                 17     -4.139291  1 Hg s          
+    18      3.074207  1 Hg s                 15     -2.495750  1 Hg s          
+    19     -2.175946  1 Hg s                 20      1.567620  1 Hg s          
+    21     -1.166103  1 Hg s                 22      0.900928  1 Hg s          
+    23     -0.725112  1 Hg s                 24      0.588773  1 Hg s          
+ 
+ Vector   21  Occ=0.000000D+00  E= 2.273423D+05
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 4.6D-06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      3.747490  1 Hg s                 16     -3.361027  1 Hg s          
+    17      2.440564  1 Hg s                 14     -2.209075  1 Hg s          
+    18     -1.705215  1 Hg s                 19      1.206383  1 Hg s          
+    20     -0.877478  1 Hg s                 21      0.657551  1 Hg s          
+    22     -0.510252  1 Hg s                 23      0.411638  1 Hg s          
+ 
+ Vector   22  Occ=0.000000D+00  E= 4.065898D+05
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.5D-06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      3.127932  1 Hg s                 15     -2.669173  1 Hg s          
+    13     -1.938386  1 Hg s                 16      1.882441  1 Hg s          
+    17     -1.301010  1 Hg s                 18      0.912440  1 Hg s          
+    19     -0.652162  1 Hg s                 20      0.477719  1 Hg s          
+    21     -0.359427  1 Hg s                 22      0.279493  1 Hg s          
+ 
+ Vector   23  Occ=0.000000D+00  E= 7.463016D+05
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 4.3D-07
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      2.571414  1 Hg s                 14     -2.065694  1 Hg s          
+    12     -1.703841  1 Hg s                 15      1.408380  1 Hg s          
+    16     -0.956103  1 Hg s                 17      0.665510  1 Hg s          
+    18     -0.471498  1 Hg s                 19      0.339148  1 Hg s          
+    20     -0.249297  1 Hg s                 21      0.187885  1 Hg s          
+ 
+ Vector   24  Occ=0.000000D+00  E= 1.453141D+06
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.1D-07
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      1.957629  1 Hg s                 13     -1.497961  1 Hg s          
+    11     -1.448015  1 Hg s                 14      0.986040  1 Hg s          
+    15     -0.656644  1 Hg s                 16      0.450777  1 Hg s          
+    17     -0.317005  1 Hg s                 18      0.225914  1 Hg s          
+    19     -0.163003  1 Hg s                 20      0.119992  1 Hg s          
+ 
+ Vector   25  Occ=0.000000D+00  E= 3.068850D+06
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.2D-08
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      1.486220  1 Hg s                  1     -1.321600  1 Hg s          
+    12     -0.987897  1 Hg s                 13      0.641131  1 Hg s          
+    14     -0.417982  1 Hg s                 15      0.282143  1 Hg s          
+    16     -0.195564  1 Hg s                 17      0.138268  1 Hg s          
+    18     -0.098816  1 Hg s                 19      0.071402  1 Hg s          
+ 
+ Vector   26  Occ=0.000000D+00  E= 6.780168D+06
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 4.2D-09
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      1.327437  1 Hg s                  2     -1.303745  1 Hg s          
+    11     -0.713537  1 Hg s                 12      0.405231  1 Hg s          
+    13     -0.262174  1 Hg s                 14      0.172931  1 Hg s          
+    15     -0.117560  1 Hg s                 16      0.081815  1 Hg s          
+    17     -0.057967  1 Hg s                  3     -0.056197  1 Hg s          
+ 
+ Vector   27  Occ=0.000000D+00  E= 1.514133D+07
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 8.0D-10
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      1.301051  1 Hg s                  3     -1.300809  1 Hg s          
+     1     -0.638143  1 Hg s                 11      0.291703  1 Hg s          
+    12     -0.165297  1 Hg s                 13      0.107939  1 Hg s          
+    14     -0.071528  1 Hg s                  4     -0.055759  1 Hg s          
+     5     -0.055144  1 Hg s                 15      0.048765  1 Hg s          
+ 
+ Vector   28  Occ=0.000000D+00  E= 3.386411D+07
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.6D-10
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      1.296448  1 Hg s                  4     -1.300362  1 Hg s          
+     2     -0.625950  1 Hg s                  1      0.261341  1 Hg s          
+    11     -0.119144  1 Hg s                 12      0.068121  1 Hg s          
+     5     -0.055605  1 Hg s                  6     -0.055212  1 Hg s          
+    13     -0.044620  1 Hg s                 14      0.029636  1 Hg s          
+ 
+ Vector   29  Occ=0.000000D+00  E= 7.574317D+07
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 3.0D-11
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.295591  1 Hg s                  5     -1.300249  1 Hg s          
+     3     -0.623812  1 Hg s                  2      0.256464  1 Hg s          
+     1     -0.106791  1 Hg s                  6     -0.055719  1 Hg s          
+     7     -0.054936  1 Hg s                 11      0.049148  1 Hg s          
+    12     -0.028169  1 Hg s          
+ 
+ Vector   30  Occ=0.000000D+00  E= 1.693836D+08
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 5.0D-12
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.295629  1 Hg s                  6     -1.300752  1 Hg s          
+     4     -0.623486  1 Hg s                  3      0.255635  1 Hg s          
+     2     -0.104819  1 Hg s                  8     -0.056022  1 Hg s          
+     7     -0.054899  1 Hg s                  1      0.044067  1 Hg s          
+ 
+ Vector   31  Occ=0.000000D+00  E= 3.789898D+08
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 8.6D-13
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.295000  1 Hg s                  7     -1.299942  1 Hg s          
+     5     -0.623123  1 Hg s                  4      0.255378  1 Hg s          
+     3     -0.104437  1 Hg s                  8     -0.057421  1 Hg s          
+     9     -0.051070  1 Hg s                  2      0.043239  1 Hg s          
+ 
+ Vector   32  Occ=0.000000D+00  E= 8.471150D+08
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.5D-13
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8     -1.307576  1 Hg s                  7      1.297825  1 Hg s          
+     6     -0.623878  1 Hg s                  5      0.255560  1 Hg s          
+     4     -0.104439  1 Hg s                 10     -0.068129  1 Hg s          
+     9     -0.044719  1 Hg s                  3      0.043118  1 Hg s          
+ 
+ Vector   33  Occ=0.000000D+00  E= 1.913130D+09
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.5D-14
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.284717  1 Hg s                  9     -1.284932  1 Hg s          
+     7     -0.618100  1 Hg s                  6      0.253462  1 Hg s          
+     5     -0.103644  1 Hg s                 10     -0.099997  1 Hg s          
+     4      0.042786  1 Hg s          
+ 
+ Vector   34  Occ=0.000000D+00  E= 4.247266D+09
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 4.3D-15
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10     -1.377579  1 Hg s                  9      1.322008  1 Hg s          
+     8     -0.628453  1 Hg s                  7      0.256034  1 Hg s          
+     6     -0.104246  1 Hg s                  5      0.042884  1 Hg s          
+ 
+ 
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+ 
+ Vector    1  Occ=0.000000D+00  E=-3.200248D+03
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.3D-04
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.397705  1 Hg s                 20      0.285015  1 Hg s          
+    22      0.233022  1 Hg s                 19      0.133489  1 Hg s          
+    18      0.050521  1 Hg s          
+ 
+ Vector    2  Occ=0.000000D+00  E=-7.999828D+02
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.8D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      0.704231  1 Hg s                 23      0.366343  1 Hg s          
+    21     -0.242908  1 Hg s                 22     -0.202049  1 Hg s          
+    25      0.155438  1 Hg s                 20     -0.129432  1 Hg s          
+    19     -0.052471  1 Hg s          
+ 
+ Vector    3  Occ=0.000000D+00  E=-3.556787D+02
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 9.1D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26     -1.122325  1 Hg s                 24      1.036201  1 Hg s          
+    25     -0.403196  1 Hg s                 23      0.344890  1 Hg s          
+    21     -0.148394  1 Hg s                 22     -0.135608  1 Hg s          
+    20     -0.073556  1 Hg s                 28     -0.031722  1 Hg s          
+    19     -0.029246  1 Hg s          
+ 
+ Vector    4  Occ=0.000000D+00  E=-1.999266D+02
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27     -2.166612  1 Hg s                 26      2.058005  1 Hg s          
+    24     -1.046924  1 Hg s                 25      0.915835  1 Hg s          
+    23     -0.249751  1 Hg s                 28     -0.204407  1 Hg s          
+    21      0.102834  1 Hg s                 22      0.087998  1 Hg s          
+    20      0.047663  1 Hg s          
+ 
+ Vector    5  Occ=0.000000D+00  E=-1.279799D+02
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 6.9D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      5.361109  1 Hg s                 28     -2.997186  1 Hg s          
+    26     -2.293095  1 Hg s                 25     -1.159605  1 Hg s          
+    24      0.957212  1 Hg s                 29     -0.305813  1 Hg s          
+    23      0.174530  1 Hg s                 21     -0.077197  1 Hg s          
+    22     -0.058362  1 Hg s                 20     -0.033511  1 Hg s          
+ 
+ Vector    6  Occ=0.000000D+00  E=-8.882662D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      8.650516  1 Hg s                 27     -7.061174  1 Hg s          
+    29     -4.383291  1 Hg s                 26      1.821947  1 Hg s          
+    25      1.324840  1 Hg s                 24     -0.881904  1 Hg s          
+    30      0.197300  1 Hg s                 23     -0.105935  1 Hg s          
+    31     -0.077825  1 Hg s                 21      0.061907  1 Hg s          
+ 
+ Vector    7  Occ=0.000000D+00  E=-6.446172D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 3.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      9.766729  1 Hg s                 29     -9.742967  1 Hg s          
+    27     -5.329398  1 Hg s                 30      5.184976  1 Hg s          
+    25      1.488035  1 Hg s                 31     -0.966052  1 Hg s          
+    24     -0.814496  1 Hg s                 26      0.511195  1 Hg s          
+    32      0.294014  1 Hg s                 33     -0.113905  1 Hg s          
+ 
+ Vector    8  Occ=0.000000D+00  E=-4.578070D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 8.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      7.552534  1 Hg s                 30     -7.457744  1 Hg s          
+    28     -5.295230  1 Hg s                 31      4.641736  1 Hg s          
+    27      1.856612  1 Hg s                 25     -1.426082  1 Hg s          
+    32     -1.104456  1 Hg s                 26      0.757333  1 Hg s          
+    24      0.673095  1 Hg s                 33      0.389483  1 Hg s          
+ 
+ Vector    9  Occ=0.000000D+00  E=-3.020622D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31      4.908702  1 Hg s                 30     -4.410999  1 Hg s          
+    32     -3.617179  1 Hg s                 29      3.205224  1 Hg s          
+    28     -1.598265  1 Hg s                 25     -1.214910  1 Hg s          
+    26      1.218094  1 Hg s                 33      1.046492  1 Hg s          
+    24      0.526181  1 Hg s                 34     -0.316730  1 Hg s          
+ 
+ Vector   10  Occ=0.000000D+00  E=-1.850084D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 6.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    32      3.330777  1 Hg s                 33     -3.121442  1 Hg s          
+    31     -2.491618  1 Hg s                 30      1.707935  1 Hg s          
+    26     -1.180285  1 Hg s                 25      0.973774  1 Hg s          
+    29     -0.953617  1 Hg s                 34      0.815822  1 Hg s          
+    27      0.737633  1 Hg s                 24     -0.403006  1 Hg s          
+ 
+ Vector   11  Occ=0.000000D+00  E=-1.080960D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.7D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    33      2.913639  1 Hg s                 34     -2.457283  1 Hg s          
+    32     -1.608861  1 Hg s                 26      0.967482  1 Hg s          
+    31      0.944212  1 Hg s                 27     -0.777495  1 Hg s          
+    25     -0.740221  1 Hg s                 30     -0.545460  1 Hg s          
+    28      0.331021  1 Hg s                 24      0.298858  1 Hg s          
+ 
+ Vector   12  Occ=0.000000D+00  E= 7.834768D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 3.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26     22.455145  1 Hg s                 27    -21.754477  1 Hg s          
+    28     16.468794  1 Hg s                 25    -15.902087  1 Hg s          
+    29    -10.017203  1 Hg s                 24      6.208914  1 Hg s          
+    30      5.151427  1 Hg s                 31     -2.563355  1 Hg s          
+    32      1.278908  1 Hg s                 23     -0.862630  1 Hg s          
+ 
+ Vector   13  Occ=0.000000D+00  E= 4.092377D+02
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.9D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25     19.968547  1 Hg s                 24    -17.954561  1 Hg s          
+    26    -16.403235  1 Hg s                 27     10.943783  1 Hg s          
+    23     10.404952  1 Hg s                 28     -6.450256  1 Hg s          
+    29      3.279749  1 Hg s                 22     -2.926916  1 Hg s          
+    30     -1.430195  1 Hg s                 31      0.598471  1 Hg s          
+ 
+ Vector   14  Occ=0.000000D+00  E= 1.816009D+03
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 5.0D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23     14.515965  1 Hg s                 24    -14.305025  1 Hg s          
+    25     11.738063  1 Hg s                 22    -10.605900  1 Hg s          
+    26     -8.347146  1 Hg s                 27      5.237884  1 Hg s          
+    21      4.206777  1 Hg s                 28     -3.016603  1 Hg s          
+    29      1.517718  1 Hg s                 20     -0.719186  1 Hg s          
+ 
+ Vector   15  Occ=0.000000D+00  E= 5.978165D+03
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.6D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22     10.912823  1 Hg s                 23     -9.835963  1 Hg s          
+    21     -9.490297  1 Hg s                 24      8.071147  1 Hg s          
+    25     -6.218908  1 Hg s                 20      4.718853  1 Hg s          
+    26      4.357823  1 Hg s                 27     -2.734428  1 Hg s          
+    28      1.578737  1 Hg s                 19     -0.904765  1 Hg s          
+ 
+ Vector   16  Occ=0.000000D+00  E= 1.745600D+04
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 5.5D-04
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21     -8.369199  1 Hg s                 20      8.194752  1 Hg s          
+    22      6.949505  1 Hg s                 23     -5.565768  1 Hg s          
+    19     -4.696922  1 Hg s                 24      4.441489  1 Hg s          
+    25     -3.421962  1 Hg s                 26      2.410552  1 Hg s          
+    27     -1.519704  1 Hg s                 18      0.978163  1 Hg s          
+ 
+ Vector   17  Occ=0.000000D+00  E= 4.824503D+04
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.0D-04
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      7.022109  1 Hg s                 20     -6.629975  1 Hg s          
+    21      5.193941  1 Hg s                 18     -4.432026  1 Hg s          
+    22     -3.974942  1 Hg s                 23      3.146495  1 Hg s          
+    24     -2.524482  1 Hg s                 25      1.957816  1 Hg s          
+    26     -1.385613  1 Hg s                 17      0.949296  1 Hg s          
+ 
+ Vector   18  Occ=0.000000D+00  E= 1.309317D+05
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 7.3D-05
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      6.027358  1 Hg s                 19     -5.368473  1 Hg s          
+    17     -4.054497  1 Hg s                 20      4.037248  1 Hg s          
+    21     -2.981642  1 Hg s                 22      2.274941  1 Hg s          
+    23     -1.814933  1 Hg s                 24      1.466095  1 Hg s          
+    25     -1.142007  1 Hg s                 16      0.850875  1 Hg s          
+ 
+ Vector   19  Occ=0.000000D+00  E= 3.577612D+05
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.7D-05
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      5.138229  1 Hg s                 18     -4.389309  1 Hg s          
+    16     -3.622938  1 Hg s                 19      3.198501  1 Hg s          
+    20     -2.302224  1 Hg s                 21      1.704346  1 Hg s          
+    22     -1.312204  1 Hg s                 23      1.054008  1 Hg s          
+    24     -0.854890  1 Hg s                 15      0.721630  1 Hg s          
+ 
+ Vector   20  Occ=0.000000D+00  E= 1.004041D+06
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 9.6D-06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      4.319478  1 Hg s                 17     -3.558629  1 Hg s          
+    15     -3.187862  1 Hg s                 18      2.541583  1 Hg s          
+    19     -1.793960  1 Hg s                 20      1.299377  1 Hg s          
+    21     -0.971264  1 Hg s                 22      0.752754  1 Hg s          
+    23     -0.606924  1 Hg s                 14      0.588089  1 Hg s          
+ 
+ Vector   21  Occ=0.000000D+00  E= 2.944129D+06
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 3.2D-06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      3.584458  1 Hg s                 16     -2.832648  1 Hg s          
+    14     -2.779437  1 Hg s                 17      1.988352  1 Hg s          
+    18     -1.389876  1 Hg s                 19      0.990056  1 Hg s          
+    20     -0.724229  1 Hg s                 21      0.544731  1 Hg s          
+    13      0.458382  1 Hg s                 22     -0.423631  1 Hg s          
+ 
+ Vector   22  Occ=0.000000D+00  E= 9.186792D+06
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.0D-06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      2.926766  1 Hg s                 13     -2.398919  1 Hg s          
+    15     -2.208179  1 Hg s                 16      1.514135  1 Hg s          
+    17     -1.050066  1 Hg s                 18      0.742357  1 Hg s          
+    19     -0.533975  1 Hg s                 20      0.392845  1 Hg s          
+    12      0.336108  1 Hg s                 21     -0.296369  1 Hg s          
+ 
+ Vector   23  Occ=0.000000D+00  E= 3.122277D+07
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.9D-07
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      2.337376  1 Hg s                 12     -2.035875  1 Hg s          
+    14     -1.671244  1 Hg s                 15      1.116057  1 Hg s          
+    16     -0.762713  1 Hg s                 17      0.535757  1 Hg s          
+    18     -0.382257  1 Hg s                 19      0.276346  1 Hg s          
+    11      0.213572  1 Hg s                 20     -0.203826  1 Hg s          
+ 
+ Vector   24  Occ=0.000000D+00  E= 1.230353D+08
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 7.1D-08
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12     -1.716851  1 Hg s                 11      1.688080  1 Hg s          
+    13      1.182599  1 Hg s                 14     -0.768670  1 Hg s          
+    15      0.516570  1 Hg s                 16     -0.358024  1 Hg s          
+    17      0.253642  1 Hg s                 18     -0.181752  1 Hg s          
+     1     -0.162287  1 Hg s                 19      0.131668  1 Hg s          
+ 
+ Vector   25  Occ=0.000000D+00  E= 5.670880D+08
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.4D-08
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      1.531202  1 Hg s                 11     -1.288398  1 Hg s          
+    12      0.770632  1 Hg s                 13     -0.496475  1 Hg s          
+    14      0.326604  1 Hg s                 15     -0.222327  1 Hg s          
+     2     -0.159050  1 Hg s                 16      0.155148  1 Hg s          
+    17     -0.110267  1 Hg s                 18      0.079130  1 Hg s          
+ 
+ Vector   26  Occ=0.000000D+00  E= 2.789801D+09
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.8D-09
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      1.506388  1 Hg s                  1     -1.156107  1 Hg s          
+    11      0.557157  1 Hg s                 12     -0.314387  1 Hg s          
+    13      0.205037  1 Hg s                  3     -0.159040  1 Hg s          
+    14     -0.136198  1 Hg s                 15      0.093143  1 Hg s          
+    16     -0.065131  1 Hg s                 17      0.046330  1 Hg s          
+ 
+ Vector   27  Occ=0.000000D+00  E= 1.391482D+10
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 5.3D-10
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      1.502167  1 Hg s                  2     -1.134446  1 Hg s          
+     1      0.499398  1 Hg s                 11     -0.226760  1 Hg s          
+     4     -0.159150  1 Hg s                 12      0.129554  1 Hg s          
+    13     -0.085118  1 Hg s                 14      0.056718  1 Hg s          
+    15     -0.038837  1 Hg s                 16      0.027170  1 Hg s          
+ 
+ Vector   28  Occ=0.000000D+00  E= 6.955904D+10
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.1D-10
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.501459  1 Hg s                  3     -1.130620  1 Hg s          
+     2      0.490098  1 Hg s                  1     -0.203320  1 Hg s          
+     5     -0.159215  1 Hg s                 11      0.093516  1 Hg s          
+    12     -0.053799  1 Hg s                 13      0.035427  1 Hg s          
+ 
+ Vector   29  Occ=0.000000D+00  E= 3.478156D+11
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.9D-11
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.501344  1 Hg s                  4     -1.129913  1 Hg s          
+     3      0.488475  1 Hg s                  2     -0.199569  1 Hg s          
+     6     -0.159240  1 Hg s                  1      0.083864  1 Hg s          
+    11     -0.038849  1 Hg s          
+ 
+ Vector   30  Occ=0.000000D+00  E= 1.739184D+12
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 3.2D-12
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.501302  1 Hg s                  5     -1.129762  1 Hg s          
+     4      0.488179  1 Hg s                  3     -0.198920  1 Hg s          
+     7     -0.159203  1 Hg s                  2      0.082323  1 Hg s          
+     1     -0.034841  1 Hg s          
+ 
+ Vector   31  Occ=0.000000D+00  E= 8.696732D+12
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 5.6D-13
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      1.501075  1 Hg s                  6     -1.129652  1 Hg s          
+     5      0.488101  1 Hg s                  4     -0.198797  1 Hg s          
+     8     -0.158791  1 Hg s                  3      0.082054  1 Hg s          
+     2     -0.034201  1 Hg s          
+ 
+ Vector   32  Occ=0.000000D+00  E= 4.350730D+13
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 9.6D-14
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.499248  1 Hg s                  7     -1.129021  1 Hg s          
+     6      0.487907  1 Hg s                  5     -0.198713  1 Hg s          
+     9     -0.155445  1 Hg s                  4      0.081983  1 Hg s          
+     3     -0.034081  1 Hg s          
+ 
+ Vector   33  Occ=0.000000D+00  E= 2.184781D+14
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.7D-14
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      1.484670  1 Hg s                  8     -1.124001  1 Hg s          
+     7      0.486429  1 Hg s                  6     -0.198195  1 Hg s          
+    10     -0.130387  1 Hg s                  5      0.081772  1 Hg s          
+     4     -0.033978  1 Hg s          
+ 
+ Vector   34  Occ=0.000000D+00  E= 1.133084D+15
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.8D-15
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      1.376736  1 Hg s                  9     -1.083788  1 Hg s          
+     8      0.474311  1 Hg s                  7     -0.193936  1 Hg s          
+     6      0.080084  1 Hg s                  5     -0.033281  1 Hg s          
+ 
+
+   alpha - beta orbital overlaps 
+   ----------------------------- 
+
+
+   alpha      1      2      3      4      5      6      7      8      9     10
+    beta      1      2      3      4      5      6      7      8      9     12
+ overlap   0.985  0.975  0.967  0.962  0.959  0.961  0.971  0.978  0.947  0.847
+
+
+   alpha     11     12     13     14     15     16     17     18     19     20
+    beta     10     11     13     14     15     16     17     18     19     20
+ overlap   0.954  0.996  0.957  0.956  0.951  0.945  0.938  0.933  0.930  0.931
+
+
+   alpha     21     22     23     24     25     26     27     28     29     30
+    beta     21     22     23     24     25     26     27     28     29     30
+ overlap   0.934  0.939  0.946  0.955  0.961  0.963  0.964  0.964  0.964  0.964
+
+
+   alpha     31     32     33     34
+    beta     31     32     33     34
+ overlap   0.964  0.965  0.968  0.984
+
+     --------------------------
+     Expectation value of S2:  
+     --------------------------
+      <S2> =      0.7500 (Exact =     0.7500)
+ 
+
+ Task  times  cpu:        0.2s     wall:        0.3s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        24	        19
+	current total bytes		         0	         0
+	maximum total bytes		     82552	   9011000
+	maximum total K-bytes		        83	      9011
+	maximum total M-bytes		         1	        10
+ 
+ 
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+ 
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, Y. Alexeev, J. Anchell,
+       V. Anisimov, F. W. Aquino, R. Atta-Fynn, J. Autschbach, N. P. Bauman,
+     J. C. Becca, D. E. Bernholdt, K. Bhaskaran-Nair, S. Bogatko, P. Borowski,
+         J. Boschen, J. Brabec, A. Bruner, E. Cauet, Y. Chen, G. N. Chuev,
+      C. J. Cramer, J. Daily, M. J. O. Deegan, T. H. Dunning Jr., M. Dupuis,
+   K. G. Dyall, G. I. Fann, S. A. Fischer, A. Fonari, H. Fruchtl, L. Gagliardi,
+      J. Garza, N. Gawande, S. Ghosh, K. Glaesemann, A. W. Gotz, J. Hammond,
+       V. Helms, E. D. Hermes, K. Hirao, S. Hirata, M. Jacquelin, L. Jensen,
+   B. G. Johnson, H. Jonsson, R. A. Kendall, M. Klemm, R. Kobayashi, V. Konkov,
+      S. Krishnamoorthy, M. Krishnan, Z. Lin, R. D. Lins, R. J. Littlefield,
+      A. J. Logsdail, K. Lopata, W. Ma, A. V. Marenich, J. Martin del Campo,
+   D. Mejia-Rodriguez, J. E. Moore, J. M. Mullin, T. Nakajima, D. R. Nascimento,
+    J. A. Nichols, P. J. Nichols, J. Nieplocha, A. Otero-de-la-Roza, B. Palmer,
+    A. Panyala, T. Pirojsirikul, B. Peng, R. Peverati, J. Pittner, L. Pollack,
+   R. M. Richard, P. Sadayappan, G. C. Schatz, W. A. Shelton, D. W. Silverstein,
+   D. M. A. Smith, T. A. Soares, D. Song, M. Swart, H. L. Taylor, G. S. Thomas,
+            V. Tipparaju, D. G. Truhlar, K. Tsemekhman, T. Van Voorhis,
+      A. Vazquez-Mayagoitia, P. Verma, O. Villa, A. Vishnu, K. D. Vogiatzis,
+        D. Wang, J. H. Weare, M. J. Williamson, T. L. Windus, K. Wolinski,
+        A. T. Wong, Q. Wu, C. Yang, Q. Yu, M. Zacharias, Z. Zhang, Y. Zhao,
+                                and R. J. Harrison
+                        "NWChem: Past, present, and future
+                         J. Chem. Phys. 152, 184102 (2020)
+                               doi:10.1063/5.0004997
+ 
+                                      AUTHORS
+                                      -------
+  E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, D. Mejia-Rodriguez,
+       A. Kunitsa, N. P. Bauman, A. Panyala, W. A. de Jong, T. P. Straatsma,
+        H. J. J. van Dam, D. Wang, T. L. Windus, J. Hammond, J. Autschbach,
+    K. Bhaskaran-Nair, J. Brabec, K. Lopata, S. A. Fischer, S. Krishnamoorthy,
+     M. Jacquelin, W. Ma, M. Klemm, O. Villa, Y. Chen, V. Anisimov, F. Aquino,
+    S. Hirata, M. T. Hackler, Eric Hermes, L. Jensen, J. E. Moore, J. C. Becca,
+      V. Konjkov, T. Risthaus, M. Malagoli, A. Marenich, A. Otero-de-la-Roza,
+        J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan,
+        A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr, M. Dupuis,
+     D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+     B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        0.2s     wall:        0.3s

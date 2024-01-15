@@ -1,5 +1,5 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
-     &                      nactive,  rdens_atom, cetobfr)
+     &                      nactive,  rdens_atom, cetobfr, cd_coef)
 *
 * $Id$
 *
@@ -18,6 +18,8 @@ c!!! BGJ test !!!
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c!!! BGJ test !!!
+
+      integer icetobfr,lcetobfr,icntoce,lcntoce,icntobfr,lcntobfr
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -36,6 +38,7 @@ c!!! BGJ test !!!
 c 
       integer cetobfr(2,natom)
       double precision rdens_atom(ipol*natom*natom)    
+      double precision cd_coef(*)
       double precision zero, one, onem
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
       logical status,xc_gotxc
@@ -47,6 +50,8 @@ c
       double precision tol_rho_scf ! store scf tol_rho before hack
       logical grid_reopen
       external grid_reopen
+
+      integer nbf_bas,basis
 c
 c     hack for hessian
 c
@@ -65,6 +70,29 @@ c     hack tol_rho to improve gradient precision
 c
       tol_rho_scf=tol_rho
       tol_rho=min(tol_rho*0.1d0,1d-11)
+
+
+      if (adft) then
+        nbf_bas = nbf_cd
+        basis = cd_bas_han
+        if (.not.ma_push_get
+     $       (mt_int,natom*2,'cntoce map',lcetobfr,icetobfr))
+     $       call errquit('dft_scf:push_get failed', 13, MA_ERR)
+        if (.not.ma_push_get
+     $       (mt_int,nshells_cd,'cntoce map',lcntoce,icntoce))
+     $       call errquit('dft_scf:push_get failed', 13, MA_ERR)
+        if (.not.ma_push_get
+     $       (mt_int,nshells_cd*2,'cntoce map',lcntobfr,icntobfr))
+     $       call errquit('dft_scf:push_get failed', 13, MA_ERR)
+        call icopy(natom*2,cetobfr,1,int_mb(icetobfr),1)
+        call build_maps(cd_bas_han, int_mb(icntoce), int_mb(icntobfr), 
+     $                  cetobfr, natom, nshells_cd)
+        if (.not.ma_chop_stack(lcntoce))
+     $     call errquit('dft_gradient: cannot pop stack',0, MA_ERR)
+      else
+        nbf_bas = nbf_ao
+        basis = ao_bas_han
+      endif
 c
 c        Compute via direct numerical quadrature.
          if(.not.grid_written) then
@@ -77,10 +105,17 @@ c
             call grid_setquad(rtdb)
             call grid_packing_info
          endif
-         call dftg_gridv0(rtdb, geom,ao_bas_han,ipol,nbf_ao,
+         call dftg_gridv0(rtdb, geom, basis, ipol, nbf_bas,
      .        iga_dens, force, natom, oactive, 
-     &        nactive, rdens_atom,  cetobfr)
+     &        nactive, rdens_atom,  cetobfr, cd_coef, adft)
          oreopen=.false.
+
+         if (adft) then
+            call icopy(2*natom,int_mb(icetobfr),1,cetobfr,1)
+            if (.not.ma_chop_stack(lcetobfr))
+     $       call errquit('dft_gradient: cannot pop stack',0, MA_ERR)
+         endif
+
 
 c!!! BGJ test !!!
 c

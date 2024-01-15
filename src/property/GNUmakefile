@@ -63,6 +63,8 @@
          CalcPerturbedTDPmat1.o \
          CalcPerturbedTDPmat1_opt.o \
          localization_driver.o \
+         ibo_localization.o \
+         pm_localization.o \
          hnd_vec_write.o \
 	 giao_b1_movecs_tools.o \
          aor_r1_beta_anl_tools.o\
@@ -89,7 +91,8 @@ USES_BLAS = hnd_elfcon.F wnbofile.F hnd_spinspin.F hnd_mtpole.F hnd_mulken.F \
             hnd_elpmap.F hnd_elfmap.F hnd_mtpcon.F giaofock.F hnd_spinspin.F \
             aoresponse_driver.F  raman.F hnd_efgmap_z4.F hnd_gshift_zora.F \
             wshldfile.F int_giao_1ega.F whypfile.F wefgfile.F aoresponse_driver_new.F \
-            hnd_elfcon_symm.F wgshiftfile.F hnd_hyperfine_zora.F hnd_eldmap_grid.F
+            hnd_elfcon_symm.F wgshiftfile.F hnd_hyperfine_zora.F hnd_eldmap_grid.F \
+            ibo_localization.F
 
 HEADERS = prop.fh atomdata.fh
 

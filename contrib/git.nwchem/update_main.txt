@@ -1,0 +1,45 @@
+name: update_main_branch
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+  workflow_call:
+jobs:
+  update_branch:
+    if: |
+      github.event_name == 'schedule' ||
+      (!contains(github.event.head_commit.message, 'ci skip'))
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Checkout nwchem
+        uses: actions/checkout@v3
+        with:
+          repository: nwchemgit/nwchem
+          persist-credentials: false
+          fetch-depth: 0
+      - name: update with cherrypicks
+        run: |
+          set -ex
+          echo " pwd " `pwd`
+          git remote rename origin upstream
+          git remote add origin https://github.com/edoapra/nwchem
+          git fetch origin
+          git config user.name "edoapra"
+          git config user.email "edoardo.apra@gmail.com"
+          cd .github/workflows
+          rm -f update_main.yml github_actions_selfhosted.yml
+          curl -L https://raw.githubusercontent.com/nwchemgit/nwchem/master/contrib/git.nwchem/update_main.txt > update_main.yml
+          curl -L https://raw.githubusercontent.com/nwchemgit/nwchem/master/contrib/git.nwchem/github_actions_selfhosted.txt > github_actions_selfhosted.yml
+          curl -L https://raw.githubusercontent.com/nwchemgit/nwchem/master/contrib/git.nwchem/github_actions_tahoma.txt > github_actions_tahoma.yml
+          git add update_main.yml github_actions_selfhosted.yml github_actions_tahoma.yml
+          git commit -m 'update main from nwchemgit master plus selfhosted [ci skip]' update_main.yml github_actions_selfhosted.yml github_actions_tahoma.yml
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.UPDATE_TOKEN }}
+          repository: edoapra/nwchem
+          force: true
+          branch: ${{ github.ref }}

@@ -34,6 +34,7 @@ c
 c     
 #include "zora.fh"
 #include "rel_consts.fh"
+#include "x2c.fh"
 #include "case.fh"
 c
       integer  ga_create_atom_blocked
@@ -212,6 +213,17 @@ c     == Get the grid cutoff or set default ==
       if(.not.rtdb_get(rtdb,'zora:not_zora_scale',      ! FA
      &                 mt_log,1,not_zora_scale))        ! FA
      &  not_zora_scale = .false.                        ! FA
+
+c ... jochen:
+c     == X2C options ==
+      do_x2c = .false.
+      if (rtdb_get(rtdb,'x2c:on',mt_log,1,do_x2c))
+     &     do_x2c = .true.
+c     we use the variable zoracutoff also for the x2c option
+      if(.not.rtdb_get(rtdb,'x2c:cutoff',mt_dbl,1,zoracutoff))
+     &  zoracutoff = 1.0d-08
+c
+
 c
 c     == Get the light speed and other constants, if specified ==
       call rel_init_con(rtdb)
@@ -278,6 +290,8 @@ c
          if (.not. bas_numbf(XC_bas_han, nbf_xc)) then
             call errquit('Exiting from scfdriver',4, BASIS_ERR)
          endif 
+
+         if (.not.ADFT) then
 c     
 c           Compute the matrix inverse of the 2-ctr OIs.
 c     
@@ -310,6 +324,7 @@ c
          if (IOLGC)then
             if (.not. ga_destroy(g_xcinv)) call errquit
      &         (pname//'Could not destroy g_xcinv', 0, GA_ERR)
+         endif
          endif
       endif
 c
@@ -384,6 +399,9 @@ c         endif
      &         (pname//'Could not destroy g_xcinv', 0, GA_ERR)
             if (.not. ga_destroy(g_2ceri)) call errquit
      &         (pname//'Could not destroy g_xcinv', 0, GA_ERR)
+         elseif(ADFT) then
+            g_xcinv = g_cdinv
+            g_oi = g_2ceri
          endif
       endif
 c
@@ -596,7 +614,7 @@ c     == Clean up memory usage ==
             call dft_invio('CD', idum, 1, 'KILL', lmiss)
             call dft_invio('CDI', idum, 1, 'KILL', lmiss)
          endif
-         if (XCFIT.and.IOLGC) then
+         if ((.not.ADFT).and.XCFIT.and.IOLGC) then
             call dft_invio('XC', idum, 1, 'KILL', lmiss)
          endif
       endif
@@ -606,7 +624,7 @@ c     == Clean up memory usage ==
          if (.not. ga_destroy(g_2ceri)) call errquit
      &      (pname//'Could not destroy g_2ceri', 0, GA_ERR)
       endif
-      if (XCFIT.and.(.not.IOLGC))then
+      if (XCFIT.and.(.not.IOLGC).and.(.not.ADFT))then
          if (.not. ga_destroy(g_xcinv)) call errquit
      &      (pname//'Could not destroy g_xcinv', 0, GA_ERR)
       endif

@@ -3,9 +3,9 @@
 *
 
 *     ***************************
-*     *				*
-*     *		ion_end 	*
-*     *				*
+*     *                         *
+*     *        ion_end          *
+*     *                         *
 *     ***************************
       subroutine ion_end()
       implicit none
@@ -54,9 +54,9 @@
       end
 
 *     ***************************
-*     *				*
-*     *		ion_write	*
-*     *				*
+*     *                         *
+*     *        ion_write        *
+*     *                         *
 *     ***************************
       subroutine ion_write(rtdb)
       implicit none
@@ -164,9 +164,9 @@
       end
 
 *     ***************************
-*     *				*
-*     *		ion_destroy 	*
-*     *				*
+*     *                         *
+*     *        ion_destroy      *
+*     *                         *
 *     ***************************
       subroutine ion_destroy()
       implicit none
@@ -187,9 +187,9 @@
     
 
 *     ***************************
-*     *				*
-*     *		ion_init	*
-*     *				*
+*     *                         *
+*     *        ion_init         *
+*     *                         *
 *     ***************************
 *
 *        This routine reads in the ion data structure from the
@@ -689,7 +689,7 @@ c         eki1=0.5d0*eki1
       if (.not. beom_cent_tag(geom,i,t))
      >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
 
-      if (.not. beom_tag_to_element(t,symbol,name,q))
+      if (.not. beom_tag_to_element(t,symbol,name,q, 2, 16))
      >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
 
       if (ccode.eq.12) then
@@ -1460,9 +1460,9 @@ c      end if
 
 
 *     ***************************
-*     *				*
-*     *		ion_chargeexist	*
-*     *				*
+*     *                         *
+*     *     ion_chargeexist     *
+*     *                         *
 *     ***************************
       logical function ion_chargeexist()
       implicit none
@@ -1475,9 +1475,9 @@ c      end if
       end
 
 *     ***************************
-*     *				*
-*     *		ion_nion	*
-*     *				*
+*     *                         *
+*     *         ion_nion        *
+*     *                         *
 *     ***************************
       integer function ion_nion()
       implicit none
@@ -1991,9 +1991,9 @@ c      end if
 
 
 *     ***************************
-*     *				*
-*     *		ion_vion	*
-*     *				*
+*     *                         *
+*     *          ion_vion       *
+*     *                         *
 *     ***************************
 
       double precision function ion_vion(i,j)

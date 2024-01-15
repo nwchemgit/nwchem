@@ -30,6 +30,10 @@ int FATR task_python_(Integer *rtdb_ptr)
    char buf[20], *pbuf;
    char filename[256];
    int ret;
+#if PY_VERSION_HEX >= 0x03080000
+   PyStatus status;
+   PyPreConfig preconfig;
+#endif
    
 #if PY_MAJOR_VERSION < 3
    Py_SetProgramName("NWChem");
@@ -38,9 +42,22 @@ int FATR task_python_(Integer *rtdb_ptr)
    wchar_t nwprogram[20];
    mbstowcs(nwprogram, "NWChem", strlen("NWChem") + 1);
 #else
+#if PY_VERSION_HEX < 0x03080000
    wchar_t *nwprogram = Py_DecodeLocale("NWChem", NULL);
+#endif   
 #endif
+#if PY_VERSION_HEX < 0x03080000
    Py_SetProgramName(nwprogram);
+#else
+   /* Py_SetProgramName deprecated by python 3.11 */
+   /* https://docs.python.org/3/c-api/init_config.html#preinitialize-python-with-pypreconfig */
+   PyPreConfig_InitPythonConfig(&preconfig);
+   status = Py_PreInitialize(&preconfig);
+   if(PyStatus_Exception(status)) {
+     fprintf(stderr,"python exception in Py_PreInitialize\n");
+     return 0;
+   }
+#endif
 #endif   
 #if PY_MAJOR_VERSION >= 3
    PyImport_AppendInittab("nwchem", PyInit_nwchem);

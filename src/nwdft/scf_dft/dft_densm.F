@@ -138,7 +138,6 @@ c
               nocinit=1
            endif
         endif
-        new_ntotel=rhfuhf*(anoc(1)+anoc(2))
 c       
 c       initialize ef
 c       
@@ -156,11 +155,14 @@ c
             call dft_zero(2,nbf,nmo,anoc(2),efermi(2),evals(nbf+1),
      .         ssmear,toll,.true.)
             nmo(2)=nmo(1)
-          else
-cold            call dft_zero(ipol,nbf,nmo,ntotel,efermi(1),evals,ssmear,
-            call dft_zero(ipol,nbf,nmo,new_ntotel,
-     E            efermi(1),evals,ssmear,
-     .         toll,spinset)
+         else
+            if(fon) then
+               new_ntotel=rhfuhf*(anoc(1)+anoc(2))
+            else
+               new_ntotel=ntotel
+            endif
+            call dft_zero(ipol,nbf,nmo,new_ntotel,efermi(1),
+     E           evals, ssmear,toll,.false.)
             efermi(2)=efermi(1)
           endif
         else
@@ -247,7 +249,7 @@ C          1723       format(' Foccs ',(
          endif
        endif
 c
-       if(spinset) then
+cold       if(spinset) then
          if(search0) then
            noc(1)=nint(ntot(1)*ipol*0.5d0)
            if(ipol.eq.2) noc(2)=nint(ntot(2))
@@ -255,7 +257,7 @@ c
            noc(1)=nocsave(1)
            noc(2)=nocsave(2)
          endif
-       endif
+cold       endif
 c
       endif  ! smear
 c

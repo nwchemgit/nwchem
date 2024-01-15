@@ -255,17 +255,26 @@
       
 *   This is a wrapper around geom_cent_get to make it thread safe.
 
-      logical function beom_tag_to_element(t,symbol,element,atn)
+      logical function beom_tag_to_element(t,symbol,element,atn,
+     S     symbol_size,element_size)
       implicit none
       character*16 t
-      character*(*) symbol
-      character*(*) element
+      integer symbol_size,element_size
+      integer symbol_mxsize,element_mxsize
+      parameter(symbol_mxsize=2,element_mxsize=16)
+      character*(symbol_mxsize) symbol
+      character*(element_mxsize) element
       integer atn
 
 #include "geom.fh"
 
       logical ok
-
+      if(symbol_mxsize.ne.symbol_size.and.
+     E     element_mxsize.ne.element_mxsize) then
+         write(6,*) ' beom_tag_to_element: wrong args'
+         beom_tag_to_element = .false.
+         return
+      endif
 !$OMP SINGLE
       ok = geom_tag_to_element(t,symbol,element,atn)
 !$OMP END SINGLE copyprivate(symbol,element,atn,ok)

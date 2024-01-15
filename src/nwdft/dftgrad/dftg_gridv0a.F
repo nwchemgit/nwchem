@@ -13,7 +13,7 @@
      &            Lmat,
      1            do_gxc, Amat3, Cmat3, ngxc,
      2            rhosave, delrhosave, triplet, 
-     3            do_tddftvxc)
+     3            do_tddftvxc,cd_coef)
 c      
 c     $Id$
 c     
@@ -42,6 +42,7 @@ c Qin
       integer fatms1(max_constr), fatms2(max_constr)
       integer dtype(max_constr)
       double precision multipliers(max_constr), fact(max_constr)  ! pass to dftg_gridv0b
+      double precision cd_coef(nbf_cd,*)
 
       integer natoms
       integer max_at_bf
@@ -130,6 +131,13 @@ c gradients from the XC-kernel
 c Daniel (2-7-13): Logical variable for doing the dVxc*P contribution
 c to the TDDFT gradients.
       logical do_tddftvxc
+      integer basis
+
+      if (adft) then
+        basis = cd_bas_han
+      else
+        basis = ao_bas_han
+      endif
 c
 c Qin
       ldbw = .false.
@@ -168,7 +176,7 @@ c
 c     Determine the XC energy functionals.
 c
 c
-      if (.not.bas_nbf_cn_max(AO_bas_han, nbf_max))
+      if (.not.bas_nbf_cn_max(basis, nbf_max))
      &   call errquit('exiting in dftg_gridv0.',7, BASIS_ERR)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
 c
@@ -208,7 +216,7 @@ c      write(6,*)'*** dftg_gridv0a: hesschi der3chi',hesschi,der3chi
 c
 c     Allocate and create info for new basis function evaluator
 c
-      if (.not.bas_numcont(AO_bas_han, ncontrset))
+      if (.not.bas_numcont(basis, ncontrset))
      &     call errquit('Exiting in dftg_gridv0a',0, BASIS_ERR)
       if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
      &     ldocset, idocset))
@@ -222,7 +230,7 @@ c
      &     lbas_cset_info, ibas_cset_info))
      &     call errquit('dftg_gridv0a: cannot allocate bas_cset_info',0,
      &       MA_ERR)
-      call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
+      call xc_make_basis_info(basis, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
 c     
 c     rewind grid pts file
@@ -291,7 +299,7 @@ c derivativeis to happen.
      $     fact, dtype, nconstr,  ! Qin
      1     do_gxc, Amat3, Cmat3, ngxc,
      2     rhosave, delrhosave, triplet, 
-     3     do_tddftvxc)
+     3     do_tddftvxc,cd_coef)
 
  110      ntot_cube=ntot_cube+1
   200 continue  ! bottom of shell loop

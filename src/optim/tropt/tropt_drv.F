@@ -1709,6 +1709,9 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "ctropt.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "mafdecls.fh"
 c
       integer istep
       double precision de
@@ -1744,11 +1747,14 @@ c
 CJMC
       if ((gmax .lt. gmax_tol) .and. (grms .lt. grms_tol).and.
      $      (de .lt. eprec)) then
-        write(6,*) "Convergence reached over gradient and energy"
-        write(6,*) "Energy change = " , de
-        write(6,*) "Energy precision = " , eprec
+        if (ga_nodeid().eq.0) then
+          write(luout,*) "Convergence reached over gradient and energy"
+          write(luout,*) "Energy change = " , de
+          write(luout,*) "Energy precision = " , eprec
+        endif
       end if
 
+      call ga_brdcst(1001,tropt_converged,ma_sizeof(mt_log,1,mt_byte),0)
 c
       end
       subroutine tropt_cart_pmat(rtdb, geom)

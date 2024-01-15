@@ -1135,11 +1135,13 @@ c     Now read the basis for this magical atom type in using
 c     the given tag
 c
  10   if (.not. inp_a(field)) field=' '
+#ifdef IGNORE_HEH
 c
 c     ignore spherical vs cartesian from bse for He/H
 c     since they do assign spherical when the other elements are cartesian
 c
       if (.not.inp_compare(.false., 'h', string(1:1))) then
+#endif
       if(read_sphere) then
          if (inp_compare(.false., 'spherical', field)) then
             if (.not. bas_set_spherical(basis, .true.))
@@ -1147,7 +1149,9 @@ c
      &           (' bas_set_spherical failed ',911, BASIS_ERR)
          endif
       endif
+#ifdef IGNORE_HEH
       endif
+#endif
       if (.not. inp_read()) call errquit
      $     ('bas_tag_lib: premature EOF', 0, INPUT_ERR)
 c     
@@ -1368,7 +1372,9 @@ c
       endif
       libname = compiled_name
       does_it_exist = .false.
+#ifndef FUJITSU
       inquire(file=libname,exist=does_it_exist)
+#endif
 c
 c     check if it is a directory
 c
@@ -1412,8 +1418,22 @@ c    .     close(unit=unitrc,status='keep') ! close file after library name foun
       character*(*) mydir
 #include "baslibraryP.fh"
 #include "inp.fh"
+      integer nlen
       user_library_name=mydir
       call bas_library_file(user_library_name)
+c     bas_library_file has redefined user_library_name but we want .bse
+c     if we have already appended .bse return
+      nlen=inp_strlen(user_library_name)
+      if(user_library_name(nlen-4:nlen).eq.'.bse/') return
+      if (mydir.ne.user_library_name) then
+         if (mydir.eq.'libraries.bse') then
+c     append .bse
+            user_library_name=
+     =           user_library_name(1:nlen-1)
+     /           //'.bse/'
+         write(*,*) 'new library ',trim(user_library_name)
+         endif
+      endif
       end
 *.....................................................................
       subroutine bas_ecce_print_basis(basisin,module_id)
@@ -1583,4 +1603,66 @@ c    .     close(unit=unitrc,status='keep') ! close file after library name foun
 10003 format(31(2x,1pe15.6))
       end
 
+      subroutine bas_loadlibrary(basis,rtdb,geom,
+     .        ntypes, tag, name, librname)
+      implicit none
+c     can be called only process zero
+#include "global.fh"
+#include "errquit.fh"
+#include "bas.fh"
+#include "baslibraryP.fh"
+      logical cdfit             ![out]
+      integer cd_bas_han
+      integer rtdb
+      integer geom
+      integer ntypes
+      integer basis
+      character*16 tag(*)
+      character*(*) name
+      character*(*) librname
+c
+      logical osegment
+      character*16 tag_in_lib
+      logical oshell_is_rel
+      logical star_details
+      integer i
+      logical bas_add_ucnt_init, bas_set_spherical, bas_add_ucnt_tidy
+      external bas_add_ucnt_init, bas_set_spherical, bas_add_ucnt_tidy
+      logical  bas_do_destroy
+      external bas_do_destroy
+
+c
+      osegment=.true.
+      oshell_is_rel=.false.
+      star_details=.false.
+      if (.not. bas_create(basis, name))
+     &     call errquit(' bas_create failed', 186, BASIS_ERR)
+      if (.not.bas_add_ucnt_init(basis)) call errquit
+     &    ('bas_input: failed to init add_ucnt ',911,
+     &     BASIS_ERR)
+c     force spherical basis
+      if (.not. bas_set_spherical(basis, .true.))
+     &      call errquit
+     &      (' bas_set_spherical failed ',911, BASIS_ERR)
+
+c     loop over atom types
+      do i=1,ntypes
+         call bas_tag_lib(basis, osegment, tag(i), tag(i),
+     $        librname,
+     $        user_library_name, oshell_is_rel, star_details)
+      enddo
+      if (.not. bas_print(basis))
+     $     call errquit('bas_input: print failed', 0, BASIS_ERR)
+      if (.not.bas_summary_print(basis))
+     &     call errquit('scf: basis summary print failed',911,
+     &     BASIS_ERR)
+      if (.not. bas_rtdb_store(rtdb, name, basis)) call errquit
+     $     ('bas_input: failed to store basis', 0, BASIS_ERR)
+c
+      if (.not. bas_add_ucnt_tidy(basis))
+     $     call errquit('bas_input: tidy failed',0, BASIS_ERR)
+      if (.not. bas_do_destroy(basis)) call errquit
+     $     ('bas_input: bas_destroy failed', 0, BASIS_ERR)
+      return
+      end
       

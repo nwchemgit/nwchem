@@ -40,11 +40,11 @@ c
 c
       double precision offset
       double precision F(2)
-      double precision THRESHOLD,  Q, AZ, alpha,
+      double precision THRESHOLD,  Q(nfit), AZ, alpha,
      &                 rho_int
       integer nproc, me, 
      &        nscr,max1e, nscr1e, j,   
-     &        ifirst, ilast, nshbf, ish, lmiss, ifit
+     &        ifirst, ilast, nshbf, ish, lmiss, ifit, jfit
       integer iTvec, lTvec, lcgtf, icgtf,
      &     lscr, iscr, iqatom, lqatom, iqshell_cd, lqshell_cd, 
      &     iqshell_lab, lqshell_lab, lqshtyp_cd, iqshtyp_cd,
@@ -66,8 +66,8 @@ c
 c     Fit electronic charge density. The fitting coefficients are obtained by 
 c     solving the normal equations for a standard linear least squares problem.
 c      
-      if (.not.derfit .and. nfit.ne.1) then
-         call errquit('dft_fitcd: nfit must be 1 for regular fits',0,
+      if (.not.derfit .and. nfit.gt.2) then
+         call errquit('dft_fitcd: nfit must be <3 for regular fits',0,
      &       INPUT_ERR)
       endif
       oprint = util_print('coulomb fit', print_high)
@@ -133,29 +133,39 @@ c
 c     Integrate CD fitting functions in each shell
 c
       call ga_sync
-      do ish = 1,nshells_cd
-        if (.not. bas_cn2bfr( CD_bas_han,ish,
-     &                       ifirst,ilast))
-     &      call errquit('Exiting in fitcd.',44, BASIS_ERR)
-          if(.not.bas_continfo(CD_bas_han,ish,
-     &         itype,nprimo,nshbf,isphere))
-     &      call errquit('Exiting in fitcd.',44, BASIS_ERR)
-          if(spherical) then
-            nshbf=((itype+1)*(itype+2))/2
-          else
-            nshbf=ilast-ifirst+1
-          endif
+
+      ! Only perform this step if the fit is being
+      ! constrained
+      if (.not.freecdfit) then
+        do ish = 1,nshells_cd
+          if (.not. bas_cn2bfr( CD_bas_han,ish,
+     &                         ifirst,ilast))
+     &        call errquit('Exiting in fitcd.',44, BASIS_ERR)
+            if(.not.bas_continfo(CD_bas_han,ish,
+     &           itype,nprimo,nshbf,isphere))
+     &        call errquit('Exiting in fitcd.',44, BASIS_ERR)
+            if(spherical) then
+              nshbf=((itype+1)*(itype+2))/2
+            else
+              nshbf=ilast-ifirst+1
+            endif
               
-        call int_1cg( CD_bas_han, ish, nscr, Dbl_MB(iscr), 
-     &              nshbf, Dbl_MB(icgtf+ifirst-1) )
-      enddo 
+          call int_1cg( CD_bas_han, ish, nscr, Dbl_MB(iscr), 
+     &                nshbf, Dbl_MB(icgtf+ifirst-1) )
+        enddo 
+      endif
 c
 c     Compute the orbital integrated electron density.
 c
       if (derfit) then
          Q = 0d0
       else
-         Q = Dble(nTotEl)
+         Q(1) = Dble(nTotEl)
+         if (nfit.gt.1) then
+           do ifit=1,nfit
+             Q(ifit) = dble(noc(ifit))
+           enddo
+         endif
       endif
 c      
       if (IOLGC)then
@@ -217,13 +227,13 @@ c     Apply constraint correction to fits
 c
       F(2) = ddot(nbf_cd,DBL_mb(icgtf),1,DBL_MB(iTcgtf),1)
 c
-      do ifit = 1, nfit
+      if (.not.freecdfit) then
+        do ifit = 1, nfit
 c
 c        Compute Lagrange multiplier, alpha
 c
-         F(1) = ddot(nbf_cd,DBL_mb(icgtf),1,CD_coef(1,ifit),1)
-            alpha = (Q - F(1))/F(2)
-c         write(*,*)'F alpha',f(1),f(2),alpha
+          F(1) = ddot(nbf_cd,DBL_mb(icgtf),1,CD_coef(1,ifit),1)
+          alpha = (Q(ifit) - F(1))/F(2)
 c
 c        Correct unconstrained coefficients by alpha*S**(-1)*cgtf
 c
@@ -231,7 +241,8 @@ c
             CD_coef(j,ifit) = CD_coef(j,ifit)
      &                      + alpha*DBL_MB(iTcgtf+j-1)
          enddo
-      enddo
+        enddo
+      endif
 c
       if (.not.ma_pop_stack(lTcgtf))
      &   call errquit('dft_fitcd: cannot pop stack',0, MA_ERR)
@@ -277,19 +288,21 @@ c
       endif
 c      
 c     Compute the integrated electron density from the fit.
-c      
-      do ifit = 1, nfit
-         rho_int = ddot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
-         if (dabs(rho_int-Q).gt.0.001d0)then
-            write(*,*)' rho_int check 1, density',ifit,' = ',rho_int
-            write(*,*)' CD cgtf',dabsmax(nbf_cd,cd_coef),
+c
+      if (.not.freecdfit) then
+        do ifit = 1, nfit
+           rho_int = ddot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
+           if (dabs(rho_int-Q(ifit)).gt.0.001d0)then
+             write(*,*)' rho_int check 1, density',ifit,' = ',rho_int
+             write(*,*)' CD cgtf',dabsmax(nbf_cd,cd_coef),
      D           dabsmax(nbf_cd,Dbl_MB(icgtf))
-            call errquit('dft_fitcd: problem w/fitted density',911,
+             call errquit('dft_fitcd: problem w/fitted density',911,
      &       UNKNOWN_ERR)
-c     write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
-c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
+c            write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
+c            write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
          endif
-      enddo
+        enddo
+      endif
 cedo      call ga_sync
 c      if (derfit) then
 c         write(*,*)'Fit coefficients:'
@@ -337,30 +350,29 @@ c
 c
 c     calculation of Ecoul1
 c
+      Ecoul1 = 0.0d0
       if (.not.derfit) then
-         Ecoul1 = ddot(nbf_cd,DBL_mb(iTvec),1,CD_coef,1)
+         do ifit=1,nfit
+           do jfit=1,nfit
+             Ecoul1 = Ecoul1+
+     $                ddot(nbf_cd,DBL_mb(iTvec+(ifit-1)*nbf_cd),1,
+     $                CD_coef(1,jfit),1)
+           enddo
+         enddo
       endif
 c      
 c     Compute the integrated electron density from the fit.
-c      
+c
+      if (.not.freecdfit) then
       do ifit = 1, nfit
          rho_int = ddot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
-         if (dabs(rho_int-Q).gt.0.001d0) then
+         if (dabs(rho_int-Q(ifit)).gt.0.001d0) then
             write(*,*)' rho_int check 2, density',ifit,' = ',rho_int
             call errquit('dft_fitcd: problem w/fitted density',911,
      &       UNKNOWN_ERR)
 c     write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
 c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
          endif
-      enddo
-      if(.not.ma_pop_stack(lscr))
-     &  call errquit('dft_fitcd: cannot pop stack',4, MA_ERR)
-      if(.not.ma_pop_stack(lcgtf))
-     &  call errquit('dft_fitcd: cannot pop stack',5, MA_ERR)
-      if(.not.ma_pop_stack(lTvec))
-     &  call errquit('dft_fitcd: cannot pop stack',6, MA_ERR)
-      
-      
       if(oprint.and.me.eq.0.and..not.derfit )then
         write(LuOut,*)
         write(LuOut,'(a,f14.6,a,1pe13.6)')
@@ -369,6 +381,16 @@ c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
         write(LuOut,*)
         call util_flush(LuOut)
       end if
+      enddo
+      endif
+      if(.not.ma_pop_stack(lscr))
+     &  call errquit('dft_fitcd: cannot pop stack',4, MA_ERR)
+      if(.not.ma_pop_stack(lcgtf))
+     &  call errquit('dft_fitcd: cannot pop stack',5, MA_ERR)
+      if(.not.ma_pop_stack(lTvec))
+     &  call errquit('dft_fitcd: cannot pop stack',6, MA_ERR)
+      
+      
       
       return
       end

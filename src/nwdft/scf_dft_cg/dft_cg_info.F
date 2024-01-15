@@ -311,22 +311,22 @@ c
 c
 c     ----- cosmo initialization ----
 c
-      cosmo_last = .false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
-         if(cosmo_on) then
-            osome = util_print('information', print_low)
+c      cosmo_last = .false.
+c      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
+c         if(cosmo_on) then
+c            osome = util_print('information', print_low)
 c
-            call cosmo_initialize(rtdb,geom,basis,osome)
+c            call cosmo_initialize(rtdb,geom,basis,osome)
 c
 c           Turn cosmo on, we want to run the calculation
 c           Start with gas_phase run unless told otherwise
 c
-            cosmo_last = .true.
-            cosmo_on = .true.
-            if(.not.rtdb_get(rtdb,'cosmo_phase',mt_int,1,cosmo_phase))
-     >         cosmo_phase = 1
-         endif
-      endif
+c            cosmo_last = .true.
+c            cosmo_on = .true.
+c            if(.not.rtdb_get(rtdb,'cosmo_phase',mt_int,1,cosmo_phase))
+c     >         cosmo_phase = 1
+c         endif
+c      endif
       oinitialized = .true.
 c     
       end
@@ -379,13 +379,13 @@ c
 c
 c     ----- cosmo cleanup and reset -----
 c
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
-         if(cosmo_on) then
-           call cosmo_tidy(rtdb)
-           cosmo_on = .false.
-           cosmo_phase = 1
-         endif
-      endif
+c      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
+c         if(cosmo_on) then
+c           call cosmo_tidy(rtdb)
+c           cosmo_on = .false.
+c           cosmo_phase = 1
+c         endif
+c      endif
 c
 c     --- ri-scf cleanup ---
 c

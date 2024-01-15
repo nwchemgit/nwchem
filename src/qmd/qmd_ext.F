@@ -6,9 +6,9 @@
 #include "util_params.fh"
 #include "stdio.fh"
 #include "qmd_ext.fh"
-      integer nat             ![in]
-      integer dt_nucl         ![in]
-      double precision kbt    ![in]
+      integer nat              ![in]
+      double precision dt_nucl ![in]
+      double precision kbt     ![in]
       character*(*) ext_forces
       logical input_exists
 c     pass plumed initialization bits
@@ -125,11 +125,11 @@ c      write(6,*) ' E ext', energy
        call plumed_f_gcmd("setEnergy"//char(0),energy)
 c     forces before plumed call
        call plumed_f_gcmd("calc"//char(0),0)
-      endif
 c second sign flip
-      call dscal(3*nat, -1d0, g, 1)
+       call dscal(3*nat, -1d0, g, 1)
+      endif
 c     broadcast from 0
-      call ga_brdcst(2020,g,MA_sizeof(MT_DBL,1,MT_BYTE),0)
+      call ga_brdcst(2020,g,MA_sizeof(MT_DBL,3*nat,MT_BYTE),0)
        if(ga_nodeid().eq.0) then
           write(luout,*) '### forces after plumed ##'
           do i=1,nat

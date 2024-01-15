@@ -40,7 +40,7 @@
 	dft_fant.o\
 	dft_printinfo.o\
 	dft_fock_efield.o\
-	dft_frac_mo.o  dft_nwmolden.o dft_spinflip.o
+	dft_frac_mo.o  dft_nwmolden.o dft_spinflip.o dft_quickguess.o
 
      LIBRARY = libnwdft.a
 #_USE_SCALAPACK = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK\ 1/ {print "Y"}')
@@ -48,7 +48,8 @@
 
 LIB_INCLUDES = -I../include -I../grid
 
-   USES_BLAS = dft_mxovl.F diis_bld12.F diis_bsolve.F dft_densm.F dft_swapab.F dft_canorg.F cdft_util.F dft_diagn.F dft_spinflip.F
+   USES_BLAS = dft_mxovl.F diis_bld12.F diis_bsolve.F dft_densm.F dft_swapab.F dft_canorg.F cdft_util.F dft_diagn.F dft_spinflip.F \
+        dft_pstat.F
 
 HEADERS = dftps.fh dft_fdist.fh dft_conv.fh
 

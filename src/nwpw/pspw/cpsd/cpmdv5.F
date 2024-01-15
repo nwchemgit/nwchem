@@ -792,7 +792,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
            icount_shift = icount_shift + 1
            end do
   100      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
            backspace 31
 #endif
          else
@@ -1628,10 +1628,10 @@ c     >        ' set nwpw:makehmass2 .false.')
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted)')
  1332 FORMAT(/' Elements of Hamiltonian matrix (down)')
- 1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
- 1341 FORMAT(I3,2I3,' H=',E16.6)
+ 1340 FORMAT(I5,2I5,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
+ 1341 FORMAT(I5,2I5,' H=',E16.6)
  1350 FORMAT(/' orthonormality')
- 1360 FORMAT(I3,2I3,E18.7)
+ 1360 FORMAT(I5,2I5,E18.7)
  1370 FORMAT(I3)
  1380 FORMAT(' ''',a,'''',I4)
  1390 FORMAT(I3)

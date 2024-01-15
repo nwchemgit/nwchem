@@ -850,7 +850,7 @@ c
 #ifdef NXT
       next = nxtask(-nproc,task_size)
 #endif
-      call ga_igop(65331, cache_hitmiss, 12, '+')
+      call ga_igop(65331, cache_hitmiss(1,1), 12, '+')
       cache_hit=0
       cache_miss=0
       do jj=1,6
@@ -1243,6 +1243,7 @@ c
 #include "errquit.fh"
 #include "global.fh"
 #include "bgj.fh"
+#include "rtdb.fh"
 #include "mafdecls.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -1261,6 +1262,8 @@ c
       integer i
       logical oprint
       integer ilo(3),ihi(3)
+      logical dm3d
+      integer rtdb_out
       integer ga_create3d_atom_blocked
       external ga_create3d_atom_blocked
 c
@@ -1270,6 +1273,9 @@ c
      ,        ' ndens ',ndens
          call util_flush(luout)
       endif
+      rtdb_out=bgj_get_rtdb_handle()
+      if (.not.rtdb_get(rtdb_out,'dft:dm3d',mt_log,1,dm3d)) 
+     D     dm3d=.true.
 #if 0
       dims(1) = nfock
       dims(2) = nbf

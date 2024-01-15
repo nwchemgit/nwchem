@@ -150,8 +150,10 @@ c     xperde86 ==> 9520
 c
 c     hcth147@tz2p ==> 1947
 c
+c     r2scan0 ==> 19
+c
       integer num_dirs, ind, mlen, iline, n, itemp
-      parameter (num_dirs=165)
+      parameter (num_dirs=168)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -209,7 +211,8 @@ c
      &     'xncap', 'ncap', 'r2scan', 'r2scanl',
      &     'xscan', 'cscan',
      &     'hcth147@tz2p',
-     W     'wb97','wb97x','wb97x-d3'/
+     W     'wb97','wb97x','wb97x-d3', 
+     &     'xr2scan', 'cr2scan','r2scan0' /
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
@@ -295,6 +298,7 @@ c
      &     9710,9720,9650,9660,9615,9616,
      &  1947,
      &  9410,9420,9430,
+     &  9661,9662,9670, 
      &     1999 ) ind
 
 
@@ -1835,7 +1839,34 @@ c
       nlxfac(74) = .true.
         xfac(74) = 1.0d0
       goto 10
-
+c
+c X-only r2SCAN meta GGA
+c
+ 9661 lxfac(73) = .true.
+      nlxfac(73) = .true.
+      call xcinp_fact_noloc(test,'xr2scan',xfac(73))
+      goto 10
+c
+c C-only r2SCAN meta GGA
+c
+ 9662 lcfac(73) = .true.
+      nlcfac(73) = .true.
+      call xcinp_fact_noloc(test,'cr2scan',cfac(73))
+      goto 10
+c
+c r2SCAN0 hybrid meta GGA
+c
+9670  xccomb(86) = .true.
+       lcfac(73) = .true.
+      nlcfac(73) = .true.
+        cfac(73) = 1.0d0
+       lxfac(73) = .true.
+      nlxfac(73) = .true.
+        xfac(73) = .75d0
+       xfac(1)=0.25d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+      goto 10
 c
 c lb94 Vxc function
 c fill only x here, no c

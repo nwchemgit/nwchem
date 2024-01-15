@@ -1,22 +1,26 @@
 get_cmake_release(){
     UNAME_S=$(uname -s)
     CPU=$(uname -m)
-    CMAKE_VER=3.22.2
+    CMAKE_VER=3.24.0
     echo pwd is `pwd`
     orgdir=`pwd`
     cmake_instdir=$1
     echo "Parameter #1 is $1"
     echo cmake_instdir is $cmake_instdir
     rm -f cmake-${CMAKE_VER}.tar.gz
-    if [[ ${UNAME_S} == "Linux" ]] && [[ ${CPU} == "x86_64" ||  ${CPU} == "aarch64" || ${CPU} == "i686" ]] ; then
-	cd $cmake_instdir
-	if [[ ${CPU} == "i686" ]] ; then
-	    CMAKE_CPU="x86_64"
+    if [[ ${UNAME_S} == "Linux" ]]; then
+	if [[ ${CPU} == "x86_64" ||  ${CPU} == "aarch64" || ${CPU} == "i686" ]] ; then
+	    cd $cmake_instdir
+	    if [[ ${CPU} == "i686" ]] ; then
+		CMAKE_CPU="x86_64"
+	    else
+		CMAKE_CPU=${CPU}
+	    fi
+	    CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
+	    CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}.tar.gz
 	else
-	    CMAKE_CPU=${CPU}
+	        get_cmake_master
 	fi
-	CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
-	CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}.tar.gz
     elif [[ ${UNAME_S} == "Darwin" ]] ; then
 	cd $cmake_instdir
 	CMAKE=`pwd`/cmake-${CMAKE_VER}-macos-universal/CMake.app/Contents/bin/cmake
@@ -29,7 +33,11 @@ get_cmake_release(){
     else
 	curl -L ${CMAKE_URL} -o cmake-${CMAKE_VER}.tar.gz
 	tar xzf cmake-${CMAKE_VER}.tar.gz
-	CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
+	if [[ ${UNAME_S} == "Darwin" ]] ; then
+	    CMAKE=`pwd`/cmake-${CMAKE_VER}-macos-universal/CMake.app/Contents/bin/cmake
+	else
+	    CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
+	fi
     fi
     cd $orgdir
 

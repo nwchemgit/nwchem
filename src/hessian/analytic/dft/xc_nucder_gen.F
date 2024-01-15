@@ -162,7 +162,8 @@ c
       call dftgh_gridv0(rtdb,geom,basis, ipol,nbf,
      .        g_dens, 0d0, hess, g_rhs, calc_type,
      &        natoms, oactive, nactive, dbl_mb(k_rdens_atom),
-     &        int_mb(k_cetobfr), 0, .false.)
+     &     int_mb(k_cetobfr), 0, .false.,
+     &     0d0, .false.)
 c
 c     Clean up indexing arrays
 c

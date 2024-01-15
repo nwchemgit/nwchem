@@ -1,0 +1,83 @@
+name: NWChem_CI_tahoma
+
+on:
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+jobs:
+  build_workflow:
+    uses: edoapra/nwchem/.github/workflows/update_main.yml@main
+    secrets:
+      inherit
+  build_singularity:
+    needs: [build_workflow]
+    uses: edoapra/nwchem-singularity/.github/workflows/apptainer_action.ifx.yml@master
+    secrets:
+      inherit
+  test_on_tahoma:
+    needs: [build_singularity]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 2880
+    strategy:
+      matrix:
+        os:
+          - [self-hosted, centos7]
+        branch:
+          - hotfix/release-7-2-0
+          - master
+        sing_image:
+          - ompi41x.ifx
+          - ompi41x.ifort
+          - ompi41x
+          - mpi-ts.ompi41x.ifort
+      fail-fast: false
+    env:
+        USE_LIBXC: 1
+        COMEX_MAX_NB_OUTSTANDING: 8
+        SINGULARITYENV_NWCHEM_BASIS_LIBRARY: /cluster/apps/nwchem/nwchem/src/basis/libraries/
+        SINGULARITYENV_SCRATCH_DIR: /big_scratch
+        APPTAINERENV_NWCHEM_BASIS_LIBRARY: /cluster/apps/nwchem/nwchem/src/basis/libraries/
+        APPTAINERENV_SCRATCH_DIR: /big_scratch
+        MPIRUN_NPOPT: -n
+        NWCHEM_EXECUTABLE: "singularity exec /big_scratch/nwchems.img nwchem "
+    steps:
+      - name: nwchem version tag
+        run: |
+          if [[ ${{ matrix.branch }} ==  master ]]; then
+            echo "nwversion=dev" >> $GITHUB_ENV
+          else
+            echo "nwversion=720" >> $GITHUB_ENV
+          fi
+      - name:  dir name
+        run: |
+          echo "dirname=nwchem-${{ env.nwversion }}${{ github.nwversion }}.${{ github.run_id }}.${{ github.run_number }}.${{ matrix.sing_image }}" >> $GITHUB_ENV
+      - name: Checkout QA code
+        run: |
+          pwd
+          cd ..
+          rm  -rf ${{ env.dirname }}
+          wget -q https://github.com/nwchemgit/nwchem/tarball/${{ matrix.branch }} -O - | tar -xz --exclude=src --exclude=contrib --exclude=web --exclude=examples --exclude=doc --exclude=travis --exclude="nwxc*"  --exclude="chem-library-tests"
+          mv nwchemgit-nwchem-* ${{ env.dirname }}
+          ls -lr ${{ env.dirname }}/QA
+        shell: bash
+
+      - name: load singularity image
+        run: |
+          export https_proxy=http://proxy.emsl.pnl.gov:3128
+          singularity pull -F --name ./nwchems_`id -u`.img oras://ghcr.io/edoapra/nwchem/nwchem-${{ env.nwversion }}.${{ matrix.sing_image }}:latest
+          srun -N $SLURM_NNODES -n $SLURM_NNODES cp ./nwchems_`id -u`.img /big_scratch/nwchems.img
+        shell: bash
+      - name: run qa tests
+        run: |
+          cd ../${{ env.dirname }}/QA
+          env|egrep SLUR
+          source /etc/profile.d/modules.sh
+          module purge
+          module load gcc/9.3.0
+          module load openmpi/4.1.4
+          export https_proxy=http://proxy.emsl.pnl.gov:3128
+          export MPIRUN_PATH=`which srun`
+          MYNN=$(( $SLURM_NNODES*$SLURM_NTASKS_PER_NODE ))
+          echo MYNN is $MYNN
+          (echo ${{ env.nwversion }}.${{ matrix.sing_image }}; ./doqmtests.mpi  $MYNN flaky ; echo ${{ env.nwversion }}.${{ matrix.sing_image }}) | tee >(ts "%d%b%Y %H:%M:%S" > ../../../../doqmtests.mpi.log.` date +%b%d%Y_%H:%M`)
+        shell: bash

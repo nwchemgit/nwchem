@@ -129,7 +129,7 @@ realclean:
 	-$(RM) $(LIBDIR)/*.a $(BINDIR)/*
 	-$(RM) *.db movecs fort.41 fort.44
 	-$(RM) util/util_version.F
-	@# -$(RM) 64_to_32 32_to_64 deps_stamp # This conversion is such a hassle that realclean should not force it.
+	@# -$(RM) 64_to_32 32_to_64 deps_stamp mpi_include.txt # This conversion is such a hassle that realclean should not force it.
 
 .PHONY:	cleanF
 cleanF:
@@ -183,8 +183,8 @@ clear_dbl_to_sngl:
 
 directories:
 	test \! -f 64_to_32 -o \! -f 32_to_64 || rm -f 64_to_32 32_to_64
-	test -d $(LIBDIR) || $(MKDIR) -p $(LIBDIR)
-	test -d $(BINDIR) || $(MKDIR) -p $(BINDIR)
+	test -d $(LIBDIR) || mkdir -p $(LIBDIR)
+	test -d $(BINDIR) || mkdir -p $(BINDIR)
 	./util/util_nwchem_version.bash
 
 auxiliary:
@@ -256,6 +256,7 @@ install: link
 	@mkdir -p $(INSTALL_PREFIX)/bin  $(INSTALL_PREFIX)/share
 	@cp $(BINDIR)/$(NWBINNAME) $(INSTALL_PREFIX)/bin/.
 	@cp -r basis/libraries $(INSTALL_PREFIX)/share/.
+	@cp -r basis/libraries.bse $(INSTALL_PREFIX)/share/.
 	@cp -r nwpw/libraryps $(INSTALL_PREFIX)/share/.
 	@cp -r data $(INSTALL_PREFIX)/share/.
 	@ls -l $(INSTALL_PREFIX)

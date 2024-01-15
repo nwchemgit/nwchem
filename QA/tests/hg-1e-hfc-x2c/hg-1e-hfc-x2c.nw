@@ -1,0 +1,109 @@
+echo
+start testjob
+
+memory 500 mb
+
+geometry noautoz units angstrom
+symmetry c1
+Hg 0. 0. 0. 
+end
+
+BASIS "ao basis" spherical  PRINT
+#BASIS SET: ANO-RCC uncontracted s set minus the most
+# diffuse exponent, plus added tight fcts
+Hg  s
+ 261555477.5   1.0
+Hg  s
+ 1307777387.5   1.0
+Hg  s
+ 6538886937.5   1.0
+Hg  s
+ 32694434687.5   1.0
+Hg  s
+ 163472173437.5   1.0
+Hg  s
+ 817360867187.5   1.0
+Hg  s
+ 4086804335937.5   1.0
+Hg  s
+ 20434021679687.5   1.0
+Hg  s
+ 102170108398437.5   1.0
+Hg  s
+ 510850541992187.5   1.0
+
+Hg    S
+ 52311095.50000000    1.0
+Hg    S
+ 12004904.50000000    1.0
+Hg    S
+ 3398412.620000000    1.0
+Hg    S
+ 1053466.230000000    1.0
+Hg    S
+ 352643.1210000000    1.0
+Hg    S
+ 125378.8030000000    1.0
+Hg    S
+  46972.2738000000    1.0
+Hg    S
+  18358.5908000000    1.0
+Hg    S
+   7416.8461800000    1.0
+Hg    S
+   3086.3636900000    1.0
+Hg    S
+   1323.9649700000    1.0
+Hg    S
+    582.7863440000    1.0
+Hg    S
+    265.3934500000    1.0
+Hg    S
+    125.7373690000    1.0
+Hg    S
+     61.4474879000    1.0
+Hg    S
+     30.7434147000    1.0
+Hg    S
+     15.1121715000    1.0
+Hg    S
+      7.3294646500    1.0
+Hg    S
+      3.4863874400    1.0
+Hg    S
+      1.4995717300    1.0
+Hg    S
+      0.5971311500    1.0
+Hg    S
+      0.2083253300    1.0
+Hg    S
+      0.0662640000    1.0
+Hg    S
+      0.0265056000    1.0
+end
+
+charge 79
+
+dft
+grid xfine
+convergence energy 1e-10
+XC hfexch
+odft
+mult 2
+direct
+noio
+vectors input hcore
+end
+
+relativistic
+ x2c on
+ clight 137.036
+end
+
+set x2c:hfc T
+set x2c:analyticpvp T
+set x2c:noatm T
+set dft:no2e T
+
+task dft energy
+

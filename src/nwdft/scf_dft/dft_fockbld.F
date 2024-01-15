@@ -9,8 +9,8 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time,
 cc AJL/Begin/FDE
-c     ,     g_zora_sf,g_frozemb)
-     ,     g_zora_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde,eelec )
+c     ,     g_rel_sf,g_frozemb)
+     ,     g_rel_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde,eelec )
 cc AJL/End
 c     
 c     $Id$
@@ -26,6 +26,7 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 #include "zora.fh"
+#include "x2c.fh"
 #include "case.fh"
 c#include "dimqm.fh"
 c
@@ -65,13 +66,15 @@ c
 c
       double precision Ebq
 c
-      integer g_zora_sf(*)       ! spin-free zora ga
-      double precision Ezora_sf  ! spin-free zora energy
+      integer g_rel_sf(*)       ! spin-free zora/x2c ga
+      double precision Erel_sf  ! spin-free zora/x2c energy
 c
       integer g_frozemb       ! frozen embedding ga
       double precision Efrozemb  ! energy
 
       integer g_cosmo
+
+      logical no2e
 c
 c     timings
 c
@@ -106,7 +109,7 @@ c      double precision rho_n_fde ![out]
       integer g_dens_fde(2)
 cc AJL/End
       double precision t0
-      integer g_dmr
+      integer g_adft(2)
 c
       do_cosmo_smd = .false.
       do_cosmo_vem = 0
@@ -148,12 +151,28 @@ c     =========================================================================
       me=ga_nodeid()
       if (odftps) call pstat_on(ps_fockb)
 
+c ... jochen: to run tests on one-electron systems, we
+c     simply disable all two-electron contributions if
+c     requested by an input switch
+      if(.not.rtdb_get(rtdb,'dft:no2e',MT_LOG,1,no2e))
+     &   no2e = .false.
+      if (no2e.and.me.eq.0) write (luout,*)
+     &   'WARNING: dft:no2e set. Disabling Coulomb and XC Fock terms'
+
+
 c
       Ecoul  = 0d0
       Exc(1) = 0d0
       Exc(2) = 0d0
 
       icd_coef = 1
+
+      if (cdfit) then
+        ! We need 2*ipol coefficients for ADFT calculations
+        if (.not.MA_Push_Get(MT_Dbl,2*ipol*nbf_cd,'cd_coef',lcd_coef,
+     &       icd_coef))
+     &    call errquit('dft_scf: cannot allocate cd_coef',0, MA_ERR)
+      endif
 
 c Jorge Garza/Begin
       if (ldmix) then
@@ -341,50 +360,6 @@ c
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dft_scf: cannot pop stack',0, MA_ERR)
 c
-      if (CDFIT)then
-c
-c        Fit the electron charge density.
-c     
-         if (.not.MA_Push_Get(MT_Dbl,nbf_cd,'cd_coef',lcd_coef,
-     &        icd_coef))
-     &        call errquit('dft_scf: cannot allocate cd_coef',0, MA_ERR)
-         if (oprint_time)
-     &        call dft_tstamp(' Before call to FITCD.   ')
-         if (odftps) call pstat_on(ps_fitcd)
-         call case_setflags(.false.)  ! no attenuation for Coulomb
-         call dft_fitcd(1,Dbl_MB(icd_coef),dd3cERI,Ecoul,
-     &                  g_dens, nTotEl, n_batch, n3c_int,
-     &                  ii3cwhat, n3c_dbl, IOLGC,
-     .        natoms,
-     &                  .false., 0d0, .false.)
-         if (odftps) call pstat_off(ps_fitcd)
-      endif
-c     
-      if (oprint_time)
-     &     call dft_tstamp(' Before call to GETVCOUL.')
-      if (odftps) call pstat_on(ps_vcoul)
-      call dft_getvc(Dbl_MB(icd_coef), dd3cERI, Ecoul,
-     &               g_tmp, iVcoul_opt, n_batch, 
-     &               n3c_int, ii3cwhat, n3c_dbl,
-     &               IOLGC,
-     &               .false., 1)
-      if (odftps) call pstat_off(ps_vcoul)
-c     
-c     Add V coul to Fock Matrix
-c     
-cc AJL/Begin/SPIN ECPs
-c      call ga_dadd(1d0, g_tmp, 1d0, g_fock, g_fock)
-      do i=1,ipol
-        call ga_dadd(1d0, g_tmp, 1d0, g_focks(i), g_focks(i))
-      enddo
-cc AJL/End
-c
-      if (CDFIT)then
-         if (.not.ma_pop_stack(lcd_coef))
-     &        call errquit('dft_scf: cannot pop stack',0, MA_ERR)
-      endif
-c
-c     
       if (ipol.gt.1)then
 c     
 c        Restore alpha and beta densities.
@@ -425,6 +400,27 @@ c        call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
         end if
         call ga_sync()
       end if
+c      
+      if (CDFIT)then
+c
+c        Fit the electron charge density.
+c     
+         if (oprint_time)
+     &        call dft_tstamp(' Before call to FITCD.   ')
+         if (odftps) call pstat_on(ps_fitcd)
+         call case_setflags(.false.)  ! no attenuation for Coulomb
+
+         ! Compute spin-resolved fitting coefficients
+         call dft_fitcd(ipol,Dbl_MB(icd_coef),dd3cERI,Ecoul,
+     &                  g_dens, nTotEl, n_batch, n3c_int,
+     &                  ii3cwhat, n3c_dbl, IOLGC,
+     .        natoms,
+     &                  .false., 0d0, .false.)
+         if (odftps) call pstat_off(ps_fitcd)
+      else
+         Ecoul = 0d0
+      endif
+c     
 c     
 c     == Compute the XC potential and energy ==
       g_vxc(1) = g_tmp
@@ -440,28 +436,48 @@ c
       if (odftps) call pstat_on(ps_xc)
 c
 c     == Calculate the HF exchange (exact Coulomb), DFT exchange-correlation ==
+c     ! ADFT: pass fitting coefficients to build fitted density on the grid
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &             rdens_atom, cetobfr, natoms)
+     &             rdens_atom, cetobfr, natoms, dbl_mb(icd_coef))
 c
+      do i=1,ipol 
+        call ga_dadd(1.d0, g_vxc(i), 1.d0, g_focks(i), g_focks(i))
+      enddo
+
       if (odftps) call pstat_off(ps_xc)
 c
-c     add zora contributions
-      if (do_zora) then
-        Ezora_sf =0.d0
+      if (oprint_time)
+     &     call dft_tstamp(' Before call to GETVCOUL.')
+      if (odftps) call pstat_on(ps_vcoul)
+
+      ! Compute contribution to Fock matrix from fitted
+      ! quantities
+      call dft_getvc(Dbl_MB(icd_coef), dd3cERI, Ecoul,
+     &               g_vxc, iVcoul_opt, n_batch, 
+     &               n3c_int, ii3cwhat, n3c_dbl,
+     &               IOLGC,
+     &               .false., ipol)
+      if (odftps) call pstat_off(ps_vcoul)
+c     
+c     Add V coul to Fock Matrix
+c     
+c     add relativistic energy contributions
+      if (do_zora .or. do_x2c) then
+        Erel_sf =0.d0
         if (ipol.gt.1) then
-          Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
-     &             + ga_ddot(g_dens(2),g_zora_sf(2))
+          Erel_sf = ga_ddot(g_dens(1),g_rel_sf(1))
+     &             + ga_ddot(g_dens(2),g_rel_sf(2))
         else
-          Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
+          Erel_sf = ga_ddot(g_dens(1),g_rel_sf(1))
         end if
-        Ecore = Ecore + Ezora_sf 
+        Ecore = Ecore + Erel_sf 
 c
-        call ga_dadd(1.d0,g_vxc(1),1.d0,g_zora_sf(1),g_vxc(1))
+        call ga_dadd(1.d0,g_vxc(1),1.d0,g_rel_sf(1),g_vxc(1))
         if (ipol.gt.1) 
-     &   call ga_dadd(1.d0,g_vxc(2),1.d0,g_zora_sf(2),g_vxc(2))
+     &   call ga_dadd(1.d0,g_vxc(2),1.d0,g_rel_sf(2),g_vxc(2))
 c
-      end if  ! do_zora
+      end if  ! do_zora .or. do_x2c
 c
 c     == if frozen embedding ==
       Efrozemb = 0.d0
@@ -634,6 +650,13 @@ c       DIM potential is from total density, so same for both alpha and beta
         if (.not. ga_destroy(g_vdim))
      &    call errquit("destroy vdim failed", 9, GA_ERR)
       end if
+
+      if (CDFIT)then
+         if (.not.ma_pop_stack(lcd_coef))
+     &        call errquit('dft_scf: cannot pop stack',0, MA_ERR)
+      endif
+c
+
       if (oprint_time)
      &     call dft_tstamp(' End of parallel region. ')
 c     

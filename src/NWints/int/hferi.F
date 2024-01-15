@@ -147,6 +147,9 @@ c Sum across (Ip,Jp,Kp) for each value of (Iq,Jq,Kq).
 c Define the product of the Hermite expansions coefficients for 
 c overlap distribution "P".
 !DEC$ LOOP COUNT MAX=30, MIN=1
+#ifdef PGI_NOSIMD
+cpgi$l novect
+#endif
                       do mp = 1,MPP
                          E3(mp) = Ep(1,mp,0,Ip,Ia,Ib)*
      &                        Ep(2,mp,0,Jp,Ja,Jb)*

@@ -1,0 +1,8 @@
+      logical lx2c_efg, lx2c_moment, lx2c_hfc, lx2c_keepU
+      logical lx2c_c2u, lx2c_u2c, lx2c_noatm
+      
+c
+      common /x2c_scf/
+     &     lx2c_efg, lx2c_moment, lx2c_hfc, lx2c_keepU,
+     &     lx2c_c2u, lx2c_u2c, lx2c_noatm
+      

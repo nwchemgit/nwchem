@@ -1,6 +1,7 @@
       subroutine dft_scfcvg(rms, derr, etold, etnew, e_conv, 
      &                      d_conv, g_conv, ipol, iter, iterations, 
-     &                      idone, rtdb, converged, diising)
+     &     idone, rtdb, converged, diising,
+     B     back_to_atguess)
 c
 c     $Id$
 c
@@ -21,6 +22,7 @@ c
       integer rtdb              ! [input]
       logical converged         ! [output]
       logical diising           ! [input]
+      integer back_to_atguess   ! [in/out]
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -89,6 +91,13 @@ c     Check over-all convergence.
 c
       converged = e_conv_logical.and.d_conv_logical.and.g_conv_logical
       if (converged)idone = 1
+c
+c     try at guess if d_e > 1d-1 after back_to_atguess iterations
+c
+      if(.not.converged.and.back_to_atguess.gt.0) then
+         if(abde.gt.1d-1.and.iter.gt.back_to_atguess)
+     B        back_to_atguess=-1
+      endif
 c     
 c     Check iteration value.
 c     

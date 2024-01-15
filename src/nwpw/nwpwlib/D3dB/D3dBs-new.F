@@ -195,7 +195,7 @@ ccccccccccc  #define TCGMSG
       common    / D3dBs_fft / tmpx,tmpy,tmpz
 
 #ifdef FFTW3
-#include "fftw3.fh"
+#include <fftw3.f>
        integer Atest(2),nxh,nxhz,nxhy
 #endif
 
@@ -248,48 +248,48 @@ c       iestimate = FFTW_EXHAUSTIVE
      >                       'Atest',Atest(2),Atest(1)))
      >     call errquit('D3dBs_fft_init:out of heap memory',0,MA_ERR)
 
-         call fftw_plan_many_dft(splans(1,nb),1,nz(nb),nxh,
+         call sfftw_plan_many_dft(splans(1,nb),1,nz(nb),nxh,
      >                        scpl_mb(Atest(1)),nxhz,nxh,1,
      >                        scpl_mb(Atest(1)),nxhz,nxh,1,
      >                        ibackward,FFTW_EXHAUSTIVE)
-         call fftw_plan_many_dft(splans(2,nb),1,ny(nb),nxh,
+         call sfftw_plan_many_dft(splans(2,nb),1,ny(nb),nxh,
      >                        scpl_mb(Atest(1)),nxhy,nxh,1,
      >                        scpl_mb(Atest(1)),nxhy,nxh,1, 
      >                        ibackward,FFTW_EXHAUSTIVE)
-         call fftw_plan_many_dft_c2r(splans(3,nb),1,nx(nb),
+         call sfftw_plan_many_dft_c2r(splans(3,nb),1,nx(nb),
      >        ny(nb)*nq(nb),
      >        scpl_mb(Atest(1)),nxh       *ny(nb)*nq(nb),1,nxh,
      >        scpl_mb(Atest(1)),(nx(nb)+2)*ny(nb)*nq(nb),1,nx(nb)+2, 
      >        FFTW_EXHAUSTIVE)
 
-         call fftw_plan_many_dft_r2c(splans(4,nb),1,nx(nb),
+         call sfftw_plan_many_dft_r2c(splans(4,nb),1,nx(nb),
      >        ny(nb)*nq(nb),
      >        scpl_mb(Atest(1)),(nx(nb)+2)*ny(nb)*nq(nb),1,nx(nb)+2,
      >        scpl_mb(Atest(1)),nxh       *ny(nb)*nq(nb),1,nxh,
      >        FFTW_EXHAUSTIVE)
-         call fftw_plan_many_dft(splans(5,nb),1,ny(nb),nxh,
+         call sfftw_plan_many_dft(splans(5,nb),1,ny(nb),nxh,
      >                        scpl_mb(Atest(1)),nxhy,nxh,1,
      >                        scpl_mb(Atest(1)),nxhy,nxh,1, 
      >                        iforward,FFTW_EXHAUSTIVE)
-         call fftw_plan_many_dft(splans(6,nb),1,nz(nb),nxh,
+         call sfftw_plan_many_dft(splans(6,nb),1,nz(nb),nxh,
      >                        scpl_mb(Atest(1)),nxhz,nxh,1,
      >                        scpl_mb(Atest(1)),nxhz,nxh,1,
      >                        iforward,FFTW_EXHAUSTIVE)
 
-         call fftw_plan_many_dft(splans(7,nb),1,nz(nb),1,
+         call sfftw_plan_many_dft(splans(7,nb),1,nz(nb),1,
      >                        scpl_mb(Atest(1)),nxhz,nxh,1,
      >                        scpl_mb(Atest(1)),nxhz,nxh,1,
      >                        ibackward,FFTW_EXHAUSTIVE)
-         call fftw_plan_many_dft(splans(8,nb),1,ny(nb),1,
+         call sfftw_plan_many_dft(splans(8,nb),1,ny(nb),1,
      >                        scpl_mb(Atest(1)),nxhy,nxh,1,
      >                        scpl_mb(Atest(1)),nxhy,nxh,1,
      >                        ibackward,FFTW_EXHAUSTIVE)
 
-          call fftw_plan_many_dft(splans(9,nb),1,ny(nb),1,
+          call sfftw_plan_many_dft(splans(9,nb),1,ny(nb),1,
      >                        scpl_mb(Atest(1)),nxhy,nxh,1,
      >                        scpl_mb(Atest(1)),nxhy,nxh,1,
      >                        iforward,FFTW_EXHAUSTIVE)
-          call fftw_plan_many_dft(splans(10,nb),1,nz(nb),1,
+          call sfftw_plan_many_dft(splans(10,nb),1,nz(nb),1,
      >                        scpl_mb(Atest(1)),nxhz,nxh,1,
      >                        scpl_mb(Atest(1)),nxhz,nxh,1,
      >                        iforward,FFTW_EXHAUSTIVE)
@@ -305,48 +305,48 @@ c       iestimate = FFTW_EXHAUSTIVE
      >                         Atest(2),Atest(1)))
      >     call errquit('D3dBs_fft_init:out of heap memory',0,MA_ERR)
 
-         call fftw_plan_many_dft(splans(11,nb),1,nz(nb),nq3(nb),
+         call sfftw_plan_many_dft(splans(11,nb),1,nz(nb),nq3(nb),
      >                        scpl_mb(Atest(1)),nz(nb)*nq3(nb),1,nz(nb),
      >                        scpl_mb(Atest(1)),nz(nb)*nq3(nb),1,nz(nb),
      >                        ibackward,FFTW_EXHAUSTIVE)
-         call fftw_plan_many_dft(splans(12,nb),1,ny(nb),nq2(nb),
+         call sfftw_plan_many_dft(splans(12,nb),1,ny(nb),nq2(nb),
      >                        scpl_mb(Atest(1)),ny(nb)*nq2(nb),1,ny(nb),
      >                        scpl_mb(Atest(1)),ny(nb)*nq2(nb),1,ny(nb),
      >                        ibackward,FFTW_EXHAUSTIVE)
-         call fftw_plan_many_dft_c2r(splans(13,nb),1,nx(nb),
+         call sfftw_plan_many_dft_c2r(splans(13,nb),1,nx(nb),
      >        nq1(nb),
      >        scpl_mb(Atest(1)),nfft3d(nb),1,nxh,
      >        scpl_mb(Atest(1)),n2ft3d(nb),1,(nx(nb)+2), 
      >        FFTW_EXHAUSTIVE)
-         call fftw_plan_many_dft_r2c(splans(14,nb),1,nx(nb),
+         call sfftw_plan_many_dft_r2c(splans(14,nb),1,nx(nb),
      >        nq1(nb),
      >        scpl_mb(Atest(1)),n2ft3d(nb),1,nx(nb)+2,
      >        scpl_mb(Atest(1)),nfft3d(nb),1,nxh,
      >        FFTW_EXHAUSTIVE)
 
-         call fftw_plan_many_dft(splans(15,nb),1,ny(nb),nq2(nb),
+         call sfftw_plan_many_dft(splans(15,nb),1,ny(nb),nq2(nb),
      >                        scpl_mb(Atest(1)),ny(nb)*nq2(nb),1,ny(nb),
      >                        scpl_mb(Atest(1)),ny(nb)*nq2(nb),1,ny(nb),
      >                        iforward,FFTW_EXHAUSTIVE)
-         call fftw_plan_many_dft(splans(16,nb),1,nz(nb),nq3(nb),
+         call sfftw_plan_many_dft(splans(16,nb),1,nz(nb),nq3(nb),
      >                        scpl_mb(Atest(1)),nz(nb)*nq3(nb),1,nz(nb),
      >                        scpl_mb(Atest(1)),nz(nb)*nq3(nb),1,nz(nb),
      >                        iforward,FFTW_EXHAUSTIVE)
 
-         call fftw_plan_many_dft(splans(17,nb),1,nz(nb),1,
+         call sfftw_plan_many_dft(splans(17,nb),1,nz(nb),1,
      >                        scpl_mb(Atest(1)),nz(nb),1,1,
      >                        scpl_mb(Atest(1)),nz(nb),1,1,
      >                        ibackward,FFTW_EXHAUSTIVE)
-         call fftw_plan_many_dft(splans(18,nb),1,ny(nb),1,
+         call sfftw_plan_many_dft(splans(18,nb),1,ny(nb),1,
      >                        scpl_mb(Atest(1)),ny(nb),1,1,
      >                        scpl_mb(Atest(1)),ny(nb),1,1,
      >                        ibackward,FFTW_EXHAUSTIVE)
 
-          call fftw_plan_many_dft(splans(19,nb),1,ny(nb),1,
+          call sfftw_plan_many_dft(splans(19,nb),1,ny(nb),1,
      >                        scpl_mb(Atest(1)),ny(nb),1,1,
      >                        scpl_mb(Atest(1)),ny(nb),1,1,
      >                        iforward,FFTW_EXHAUSTIVE)
-          call fftw_plan_many_dft(splans(20,nb),1,nz(nb),1,
+          call sfftw_plan_many_dft(splans(20,nb),1,nz(nb),1,
      >                        scpl_mb(Atest(1)),nz(nb),1,1,
      >                        scpl_mb(Atest(1)),nz(nb),1,1,
      >                        iforward,FFTW_EXHAUSTIVE)
@@ -388,7 +388,7 @@ c       iestimate = FFTW_EXHAUSTIVE
 
 #ifdef FFTW3
       do i=1,nplans
-         if (splans(i,nb).ne.0) call fftw_destroy_plan(splans(i,nb))
+         if (splans(i,nb).ne.0) call sfftw_destroy_plan(splans(i,nb))
       end do
 #endif
 
@@ -497,7 +497,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef FFTW3
       do q=1,nq(nb)
         indx = 1+(q-1)*nxhz
-        call fftw_execute_dft(pslans(1,nb),A(indx),A(indx))
+        call sfftw_execute_dft(splans(1,nb),A(indx),A(indx))
       end do
 #else
       indx0 = 0
@@ -536,7 +536,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef FFTW3
       do q=1,nq(nb)
          indx = 1+(q-1)*nxhy
-         call fftw_execute_dft(splans(2,nb),A(indx),A(indx))
+         call sfftw_execute_dft(splans(2,nb),A(indx),A(indx))
       end do
 #else
       indx0 = 0
@@ -566,7 +566,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *********************************************************************
 
 #ifdef FFTW3
-      call fftw_execute_dft_c2r(splans(3,nb),A,A)
+      call sfftw_execute_dft_c2r(splans(3,nb),A,A)
 
 #else
 
@@ -595,7 +595,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *****************************************************
 
 #ifdef FFTW3
-      call fftw_execute_dft(splans(11,nb),A,A)
+      call sfftw_execute_dft(splans(11,nb),A,A)
 
 #else
 
@@ -615,7 +615,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ***   A(ny(nb),nz(nb),kx) <- fft1d^(-1)[A(ky,nz(nb),kx)]  ***
 *     *************************************************************
 #ifdef FFTW3
-      call fftw_execute_dft(splans(12,nb),A,A)
+      call sfftw_execute_dft(splans(12,nb),A,A)
 
 #else
       offset=tid*(2*ny(nb)+15)
@@ -634,7 +634,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *********************************************************************
 
 #ifdef FFTW3
-      call dfftw_execute_dft_c2r(splans(13,nb),A,A)
+      call sfftw_execute_dft_c2r(splans(13,nb),A,A)
 
 #else
       offset=tid*(2*nx(nb)+15)
@@ -842,7 +842,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ***   A(kx,ny(nb),nz(nb)) <- fft1d[A(nx(nb),ny(nb),nz(nb))]  ***
 *     ****************************************************************
 #ifdef FFTW3
-      call dfftw_execute_dft_r2c(splans(4,nb),A,A)
+      call sfftw_execute_dft_r2c(splans(4,nb),A,A)
 
 #else
       offset=tid*(2*nx(nb)+15)
@@ -860,7 +860,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef FFTW3
       do q=1,nq(nb)
          indx = 1+(q-1)*nxhy
-         call fftw_execute_dft(splans(5,nb),A(indx),A(indx))
+         call sfftw_execute_dft(splans(5,nb),A(indx),A(indx))
       end do
 
 #else
@@ -902,7 +902,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef FFTW3
       do q=1,nq(nb)
          indx = 1+(q-1)*nxhz
-         call fftw_execute_dft(splans(6,nb),A(indx),A(indx))
+         call sfftw_execute_dft(splans(6,nb),A(indx),A(indx))
       end do
 
 #else
@@ -947,7 +947,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     ***   A(kx,ny(nb),nz(nb)) <- fft1d[A(nx(nb),ny(nb),nz(nb))]  ***
 *     ****************************************************************
 #ifdef FFTW3
-      call fftw_execute_dft_r2c(splans(14,nb),A,A)
+      call sfftw_execute_dft_r2c(splans(14,nb),A,A)
 #else
       offset=tid*(2*nx(nb)+15)
       do i=tid+1,nq1(nb),nthr
@@ -964,7 +964,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     ***   A(ky,nz(nb),kx) <- fft1d[A(ny(nb),nz(nb),kx)]  ***
 *     ********************************************
 #ifdef FFTW3
-      call fftw_execute_dft(splans(15,nb),A,A)
+      call sfftw_execute_dft(splans(15,nb),A,A)
 
 #else
       offset=tid*(2*ny(nb)+15)
@@ -982,7 +982,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     ***   A(kz,kx,ky) <- fft1d[A(nz(nb),kx,ky)]  ***
 *     ************************************************
 #ifdef FFTW3
-      call fftw_execute_dft(splans(16,nb),A,A)
+      call sfftw_execute_dft(splans(16,nb),A,A)
 #else
       offset=tid*(2*nz(nb)+15)
       do i=tid+1,nq3(nb),nthr

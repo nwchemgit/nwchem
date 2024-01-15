@@ -2166,9 +2166,9 @@ cccccccccccccccccccc
 
 
 *     ***********************************
-*     *					*
-*     *	 	  cpsp_readall  	*
-*     *					*
+*     *                                 *
+*     *	 	  cpsp_readall              *
+*     *                                 *
 *     ***********************************
 
       subroutine cpsp_readall()
@@ -2197,11 +2197,13 @@ cccccccccccccccccccc
 
 *     **** external functions ****
       logical      nwpw_filefind,control_spin_orbit,control_print
+      logical      control_psp_reset
       integer      control_ngrid
       real*8       control_unita
       character*12 control_boundry
       character*4  ion_atom
       external     nwpw_filefind,control_spin_orbit,control_print
+      external     control_psp_reset
       external     control_ngrid
       external     control_unita
       external     control_boundry
@@ -2299,7 +2301,8 @@ cccccccccccccccccccc
            correct_box = .true.
            boundry = control_boundry()
            l =index(boundry,' ') - 1
-           if ( (ngp(1).ne.control_ngrid(1)) .or.
+           if (control_psp_reset(ion_atom(ia)).or.
+     >       (ngp(1).ne.control_ngrid(1)) .or.
      >       (ngp(2).ne.control_ngrid(2)) .or.
      >       (ngp(3).ne.control_ngrid(3)) .or. 
      >       (unita(1,1).ne.control_unita(1,1)) .or.
@@ -2327,7 +2330,12 @@ cccccccccccccccccccc
                  end if
               end if
            end if
-           if (correct_box) found = .true.
+           if (correct_box) then
+               found = .true.
+
+*              **** set pawexist here ****
+           end if
+
            if (ierr.eq.1)   then
               found = .false.
               if (mprint) then

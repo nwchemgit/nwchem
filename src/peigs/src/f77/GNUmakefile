@@ -16,7 +16,6 @@ FOBJ = inverm.o \
        dstebz3.o \
        heapsort.o \
        neblw2.o\
-       dspevx2.o \
 	dgetavec.o \
 	dgetavec2.o \
 	dgetavec3.o \
@@ -29,7 +28,6 @@ FOBJ = samax.o \
        sstebz3.o \
        sheapsort.o \
        sneblw2.o \
-       dspevx2.o \
 	dgetavec.o \
 	dgetavec2.o \
 	dgetavec3.o \
@@ -62,7 +60,7 @@ clean:
 		-rm -f *.s
 ifdef REMOVESF
 		-rm -f dgetavec.f dlaebz2.f  \
-		dspevx2.f dstebz3.f \
+		dstebz3.f \
 		neblw2.f sneblw2.f sstebz3.f
 endif
 		-rm -f F*.f
@@ -72,12 +70,12 @@ endif
 64_to_32:
 	$(CNFDIR)/64_to_32 types.f inverm.F \
 	 dgetavec.F dgetavec2.f dgetavec3.f dgetavec4.F \
-	dptsvx2.f dspevx2.F
+	dptsvx2.f
 
 32_to_64:
 	$(CNFDIR)/32_to_64 types.f inverm.F \
 	 dgetavec.F dgetavec2.f dgetavec3.f dgetavec4.F \
-	dptsvx2.f dspevx2.F
+	dptsvx2.f
 
 .f.o:; $(peigs_FC) -c $<
 .F.o:; $(peigs_FC) -c $<

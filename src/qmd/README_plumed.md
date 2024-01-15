@@ -1,6 +1,10 @@
 # Notes on NWChem-Plumed interface
 
-Used Plumed version 2.6
+
+## Automated installation in NWChem
+
+The `BUILD_PLUMED` env. variable installs Plumed and compiles the qmd module.
+
 
 ## Plumed Installation
 
@@ -9,7 +13,8 @@ https://www.plumed.org/doc-v2.6/user-doc/html/_installation.html
 * 32bit integer BLAS/LAPACK (e.g. MKL,OpenBLAS) are required both in NWChem and Plumed.
 In order to get Plumed to link the correct Blas/Lapack libraries, the variales LDFLAGS and LIBS must be supplied to
 autconf.
-* No need of MPI for now. It is better to disable the MPI option with --disable-mpi
+* No need of MPI for now. It is better to disable the MPI option with --disable-mpi  
+
 Example on EMSL Tahoma 
 ```
 FC=ifort  LDFLAGS=-L$MKLROOT/lib/intel64 LIBS="-lmkl_intel_lp64 -lmkl_sequential -lmkl_core  -lpthread -lm" ./configure --prefix=/home/edo/tahoma/apps/plumed262.intel20u2 --disable-mpi

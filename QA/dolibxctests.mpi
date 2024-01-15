@@ -16,17 +16,30 @@ fi
   echo
 
 #
+myexit=0    
 if [[  -z "${USE_LIBXC}" ]]; then
     echo 'not running libxc QAs since USE_LIBXC is not defined'
 else
 ./runtests.mpi.unix procs $np libxc_he2+ 
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np libxc_li2freq
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np libxc-h2o-camb3lyp-pol
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np libxc_he2p_wb97
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np libxc_ne2p_wb97x
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np libxc_o2_bnl
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np libxc_tddftgrad_n2_uks
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np libxc_tddftgrad_h2
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np libxc_rscan
+let "myexit+=$?"
+./runtests.mpi.unix procs $np libxc_scanl
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np libxc_waterdimer_bmk
 fi
+exit $myexit

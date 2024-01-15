@@ -18,10 +18,13 @@ basis
 end
 
 cosmo
+  print forces cosmo_energies
 end
 
 scf
-  print forces cosmo_energies
+  direct
+  tol2e 1d-8
+  print forces 
 end
 
 task scf gradient

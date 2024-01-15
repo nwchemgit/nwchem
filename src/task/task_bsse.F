@@ -659,6 +659,8 @@ c
       double precision q_old (mx_atm), q_new (mx_atm)
       double precision c(3,mx_atm)
       double precision ctmp(3,mx_atm)
+      logical allbq
+      integer lenb
 c
       logical bsse_rtdb_store
       external bsse_rtdb_store
@@ -686,14 +688,19 @@ c
 c
 c         initialize all centers as bqX
 c
-          tag_new(l) = 'bq' // tag_old(l)
-          q_new(l) = 0.0d0
+           lenb=inp_strlen(tag_old(l))
+           tag_new(l)= '  '
+           tag_new(l)(1:lenb+2) = 'bq' // tag_old(l)
+     T          (1:lenb)
+           if(lenb.lt.14) tag_new(l)(lenb+3:lenb+3)=' '
+           q_new(l) = 0.0d0
 c
           do k = 1, mon_atm(j)
 c
 c           only do bsse with atoms
 c
-            is_atm = geom_tag_to_element(tag_old(l),symbol,element,atn)
+             is_atm = geom_tag_to_element(tag_old(l),symbol,
+     E            element,atn)
             if ((.not. is_atm) .and. symbol.ne.'bq')
      $        call errquit('bsse_create_geom: not atom or bq',
      $                     0,GEOM_ERR)
@@ -712,15 +719,24 @@ c
 c
 c       Sort out the masses of the various centers
 c
+        allbq=.true.
         do l = 1, natoms
-          is_atm = geom_tag_to_element(tag_new(l),symbol,element,atn)
+           is_atm = geom_tag_to_element(tag_new(l),
+     $          symbol,element,atn)
+          if(symbol.ne.'bq') allbq=.false.
           if ((.not. is_atm) .and. symbol.ne.'bq')
      $       call errquit('bsse_create_geom: not atom or bq',
      $                    0,GEOM_ERR)
           if (.not.geom_atn_to_default_mass(atn,mass(l)))
      $       call errquit('bsse_create_geom: default mass failed',
      $                    911,GEOM_ERR)
-        enddo
+       enddo
+
+       if(allbq) then
+          write(6,*) ' !!!! BSSE generated geometry made of all bqs'
+          call errquit(' task_bsse: wrong geometry ',0,0)
+       endif
+
 c
         lenname= inp_strlen(mon_name(j)) 
 c
@@ -970,15 +986,12 @@ c-----------------------------------------------------------------------
 
         bsse_error = 0.0d0
 
-        i = 1
+        do j = 1, nmon,2
 
-        do j = 1, nmon
-
-          m_error(j) = mon_energy(i) - mon_energy(i+1)
+          m_error(j) = mon_energy(j) - mon_energy(j+1)
           bsse_error = bsse_error + m_error(j)
-          i= i + 2
 
-        enddo
+       enddo
 
       final_spr_energy = spr_energy + bsse_error    
 c
@@ -1093,8 +1106,6 @@ c
       integer rtdb              ![input]
 c
       integer j,i,l,k,n
-      integer n_cart
-      integer n_cartmon
       integer geom
 c
       character*255 vec_dbi, vec_dbo
@@ -1219,12 +1230,6 @@ c: evaluate gradient
      $  call 
      $  errquit('bsse_gradient: error calling task gradient spr',
      $   0,UNKNOWN_ERR)
-
-        if (mod(i,2).eq.0) then
-          n_cartmon=n_cart
-        else
-          n_cartmon=3*mon_atm(j)
-        endif
 c
 c: mix monomers grads with supermolecule grad
         if (mod(i,2).eq.0) then
@@ -1254,18 +1259,14 @@ c
 c
       enddo
 
-
 c-----------------------------------------------------------------------      
 c      Evaluate supermolecular energy free of BSSE
 c-----------------------------------------------------------------------      
 
       bsse_error = 0.0d0
 
-      i = 1
-
-      do j = 1, nmon
-        bsse_error = bsse_error +  mon_energy(i) - mon_energy(i+1)
-        i= i + 2     
+      do j = 1, nmon,2
+        bsse_error = bsse_error+(mon_energy(j) - mon_energy(j+1))
       enddo
 c
 
@@ -1596,13 +1597,10 @@ c
 c
       bsse_error = 0.0d0
 
-      i = 1
+      do j = 1, nmon,2
 
-      do j = 1, nmon
-
-        m_error(j) = mon_energy(i) - mon_energy(i+1)
+        m_error(j) = mon_energy(j) - mon_energy(j+1)
         bsse_error = bsse_error + m_error(j)
-        i= i + 2
 
       enddo
 c

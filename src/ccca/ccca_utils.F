@@ -35,11 +35,12 @@ c     Vars
      $ 'aug-cc-pcvdz-dk','aug-cc-pcvdz-dk'/
 c
 c
-      character*255 filename
+      character*256 filename
       double precision cart(3),charge
       character*16 tag,element
       character*16 atom_lab(nw_max_atom),symbol
       character*16 calctype
+      character*256 mydir
       integer errcode, basis, i, j, nbas
       integer l_q,k_q,atn,ibas
       integer nopen, natoms, nunique, idx, idx2, geom
@@ -111,7 +112,8 @@ c     else
         osegment=.true.
 c     endif
       orel=.false.
-      call bas_set_library_name()
+      mydir=' '
+      call bas_set_library_name(mydir)
       filename = user_library_name
 c
 c     Set up basis sets and store to RTDB
@@ -145,7 +147,11 @@ c
           mybas=bas_data(j*4+3)
         endif
         call bas_tag_lib(basis, osegment, atom_lab(idx), atom_lab(idx),
-     $        mybas, filename, orel)
+     $        mybas, filename, orel, .false.)
+c     load bq to keep DFT quiet
+        call bas_tag_lib(basis, osegment,
+     B       'bq'//atom_lab(idx), atom_lab(idx),
+     $        mybas, filename, orel, .false.)
    30 continue
 c
       if (.not. bas_set_spherical(basis, ospherical)) call

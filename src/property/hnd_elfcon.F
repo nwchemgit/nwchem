@@ -251,14 +251,18 @@ cc AJL/End
         if (.not.bas_ce2bfr(basis, iat, bf_lo_i, bf_hi_i))
      &    call errquit('bas ce2cnr failed',0,BASIS_ERR)
         nbf_at_i = bf_hi_i - bf_lo_i + 1
+c     ctrs with no bfs
+        if(nbf_at_i.gt.0) then
         do jat=1,iat
-          icount=icount+1
-          if (icount.eq.next) then
             if (.not.bas_ce2cnr(basis, jat, sh_lo_j, sh_hi_j))
      &        call errquit('bas ce2cnr failed',0,BASIS_ERR)
             if (.not.bas_ce2bfr(basis, jat, bf_lo_j, bf_hi_j))
      &        call errquit('bas ce2cnr failed',0,BASIS_ERR)
             nbf_at_j = bf_hi_j - bf_lo_j + 1
+c     ctrs with no bfs
+        if(nbf_at_j.gt.0) then
+          icount=icount+1
+          if (icount.eq.next) then
             call ga_get(g_dens, bf_lo_i, bf_hi_i, bf_lo_j,
      &                  bf_hi_j,dbl_mb(k_p),nbf_at_i)
             do ishell=sh_lo_i,sh_hi_i
@@ -308,8 +312,10 @@ c!DEC$ NOINLINE
               next = next + 1
             endif
           endif
-         end do   ! jshell
-      end do    ! ishell
+          endif
+         end do   ! jat
+       endif
+      end do    ! iat
       if (do_parallel) next=nxtask(-nproc,task_size)
       enddo ! i_pass
       if(doschwarz.and.initschwarz) call schwarz_tidy()

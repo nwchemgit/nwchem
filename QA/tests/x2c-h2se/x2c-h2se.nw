@@ -1,0 +1,158 @@
+echo
+start testjob
+title efgjob
+
+
+geometry noautoz units bohr nocenter
+symmetry c1
+Se 0.0000 0.0000 0.0564
+H  0.0000 1.0575 -0.9594
+H  0.0000 -1.0575  -0.9594
+end
+
+BASIS "ao basis" spherical PRINT
+# Sapporo-DZP uncontracted
+#BASIS SET: (4s,3p) -> [4s,3p]
+H    S
+     13.0107003              1.00000000E+00
+H    S
+      1.9622571              1.00000000E+00
+H    S
+      0.4445380              1.00000000E+00
+H    S
+      0.1219496              1.00000000E+00
+H    P
+      2.8606730              1.00000000E+00
+H    P
+      0.8881900              1.00000000E+00
+H    P
+      0.3037760              1.00000000E+00
+#BASIS SET: (17s,14p,9d) -> [17s,14p,9d]
+Se    S
+ 241498.6382409              1.00000000E+00
+Se    S
+  36223.7408736              1.00000000E+00
+Se    S
+   8243.4547006              1.00000000E+00
+Se    S
+   2332.0080828              1.00000000E+00
+Se    S
+    760.4702669              1.00000000E+00
+Se    S
+    578.5796313              1.00000000E+00
+Se    S
+    272.0485848              1.00000000E+00
+Se    S
+    179.7486759              1.00000000E+00
+Se    S
+    100.7295011              1.00000000E+00
+Se    S
+     28.6642790              1.00000000E+00
+Se    S
+     19.9031660              1.00000000E+00
+Se    S
+     11.8693555              1.00000000E+00
+Se    S
+      3.3851284              1.00000000E+00
+Se    S
+      2.0728541              1.00000000E+00
+Se    S
+      1.4483918              1.00000000E+00
+Se    S
+      0.3352235              1.00000000E+00
+Se    S
+      0.1251479              1.00000000E+00
+Se    P
+   4987.1768459              1.00000000E+00
+Se    P
+   1182.1765262              1.00000000E+00
+Se    P
+    381.9907152              1.00000000E+00
+Se    P
+    144.3524457              1.00000000E+00
+Se    P
+     59.8682607              1.00000000E+00
+Se    P
+     54.3041566              1.00000000E+00
+Se    P
+     26.1507531              1.00000000E+00
+Se    P
+     11.1948834              1.00000000E+00
+Se    P
+      7.9587015              1.00000000E+00
+Se    P
+      3.3433343              1.00000000E+00
+Se    P
+      1.3700986              1.00000000E+00
+Se    P
+      0.5441071              1.00000000E+00
+Se    P
+      0.2107083              1.00000000E+00
+Se    P
+      0.0794330              1.00000000E+00
+Se    D
+    237.0548228              1.00000000E+00
+Se    D
+     70.8504951              1.00000000E+00
+Se    D
+     26.4912435              1.00000000E+00
+Se    D
+     10.9539115              1.00000000E+00
+Se    D
+      4.6411645              1.00000000E+00
+Se    D
+      1.9254421              1.00000000E+00
+Se    D
+      0.7322816              1.00000000E+00
+Se    D
+      0.5653420              1.00000000E+00
+Se    D
+      0.2082120              1.00000000E+00
+End
+
+charge 0
+
+relativistic
+x2c on
+#zora on
+#douglas-kroll on
+zora:cutoff_EFG 1d-10
+zora:cutoff 1d-30
+#clight 1e6
+clight 137.0359895
+end
+
+set lindep:n_dep 0
+
+# set dft:no_prune T
+set dft:tol_rho 1d-30
+set int:cando_txs f
+set dft:job_grid_acc 1d-20
+
+dft
+grid xfine
+direct
+#xc slater 1.0 becke88 nonlocal 1.0 lyp 1.0
+xc hfexch
+convergence energy 1d-10
+iterations 50
+#print "quadrature"
+end
+
+set lindep:n_dep 0
+
+
+#set sodft:scalar true
+
+#set sodft:spinprojection 0. 0. 1.
+#set sodft:collinear true
+#set sodft:bfield 0. 1e-4 0.
+#set sodft:xcallinone T
+#set sodft:alternativexc T
+set sodft:debugenergy T
+#set sodft:x2c T
+set x2c:analyticpvp T
+#set x2c:efg T
+
+task dft
+

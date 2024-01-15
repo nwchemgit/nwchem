@@ -1,0 +1,51 @@
+NWChem Version 7.2.0 Release Notes
+
+NWChem is now available on Github at
+https://github.com/nwchemgit/nwchem
+
+Documentation available from the NWChem website at
+https://nwchemgit.github.io
+
+NWChem 7.2.0 is released as open-source under the ECL 2.0 license.
+
+NWChem 7.2.0 will be released with the latest Global Arrays Toolkit (v5.8.2).
+
+NEW FUNCTIONALITY 
+
+Modules:  
+ Molecular GW with Gaussian basis 
+
+Interfaces:  
+ * Plumed
+ * Libxc  
+ * tblite   
+
+Compilation:
+Added the enviroment variable USE_HWOPT: when USE_HWOPT=n all hardware (non-dynamic) optimizations are not used (e.g. gcc -march=native)
+
+Solvation module:
+* COSMO updates   
+
+Gaussian DFT module:
+* New functionality: exact two-component relativistic Hamiltonian (X2C)
+* New functionality: Auxiliary Density Functional Theory (ADFT) XC method  
+* New functionality: Resolution of Identity Time-Dependft DFT (RITDFT)
+* New DFT XC functionals
+ - r2SCAN0
+ - r2scan-D3 and rscan-D3
+ - n12-sx
+ - mn15 and mn15-l
+ - mn12-sx and mm12-l
+ - revm11
+ - wb97, wb97-d3 and wb97x
+ - r2SCAN, r2SCAN-L
+
+Basis set 
+* added autoaux fitting basis sets to libraries.bse
+* new "bse" input option
+
+
+   
+BUG FIXES/ENHANCEMENTS
+
+TBD

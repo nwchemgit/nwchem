@@ -20,7 +20,7 @@ C>
       Subroutine xc_getv(rtdb, Exc, ecoul,nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz,g_nq, 
      &                   wght_GA, rho_n, rdens_atom,
-     &                   cetobfr, natoms)
+     &                   cetobfr, natoms, cd_coef)
 c
       implicit none
 #include "errquit.fh"
@@ -88,6 +88,7 @@ c
                               !< - nExc=2: Exc(1) = exchange,
                               !<           Exc(2) = correlation 
       double precision ecoul  !< [Output] The Coulomb energy
+      double precision cd_coef(nbf_cd,*)
 c
 c This driver routine solves for the XC energy and potential (Vxc) via 
 c numerical quadrature methods. The results are obtained either by direct 
@@ -455,7 +456,7 @@ c      endif
 cc
       if (odftps) call pstat_on(ps_getvxc)
       call xc_getvxc(rtdb, Exc, nExc, iVxc_opt, g_xcinv,
-     &                   g_dens, g_vxc, IOLGC, rho_n, 0, 0)
+     &                   g_dens, g_vxc, IOLGC, rho_n, 0, 0, cd_coef)
       if (odftps) call pstat_off(ps_getvxc)
 c last two inputs -------------------------------->.fde_option., g_dens_fde
 c

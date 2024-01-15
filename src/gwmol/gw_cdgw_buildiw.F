@@ -5,7 +5,7 @@
 #define ISOGW real(kind=c_double)
 #define GWTYP double precision
 #endif 
-
+#include "gw_simd.fh"
 #define USE_ALLOC 1
       subroutine gw_cdgw_buildiw(pars,eia,x,wgt,iw,iwidx,nmo,nri,ngl,
      $                           mynmo,maxpoles,maxqp,ipol)
@@ -176,7 +176,7 @@ c
         ! Precompute square brackets of Equation (39).
         !
         do isp=1,ipol
-!$omp      parallel do simd schedule(static)
+!$omp      parallel do MYSIMD schedule(static)
            do ipole=1,pars%mynpoles(isp)
 #ifdef GWCMPLX
              factor(ipole,isp) = sqrt(
@@ -187,7 +187,7 @@ c
      $            dsqrt(eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
 #endif
           enddo
-!$omp     end parallel do simd
+!$omp     end parallel do MYSIMD
         enddo
 
         !

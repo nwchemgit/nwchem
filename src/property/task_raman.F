@@ -72,6 +72,9 @@ c
 c --------------------------------------------------------------------
 
       call ecce_print_module_entry('task raman')
+      call util_print_push
+      call util_print_rtdb_load(rtdb,'raman')
+      write(6,*)' util_pr load raman'
       cpu  = util_cpusec()
       wall = util_wallsec()
 
@@ -377,6 +380,7 @@ c ---------------collect and print timings data--------------------------------
       else
         call ecce_print_module_exit('task raman', 'failed')
       endif
+      call util_print_pop
 c
       return
       end
@@ -480,7 +484,7 @@ c --------- FA vars ---------- END
  1     format('(mode_ini,mode_end)=(',i5,',',i5,')')
       endif
       if (.not. rtdb_get(rtdb, 'raman:rminfo ', mt_dbl,
-     &    rmmodes*4, rminfo))
+     &    rmmodes*4, rminfo(1,1)))
      & write(6,*)pname//"no rminfo found"
 c     &   call errquit('aoresponse:failed to get rminfo', 0, RTDB_ERR)
        do i = 1,rmmodes
@@ -524,7 +528,7 @@ c 0000000 Reading modes from input script 000000000 START
       ramantype=1 ! defaul value
       status=rtdb_get(rtdb,'raman:ramantype',
      &                mt_int,1,ramantype)
-
+      write(luout,*) ' dal ramantype ',ramantype
       select case (ramantype)
        case (1)  ! Default
                    if (ga_nodeid().eq.0)
@@ -737,7 +741,8 @@ c      -------------Step along normal mode ii ---------------------------------
      &                        coord,rminfo,step_size)
 c      store displaced geom in rtb
          if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
-     &     call errquit(pname//'geom_rtdb_store failed',5)
+     &         call errquit(pname//'geom_rtdb_store failed',5,
+     G         GEOM_ERR)
 c      destroy geom
          if (.not. geom_destroy(geom))
      &     call errquit(pname//'geom corrupt',0, GEOM_ERR)
@@ -749,6 +754,7 @@ c 000000000 run properties (AORESPONSE) on displaced geom 000 START
      &                      .false.,.false.,ramanpolfile)  
          if (ga_nodeid().eq.0)
      &    write(luout,*) 'ramanpolfile=',ramanpolfile
+         call raman_init_response(rtdb)
 
          status1=ramanpol_read(
      &           ramanpolfile,! in: filename
@@ -777,7 +783,8 @@ c      restore inital geom "master"
      $     call errquit(pname//'bad geom',0, GEOM_ERR)
 c     --- coord now stored in rtdb ---
          if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
-     &     call errquit(pname//'geom_rtdb_store failed',5)
+     &        call errquit(pname//'geom_rtdb_store failed',5,
+     G        GEOM_ERR)
 c      --- destroy geom ---
          if (.not. geom_destroy(geom))
      &   call errquit(pname//'geom corrupt',0,GEOM_ERR)
@@ -1048,6 +1055,8 @@ c ---- Reading all lbl_ramanXXX files ---- START
      &           nmodes_missing, ! out: nr of modes missing
      &           modes_missing)  ! out: list of missing modes
 
+         oprint_dalphadq=util_print('raman_dalphadq', print_high).and.
+     c       ga_nodeid().eq.0
          if (ga_nodeid().eq.0) then
           write(luout,*) 'List of modes missing: nmodes_missing=',
      &                nmodes_missing
@@ -1072,8 +1081,6 @@ c ************ skipping calculations of missing modes *** START
      &    write(luout,*) 'SKIP calc modes missing!!'
           goto 123
         endif
-        oprint_dalphadq=util_print('raman_dalphadq', print_high).and.
-     c       ga_nodeid().eq.0
       if(oprint_dalphadq) then
          call util_file_name('dadq', .false., .false.,filedadq)
          call raman_open_dadq(filedadq)
@@ -1232,5 +1239,45 @@ c        if (begin .gt. last)  go to 200
  9      if(oprint_dalphadq) then
          call raman_close_dadq(filedadq)
       endif
+      return
+      end
+      subroutine raman_init_response(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+      integer rtdb
+      double precision gamwidth_in,freq_in
+      double precision freq,gamwidth
+      integer nfreq,aor_damp,aor_damp_in
+      parameter(gamwidth_in=0.007d0,freq_in=8.8559D-2,aor_damp_in=0)
+      logical read_fail
+      character*32  pname
+      pname='raman_init_response'
+      read_fail=(.not.rtdb_get(rtdb, 'aoresponse:damping', mt_int, 1,
+     $     aor_damp))
+      if(read_fail.or.(aor_damp.eq.0d0)) then
+         if (.not. rtdb_put(rtdb, 'aoresponse:damping', mt_int, 1,
+     $        aor_damp_in))
+     $        call errquit(pname//'rtdb_put failed', 1, RTDB_ERR)
+      endif
+      read_fail=(.not.rtdb_get(rtdb, 'aoresponse:gamwidth', mt_dbl, 1,
+     $     gamwidth))
+      if(read_fail.or.(gamwidth.eq.0d0)) then
+         if (.not. rtdb_put(rtdb, 'aoresponse:gamwidth', mt_dbl, 1,
+     $        gamwidth_in))
+     $        call errquit(pname//'rtdb_put failed', 1, RTDB_ERR)
+      endif
+      read_fail=.not.rtdb_get(rtdb,'aoresponse:nfreq', mt_int,1,nfreq)
+      if(read_fail.or.(nfreq.eq.0)) then
+         if (.not. rtdb_put(rtdb, 'aoresponse:nfreq', mt_int, 1,1))
+     $        call errquit(pname//'rtdb_put failed', 2, RTDB_ERR)
+        if (.not. rtdb_put(rtdb, 'aoresponse:freqlist', mt_dbl, 1,
+     &        freq_in))
+     $        call errquit(pname//'rtdb_put failed', 0, RTDB_ERR)
+      endif
+c      status=rtdb_get(rtdb,'prop:aoresponse',MT_INT,1,noaoresponse)
+      if(.not.rtdb_put(rtdb,'prop:aoresponse',MT_INT,1,0))
+     $        call errquit(pname//'rtdb_put failed', 3, RTDB_ERR)
       return
       end

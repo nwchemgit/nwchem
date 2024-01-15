@@ -17,12 +17,12 @@ c
 c     
       integer geom
       logical ignore
-      logical mepgs_freq
-      logical mepgs_opt
       logical firstpass
       double precision energyts
       logical status
       double precision start    ! Tracks time used in last step
+      logical mepgs_freq, mepgs_opt
+      external mepgs_freq, mepgs_opt
       logical  task_gradient, task_energy
       external task_gradient, task_energy
 c
@@ -119,10 +119,10 @@ c
 c
 c     **** Check energy decrease agreement ****
 c
-      if (ga_nodeid().eq.0) write(6,6000) evib
-6000  format(/,10x,'Expected decrease in energy', 10x, f12.6)
-      if (ga_nodeid().eq.0) write(6,6100) energyts - energy
-6100  format(/,10x,'Obtained decrease in energy', 10x, f12.6)
+      if (ga_nodeid().eq.0) write(6,6000) -evib
+6000  format(/,10x,'Expected change in energy', 10x, f12.6)
+      if (ga_nodeid().eq.0) write(6,6100) energy - energyts
+6100  format(/,10x,'Obtained change in energy', 10x, f12.6)
       if ((energyts - energy) .lt. 0.0d0) then
         if (ga_nodeid().eq.0) write(6,6200) 
 6200    format(/,1x,25('-')/,1x,'The energy has increased'/,1x,25('-') )
@@ -138,32 +138,6 @@ c     **** Read Initial hessian for IRC and OPT loops ****
 c     ****  to be able to handle separate updates     ****
 c
       call mepgs_hss_init(rtdb,geom)
-c
-c     **** Update the IRC hessian ****
-c
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-      if (mswg) then
-        call mwcoord(   ds, nvar, .true.)
-        call mwgrad(     g, nvar, .true.)
-        call mwgrad(oldgra, nvar, .true.)
-      end if
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-      call mepgs_hessian_update()
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-      if (mswg) then
-        call mwcoord(   ds, nvar, .false.)
-        call mwgrad(     g, nvar, .false.)
-        call mwgrad(oldgra, nvar, .false.)
-      end if
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
 c
 c     **** initialization ****
 c
@@ -303,6 +277,9 @@ c
         if (.not. geom_rtdb_load(rtdb, geom, 'tsreference'))
      &      call errquit('hnd_opt: no geometry ', 911, RTDB_ERR)
       end if
+
+      if (.not. geom_ncent(geom,nat))
+     $     call errquit('hnd_opt: natoms?',nat, GEOM_ERR)
 CJMC mass
       if (start .and. mswg) then
         if (.not. geom_masses_get(geom, nat, atmass))
@@ -310,8 +287,6 @@ CJMC mass
       end if
 CJMC mass
 c
-      if (.not. geom_ncent(geom,nat))
-     $     call errquit('hnd_opt: natoms?',nat, GEOM_ERR)
       call grad_active_atoms(rtdb, nat, oactive, nactive)
       if (.not. geom_systype_get(geom, isystype))
      $     call errquit('mepgs: systype?',0, GEOM_ERR)
@@ -379,11 +354,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCccc
 c
 c     Nothing else is changed.
 c
-      integer l_pmat, k_pmat, l_work, k_work
+      integer l_pmat, k_pmat
 c
-      if (.not. ma_push_get(mt_dbl, nvar**2, 'work',
-     $     l_work, k_work)) call errquit
-     $     ('mepgs_proj_h_g: memory for pmat',nvar**2, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nvar**2, 'pmat',
      $     l_pmat, k_pmat)) call errquit
      $     ('mepgs_proj_h_g: memory for work',nvar**2, MA_ERR)
@@ -397,7 +369,7 @@ c
       call dgemv('n',nvar, nvar, 1d0, dbl_mb(k_pmat), nvar,
      $     g, 1, 0d0, pgref, 1)
 c
-      if (.not. ma_chop_stack(l_work)) call errquit
+      if (.not. ma_chop_stack(l_pmat)) call errquit
      $     ('mepgs_p_h_g:ma?',0, MA_ERR)
 c
       end
@@ -434,13 +406,6 @@ c
       external ddot
 c
       ophigh = util_print('high', print_high)
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-      if (mswg) call mwgrad(pgref, nvar, .true.)
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
 c
 c
       pgnorm = sqrt(ddot(nvar, pgref, 1,  pgref, 1))
@@ -452,16 +417,11 @@ CCCCCCCCCCCCCCCCCCCCCC
 CCCC     MASS     CCCC
 CCCCCCCCCCCCCCCCCCCCCC
       if (mswg) then
-        call mwgrad(pgref, nvar, .false.)
         call mwcoord(ds, nvar, .false.) 
       end if
 CCCCCCCCCCCCCCCCCCCCCC
 CCCC     MASS     CCCC
 CCCCCCCCCCCCCCCCCCCCCC
-c
-c     enforce symmetry
-c
-      call gsopt_symmetrize_step(geom)
 c
 c     enforce frozen atoms in cartesians
 c
@@ -477,7 +437,7 @@ c
          end do
       end if
 c
-      call ga_brdcst(1,ds,8*nvar,0)
+      call ga_brdcst(1,ds,ma_sizeof(mt_dbl,nvar,mt_byte),0)
 c
 c     Get original coordinates
 c
@@ -486,7 +446,6 @@ c
      &       GEOM_ERR)
 c
       call dcopy(ncart, ds, 1, xnew, 1) 
-      call sym_grad_symmetrize(geom, xnew)
 c
       call daxpy(ncart, 1.0d00, xold, 1, xnew, 1)
 c     FRACTIONAL?
@@ -516,7 +475,7 @@ c
       double precision ddot
       external ddot
 c
-      mepgs_cosang = 0.0
+      mepgs_cosang = 0.0d0
 c
       factor(1) = ddot(nvar, avec, 1, bvec, 1)
 c
@@ -527,78 +486,13 @@ c
 c
       ctheta = factor(1)/factor(2)
 c
-      if (abs(ctheta).gt.1.0) ctheta = dsign(1.d0,ctheta) 
+      if (abs(ctheta).gt.1.0d0) ctheta = dsign(1.d0,ctheta) 
 c
       if (angle) then
         mepgs_cosang = acos(ctheta)
       else
         mepgs_cosang = ctheta
       end if
-c
-      end
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine mepgs_hessian_update()
-      implicit none
-#include "errquit.fh"
-#include "nwc_const.fh"
-#include "cmepgs.fh"
-#include "cgsopt.fh"
-#include "util.fh"
-#include "mafdecls.fh"
-c     
-c     Update the current Hessian in the optimization variables using 
-c     .   oldgra() - the gradient at the previous point
-c     .    g() - the gradient at the current point
-c     .   ds() - the previous search direction
-c     .  alpha - the step in the previous search direction
-c     
-c     Only the Hessian is modified.
-c     
-      double precision hds(max_nvar)
-      double precision dsds, dshds, dsdg
-      integer l_hess, k_hess, i, j
-      integer ind
-      double precision ddot
-      external ddot
-      ind(i,j) = k_hess + i + (j-1)*nvar - 1
-c
-      if (.not. ma_push_get(mt_dbl, nvar**2, 'hess',
-     $     l_hess, k_hess)) call errquit
-     $     ('mepgs_hessian_update: memory for hessian',nvar**2,
-     &       GEOM_ERR)
-      call geom_hnd_get_data('irc.hess',dbl_mb(k_hess), nvar**2)
-c
-c     Form bits and pieces that are needed
-c     
-      call dgemv('n',nvar,nvar,1d0,dbl_mb(k_hess),nvar,
-     $     ds,1,0d0,hds,1)
-c
-      dshds = ddot(nvar, ds, 1, hds, 1)
-      dsds  = ddot(nvar, ds, 1,  ds, 1)
-      dsdg  = 0d0
-      do i = 1, nvar
-         dsdg = dsdg + ds(i)*(g(i) - oldgra(i))
-      enddo
-c     
-c     ----- -bfgs- update -----
-c     
-      if(dsdg.gt.1d-14) then
-        do i=1,nvar
-           do j=1,nvar
-              dbl_mb(ind(i,j))=dbl_mb(ind(i,j))
-     $             + (g(i)-oldgra(i))*(g(j)-oldgra(j))/dsdg
-     1             - hds(i)* hds(j)/dshds
-           enddo
-        enddo
-      endif
-c
-      call geom_hnd_put_data('irc.hess',dbl_mb(k_hess), nvar**2)
-CJMC to be able to start with this hessian OPT
-      call geom_hnd_put_data('gsopt.hess',dbl_mb(k_hess), nvar**2)
-CJMC to be able to start with this hessian OPT
-      if (.not. ma_pop_stack(l_hess)) call errquit
-     $     ('mepgs_hessian_update: ma?',0, MA_ERR)
 c
       end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -677,23 +571,6 @@ c
 c
       call geom_hnd_get_data('irc.hess', dbl_mb(k_hess), nvar*nvar)
 c
-c     Used to use c here ... now use p
-c
-      call geom_hnd_get_data('p',dbl_mb(k_c), nvar*nvar)
-c
-      if (odebug) then
-         write(6,*) ' Initial Hessian before P'
-         call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
-      endif
-      call dgemm('n','n',nvar,nvar,nvar,1d0,dbl_mb(k_c),nvar,
-     $     dbl_mb(k_hess),nvar,0d0,dbl_mb(k_t),nvar)
-      call dgemm('n','t',nvar,nvar,nvar,1d0,dbl_mb(k_t),nvar,
-     $     dbl_mb(k_c),nvar,0d0,dbl_mb(k_hess),nvar)
-      if (odebug) then
-         write(6,*) ' Initial Hessian after P'
-         call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
-      endif
-c
       if (nactive .ne. nat_real) then
 c
 c     We are in cartesian coordinates and some have been frozen.
@@ -756,8 +633,8 @@ c
       integer h_unit
       parameter (h_unit=47)
       character*255 fname
-      double precision x
-      integer i,j
+      double precision x,factor
+      integer i,j,iat,jat
       integer l_bi, k_bi, l_hc, k_hc, l_hq, k_hq
 c     
       if (.not. ma_push_get(mt_dbl, ncart*nvar, 'binv',
@@ -778,15 +655,27 @@ c
      $        err=99990,access='sequential')
          rewind h_unit
          do i = 1,ncart
+            iat = (i+2)/3
             do j = 1,i
+               jat = (j+2)/3
                read(h_unit,10000,err=99992,end=99992) x
+
+cDMR mass-weight Hessian
+               if (mswg) then
+                 factor = sqrt(atmass(iat))*sqrt(atmass(jat))
+                 x = x/factor
+               endif
+cDMR
+
                dbl_mb(k_hc+(i-1)*ncart+(j-1)) = x
                dbl_mb(k_hc+(j-1)*ncart+(i-1)) = x
             enddo
          enddo
          close(unit=h_unit,status='keep')
       endif
-      call ga_brdcst(1,dbl_mb(k_hc),8*ncart**2,0)
+
+      call ga_brdcst(1,dbl_mb(k_hc),
+     $     ma_sizeof(mt_dbl,ncart**2,mt_byte),0)
 c     
       call geom_hnd_get_data('b^-1', dbl_mb(k_bi), nvar*ncart)
       call dgemm('n', 'n', ncart, nvar, ncart, 1d0, dbl_mb(k_hc), ncart,
@@ -802,14 +691,7 @@ c
             dbl_mb(k_hc+(j-1)*nvar+(i-1)) = x
          enddo
       enddo
-c
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-      if (mswg) call geom_hnd_get_data('irc.hess',dbl_mb(k_hc), nvar**2)
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
+c      
       call geom_hnd_put_data('irc.hess',dbl_mb(k_hc), nvar**2)
 c
       if (.not. ma_chop_stack(l_bi))
@@ -942,10 +824,12 @@ c
       double precision ogrms
       double precision graang, cosang, stpang, rmsdif
       double precision eps
-      parameter (eps = 1d-4)
+      parameter (eps = 1d-3)
       double precision echange
+      double precision stemp
 c
       character*1 mark
+      character*72 string
 c
       double precision mepgs_cosang
       logical gsopt_geom_cart_coords_get
@@ -954,35 +838,19 @@ c
       if (.not. gsopt_geom_cart_coords_get(geom, newx))
      $    call errquit('mepgs: geom?',0, geom_err) 
 c
-c
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-      if (mswg) then
-        call mwcoord(    ds, nvar, .true.)
-        call mwcoord(  newx, nvar, .true.)
-        call mwcoord(center, nvar, .true.)
-        call mwcoord(oldgeo, nvar, .true.)
-        call  mwgrad(oldgra, nvar, .true.)
-        call  mwgrad(     g, nvar, .true.)
-      end if
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-c
-c
-      call dcopy(nvar, center, 1, abvec, 1) 
-      call daxpy(nvar, -1.0d0, oldgeo, 1, abvec, 1)
+      call dcopy(nvar, oldgeo, 1, abvec, 1) 
+      call daxpy(nvar, -1.0d0, center, 1, abvec, 1)
 c
       call dcopy(nvar, newx, 1, bcvec, 1) 
       call daxpy(nvar, -1.0d0, center, 1, bcvec, 1)
 c
-      graang = mepgs_cosang(g, oldgra, .true.)
-      cosang = mepgs_cosang(g, oldgra, .false.)
+      cosang = mepgs_cosang(oldgra, g, .false.)
       stpang = mepgs_cosang(abvec, bcvec, .true.)
+      svalue = abs(stpang*stride/2d0)
+      stemp = stotal + svalue
 c
       grms = 0d0
-c      ogrms = 0d0
+      ogrms = 0d0
       srms = 0d0
       gmax  = 0d0
       smax  = 0d0
@@ -996,58 +864,63 @@ c
       grms  = sqrt(grms/dble(nvar))
 c
       rmsdif = grms - ogrms
-      if (rmsdif.lt.0d0) flip = .true.
+      if ((rmsdif.lt.0d0).and.(stemp.gt.1d0)) flip = .true.
       if (abs(rmsdif).lt.eps) rmsdif = 0d0
-      if (irccyc.eq.1) flip = .false.
-c
-      svalue = graang*0.5d0*stride*(1d0/tan(graang/2.0d0))
 c
       echange = energy - energyref
 c
-      if (flip .and. (grms.le.grms_tol) .and. (gmax.le.gmax_tol)
-     $    .and. (abs(echange).lt.eprec)) ircdone = .true.
+cDMR check if we are already flat
+c
+      if ((echange.gt.0.01d0*eps).and.(stemp.gt.1d0))
+     $  nbounded = nbounded + 1 
+      if ((stride.le.0.002d0).and.(stemp.gt.1d0)) nbounded = nbounded+1
+c
+      if (flip .and. (grms.le.grms_tol) .and. (irccyc.gt.5)) then
+        if ((gmax.le.gmax_tol).and.(abs(echange).lt.eprec)) then
+          ircdone = .true.
+        elseif (abs(echange).lt.0.1d0*eprec) then
+          ircdone = .true.
+        elseif (stride.le.0.002d0) then
+          ircdone = .true.
+        endif
+      endif
+
+      if(nbounded.gt.5) then
+        ircdone=.true.
+      endif
 c
 c       Assume step was good
 c
       redogs = .false.
 c
-      if (flip) then
-        if((rmsdif.gt.0d0).or.(echange.gt.0d0)) redogs=.true.
-      else
-        if((echange.gt.0d0).and.(abs(echange).gt.eps)) redogs=.true.
+      if(echange.gt.eps) then
+        redogs= .true.
+      elseif(stpang.le.eps) then
+        redogs =.true.
       end if
-c
-      if ((irccyc.ne.1).and.(cosang.le.-0.7d0)) redogs = .true.
 c
       if (.not. redogs) then
         stotal = stotal + svalue
         mark = '&'
-        if (ga_nodeid().eq.0) write(6,1) mark, mark
-        mark = '&'
-        if (ga_nodeid().eq.0) 
-     &    write(6,2) mark, irccyc-1, energy, svalue, stotal
- 1       format(
-     $        /,a1,'  Point      Energy     svalue   stotal ',
-     $        /,a1,' -------  ------------ -------- --------')
- 2       format(
-     $        a1,i5,f17.8,2f9.5,/)
+        if (ga_nodeid().eq.0) then
+          write(luout,1)
+          write(luout,2) mark,irccyc-1,energy,svalue,stotal,grms,gmax,
+     $                   echange              
+          string = repeat(" ",72)
+          if (grms.lt.grms_tol) write(string(47:48),"(A2)") "ok"
+          if (gmax.lt.gmax_tol) write(string(55:56),"(A2)") "ok"
+          if (abs(echange).lt.eprec) write(string(66:67),"(A2)") "ok"
+          write(luout,3) string
+        endif
+ 1      format(
+     $   /,'   Point      Energy     svalue   stotal    grms  ',
+     $        '   gmax      Delta E  ',
+     $   /,'  -------  ------------ -------- -------- --------',
+     $        ' -------- ------------')
+ 2      format(
+     $        a1,i5,f17.8,4f9.5,2x,1p,d10.2)
+ 3      format(a72,/)       
       end if
-c
-c
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-       if (mswg) then
-        call mwcoord(    ds, nvar, .false.)
-        call mwcoord(  newx, nvar, .false.)
-        call mwcoord(center, nvar, .false.)
-        call mwcoord(oldgeo, nvar, .false.)
-        call  mwgrad(oldgra, nvar, .false.)
-        call  mwgrad(     g, nvar, .false.)
-      end if
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
 c
 c
       end
@@ -1126,7 +999,6 @@ c
       integer imepgs
       logical ignore
       double precision mepgs_cosang
-      logical status
       double precision start    ! Tracks time used in last step
 cjmc
       double precision minst    ! Tracks time used in last step
@@ -1153,6 +1025,7 @@ c
       if (.not. geom_systype_get(geom, isystype))
      $  call errquit('mepgs: systype?',0, GEOM_ERR)
       call gsopt_get_grad(rtdb, geom) ! Into gx
+      nbounded = 0
 c
 c     ****  Gonzalez & Schlegel Iterative loop ****
 c
@@ -1182,7 +1055,9 @@ c
 c
 c       Project gradient
 c
+        if (mswg) call mwgrad(g, nvar, .true.)
         call mepgs_proj_grad(pgref)
+        if (mswg) call mwgrad(g, nvar, .false.)
 c
  1000   continue
 c
@@ -1195,7 +1070,7 @@ c
 c
 c     **** Calculate center, half stride ****
 c
-          call mepgs_cent(rtdb, geom, reference, pgref, -0.5d0,'center')
+          call mepgs_cent(rtdb, geom, reference,pgref, -0.5d0, 'center')
 c
 c     **** Obtain center coordinates ****
 c
@@ -1214,70 +1089,9 @@ c
 c     **** Energy and Gradient ****
 c
           call mepgs_gra(rtdb, geom)
+          if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))
+     $      call errquit('gsopt: could not get energy',0, RTDB_ERR)
           call dcopy(ncart, gx, 1, g, 1) ! g() set to gx()
-c
-c     **** Reject proposed point if necessary ****
-c     ****      Based on gradient angle       ****
-c
-          if (flip) then
-c
-c
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-            if (mswg) then
-              call mwgrad(     g, nvar, .true.)
-              call mwgrad(oldgra, nvar, .true.)
-            end if
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-c
-c
-            if (mepgs_cosang(g, oldgra, .false.).le.-0.7d0) then
-              if (oprint) write(6,*) "Rejecting the proposed Point"
-              if (stride.eq.minst) then 
-                ircdone = .true. 
-                goto 100
-              end if
-              stride = stride/2d0
-              stride = max(stride,minst)
-              call dcopy(nvar, oldgra, 1, g, 1)
-c
-c
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-              if (mswg) then
-                call mwgrad(     g, nvar, .false.)
-                call mwgrad(oldgra, nvar, .false.)
-              end if
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-c
-c
-              if (.not. gsopt_geom_cart_coords_set(geom, oldgeo))
-     $           call errquit('gsopt: geom?',0, geom_err) ! reload previous cart
-              if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
-     $           call errquit('gsopt: grs?',geom, RTDB_ERR)
-              goto 1000
-            end if
-c
-c
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-            if (mswg) then
-              call mwgrad(     g, nvar, .false.)
-              call mwgrad(oldgra, nvar, .false.)
-            end if
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-c
-c
-          end if
 c
 c     **** Update the OPT hessian ****
 c
@@ -1360,18 +1174,18 @@ c     **** reload previous fiels if necessary ****
 c
           if (redogs) then
             if (oprint) write(6,*) "Rejecting the optimized Point"
-            if (stride.eq.minst) then 
+            if (stride.le.minst) then 
               ircdone = .true. 
               goto 100
             end if
             stride = stride/2d0
-            stride = max(stride,minst)
             if (.not. gsopt_geom_cart_coords_set(geom, oldgeo))
      $         call errquit('gsopt: geom?',0, geom_err) ! reload previous cart
             if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
      $         call errquit('gsopt: grs?',geom, RTDB_ERR)
             goto 1000
-c
+          else
+            call updstride(geom)
           end if
 c
 c    Check for convergence
@@ -1382,36 +1196,6 @@ c     Update the IRC hessian
 c
         call dcopy(nvar, oldgeo, 1, sp, 1)
         call gsopt_compute_actual_step(geom)
-c
-c
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-        if (mswg) then
-          call mwcoord(   ds, nvar, .true.)
-          call mwgrad(     g, nvar, .true.)
-          call mwgrad(oldgra, nvar, .true.)
-        end if
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-c
-c
-        call mepgs_hessian_update()
-c
-c
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-        if (mswg) then
-          call mwcoord(   ds, nvar, .false.)
-          call mwgrad(     g, nvar, .false.)
-          call mwgrad(oldgra, nvar, .false.)
-        end if
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-c
 c
 c     Print a trajectory file
 c
@@ -1492,7 +1276,7 @@ c
 c     
       integer geom, i, iat
       integer istep
-      logical converged, status
+      logical converged
       double precision start    ! Tracks time used in last step
 cjmc
       double precision oldx(max_cart)
@@ -1832,23 +1616,6 @@ c
 c
       call geom_hnd_get_data('gsopt.hess', dbl_mb(k_hess), nvar*nvar)
 c
-c     Used to use c here ... now use p
-c
-      call geom_hnd_get_data('p',dbl_mb(k_c), nvar*nvar)
-c
-      if (odebug) then
-         write(6,*) ' Initial Hessian before P'
-         call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
-      endif
-      call dgemm('n','n',nvar,nvar,nvar,1d0,dbl_mb(k_c),nvar,
-     $     dbl_mb(k_hess),nvar,0d0,dbl_mb(k_t),nvar)
-      call dgemm('n','t',nvar,nvar,nvar,1d0,dbl_mb(k_t),nvar,
-     $     dbl_mb(k_c),nvar,0d0,dbl_mb(k_hess),nvar)
-      if (odebug) then
-         write(6,*) ' Initial Hessian after P'
-         call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
-      endif
-c
       if (nactive .ne. nat_real) then
 c     
 c     We are in cartesian coordinates and some have been frozen.
@@ -2013,9 +1780,9 @@ cjmc
          if (.not. rtdb_cget(rtdb,'task:theory',1,theory))
      $        theory = ' '
          if (inp_compare(.false.,theory,'dft')) then
-            eprec = 5e-6
+            eprec = 5.0d-6
          else
-            eprec = 1e-7
+            eprec = 1.0d-6
          endif
       endif
       if (.not. rtdb_get(rtdb,'gsopt:gmax_tol',mt_dbl,1,gmax_tol))
@@ -2225,7 +1992,7 @@ c
 c     
 c     ----- -bfgs- update -----
 c     
-         if(dsdg.gt.1d-14) then
+         if(dsdg.gt.1d-8) then
             do i=1,nvar
                do j=1,nvar
                   dbl_mb(ind(i,j))=dbl_mb(ind(i,j))
@@ -2251,6 +2018,7 @@ c
       endif    
 c
       call geom_hnd_put_data('gsopt.hess',dbl_mb(k_hess), nvar**2)
+      call geom_hnd_put_data('irc.hess',dbl_mb(k_hess), nvar**2)
       if (.not. ma_pop_stack(l_hess)) call errquit
      $     ('gsopt_hessian_update: ma?',0, MA_ERR)
 c
@@ -2292,7 +2060,7 @@ c     Take the step
 c  
        call dcopy(ncart, ds, 1, xnew, 1)
        call dscal(nvar, alpha, xnew, 1)
-       call sym_grad_symmetrize(geom, xnew)
+c       call sym_grad_symmetrize(geom, xnew)
        call daxpy(ncart, 1.0d0, xold, 1, xnew, 1)
 c     FRACTIONAL?
        if (.not. gsopt_geom_cart_coords_set(geom, xnew))
@@ -2303,7 +2071,7 @@ c     Must ensure the geometry has the required symmetry even after
 c     enforcing it on the step.  Should use
 c     an error criterion consistent with the step size.
 c
-      call sym_geom_project(geom, trust)
+c      call sym_geom_project(geom, trust)
 c
       if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
      $     call errquit('gsopt_energy_step: grs?',geom, RTDB_ERR)
@@ -2422,12 +2190,15 @@ c    *** Convergence over energy criterion
 c
      $     .or.
      $      ((gmax .lt. gmax_tol) .and. (grms .lt. grms_tol).and.
-     $      (de .lt. eprec))
+     $      (de .lt. eprec) .and. (optcyc.gt.1))
      $     .or.
+     $     ((xmax.lt.xmax_tol).and.(xrms.lt.xrms_tol).and.
+     $      (de .lt. eprec) .and. (optcyc.gt.1))
+     $      .or. 
 c 
 c    *** Initial structure already a critical point
 c
-     $      ((gmax .lt. gmax_tol) .and. (grms .lt. grms_tol).and.
+     $      ((gmax.lt.0.1d0*gmax_tol).and.(grms.lt.0.1d0*grms_tol).and.
      $      (optcyc .eq. 1))
 CJMC
       if ((gmax .lt. gmax_tol) .and. (grms .lt. grms_tol).and.
@@ -2436,7 +2207,6 @@ CJMC
         write(6,*) "Energy change = " , de
         write(6,*) "Energy precision = " , eprec
       end if
-
 c
       end
       subroutine gsopt_cart_pmat(rtdb, geom)
@@ -2445,6 +2215,7 @@ c
 #include "rtdb.fh"
 #include "nwc_const.fh"
 #include "cgsopt.fh"
+#include "cmepgs.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -2467,10 +2238,12 @@ c
       double precision coords(3,max_cent)
       double precision work(max_cart,6)
       integer i, j, k, l_pmat, k_pmat, i3, ma_type, nelem
+      integer iat,jat
       character*26 date
       integer ind
       logical task_qmmm
       logical gsopt_geom_cart_coords_get
+      double precision mass,norm
       double precision ddot
       external ddot
       ind(i,j) = k_pmat + i-1 + (j-1)*ncart
@@ -2488,13 +2261,24 @@ c
             centroid(k) = centroid(k) + coords(k,i)/nat
          enddo
       enddo
-c     
+c
+cDMR
+cDMR  mass-weight projector, if needed
+cDMR
       do k = 1, 3               ! x, y, z translations
          call dfill(ncart, 0.0d0, work(1,k), 1)
-         call dfill(nat, sqrt(1.0d0/nat), work(k,k), 3)
+         if (mswg) then
+           norm = sum(atmass(1:nat))
+           work(k:3*nat:3,k) = sqrt(atmass(1:nat)/norm)
+         else
+           call dfill(nat, sqrt(1.0d0/nat), work(k,k), 3)
+         endif
       enddo
+
       do k = 4, 6               ! x, y, z rotations
          do i = 1, nat
+            mass = 1d0
+            if (mswg) mass = sqrt(atmass(i))
             x = coords(1,i) - centroid(1)
             y = coords(2,i) - centroid(2)
             z = coords(3,i) - centroid(3)
@@ -2512,9 +2296,9 @@ c
                zz =  0.0d0
             endif
             i3 = (i-1)*3
-            work(i3+1,k) = xx
-            work(i3+2,k) = yy
-            work(i3+3,k) = zz
+            work(i3+1,k) = mass*xx
+            work(i3+2,k) = mass*yy
+            work(i3+3,k) = mass*zz
          enddo
          do j = 1, k-1
             fx = ddot(ncart, work(1,j), 1, work(1,k), 1)
@@ -2594,6 +2378,7 @@ c
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "cgsopt.fh"
+#include "cmepgs.fh"
 #include "mafdecls.fh"
       double precision 
      $     hess(nvar,nvar),     ! returns projected & shifted Hessian
@@ -2628,6 +2413,7 @@ c     PG
 c
       call dgemv('n',nvar, nvar, 1d0, dbl_mb(k_pmat), nvar,
      $     g, 1, 0d0, pg, 1)
+
       if (odebug) then
          write(6,*) ' Gradient after projection'
          call doutput(g, 1, nvar, 1, 1, nvar, 1, 1)
@@ -2644,11 +2430,11 @@ c
          call output(hess, 1, nvar, 1, nvar, nvar, nvar, 1)
       endif
 c     
-CJMC      big = 1000d0
-CJMC      call daxpy(nvar*nvar, -big, dbl_mb(k_pmat), 1, hess, 1)
-CJMC      do i = 1, nvar
-CJMC         hess(i,i) = hess(i,i) + big
-CJMC      enddo
+      big = 1000d0
+      call daxpy(nvar*nvar, -big, dbl_mb(k_pmat), 1, hess, 1)
+      do i = 1, nvar
+         hess(i,i) = hess(i,i) + big
+      enddo
       if (odebug) then
          write(6,*) ' Hessian after projection '
          call output(hess, 1, nvar, 1, nvar, nvar, nvar, 1)
@@ -2713,6 +2499,7 @@ c
 #include "global.fh"
 #include "nwc_const.fh"
 #include "cgsopt.fh"
+#include "cmepgs.fh"
 #include "inp.fh"
 c     
 c     Read in cartesian Hessian and transform it as necessary
@@ -2729,7 +2516,8 @@ c
       parameter (h_unit=47)
       character*255 fname
       double precision x
-      integer i,j
+      double precision factor
+      integer i,j,iat,jat
       integer l_bi, k_bi, l_hc, k_hc, l_hq, k_hq
 c     
       if (.not. ma_push_get(mt_dbl, ncart*nvar, 'binv',
@@ -2750,8 +2538,16 @@ c
      $        err=99990,access='sequential')
          rewind h_unit
          do i = 1,ncart
+            iat = (i+2)/3
             do j = 1,i
+               jat = (j+2)/3
                read(h_unit,10000,err=99992,end=99992) x
+cDMR mass-weight Hessian
+               if (mswg) then
+                 factor = sqrt(atmass(iat))*sqrt(atmass(jat))
+                 x = x/factor
+               endif
+cDMR
                dbl_mb(k_hc+(i-1)*ncart+(j-1)) = x
                dbl_mb(k_hc+(j-1)*ncart+(i-1)) = x
             enddo
@@ -2792,52 +2588,8 @@ c
      $     '> as hessian file'
       call errquit('gsopt_hess_cart: fatal error', 911, GEOM_ERR)
       end
-      subroutine gsopt_symmetrize_step(geom)
-      implicit none
-#include "errquit.fh"
-#include "nwc_const.fh"
-#include "cgsopt.fh"
-#include "mafdecls.fh"
-      integer geom
-c
-c     Force symmetry upon the current search direction by projecting
-c     ds() onto symmetric component in cartesians
-c
-c     Updates ds().
-c
-      double precision dx(max_nvar)
-      integer k_bi, l_bi
-c
-c     1) dx = dq*B-1
-c     2) symmetrize dx
-c     3) dq = dx*B
-c
-      if (ostress) return       ! Yikes!
-      if (ostress2) return       ! Yikes!
-c
-      if (.not. ma_push_get(mt_dbl, ncart*nvar,'binv',l_bi, k_bi))
-     $     call errquit('gsopt_sym: memory for binv', ncart*nvar,
-     &       MA_ERR)
-      call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nvar)
-      if (odebug) then
-         write(6,*) ' Symmetrize step - initial q '
-         call doutput(ds, 1, nvar, 1, 1, nvar, 1, 1)
-      endif
-      call dgemv('n', ncart, nvar, 1d0, dbl_mb(k_bi), ncart,
-     $     ds, 1, 0.0d0, dx, 1)
-      call sym_grad_symmetrize(geom, dx)
-      call geom_hnd_get_data('b', dbl_mb(k_bi), ncart*nvar)
-      call dgemv('t', ncart, nvar, 1d0, dbl_mb(k_bi), ncart,
-     $     dx, 1, 0.0d0, ds, 1)
-      if (odebug) then
-         write(6,*) ' Symmetrize step - final q '
-         call doutput(ds, 1, nvar, 1, 1, nvar, 1, 1)
-      endif
-c
-      if (.not. ma_pop_stack(l_bi)) call errquit('gsopt_sym:ma',0,
-     &       MA_ERR)
-c
-      end
+
+
       subroutine gsopt_compute_actual_step(geom)
       implicit none
 #include "errquit.fh"
@@ -2949,6 +2701,8 @@ c
       gsopt_geom_cart_coords_set = .true.
 c
       end
+
+
       subroutine gsopt_get_grad(rtdb,geom)
       implicit none
 #include "errquit.fh"
@@ -3051,7 +2805,7 @@ cjmc
       double precision lambda, tau, term
       double precision tiniest
       double precision big
-      parameter (tiniest = 1.0e-14) 
+      parameter (tiniest = 1.0d-14)
       parameter (big = 1d6)
 cjmc
 *     integer info
@@ -3149,7 +2903,7 @@ c
 !     ***    assuming a non-shifted hessian matrix    ***
 !
       do iact=1,nvar
-        if (abs(eigval(iact)).gt.1.0d-8) then
+        if (abs(eigval(iact)).gt.1.0d-10) then
           lowest = iact
           goto 100
         end if
@@ -3159,11 +2913,11 @@ c
 !
 !     *** test for the "hard case", i.e. f1 + b1*d1 = 0 ***
 !
-      if (abs(gc(lowest)).lt.1.e-8) then
+      if (abs(gc(lowest)).lt.1.d-10) then
 !
 !     *** set lambda to lowest eigenvalue ***
 !
-        lambda = -eigval(lowest)
+        lambda = -eigval(lowest) + 1.0d-4
 !
 !     *** calculate reduced constrained step ***
 !
@@ -3171,15 +2925,15 @@ c
         do iact=1,nvar
           if (iact.ne.lowest) then
             dv(iact) = gv(iact) + lambda*pr(iact)
-            dv(iact) = -dv(iact)/(eigval(iact) + lambda + tiniest)
+            dv(iact) = -dv(iact)/(eigval(iact) + lambda)
           end if
         end do
 !
 !     *** check step length and modify, if necessary ***
 !
         term =  ddot(nvar, dv, 1,  dv, 1)
-        if (term.le.trust**2) then
-          tau = sqrt(trust**2 - term)
+        if (term.le.0.25d0*stride**2) then
+          tau = sqrt(0.25d0*stride**2 - term)
           dv(lowest) = tau
           if (oprint) write(6,*) "hard case encountered"
           slength = sqrt(ddot(nvar, dv, 1,  dv, 1))
@@ -3187,15 +2941,15 @@ c
         end if
       end if
 !
-      lambda = 0.0
+      lambda = 0.0d0
 !
 !     *** restrict step size ***
 !
-      call gsopt_lambda(gc, eigval, lambda)
+      call gsopt_lambda(gc, eigval, lambda, stride)
       call dfill(nvar, 0d0, dv, 1)
       do iact=1,nvar
         dv(iact) = gv(iact) + lambda*pr(iact)
-        dv(iact) = -dv(iact)/(eigval(iact) + lambda + tiniest)
+        dv(iact) = -dv(iact)/(eigval(iact) + lambda)
       end do
       slength = sqrt(ddot(nvar, dv, 1,  dv, 1))
 !
@@ -3226,7 +2980,7 @@ c
 c
 c     enforce symmetry
 c
-      call gsopt_symmetrize_step(geom)
+c      call gsopt_symmetrize_step(geom)
 c
 c     enforce frozen atoms in cartesians
 c
@@ -3305,7 +3059,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine gsopt_lambda(f,eigval,lambda)
+      subroutine gsopt_lambda(f,eigval,lambda,stride)
 ! calculate hessian eigenvalue shift factor from 
 ! trust-region quadratic approximation.
 
@@ -3323,8 +3077,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer maxiter
       parameter (maxiter = 100)
 
-      double precision big,eps
-      parameter (big = 1d6, eps = 1d-10)
+      double precision big,eps,stride
+      parameter (big = 1d6, eps = 1d-6)
 
       double precision f(nvar),eigval(nvar)
 
@@ -3341,15 +3095,15 @@ c
 c     *** search interval definition ***
 c
       do iact=1,nvar
-        if (abs(eigval(iact)).gt.1.e-8) then
+        if (abs(eigval(iact)).gt.1.0d-10) then
           lower = -eigval(iact)
           goto 100
         end if
       end do
-c
+
   100 continue
 c
-      itlamb = lower + 0.05
+      itlamb = lower + 1.0d-5
 !
 !     *** iteration loop ***
 !
@@ -3374,7 +3128,7 @@ c
 !     *** calculate next estimate of lambda ***
 !
         dx = fn/dfn
-        lambda = itlamb + (sqrt(fn)/trust - 1.0)*dx
+        lambda = itlamb + (sqrt(fn)/(0.5d0*stride) - 1.0d0)*dx
 !
 !     *** select new lambda value ***
 !
@@ -3397,15 +3151,15 @@ c
           end if
 
           if (upper.eq.big) then
-            itlamb = lambda + 0.05
+            itlamb = lambda + 0.05d0
           else
-            itlamb = 0.5*(upper + lower)
+            itlamb = 0.5d0*(upper + lower)
           end if
 
         end if
 
         iter = iter + 1
-        check = abs(sqrt(fn) - trust)
+        check = abs(sqrt(fn) - 0.5d0*stride)
         if (check.le.eps) go to 200
 
       end do
@@ -3423,7 +3177,7 @@ c
 !      
       if (error) then
         write (6,'(a,f16.8)') 'lambda', lambda
-        write (6,'(a,f16.8)') 'trust radii', trust
+        write (6,'(a,f16.8)') 'trust radii', 0.5d0*stride
         call errquit('gsopt_lambda: fatal error', 911, geom_err)
       end if
 
@@ -3750,15 +3504,15 @@ C Diagonalize mass-weighted, scaled hessian matrix
 C     Note: ! scratch pointer for givens (real 5*NAT3 words)
 c use hessp as scratch now calling rsg
 C
+      call dscal(nhesst,1.0d3,dbl_mb(ihesst),1)
       CALL vib_CALLG(DBL_MB(IHESSt),nhesst,DBL_MB(IHESSP),
      &    dbl_mb(iscr),dbl_mb(iscr+nat3),DBL_MB(IEGVAL),
      &    DBL_MB(IEGVEC), NAT3,NAT3)
+      call dscal(nat3,1.0d-3,dbl_mb(iegval),1)
 C
 C
 C
-CJMC revisar
-      if (first_pass) CALL vib_NMASS(DBL_MB(IEGVEC),DBL_MB(IMASS)) ! "unmass" weight the normal modes.
-CJMC revisar
+      CALL vib_NMASS(DBL_MB(IEGVEC),DBL_MB(IMASS)) ! "unmass" weight the normal modes.
 C
 C *** Note: DBL_MB(IHESST) now destroyed if needed reinitialize from DBL_MB(IHESS)
 C
@@ -3903,28 +3657,10 @@ CJMC
       enddo
       write(luout,10003)
 c
-c     **** Mass weight coordinates ****
-c
-      if (.not. geom_masses_get(geom,natom,atmass))
-     &   call errquit('vib_step: geom_masses_get failed',911, GEOM_ERR)
-      do iatom=1, natom
-        do ixyz=1,3
-          master(ixyz,iatom) = master(ixyz,iatom)*sqrt(atmass(iatom))
-        end do
-      end do
-c
 c      **** Store "forward" direction ****
 c
       call dcopy(nat3,master,1,coords,1)
       call daxpy(nat3,1.0d00,steps,1,coords,1)
-c
-c     **** Unmass weight coordinates ****
-c
-      do iatom=1, natom
-        do ixyz=1,3
-          coords(ixyz,iatom) = coords(ixyz,iatom)/sqrt(atmass(iatom))
-        end do
-      end do
       if (.not.geom_cart_coords_set(geom,coords)) call errquit
      &   ('vib_istep: geom_cart_coords_set failed',911, GEOM_ERR)
       if (.not. geom_rtdb_store(rtdb, geom, 'ircforward'))
@@ -3934,14 +3670,6 @@ c      **** Store "backward" direction ****
 c
       call dcopy(nat3,master,1,coords,1)
       call daxpy(nat3,-1.0d00,steps,1,coords,1)
-c
-c     **** Unmass weight coordinates ****
-c
-      do iatom=1, natom
-        do ixyz=1,3
-          coords(ixyz,iatom) = coords(ixyz,iatom)/sqrt(atmass(iatom))
-        end do
-      end do
       if (.not.geom_cart_coords_set(geom,coords)) call errquit
      &   ('vib_istep: geom_cart_coords_set failed',911, GEOM_ERR)
       if (.not. geom_rtdb_store(rtdb, geom, 'ircbackward'))
@@ -3976,13 +3704,6 @@ C
 c
       double precision HESST(NHESST) ! lower triangular Hessian
       double precision ATMASS(NAT) ! mass of the atoms
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-      double precision mwhess(nat3*nat3)
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
 c
       double precision fact, scale
       integer ii, jj, jjend, iatii, iatjj, idum
@@ -4004,29 +3725,10 @@ C
           mass_jj = atmass(iatjj)
           if (abs(mass_ii).lt.1.0d-01) mass_ii  = 1.0d05
           if (abs(mass_jj).lt.1.0d-01) mass_jj  = 1.0d05
-*           FACT = SQRT(ATMASS(IATII))*SQRT(ATMASS(IATJJ)) ! mass weight
           FACT = SQRT(mass_ii)*SQRT(mass_jj) ! mass weight
           HESST(IDUM) = HESST(IDUM)/FACT ! weight Hessian
 00200   CONTINUE
-*        idum = isym2(ii,ii) ! get canonical index for diagonal element
-*        if (abs(hesst(idum)).lt.1.0d-10) hesst(idum) = 1.0d04
 00100 CONTINUE
-CJMC
-c     *** Avoid scaling --> Gives better agreement ***
-c     *** with quadratic model for moving away from TS *** 
-CJMC
-      SCALE = 1.D0 ! Hessian scaling factor
-*dscal
-      call dscal(nhesst,scale,hesst,1) ! Scale Hessian for diagonaization
-
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
-        call vib_dsquar(hesst, mwhess, nat3, nat3)
-        call geom_hnd_put_data('irc.hess', mwhess, nat3**2)
-CCCCCCCCCCCCCCCCCCCCCC
-CCCC     MASS     CCCC
-CCCCCCCCCCCCCCCCCCCCCC
 
       END
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -4096,3 +3798,59 @@ c
 c
       end
 
+      subroutine updstride(geom)
+      implicit none
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "nwc_const.fh"
+#include "cgsopt.fh"
+#include "cmepgs.fh"
+#include "geom.fh"
+      integer geom, l_hess, k_hess
+      double precision gamma(nvar),delta(nvar),newx(max_nvar)
+      double precision epredict,echange,ratio
+      logical,external :: gsopt_geom_cart_coords_get
+      if (.not. ma_push_get(mt_dbl, nvar**2, 'hess',
+     $     l_hess, k_hess)) call errquit
+     $     ('gsopt_pickstp: memory for hessian',nvar**2, ma_err)
+      call geom_hnd_get_data('gsopt.hess',dbl_mb(k_hess), nvar**2)
+      if (.not. gsopt_geom_cart_coords_get(geom, newx))
+     $    call errquit('mepgs: geom?',0, geom_err) 
+
+      if (mswg) then
+        call mwcoord(newx, nvar, .true.)
+        call mwcoord(oldgeo, nvar, .true.)
+        call mwgrad(g, nvar, .true.)
+      endif
+
+      delta(1:nvar) = newx(1:nvar) - oldgeo(1:nvar)
+      call dgemv('n',nvar,nvar,1d0,dbl_mb(k_hess),nvar,delta,1,0d0,
+     $            gamma,1)
+      epredict = -dot_product(g(1:nvar),delta(1:nvar))-
+     $            0.5d0*dot_product(delta(1:nvar),gamma)
+      echange = energyref - energy
+      ratio = echange/epredict
+
+
+      if (ratio.gt.0.75d0) then
+        stride = 2d0*stride
+      elseif(ratio.lt.0.25d0) then
+        stride = stride/2d0
+      endif
+
+      stride = min(stride,0.3d0)
+
+      if (mswg) then
+        call mwcoord(newx, nvar, .false.)
+        call mwcoord(oldgeo, nvar, .false.)
+        call mwgrad(g, nvar, .false.)
+      endif
+
+      if (.not.ma_chop_stack(l_hess)) then
+        call errquit('updstride: could not chop stack',0,MA_ERR)
+      endif
+
+      end

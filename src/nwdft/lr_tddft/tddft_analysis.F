@@ -199,6 +199,7 @@ c
       double precision s2_save(nroots) 
       logical lstores2
       double precision s2_tmp(nroots)
+      integer ioserr
 c
 c     MN solvation models --> 
 c
@@ -791,7 +792,7 @@ c
           enddo
           endif ! nov(i) check
         enddo
-        if (pol.lt.1) then
+        if (pol.gt.0) then
            jsym=ieor(isym-1,int_mb(k_irs(pol)+occ-1)-1)+1
            jsym=ieor(jsym-1,int_mb(k_irs(pol)+vir-1)-1)+1
            call sym_irrepname(geom,jsym,oname)
@@ -1845,7 +1846,9 @@ c
          write(luout,*) "fn_civecs: ",fn_civecs
          call util_file_name_resolve(fn_civecs, .false.)
          open(unit=69,file=fn_civecs,form='unformatted',
-     1             status='unknown')
+     1             status='unknown',
+     $        iostat=ioserr)
+         write(luout,*) ' open iostat ',ioserr
          write(LuOut,2010) fn_civecs
          rewind(69)
          write(69) tda

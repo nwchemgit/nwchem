@@ -107,9 +107,9 @@ end
 
 
 dft
-grid fine
+grid xfine
  xc b3lyp
- convergence energy 1d-8
+ convergence energy 1d-9
 end
 
 driver

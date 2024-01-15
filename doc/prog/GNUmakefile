@@ -25,7 +25,11 @@
 
  TARG = prog
 
-all postscript $(TARG).ps:	$(SOURCE)
+all:	$(SOURCE)
+	pdflatex $(TARG).tex
+	pdflatex $(TARG).tex
+	pdflatex $(TARG).tex
+postscript $(TARG).ps:	$(SOURCE)
 	latex $(TARG).tex
 	latex $(TARG).tex
 	latex $(TARG).tex

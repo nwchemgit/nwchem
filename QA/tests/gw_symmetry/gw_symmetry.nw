@@ -1,0 +1,42 @@
+title "GW Methane Td"
+start
+echo
+
+memory 2000 mb
+
+ geometry units au
+   c   0.0000000      0.0000000      0.0000000
+   h   1.1828637      1.1828637      1.1828637
+   symmetry group Td
+ end
+
+basis "ao basis" bse spherical
+ * library cc-pvtz
+end
+
+basis "ri basis" bse spherical
+ * library cc-pvtz-rifit
+end
+
+
+dft
+ direct
+ grid nodisk
+ tolerances acccoul 12
+ noprint "final vectors analysis"
+ xc pbe96
+end
+
+gw
+ states alpha occ 1
+end
+
+task dft gw
+
+
+dft
+ sym off
+end
+
+task dft gw
+

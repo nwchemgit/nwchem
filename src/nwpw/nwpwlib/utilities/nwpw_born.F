@@ -122,8 +122,8 @@ c     radii for heavy elements: 1.17*1.9
       logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
-      real*8  dielec
-      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+      real*8  dielec,rcut,gg0
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,rcut,gg0,
      >                       rtdb,born_on,born_relax
 
 
@@ -155,6 +155,12 @@ c
       if (born_on) then
          if (.not.btdb_get(rtdb,'nwpw:born_dielec',mt_dbl,1,dielec)) 
      >      dielec = 78.4d0
+
+         if (.not.btdb_get(rtdb,'nwpw:born_rcut',mt_dbl,1,rcut)) 
+     >      rcut = 0.1d0
+
+         if (.not.btdb_get(rtdb,'nwpw:born_gg0',mt_dbl,1,gg0)) 
+     >      gg0 = 1.00d0
 
          nion  = ion_nion()
          value = BA_alloc_get(mt_dbl,nion,'bradii',bradii(2),bradii(1))
@@ -198,6 +204,8 @@ c
      >                    " Chem. Phys. Lett., vol. 246, pages 122-129."
             write(luout,*)
             write(luout,'(5x,A,F11.6)') "dielectric constant = ",dielec
+            write(luout,'(5x,A,F11.6)') "dielectric rcut     = ",rcut
+            write(luout,'(5x,A,F11.6)') "dielectric gg0      = ",gg0
             if (born_relax) then
                write(luout,'(5x,A)') "self-consistent solvation"
             else
@@ -237,8 +245,8 @@ c
       logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
-      real*8  dielec
-      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+      real*8  dielec,rcut,gg0
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,rcut,gg0,
      >                       rtdb,born_on,born_relax
 
 *     **** local variables ****
@@ -283,8 +291,8 @@ c     *** Clean up born stuff, if necessary ***
       logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
-      real*8  dielec
-      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+      real*8  dielec,rcut,gg0
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,rcut,gg0,
      >                       rtdb,born_on,born_relax
 
       nwpw_born_on = born_on
@@ -303,8 +311,8 @@ c     *** Clean up born stuff, if necessary ***
       logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
-      real*8  dielec
-      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+      real*8  dielec,rcut,gg0
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,rcut,gg0,
      >                       rtdb,born_on,born_relax
 
       nwpw_born_relax = born_relax
@@ -331,8 +339,8 @@ c     *** Clean up born stuff, if necessary ***
       logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
-      real*8  dielec
-      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+      real*8  dielec,rcut,gg0
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,rcut,gg0,
      >                       rtdb,born_on,born_relax
 
 *     **** local variables ****
@@ -376,7 +384,7 @@ c     *** Clean up born stuff, if necessary ***
          Gsolv = nwpw_born_energy0(nion,
      >                            dbl_mb(ion_rion_ptr()),
      >                            dbl_mb(bradii(1)),
-     >                            dbl_mb(qborn(1)),dielec)
+     >                            dbl_mb(qborn(1)),dielec,rcut,gg0)
          if (oprint) then
             write(luout,*)
             write(luout,*) "Generalized Born Solvation"
@@ -390,7 +398,11 @@ c     *** Clean up born stuff, if necessary ***
             write(luout,*) "   vol. 246, pages 122-129."
             write(luout,*)
             write(luout,'(2x,A,F8.2)') "Dielectric constant -eps- = ",
-     >                              dielec
+     >                                 dielec
+            write(luout,'(2x,A,F8.2)') "Dielectric rcut           = ",
+     >                                 rcut
+            write(luout,'(2x,A,F8.2)') "Dielectric gg0            = ",
+     >                                 gg0
             write(luout,*)
             do ii=1,nion
                write(luout,101) ion_atom(ion_katm(ii)),ii,
@@ -424,8 +436,8 @@ c     *** Clean up born stuff, if necessary ***
       logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
-      real*8  dielec
-      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+      real*8  dielec,rcut,gg0
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,rcut,gg0,
      >                       rtdb,born_on,born_relax
 
       nwpw_born_screen = (1.0d0 - 1.0d0/dielec)
@@ -448,8 +460,8 @@ c     *** Clean up born stuff, if necessary ***
       logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
-      real*8  dielec
-      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+      real*8  dielec,rcut,gg0
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,rcut,gg0,
      >                       rtdb,born_on,born_relax
 
 *     **** external functions ****
@@ -461,21 +473,22 @@ c     *** Clean up born stuff, if necessary ***
       nwpw_born_energy = nwpw_born_energy0(ion_nion_qm(),
      >                            dbl_mb(ion_rion_ptr()),
      >                            dbl_mb(bradii(1)),
-     >                            dbl_mb(qborn(1)),dielec)
+     >                            dbl_mb(qborn(1)),dielec,rcut,gg0)
       return
       end
 
-      real*8 function nwpw_born_energy0(nion,rion,bradii,q,dielec)
+      real*8 function nwpw_born_energy0(nion,rion,bradii,q,
+     >                                  dielec,rcut,gg0)
       implicit none
       integer nion
       real*8  rion(3,nion),bradii(nion),q(nion)
-      real*8  dielec
+      real*8  dielec,rcut,gg0
 
 *     **** local variables ****
       integer MASTER,taskid,np
       parameter (MASTER=0)
       integer ii,jj,itask
-      real*8  Gsolv,screen,C,f,dist2
+      real*8  Gsolv,screen,C,f,dist2,gg
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -494,7 +507,13 @@ c     *** Clean up born stuff, if necessary ***
      >                + (rion(3,ii)-rion(3,jj))**2)
                C = dexp(-0.25d0*dist2/(bradii(ii)*bradii(jj)))
                f = dsqrt(dist2 + bradii(ii)*bradii(jj)*C)
-               Gsolv = Gsolv - 0.5d0*screen*q(ii)*q(jj)/f
+               if (ii.eq.jj) then
+                  gg = gg0
+               else
+                  gg = erf(dsqrt(dist2)/rcut)
+               end if
+               Gsolv = Gsolv - 0.5d0*screen*q(ii)*q(jj)*gg/f
+
             end if
             itask = mod(itask+1,np)
          end do
@@ -529,8 +548,8 @@ c      end do
       logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
-      real*8  dielec
-      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+      real*8  dielec,rcut,gg0
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,rcut,gg0,
      >                       rtdb,born_on,born_relax
 
 *     **** external functions ****
@@ -547,7 +566,7 @@ c      end do
       call nwpw_born_fion0(nion,
      >                     dbl_mb(ion_rion_ptr()),
      >                     dbl_mb(bradii(1)),
-     >                     dbl_mb(qborn(1)),dielec,dbl_mb(ftmp(1)))
+     >                     dbl_mb(qborn(1)),dielec,rcut,dbl_mb(ftmp(1)))
 
       call DAXPY_OMP(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
@@ -558,35 +577,66 @@ c      end do
       return
       end
 
-      real*8 function nwpw_born_gsolv(screen,qi,qj,bi,bj,xx)
-      implicit none
-      real*8 screen,qi,qj,bi,bj,xx
-      real*8 C,f
+*     **************************************
+*     *                                    *
+*     *          nwpw_born_gsolv           *
+*     *                                    *
+*     **************************************
+*
+*     Calculates gsolv = -0.5*screen*qi*qj*gg/f
+*   
+*     where f = sqrt(xx + bi*bj*C)
+*           gg = erf(sqrt(xx)/rcut)
+*           C = exp(-xx/(4*bi*bj))  
+*
 
+      real*8 function nwpw_born_gsolv(screen,qi,qj,bi,bj,xx,rcut)
+      implicit none
+      real*8 screen,qi,qj,bi,bj,xx,rcut
+      real*8 C,f,gg
+
+      gg = erf(dsqrt(xx)/rcut) 
       C = dexp(-0.25d0*xx/(bi*bj))
       f = dsqrt(xx + bi*bj*C)
-      nwpw_born_gsolv  = -0.5d0*screen*qi*qj/f
+      nwpw_born_gsolv  = -0.5d0*screen*qi*qj*gg/f
       return
       end
 
-      real*8 function nwpw_born_dgsolv(screen,qi,qj,bi,bj,xx)
+*     **************************************
+*     *                                    *
+*     *          nwpw_born_dgsolv          *
+*     *                                    *
+*     **************************************
+*
+*     Calculates dgsolv/dxx
+*
+*     dC/dxx = -1/(4*bi*bj)*exp(-xx/(4*bi*bj)) = -1/(4*bi*bj)*C
+*     df/dxx = 0.5*1/f * (dxx/dxx + bi*bj*dC/dxx) =  0.5*1/f*(1-0.25*C)
+*     dgg/dxx = 1/sqrt(xx*pi) * exp(-xx/rcut**2)/rcut
+*     dsqrt(xx)/dxx = 0.5/xx
+*
+      real*8 function nwpw_born_dgsolv(screen,qi,qj,bi,bj,xx,rcut)
       implicit none
-      real*8 screen,qi,qj,bi,bj,xx
-      real*8 C,f,gsolv
+      real*8 screen,qi,qj,bi,bj,xx,rcut
+      real*8 C,f,gsolv,gg,dgg
 
+
+      gg  = erf(dsqrt(xx)/rcut)
+      dgg = (1.0d0/dsqrt(xx*4.0d0*datan(1.0d0)))*exp(-xx/rcut**2)/rcut
       C = dexp(-0.25d0*xx/(bi*bj))
       f = dsqrt(xx + bi*bj*C)
-      gsolv  = -0.5d0*screen*qi*qj/f
+      gsolv  = -0.5d0*screen*qi*qj*gg/f
 
       nwpw_born_dgsolv = -0.5d0*gsolv*(1.0-0.25d0*C)/f**2
+     >                  - 0.5d0*screen*qi*qj*dgg/f
       return
       end
 
-      subroutine nwpw_born_fion0(nion,rion,bradii,q,dielec,fion)
+      subroutine nwpw_born_fion0(nion,rion,bradii,q,dielec,rcut,fion)
       implicit none
       integer nion
       real*8  rion(3,nion),bradii(nion),q(nion)
-      real*8  dielec
+      real*8  dielec,rcut
       real*8  fion(3,nion)
 
 *     **** local variables ****
@@ -609,21 +659,23 @@ c      end do
       do ii=1,nion
          do jj=1,nion
             if (itask.eq.taskid) then
-               dx = rion(1,ii)-rion(1,jj)
-               dy = rion(2,ii)-rion(2,jj)
-               dz = rion(3,ii)-rion(3,jj)
-               dist2 = dx*dx + dy*dy + dz*dz
+               if (ii.ne.jj) then
+                  dx = rion(1,ii)-rion(1,jj)
+                  dy = rion(2,ii)-rion(2,jj)
+                  dz = rion(3,ii)-rion(3,jj)
+                  dist2 = dx*dx + dy*dy + dz*dz
 
-               dGsolv = nwpw_born_dgsolv(screen,q(ii),q(jj),
-     >                                   bradii(ii),bradii(jj),
-     >                                   dist2)
-               fion(1,ii) = fion(1,ii) - 2.0d0*dGsolv*dx
-               fion(2,ii) = fion(2,ii) - 2.0d0*dGsolv*dy
-               fion(3,ii) = fion(3,ii) - 2.0d0*dGsolv*dz
+                  dGsolv = nwpw_born_dgsolv(screen,q(ii),q(jj),
+     >                                      bradii(ii),bradii(jj),
+     >                                      dist2,rcut)
+                  fion(1,ii) = fion(1,ii) - 2.0d0*dGsolv*dx
+                  fion(2,ii) = fion(2,ii) - 2.0d0*dGsolv*dy
+                  fion(3,ii) = fion(3,ii) - 2.0d0*dGsolv*dz
 
-               fion(1,jj) = fion(1,jj) + 2.0d0*dGsolv*dx
-               fion(2,jj) = fion(2,jj) + 2.0d0*dGsolv*dy
-               fion(3,jj) = fion(3,jj) + 2.0d0*dGsolv*dz
+                  fion(1,jj) = fion(1,jj) + 2.0d0*dGsolv*dx
+                  fion(2,jj) = fion(2,jj) + 2.0d0*dGsolv*dy
+                  fion(3,jj) = fion(3,jj) + 2.0d0*dGsolv*dz
+               end if
             end if
             itask = mod(itask+1,np)
          end do
@@ -656,8 +708,8 @@ c      end do
       logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
-      real*8  dielec
-      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+      real*8  dielec,rcut,gg0
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,rcut,gg0,
      >                       rtdb,born_on,born_relax
 
       integer  ion_rion_ptr
@@ -666,22 +718,22 @@ c      end do
       call nwpw_born_dVdq0(nion,
      >                     dbl_mb(ion_rion_ptr()),
      >                     dbl_mb(bradii(1)),
-     >                     q,dielec,u)
+     >                     q,dielec,rcut,gg0,u)
       return
       end
 
-      subroutine nwpw_born_dVdq0(nion,rion,bradii,q,dielec,u)
+      subroutine nwpw_born_dVdq0(nion,rion,bradii,q,dielec,rcut,gg0,u)
       implicit none
       integer nion
       real*8  rion(3,nion),bradii(nion),q(nion)
-      real*8  dielec
+      real*8  dielec,rcut,gg0
       real*8  u(nion)
 
 *     **** local variables ****
       integer MASTER,taskid,np
       parameter (MASTER=0)
       integer ii,jj,itask
-      real*8  Gsolv,screen,C,f,dist2
+      real*8  Gsolv,screen,C,f,dist2,gg
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -702,9 +754,14 @@ c      end do
      >                + (rion(3,ii)-rion(3,jj))**2)
                C = dexp(-0.25d0*dist2/(bradii(ii)*bradii(jj)))
                f = dsqrt(dist2 + bradii(ii)*bradii(jj)*C)
-               u(ii) = u(ii) + 0.5d0*screen*q(jj)/f
-               u(jj) = u(jj) + 0.5d0*screen*q(ii)/f
-               Gsolv = Gsolv - 0.5d0*screen*q(ii)*q(jj)/f
+               if (ii.eq.jj) then
+                  gg = gg0
+               else
+                  gg = erf(dsqrt(dist2)/rcut)
+               end if
+               u(ii) = u(ii) + 0.5d0*screen*q(jj)*gg/f
+               u(jj) = u(jj) + 0.5d0*screen*q(ii)*gg/f
+               Gsolv = Gsolv - 0.5d0*screen*q(ii)*q(jj)*gg/f
             end if
             itask = mod(itask+1,np)
          end do
@@ -732,8 +789,8 @@ c      end do
       logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
-      real*8  dielec
-      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+      real*8  dielec,rcut,gg0
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,rcut,gg0,
      >                       rtdb,born_on,born_relax
 
       nwpw_born_u_ptr = uborn(1)
@@ -753,8 +810,8 @@ c      end do
       logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
-      real*8  dielec
-      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+      real*8  dielec,rcut,gg0
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,rcut,gg0,
      >                       rtdb,born_on,born_relax
 
       nwpw_born_q_ptr = qborn(1)

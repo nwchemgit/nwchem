@@ -207,10 +207,15 @@ c
       double precision scr_ci1, scr_ci2
       double precision scr_co
 c
+      logical oprint_ham
       character*30 pname
 c
 c     preliminaries
       pname='qmd_tddft_coup: '
+c
+c     print
+c
+      oprint_ham = util_print('ham', print_high).and.ga_nodeid().eq.0
 c
       inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       nvir=(nmo-nocc)
@@ -503,7 +508,7 @@ c
 c
       call ga_sync()
       coup(:,:)=coup(:,:)/(2.d0*dt)
-      if (ga_nodeid().eq.0) then
+      if (oprint_ham) then
        write(*,*) 'HAM'
        do jstate=1,nstates
         do istate=1,nstates

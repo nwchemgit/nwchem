@@ -309,7 +309,6 @@ c     >   (int_mb(p_map3(1,nb)+k+j*(nx(nb)/2+1)), k=0,nx(nb)/2)
 c      end do
 c      write(*,*)
 c      end if
-     
 
       nfft3d(nb) = (nx(nb)/2+1)*nq1(nb)
       if ((ny(nb)*nq2(nb)).gt.nfft3d(nb)) nfft3d(nb) = ny(nb)*nq2(nb)
@@ -1184,7 +1183,7 @@ c      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
       common    / D3dB_fft / tmpx,tmpy,tmpz
 
 #ifdef FFTW3
-#include "fftw3.fh"
+#include <fftw3.f>
        integer Atest(2),nxh,nxhz,nxhy
 #endif
 

@@ -41,7 +41,11 @@
       xcfamily = xc_f03_func_info_get_family(xcinfo)
 
       select case(xcfamily)
+#if XC_MAJOR_VERSION > 4
       case (XC_FAMILY_LDA, XC_FAMILY_HYB_LDA)
+#else
+      case (XC_FAMILY_LDA)
+#endif
       case (XC_FAMILY_GGA, XC_FAMILY_HYB_GGA)
       case (XC_FAMILY_MGGA, XC_FAMILY_HYB_MGGA)
       case default
@@ -50,7 +54,11 @@
       endselect
 
       select case(xcfamily)
+#if XC_MAJOR_VERSION > 4
       case (XC_FAMILY_HYB_LDA, XC_FAMILY_HYB_GGA, XC_FAMILY_HYB_MGGA)
+#else
+      case (XC_FAMILY_HYB_GGA, XC_FAMILY_HYB_MGGA)
+#endif
         if (iand(xcflags,xc_flags_hyb_cam).eq.xc_flags_hyb_cam) then
           call xc_f03_hyb_cam_coef(xcfunc,cam_omega,cam_alpha,cam_beta)
 

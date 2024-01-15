@@ -44,7 +44,7 @@
         rohf_lagr.o 		rohf_diis.o \
 	rhf_fock.o              multipole.o ga_mat_to_vec.o \
         movecs_frag.o  localize.o int_dip_ga.o \
-        fock_xc.o fock_j_fit.o rohf_jkfac.o uhf_jkfac.o \
+        fock_xc.o fock_xc_dm3d.o fock_j_fit.o rohf_jkfac.o uhf_jkfac.o \
         rohf_hessv3.o \
 	fock_2e_cam.o ga_get2eri.o scf_frozemb.o print_integrals.o \
 	rohf_hessv2_ext.o rohf_hessv3_ext.o uhf_hessv2_ext.o uhf_precond_ext.o \
@@ -70,7 +70,7 @@
     USES_BLAS = ao_fock_2e.F ao_replicated.F fock_2e_file.F fock_2e_slab.F int2e_file.F \
                 movecs_lock.F movecs_phase.F riscf_fock.F riscf_trans.F rohf_diis.F \
                 rohf_k2cf.F scf_movecs.F scf_vec_guess.F uhf.F movecs_frag.F localize.F fock_2e.F \
-		fock_2e_cam.F int_1e_ga.F movecs_rotate.F vectors.F ga_get2eri.F
+		fock_2e_cam.F int_1e_ga.F movecs_rotate.F vectors.F ga_get2eri.F cosmo_fock.F
 
 HEADERS = schwarz.fh cscfps.fh cfock.fh cscf.fh cint2efile.fh cfockmul.fh crohf.fh cosmo.fh cuhf.fh frozemb.fh
 
