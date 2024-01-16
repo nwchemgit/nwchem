@@ -11,7 +11,8 @@
 
  HEADERS = geom.fh geomP.fh periodic.fh
 
- USES_BLAS = geom.F geom_input.F geom_print_ecce.F geom_hnd.F geom_3d.F geom_getsym.F geom_2d.F
+ USES_BLAS = geom.F geom_input.F geom_print_ecce.F geom_hnd.F geom_3d.F geom_getsym.F geom_2d.F \
+             geom_driver_utils.F
  UNSET_OPENMP = 1
 include ../config/makefile.h
 include ../config/makelib.h
