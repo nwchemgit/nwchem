@@ -292,7 +292,7 @@ c     ---------------------------------------------
 
  13      format(a,i3.3,'.rst')
  14      format('bead_',i6.6,":geom")
- 15      format('bead_',i6.6.":energy")
+ 15      format('bead_',i6.6,":energy")
 
       end
 
