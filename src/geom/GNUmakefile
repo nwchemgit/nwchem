@@ -6,7 +6,8 @@
   OBJ_OPTIMIZE = geom_hnd.o
 
      OBJ = geom.o geom_input.o geom_input2.o geom_3d.o geom_2d.o geom_1d.o geom_numcore.o \
-           geom_checksum.o geom_print_ecce.o  geom_freeze.o geom_fragment.o geom_getsym.o
+           geom_checksum.o geom_print_ecce.o  geom_freeze.o geom_fragment.o geom_getsym.o \
+           geom_driver_utils.o
 
  HEADERS = geom.fh geomP.fh periodic.fh
 
