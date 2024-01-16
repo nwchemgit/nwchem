@@ -67,11 +67,14 @@
         double precision, intent(out) :: s(d1*d2*d3*d4)
         double precision, intent(in) :: u(d1*d2*d3*d4)
         double precision, intent(in) :: f
-        do concurrent(j2 = 1:d2, j1 = 1:d1, j3 = 1:d3, j4 = 1:d4)
-            old_offset = j4+d4*(j3-1+d3*(j2-1+d2*(j1-1)))
-            new_offset = j4+d4*(j3-1+d3*(j2-1+d2*(j1-1)))
-            s(new_offset) = u(old_offset) * f
-        enddo
+        !do concurrent(j2 = 1:d2, j1 = 1:d1, j3 = 1:d3, j4 = 1:d4)
+        !    old_offset = j4+d4*(j3-1+d3*(j2-1+d2*(j1-1)))
+        !    new_offset = j4+d4*(j3-1+d3*(j2-1+d2*(j1-1)))
+        !    s(new_offset) = u(old_offset) * f
+        !enddo
+        s = u * f
+        print*,'transpose_1234_x should never be called'
+        stop 1234
         end
         subroutine transpose_1243_x(u,s,d1,d2,d3,d4,f)
         implicit none
@@ -236,7 +239,7 @@
         double precision, intent(out) :: s(d1*d2*d3*d4)
         double precision, intent(in) :: u(d1*d2*d3*d4)
         double precision, intent(in) :: f
-        do concurrent(j1 = 1:d1, j2 = 1:d2, j3 = 1:d3, j4 = 1:d4)
+        do concurrent(j2 = 1:d2, j3 = 1:d3, j4 = 1:d4, j1 = 1:d1)
             old_offset = j4+d4*(j3-1+d3*(j2-1+d2*(j1-1)))
             new_offset = j4+d4*(j2-1+d2*(j1-1+d1*(j3-1)))
             s(new_offset) = u(old_offset) * f
@@ -250,7 +253,7 @@
         double precision, intent(out) :: s(d1*d2*d3*d4)
         double precision, intent(in) :: u(d1*d2*d3*d4)
         double precision, intent(in) :: f
-        do concurrent(j1 = 1:d1, j3 = 1:d3, j2 = 1:d2, j4 = 1:d4)
+        do concurrent(j2 = 1:d2, j3 = 1:d3, j4 = 1:d4, j1 = 1:d1)
             old_offset = j4+d4*(j3-1+d3*(j2-1+d2*(j1-1)))
             new_offset = j2+d2*(j4-1+d4*(j1-1+d1*(j3-1)))
             s(new_offset) = u(old_offset) * f
@@ -264,7 +267,7 @@
         double precision, intent(out) :: s(d1*d2*d3*d4)
         double precision, intent(in) :: u(d1*d2*d3*d4)
         double precision, intent(in) :: f
-        do concurrent(j2 = 1:d2, j1 = 1:d1, j3 = 1:d3, j4 = 1:d4)
+        do concurrent(j2 = 1:d2, j3 = 1:d3, j4 = 1:d4, j1 = 1:d1)
             old_offset = j4+d4*(j3-1+d3*(j2-1+d2*(j1-1)))
             new_offset = j4+d4*(j1-1+d1*(j2-1+d2*(j3-1)))
             s(new_offset) = u(old_offset) * f
@@ -278,7 +281,7 @@
         double precision, intent(out) :: s(d1*d2*d3*d4)
         double precision, intent(in) :: u(d1*d2*d3*d4)
         double precision, intent(in) :: f
-        do concurrent(j2 = 1:d2, j3 = 1:d3, j1 = 1:d1, j4 = 1:d4)
+        do concurrent(j2 = 1:d2, j3 = 1:d3, j4 = 1:d4, j1 = 1:d1)
             old_offset = j4+d4*(j3-1+d3*(j2-1+d2*(j1-1)))
             new_offset = j1+d1*(j4-1+d4*(j2-1+d2*(j3-1)))
             s(new_offset) = u(old_offset) * f
@@ -320,7 +323,7 @@
         double precision, intent(out) :: s(d1*d2*d3*d4)
         double precision, intent(in) :: u(d1*d2*d3*d4)
         double precision, intent(in) :: f
-        do concurrent(j1 = 1:d1, j2 = 1:d2, j4 = 1:d4, j3 = 1:d3)
+        do concurrent(j2 = 1:d2, j3 = 1:d3, j4 = 1:d4, j1 = 1:d1)
             old_offset = j4+d4*(j3-1+d3*(j2-1+d2*(j1-1)))
             new_offset = j3+d3*(j2-1+d2*(j1-1+d1*(j4-1)))
             s(new_offset) = u(old_offset) * f
@@ -334,7 +337,7 @@
         double precision, intent(out) :: s(d1*d2*d3*d4)
         double precision, intent(in) :: u(d1*d2*d3*d4)
         double precision, intent(in) :: f
-        do concurrent(j1 = 1:d1, j3 = 1:d3, j4 = 1:d4, j2 = 1:d2)
+        do concurrent(j2 = 1:d2, j3 = 1:d3, j4 = 1:d4, j1 = 1:d1)
             old_offset = j4+d4*(j3-1+d3*(j2-1+d2*(j1-1)))
             new_offset = j2+d2*(j3-1+d3*(j1-1+d1*(j4-1)))
             s(new_offset) = u(old_offset) * f
@@ -348,7 +351,7 @@
         double precision, intent(out) :: s(d1*d2*d3*d4)
         double precision, intent(in) :: u(d1*d2*d3*d4)
         double precision, intent(in) :: f
-        do concurrent(j2 = 1:d2, j1 = 1:d1, j4 = 1:d4, j3 = 1:d3)
+        do concurrent(j2 = 1:d2, j3 = 1:d3, j4 = 1:d4, j1 = 1:d1)
             old_offset = j4+d4*(j3-1+d3*(j2-1+d2*(j1-1)))
             new_offset = j3+d3*(j1-1+d1*(j2-1+d2*(j4-1)))
             s(new_offset) = u(old_offset) * f
@@ -362,7 +365,7 @@
         double precision, intent(out) :: s(d1*d2*d3*d4)
         double precision, intent(in) :: u(d1*d2*d3*d4)
         double precision, intent(in) :: f
-        do concurrent(j2 = 1:d2, j4 = 1:d4, j1 = 1:d1, j3 = 1:d3)
+        do concurrent(j2 = 1:d2, j3 = 1:d3, j4 = 1:d4, j1 = 1:d1)
             old_offset = j4+d4*(j3-1+d3*(j2-1+d2*(j1-1)))
             new_offset = j1+d1*(j3-1+d3*(j2-1+d2*(j4-1)))
             s(new_offset) = u(old_offset) * f
