@@ -368,9 +368,6 @@ c
      $     nbh_il,  nbh_jk
       integer cache_hitmiss(2,6)
       integer cache_hit,cache_miss
-      integer bgj_get_rtdb_handle
-      external bgj_get_rtdb_handle
-      integer rtdb_out
       integer jj
       logical skipk
 c     
@@ -400,9 +397,8 @@ c     replicated DM and Fock Matrix
 c
 c     turned off for nbf gt 3000 since becomes a memory hog
 c
-      rtdb_out=rtdb
       dorepon=.true.
-      if (.not.rtdb_get(rtdb_out,'fock:mirrmat',mt_log,1,dorepon)) then
+      if (.not.rtdb_get(rtdb,'fock:mirrmat',mt_log,1,dorepon)) then
          dorepon=nbf.lt.3000
       endif
 
@@ -1242,7 +1238,6 @@ c
       implicit none
 #include "errquit.fh"
 #include "global.fh"
-#include "bgj.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -1262,8 +1257,6 @@ c
       integer i
       logical oprint
       integer ilo(3),ihi(3)
-      logical dm3d
-      integer rtdb_out
       integer ga_create3d_atom_blocked
       external ga_create3d_atom_blocked
 c
@@ -1273,9 +1266,6 @@ c
      ,        ' ndens ',ndens
          call util_flush(luout)
       endif
-      rtdb_out=bgj_get_rtdb_handle()
-      if (.not.rtdb_get(rtdb_out,'dft:dm3d',mt_log,1,dm3d)) 
-     D     dm3d=.true.
 #if 0
       dims(1) = nfock
       dims(2) = nbf
