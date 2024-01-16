@@ -21,23 +21,23 @@ c  d1(*) = 1-e density matrix
 c
       implicit none
 c
-      integer*4 lbuf, nipbuf, ntape, nnmt, nsym, nbf
-      integer*4 itypea,  itypeb
-      integer*4 nipv,   msame,  nmsame,     nomore
+      integer lbuf, nipbuf, ntape, nnmt, nsym, nbf
+      integer itypea,  itypeb
+      integer nipv,   msame,  nmsame,     nomore
       parameter(nipv=2, msame=0,nmsame = 1, nomore = 2 )
-      integer*4 last, nrec, ierr
+      integer last, nrec, ierr
       real*8 buf(lbuf),val(nipbuf),fcore
       double precision d1(nnmt)
-      integer*4 ilab(nipv,nipbuf),sym(*),map(*)
-      integer*4 nmpsy(*)
-      integer*4 infomo(*),kntin(*)
-      integer*4 iretbv,    symoff(1),lasta,lastb
+      integer ilab(nipv,nipbuf),sym(*),map(*)
+      integer nmpsy(*)
+      integer infomo(*),kntin(*)
+      integer iretbv,    symoff(1),lasta,lastb
       parameter(iretbv = 0)
       real*8    zero
       parameter(zero = 0.0d0)
-      integer*4   wrnerr,  nfterr,  faterr
+      integer   wrnerr,  nfterr,  faterr
       parameter(wrnerr=0,nfterr=1,faterr=2)
-      integer*4 i
+      integer i
       integer numd
 c
 cgk debug
