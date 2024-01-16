@@ -763,18 +763,21 @@ C     i0 ( p3 p4 h1 h2 )_vt+= -1*P( 4 )*Sum ( h6 p5 )*t ( p3 p5 h1 h6 )_t*i1 ( h
      &                  int_mb(k_range+p4b-1),int_mb(k_range+h6b-1),
      &                  int_mb(k_range+h2b-1),int_mb(k_range+p5b-1),
      &                  3,1,2,4,1.0d0)
-                block
-                   use iso_fortran_env, only: INT32
-                   use cublas, only : DGEMM
-                   integer(kind=INT32) :: m,n,k
-                   m = dima_sort
-                   n = dimb_sort
-                   k = dim_common
-                   CALL DGEMM('T','N',m,n,k,
-     &                        1.0d0,f_a,k,
-     &                              f_b,k,
-     &                        1.0d0,f_c,m)
-                end block
+                   block
+#ifdef USE_TCE_CUBLAS
+                    ! the CUBLAS interface only support INT32
+                    use iso_fortran_env, only: INT32
+                    use cublas, only : DGEMM
+                    integer(kind=INT32) :: m,n,k
+#else
+                    integer :: m,n,k
+#endif
+                    m = dima_sort
+                    n = dimb_sort
+                    k = dim_common
+                    CALL DGEMM('T','N',m,n,k,
+     &                          1.0d0,f_a,k,f_b,k,1.0d0,f_c,m)
+                   end block
                   END IF
                  END IF
                 END IF
