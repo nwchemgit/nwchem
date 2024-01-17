@@ -73,6 +73,8 @@
       integer ilow, ihigh, ii
       integer np, ip, iplo, iphi, iproc, nproc
       integer nmygrpproc
+      character*132 line
+      integer ifile, ierr
       real*8  tmp_energy
       real*8, allocatable :: tmp_dVdx(:,:)
       integer, allocatable :: iproc_to_bead(:)
@@ -233,9 +235,6 @@
         enddo
       endif
       call ga_sync()
-      !DEBUG
-      write(*,*)'HVD: A ',nstep,nbeads
-      !DEBUG
       !*** Switch process group
       call ga_pgroup_set_default(bead_pgroup)
       bead_iproc = ga_nodeid()
@@ -262,16 +261,10 @@
      &  call errquit('zts_runall_parallel: opening bead rtdb '//
      &               'file failed',0,RTDB_ERR)
       bgj_rtdb = rtdb
-      !DEBUG
-      write(*,*)'HVD C: ',global_rtdb,rtdb
-      !DEBUG
       if (.not.rtdb_put(rtdb,"scf:converged",mt_log,1,.false.))
      >  call errquit('zts_runall_parallel: scf:converged put',0,0)
       if (.not.rtdb_put(rtdb,"dft:converged",mt_log,1,.false.))
      >  call errquit('zts_runall_parallel: dft:converged put',0,0)
-      !DEBUG
-      write(*,*)'HVD: B ',global_iproc,bead_nproc,bead_iproc,luout
-      !DEBUG
 
       if (nstep.eq.0) then
         !*** We need to reset the output movecs file
@@ -283,9 +276,6 @@
           bead_movecs_out = bead_rtdb_fname(1:bead_len-3)//
      >                      '.movecs'
         endif
-        !DEBUG
-        write(*,*)'HVD: D ',bead_movecs_out
-        !DEBUG
         if (.not.rtdb_cput(rtdb,'scf:output vectors',1,
      >                     bead_movecs_out)) then
           call errquit('zts_runall_parallel: scf:output vectors put',
@@ -299,9 +289,6 @@
           bead_movecs_out = bead_rtdb_fname(1:bead_len-3)//
      >                      '.movecs'
         endif
-        !DEBUG
-        write(*,*)'HVD: E ',bead_movecs_out
-        !DEBUG
         if (.not.rtdb_cput(rtdb,'dft:output vectors',1,
      &                     bead_movecs_out)) then
           call errquit('zts_runall_parallel: dft:output vectors put',
@@ -338,21 +325,21 @@
       if(.not.rtdb_put(rtdb,"dft:converged",mt_log,1,.false.))
      >  call errquit('zts_runall_parallel: dft:converged put',0,0)
 
+      if (bead_iproc.eq.0) write(LuOut,*)"string: running bead ",mybead
       call ga_sync()
       tmpVar = task_gradient(rtdb)
+      if (.not.(tmpVar.or.ignore))
+     &  call errquit("zts_runall_parallel: gradient failed",0,UERR)
 
       if (bead_iproc.eq.0) then
         if (.not. rtdb_get(rtdb,'task:energy',mt_dbl,1,energy(mybead)))
      &      call errquit('zts_runall_parallel: failed getting energy',0,
      &      RTDB_ERR)
-!     if (.not.(
-!    &    (freeze1.and.(mybead.eq.1)).or.
-!    &    (freezeN.and.(mybead.eq.nbeads)))
-!    &   ) then
+        write(LuOut,'(A,I3,A,F18.6)')
+     &        " string: finished bead ",mybead," energy=",energy(mybead)
         if (.not. rtdb_get(rtdb, 'task:gradient', mt_dbl, 3*natoms,
      &      dVdx(1,1,mybead))) call errquit(
      &      'zts_runall_parallel: failed getting gradient',0,RTDB_ERR)
-!     endif
       else
         if (.not. rtdb_get(rtdb,'task:energy',mt_dbl,1,tmp_energy))
      &      call errquit('zts_runall_parallel: failed getting energy',0,
@@ -366,8 +353,6 @@
       if (.not.rtdb_close(rtdb,'keep'))
      &  call errquit('zts_runall_parallel close failed for pgroup',
      &               0,RTDB_ERR)
-c     if (.not.rtdb_open(global_rtdb_fname,'old',rtdb))
-c    &  call errquit('opening global rtdb failed',0,RTDB_ERR)
       if (global_iproc.ne.0) then
         if (bead_iproc.eq.0) then
           close(UNIT=LuOut)
@@ -376,6 +361,7 @@ c    &  call errquit('opening global rtdb failed',0,RTDB_ERR)
 #endif
         endif
       endif
+      call ga_sync()
       call ga_pgroup_set_default(global_pgroup)
       if (.not.ga_pgroup_destroy(bead_pgroup))
      &  call errquit('zts_runall_parallel: destroying bead pgroup '//
@@ -384,8 +370,26 @@ c    &  call errquit('opening global rtdb failed',0,RTDB_ERR)
      &  call errquit('zts_runall_parallel: opening global rtdb file '//
      &               'failed',0,RTDB_ERR)
       bgj_rtdb = rtdb
-      !rtdb = global_rtdb
-      !bgj_rtdb = rtdb
+      !*** Echo stdout from other processor groups to the global stdout
+      if (ga_nodeid().eq.0) then
+        if (.not.util_get_io_unit(ifile)) then
+          call errquit('zts_runall_parallel: out of free file units',
+     &                 0,UERR)
+        endif
+        do ii = ibead_lo+1, ibead_hi
+          glbl_len = inp_strlen(global_rtdb_fname)
+          bead_out_fname = global_rtdb_fname(1:(glbl_len-3))
+          bead_out_fname = bead_out_fname(1:(glbl_len-3))//
+     &                   bead_index_name(ii)//'.out'
+          open(UNIT=ifile,FILE=bead_out_fname)
+          do while(.true.)
+            line=""
+            read(ifile,'(a132)',ERR=1000,IOSTAT=ierr)line
+            write(luout,'(a)')line(1:inp_strlen(line))
+          enddo
+ 1000     close(UNIT=ifile)
+        enddo
+      endif
 
       call ga_dgop(202312,energy,nbeads,'+')
       call ga_dgop(202313,dVdx,3*natoms*nbeads,'+')
