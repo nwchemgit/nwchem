@@ -61,8 +61,9 @@
       integer global_rtdb
       integer glbl_len
       character*255 bead_rtdb_fname
+      character*255 file_prefix
       character*255 bead_out_fname
-      integer bead_len
+      integer bead_len, prefix_len
       character*255 movecs_out
       character*255 bead_movecs_out
       integer bead_movecs_len
@@ -253,20 +254,24 @@
         endif
       endif
       glbl_len = inp_strlen(global_rtdb_fname)
-      bead_rtdb_fname = global_rtdb_fname(1:(glbl_len-3))
-      bead_rtdb_fname = bead_rtdb_fname(1:glbl_len-3)//
-     &                  bead_index_name(mybead)//'.db'
+      file_prefix = global_rtdb_fname(1:(glbl_len-3))//
+     &              bead_index_name(mybead)
+      prefix_len = inp_strlen(file_prefix)
+      bead_rtdb_fname = file_prefix(1:prefix_len)//'.db'
       bead_len = inp_strlen(bead_rtdb_fname)
       if (.not.rtdb_open(bead_rtdb_fname(1:bead_len), 'old', rtdb))
      &  call errquit('zts_runall_parallel: opening bead rtdb '//
      &               'file failed',0,RTDB_ERR)
       bgj_rtdb = rtdb
+      call util_file_prefix_set(file_prefix)
       if (.not.rtdb_put(rtdb,"scf:converged",mt_log,1,.false.))
      >  call errquit('zts_runall_parallel: scf:converged put',0,0)
       if (.not.rtdb_put(rtdb,"dft:converged",mt_log,1,.false.))
      >  call errquit('zts_runall_parallel: dft:converged put',0,0)
 
       if (nstep.eq.0) then
+        !*** We to update the file prefix on the bead RTDB file
+        call util_file_info_rtdb(rtdb)
         !*** We need to reset the output movecs file
         if (rtdb_cget(rtdb,'scf:output vectors',1,movecs_out)) then
           bead_movecs_len = inp_strlen(movecs_out)-7
@@ -370,6 +375,11 @@
      &  call errquit('zts_runall_parallel: opening global rtdb file '//
      &               'failed',0,RTDB_ERR)
       bgj_rtdb = rtdb
+      !*** Go back to the global file prefix
+      if(.not. rtdb_cget(rtdb,'file_prefix',1,file_prefix))
+     &     call errquit('zts_runall_parallel: rtdb get file_prefix '
+     &                  //'failed',0,0)
+      call util_file_prefix_set(file_prefix)
       !*** Echo stdout from other processor groups to the global stdout
       if (ga_nodeid().eq.0) then
         if (.not.util_get_io_unit(ifile)) then
