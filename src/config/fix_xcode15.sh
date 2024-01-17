@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 if [[ $(uname -s) == "Darwin" ]]; then
-    xcode_v=$(/usr/bin/xcodebuild -version |head -n1 |cut -d ' ' -f 2|cut -d '.' -f 1)
+    xcode_v=$(clang --version|head -1 |cut -d ' ' -f 4 |cut -d . -f 1)
 #    echo $xcode_v
     if [[ $( [ $xcode_v -ge 15 ] && echo 1) ]] ; then
 	echo got xcode15

@@ -2531,9 +2531,13 @@ c
       integer i, l_bi, k_bi
       logical opt_geom_cart_coords_get
       logical opt_geom_cart_coords_set
+      logical newbandbi
       external opt_geom_cart_coords_get,opt_geom_cart_coords_set
       integer sym_number_ops
       external sym_number_ops
+      if (.not. rtdb_get(rtdb,'driver:newbandbi', mt_log, 1, newbandbi))
+     $        newbandbi=.false.
+      
 c
 c     Get original coordinates
 c
@@ -2568,7 +2572,11 @@ c
 c     Now take the step for real in internals
 c
 c     FRACTIONAL?
+      if(newbandbi) then
+         call geom_update_cart_from_int_new(geom, ds, alpha, err)
+      else
          call geom_update_cart_from_int(geom, ds, alpha, err)
+      endif
 c
 *         if (.not. opt_geom_cart_coords_set(geom, xnew))
 *     $        call errquit('driver_energy_step: coordinates?',geom,
