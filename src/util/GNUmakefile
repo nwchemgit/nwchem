@@ -101,7 +101,7 @@ ifdef NO_MPIF
 endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ LINUX CYGWIN CYGWIN64 CYGNUS LINUX64 MACX MACX64))
-  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  erfc.o linux_printaff.o
+  EXTRA_OBJ += linux_cpu.o linux_shift.o linux_random.o  erfc.o linux_printaff.o
   ifeq ($(LINUXCPU),x86)
     EXTRA_OBJ += linux_setfpucw.o
   endif
