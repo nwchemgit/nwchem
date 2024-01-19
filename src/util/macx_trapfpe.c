@@ -68,6 +68,31 @@ int macx_trapfpe_()
 
   return 1 ;
 }
+#elif defined(__aarch64__)
+#include <fenv.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <execinfo.h>
+#include <unistd.h>
+#include <math.h>
+
+void fpe_signal_handler(int sig)
+{
+    printf("Floating point exception\n");
+
+    exit(1);
+}
+int macx_trapfpe_()
+{
+    fenv_t env;
+    fegetenv(&env);
+    env.__fpcr = env.__fpcr | __fpcr_trap_invalid;
+    fesetenv(&env);
+    signal(SIGILL,fpe_signal_handler);
+
+    return 1;
+}
 #else
 #error arch not ready
 #endif
