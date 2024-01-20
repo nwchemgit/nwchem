@@ -99,8 +99,6 @@ jobs:
             blas: "build_openblas"
             use_libxc: 1
             use_simint: 1
-            use_openmp: 2
-            use_tblite: 1
             simint_vector: scalar
             branch: main
           - os: [self-hosted, osx-x64]
@@ -156,7 +154,12 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-blas_size${{ matrix.blas_size}}-libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}-simd${{ env.simd }}-nwchemcache-v003
+          key: |
+            ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}
+            -xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}
+            -blas${{ matrix.blas}}-blas_size${{ matrix.blas_size}}
+            -libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}
+            -simd${{ env.simd }}-nwchemcache-v003
       - name: fetch cache
         if: steps.setup-cache.outputs.cache-hit == 'true'
         run: |
