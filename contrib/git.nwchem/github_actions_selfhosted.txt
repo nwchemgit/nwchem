@@ -90,7 +90,7 @@ jobs:
             use_tblite: 1
             simint_vector: scalar
             branch: main
-          - [self-hosted, osx-arm64, ajay]
+          - os: [self-hosted, osx-arm64, ajay]
             experimental: false
             mpi_impl: openmpi
             armci_network: MPI-TS
@@ -103,7 +103,7 @@ jobs:
             use_tblite: 1
             simint_vector: scalar
             branch: main
-          - [self-hosted, osx-x64]
+          - os: [self-hosted, osx-x64]
             experimental: false
             mpi_impl: openmpi
             armci_network: MPI-TS
@@ -118,21 +118,21 @@ jobs:
             branch: main
       fail-fast: false
     env:
-        MPI_IMPL: ${{ matrix.mpi_impl }}
-        ARMCI_NETWORK: ${{ matrix.armci_network }}
-        NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
-        USE_SIMINT: ${{ matrix.use_simint }}
-        USE_LIBXC: ${{ matrix.use_libxc }}
-        USE_TBLITE: ${{ matrix.use_tblite }}
-        BUILD_PLUMED: ${{ matrix.build_plumed }}
-        FC: ${{ matrix.fc }}
-        CC: ${{ matrix.cc }}
-        COMEX_MAX_NB_OUTSTANDING: 16
-        SIMINT_MAXAM: 4
-        SIMINT_VECTOR: ${{ matrix.simint_vector }}
-        BLAS_ENV:  ${{ matrix.blas }}
-        BLAS_SIZE:  ${{ matrix.blas_size }}
-        USE_OPENMP:  ${{ matrix.use_openmp }}
+      MPI_IMPL: ${{ matrix.mpi_impl }}
+      ARMCI_NETWORK: ${{ matrix.armci_network }}
+      NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
+      USE_SIMINT: ${{ matrix.use_simint }}
+      USE_LIBXC: ${{ matrix.use_libxc }}
+      USE_TBLITE: ${{ matrix.use_tblite }}
+      BUILD_PLUMED: ${{ matrix.build_plumed }}
+      FC: ${{ matrix.fc }}
+      CC: ${{ matrix.cc }}
+      COMEX_MAX_NB_OUTSTANDING: 16
+      SIMINT_MAXAM: 4
+      SIMINT_VECTOR: ${{ matrix.simint_vector }}
+      BLAS_ENV: ${{ matrix.blas }}
+      BLAS_SIZE: ${{ matrix.blas_size }}
+      USE_OPENMP: ${{ matrix.use_openmp }}
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: Checkout code
@@ -190,9 +190,3 @@ jobs:
         if: ${{ failure() }} &&  steps.qa_test.outcome == 'failure'
         run: |
           ./travis/check_qas.sh
-
-  
-
-
-
-     
