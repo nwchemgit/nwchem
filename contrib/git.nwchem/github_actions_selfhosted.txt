@@ -94,7 +94,7 @@ jobs:
             experimental: false
             mpi_impl: openmpi
             armci_network: MPI-TS
-            nwchem_modules: "all python xtb"
+            nwchem_modules: "all python "
             fc: gfortran
             blas: "build_openblas"
             use_libxc: 1
