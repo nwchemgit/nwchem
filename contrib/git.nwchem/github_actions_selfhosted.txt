@@ -54,7 +54,7 @@ jobs:
             use_libxc: 1
             use_openmp: 2
             use_tblite: 1
-	    simint_vector: avx2
+            simint_vector: avx2
           - os: [self-hosted, ubuntu1604]
             experimental: false
             mpi_impl: intel
@@ -64,7 +64,7 @@ jobs:
             blas: "build_openblas"
             use_libxc: 1
             use_tblite: 1
-	    simint_vector: avx2
+            simint_vector: avx2
           - os: [self-hosted, fedora]
             experimental: false
             mpi_impl: openmpi
@@ -76,7 +76,7 @@ jobs:
             use_simint: 1
             use_openmp: 2
             use_tblite: 1
-	    simint_vector: scalar
+            simint_vector: scalar
             branch: main
           - os: [self-hosted, ubuntu2304]
             experimental: false
@@ -88,7 +88,7 @@ jobs:
             use_libxc: 1
             use_openmp: 2
             use_tblite: 1
-	    simint_vector: scalar
+            simint_vector: scalar
             branch: main
           - [self-hosted, osx-arm64, ajay]
             experimental: false
@@ -101,7 +101,7 @@ jobs:
             use_simint: 1
             use_openmp: 2
             use_tblite: 1
-	    simint_vector: scalar
+            simint_vector: scalar
             branch: main
           - [self-hosted, osx-x64]
             experimental: false
@@ -114,7 +114,7 @@ jobs:
             use_simint: 1
             use_openmp: 2
             use_tblite: 1
-	    simint_vector: avx2
+            simint_vector: avx2
             branch: main
       fail-fast: false
     env:
