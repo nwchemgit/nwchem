@@ -441,6 +441,7 @@ C     i0 ( )_vt + = 1/4 * Sum ( h3 h4 p1 p2 ) * t ( p1 p2 h3 h4 )_t * v ( h3 h4 
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
+      e_c = 0.0d0
       IF (next.eq.count) THEN
        IF (0 .eq. ieor(irrep_v,irrep_t)) THEN
       DO p1b = noab+1,noab+nvab
