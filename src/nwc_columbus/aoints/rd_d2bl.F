@@ -23,7 +23,7 @@ c     # bummer error types.
 c
 c  ##  integer section
 c
-      integer info(ninfmx),itypea,itypeb,ifmt,ibvtyp,ierr,ibitv(1)
+      integer info(ninfmx),itypea,itypeb,ibvtyp,ierr,ibitv(1)
       integer last,labs(4,*)
       integer nbuf
       integer sfile
@@ -48,7 +48,7 @@ cgk debug
 cgk end
       call sifrd2(sfile,   info,   nipv,    iretbv,
      &            buffer,  nbuf,   last,    itypea,
-     &            itypeb,  ifmt,   ibvtyp,  vals,
+     &            itypeb,  ibvtyp, vals,
      &            labs,    ibitv,  ierr)
 cgk debug
 !      write(*,*)'gk: after sifrd2'
