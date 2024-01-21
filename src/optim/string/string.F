@@ -148,8 +148,7 @@ C> @{
      $                    l_tmp_list, k_tmp_list))
      $     call errquit('task_string: memory', size, MA_ERR)
 
-      size = 3*natoms
-      if(.not.ma_push_get(mt_dbl,size,'mass',l_mass, k_mass))
+      if(.not.ma_push_get(mt_dbl,natoms,'mass',l_mass, k_mass))
      $     call errquit('task_string: memory', size, MA_ERR)
       if (.not.geom_masses_get(geom,natoms,dbl_mb(k_mass)))
      $     call errquit('task_string: masses?',geom,GEOM_ERR)
