@@ -299,6 +299,28 @@
           call errquit('zts_runall_parallel: dft:output vectors put',
      &                 0,0)
         endif
+        !*** We want only one bead to print the basis set information
+        !*** and suppress that output for all other beads
+        if (mybead.ne.1) then
+          if(.not.rtdb_put(rtdb,"basisprint:ao basis",mt_log,1,.false.))
+     &      call errquit("zts_runall_parallel: 'basisprint:ao basis'"
+     &                 //" put",0,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,"basisprint:cd basis",mt_log,1,.false.))
+     &      call errquit("zts_runall_parallel: 'basisprint:cd basis'"
+     &                 //" put",0,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,"basisprint:xc basis",mt_log,1,.false.))
+     &      call errquit("zts_runall_parallel: 'basisprint:xc basis'"
+     &                 //" put",0,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,"basisprint:ecp basis",mt_log,1,
+     &                     .false.))
+     &      call errquit("zts_runall_parallel: 'basisprint:ecp basis'"
+     &                 //" put",0,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,"basisprint:ri-mp2 basis",mt_log,1,
+     &                     .false.))
+     &      call errquit("zts_runall_parallel: "
+     &                 //"'basisprint:ri-mp2 basis'"
+     &                 //" put",0,RTDB_ERR)
+        endif
       else if (nstep.eq.1) then
         !*** We need to reset the input movecs file
         if (rtdb_cget(rtdb,'scf:output vectors',1,movecs_out)) then
@@ -314,6 +336,28 @@
             call errquit('zts_runall_parallel: dft:input vectors put',
      &                   0,0)
           endif
+        endif 
+        !*** Suppress the basis set output now also for the first bead
+        !*** (we have already printed this information in step 0).
+        if (mybead.eq.1) then
+          if(.not.rtdb_put(rtdb,"basisprint:ao basis",mt_log,1,.false.))
+     &      call errquit("zts_runall_parallel: 'basisprint:ao basis'"
+     &                 //" put",0,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,"basisprint:cd basis",mt_log,1,.false.))
+     &      call errquit("zts_runall_parallel: 'basisprint:cd basis'"
+     &                 //" put",0,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,"basisprint:xc basis",mt_log,1,.false.))
+     &      call errquit("zts_runall_parallel: 'basisprint:xc basis'"
+     &                 //" put",0,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,"basisprint:ecp basis",mt_log,1,
+     &                     .false.))
+     &      call errquit("zts_runall_parallel: 'basisprint:ecp basis'"
+     &                 //" put",0,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,"basisprint:ri-mp2 basis",mt_log,1,
+     &                     .false.))
+     &      call errquit("zts_runall_parallel: "
+     &                 //"'basisprint:ri-mp2 basis'"
+     &                 //" put",0,RTDB_ERR)
         endif
       endif
       !*** Update the geometry 
