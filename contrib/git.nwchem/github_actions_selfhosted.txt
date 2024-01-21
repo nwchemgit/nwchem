@@ -167,8 +167,10 @@ jobs:
       - name: compile
         id: compile
         run: |
-          ./travis/config_nwchem.sh
-          ./travis/compile_nwchem.sh
+          mytee=tee
+          if  [[ `uname -s` == "Darwin" ]]; then mytee=gtee; fi
+          ./travis/config_nwchem.sh  | $mytee >(ts "%d%b%Y %H:%M:%S" > ../../../config.log.` date +%b%d%Y_%H:%M`)
+          ./travis/compile_nwchem.sh  | $mytee >(ts "%d%b%Y %H:%M:%S" > ../../../compile.log.` date +%b%d%Y_%H:%M`)
       - name: Check compilation result
         if: ${{ failure() }}
         run: |
