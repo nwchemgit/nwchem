@@ -1,6 +1,6 @@
       subroutine int_2e_sifs_b( basis, tol2e, q4, iat, jat, kat, lat, 
      $     ilo, jlo, klo, llo, ihi, jhi, khi, lhi, aoint2,  ninfo, 
-     $     info, ifmt, ibvtyp, values,  ibitv, buffer, clabs,
+     $     info, ibvtyp, values,  ibitv, buffer, clabs,
      &     ilabs, jlabs, klabs, llabs, eris )
 c     
       implicit none
@@ -39,7 +39,7 @@ c
       double precision sij, smax, denmax
       integer neri
       integer i
-      integer aoint2, ninfo, ifmt, ibvtyp, last, itypea, itypeb,
+      integer aoint2, ninfo, ibvtyp, last, itypea, itypeb,
      &          iwait, nrec, reqnum, ierr, ibitv, nipv
       parameter(nipv=4)
       integer clabs(nipv,*)
