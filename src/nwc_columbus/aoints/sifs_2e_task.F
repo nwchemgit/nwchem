@@ -2,7 +2,7 @@ cgk be sure int_acc_set is called properly.
 
       subroutine sifs_2e_task( geom, basis, oskel, iatlo, jatlo, 
      &     katlo, latlo, iathi, jathi, kathi, lathi, ijk_prev,
-     $     tmp, tol2e, aoint2, ninfo, info, ifmt, ibvtyp, values, 
+     $     tmp, tol2e, aoint2, ninfo, info, ibvtyp, values, 
      &     ibitv, buffer, clabs, ilabs, jlabs, klabs, llabs, eris )
       implicit none
 #include "errquit.fh"
@@ -36,7 +36,7 @@ c
       logical int2e_set_bf_range
       external int2e_set_bf_range
       integer clabs(4,*)
-      integer aoint2, ninfo, ifmt, ibvtyp, ibitv
+      integer aoint2, ninfo, ibvtyp, ibitv
       integer info(ninfo)
       double precision values(*), buffer(*)
  
@@ -98,7 +98,7 @@ cgk debug
 cgk end
                      call int_2e_sifs_b(basis, tol2e, q4, iat, jat, 
      &                    kat, lat, ilo, jlo, klo, llo, ihi, jhi, khi, 
-     &                    lhi, aoint2, ninfo, info, ifmt, ibvtyp, 
+     &                    lhi, aoint2, ninfo, info, ibvtyp, 
      &                    values, ibitv, buffer, clabs,
      &                    ilabs, jlabs, klabs, llabs, eris)
 *                 end if

@@ -1,7 +1,6 @@
       subroutine int_mom_sifs(ibas, oskel, aoints, nbft, 
      &  l1rec, n1max, 
-     &  sifbuf, sifval, ninfo, info, fcore, ibvtyp, ibitv,
-     &  ifmt1)
+     &  sifbuf, sifval, ninfo, info, fcore, ibvtyp, ibitv)
       implicit none
 #include "errquit.fh"
 #include "cint1cache.fh"
@@ -54,7 +53,7 @@ c
 c     sifs parameters
 c
       integer aoints, ierr
-      integer ifmt1, l1rec, n1max
+      integer l1rec, n1max
       integer ibvtyp
       integer ibitv
       integer mxbf
