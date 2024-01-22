@@ -15,7 +15,7 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - name: Checkout nwchem
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: nwchemgit/nwchem
           persist-credentials: false
