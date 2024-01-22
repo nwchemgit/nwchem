@@ -2,13 +2,13 @@
 # $Id$
 #
 
-OBJ_OPTIMIZE =  string.o string_input.o
+OBJ_OPTIMIZE =  string.o string_parallel.o string_input.o
 
 LIBRARY=liboptim.a
 
 HEADERS=
 
-USES_BLAS= string.F
+USES_BLAS= string.F string_parallel.F
 
 include ../../config/makefile.h
 
