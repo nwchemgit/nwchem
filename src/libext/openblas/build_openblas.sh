@@ -83,7 +83,8 @@ fi
 if [[   -z "${CC}" ]]; then
     CC=cc
 fi
-${CC} -dM -E - < /dev/null 2> /dev/null|grep __x86_64__ 
+#${CC} -dM -E - < /dev/null 2> /dev/null|grep __x86_64__ 
+${CC} -dM -E - < /dev/null 2> /dev/null|grep __$(uname -m)__ 
 let cross_comp=$?
 echo "cross_code $cross_comp"
 if [[ "$cross_comp" == 1 ]]; then
