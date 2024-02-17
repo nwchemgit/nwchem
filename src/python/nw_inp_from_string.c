@@ -29,8 +29,6 @@ int nw_inp_from_string(Integer rtdb, const char *input)
     FILE *file;
 #if (defined(USE_FCD) || defined(WIN32)) && !defined(__MINGW32__)
     _fcd fstring;
-#else
-    char fstring[255];
 #endif
     int status;
     const char base[] = "temp";
