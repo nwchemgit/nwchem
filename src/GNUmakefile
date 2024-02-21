@@ -129,7 +129,8 @@ realclean:
 	-$(RM) $(LIBDIR)/*.a $(BINDIR)/*
 	-$(RM) *.db movecs fort.41 fort.44
 	-$(RM) util/util_version.F
-	@# -$(RM) 64_to_32 32_to_64 deps_stamp mpi_include.txt # This conversion is such a hassle that realclean should not force it.
+	-$(RM) mpi_include.txt ga_cppflags.txt  ga_ldflags.txt  ga_use_scalapack.txt oblas_ompcheck_done.txt
+	@# -$(RM) 64_to_32 32_to_64 deps_stamp # This conversion is such a hassle that realclean should not force it.
 
 .PHONY:	cleanF
 cleanF:
