@@ -699,6 +699,7 @@ c     -------------------------------------------
       if ((do_zora .or. do_x2c) .and. .not.x2c_noatm()) then
         call ga_zero(g_dens_at(1))
         if (ipol.gt.1) call ga_zero(g_dens_at(2))
+        call guess_dens(rtdb, geom, ao_bas_han, g_dens_at)
         call dft_quickguess(ipol,nbf_ao,g_dens_at,oskel,
      N     ntotel,nclosed,
      D     .false.)
