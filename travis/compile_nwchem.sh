@@ -113,7 +113,7 @@ fi
        make nwchem_config
        cd libext   && make V=-1  && cd ..
        cd tools    && make V=-1  && cd ..
-       make USE_INTERNALBLAS=y deps_stamp  >& deps.log
+       make SKIP_COMPILERS=y deps_stamp  >& deps.log
        grep -i hess deps.log
        echo tail deps.log '@@@'
        tail -10  deps.log
@@ -145,7 +145,7 @@ if [[ -z "$TRAVIS_HOME" ]]; then
     make nwchem_config
     cd libext   && make V=-1  && cd ..
     cd tools    && make V=-1  && cd ..
-    make USE_INTERNALBLAS=y deps_stamp  >& deps.log
+    make SKIP_COMPILERS=y deps_stamp  >& deps.log
     echo tail deps.log '11@@@'
     tail -10  deps.log
     echo done tail deps.log '11@@@'
