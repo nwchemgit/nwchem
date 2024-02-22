@@ -104,7 +104,11 @@ endif
 libraries:
 	@for dir in $(SUBDIRS); do \
 		echo Making $@ in $$dir; \
-		$(MAKE)	-C $$dir || exit 1 ;  \
+		if [ $@  == "include_stamp" ] || [ $@  == "dependencies"  ]; then \
+		$(MAKE)	SKIP_COMPILERS=1 -C $$dir || exit 1  ; \
+		else \
+		$(MAKE)	-C $$dir || exit 1 ; \
+		fi \
 	done
 
 showdir: 
@@ -160,13 +164,11 @@ sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
 	touch $@
-ifndef QUICK_BUILD
 deps_stamp:
 	for dir in $(SUBDIRS); do \
-		$(MAKE)	-i -C $$dir dependencies include_stamp ;  \
+		$(MAKE)	-i SKIP_COMPILERS=1 -C $$dir dependencies include_stamp ;  \
 	done
 	touch $@
-endif
 clear_64_to_32:
 	-$(RM) 32_to_64
 
@@ -246,7 +248,7 @@ source:
 	cat stubs.F nwchem.F > source
 ifdef SUBDIRS
 	for dir in $(SUBDIRS); do \
-		$(MAKE)	-C $$dir $@ || exit 1 ;  \
+		echo TARGET is $@ ; $(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
 endif
 

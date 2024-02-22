@@ -108,28 +108,13 @@ fi
 #compilation
 export MAKEFLAGS=-j3
 echo    "$FOPT$FDOPT"
-    mkdir -p ../bin/$NWCHEM_TARGET
-    gcc -o ../bin/$NWCHEM_TARGET/depend.x config/depend.c
-    make nwchem_config
-    cd libext   && make V=-1  && cd ..
-    cd tools    && make V=-1  && cd ..
-    make SKIP_COMPILERS=1 deps_stamp  >& deps.log
-    echo tail deps.log '11@@@'
-    tail -10  deps.log
-    grep -i python deps.log || true
-    echo done tail deps.log '11@@@'
     python3 -V || true
     python3-config  --ldflags || true
-    cd python && rm -f dependencies include_stamp ||true && make dependencies include_stamp && cd ..
-    cd 64to32blas && make SKIP_COMPILERS=1 dependencies include_stamp && cd ..
-    make directories
-    export QUICK_BUILD=1
     if [[ -z "$FOPT" ]]; then
-	make V=0   -j3
+	make V=-1   -j3
     else
-	make V=0 FOPTIMIZE="$FOPT"   -j3
+	make V=-1 FOPTIMIZE="$FOPT"   -j3
     fi
-     unset QUICK_BUILD
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
