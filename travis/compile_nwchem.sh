@@ -114,6 +114,7 @@ fi
        cd libext   && make V=-1  && cd ..
        cd tools    && make V=-1  && cd ..
        make SKIP_COMPILERS=y deps_stamp  >& deps.log
+       make directories
        grep -i hess deps.log
        echo tail deps.log '@@@'
        tail -10  deps.log
@@ -146,6 +147,7 @@ if [[ -z "$TRAVIS_HOME" ]]; then
     cd libext   && make V=-1  && cd ..
     cd tools    && make V=-1  && cd ..
     make SKIP_COMPILERS=y deps_stamp  >& deps.log
+    make directories
     echo tail deps.log '11@@@'
     tail -10  deps.log
     echo done tail deps.log '11@@@'
