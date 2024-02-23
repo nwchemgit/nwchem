@@ -200,3 +200,5 @@ if [[ "$USE_LIBXC" == "-1" ]]; then
     export LIBXC_LIB=/usr/lib/x86_64-linux-gnu
     export LIBXC_INCLUDE=/usr/include
 fi
+
+export PYTHONVERSION=$(python -V| cut -d ' ' -f 2 |cut -d . -f 1-2)

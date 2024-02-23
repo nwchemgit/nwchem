@@ -1277,6 +1277,7 @@ ifeq ($(TARGET),MACX64)
         _FC=gfortran
         USE_FLANG=1
     endif
+    FLANG_NEW=false		  
     ifeq ($(USE_FLANG),1)
         FLANG_NEW = $(shell [ $(shell $(FC) --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
     endif
@@ -2037,7 +2038,7 @@ ifneq ($(TARGET),LINUX)
             _FC=gfortran
             USE_FLANG=1
         endif
-
+        FLANG_NEW=false
         ifeq ($(USE_FLANG),1)
 		FLANG_NEW = $(shell [ $(shell $(FC) --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
 	endif
@@ -2155,7 +2156,7 @@ ifneq ($(TARGET),LINUX)
             endif
             ifeq ($(V),-1)
                 ifeq ($(FLANG_NEW),false)
-                FOPTIONS += -w
+                  FOPTIONS += -w
 		endif
                 COPTIONS += -w
             else
@@ -3945,7 +3946,7 @@ LIBS = $(NW_MODULE_LIBS) $(CORE_LIBS)
 #
 V = 0
 ACTUAL_FC := $(FC)
-NWFC_-1 = @echo "Compiling $<..."; $(ACTUAL_FC) 2> >(grep -v warning|grep -v  '\^\^' |grep -v previous\ ref >&2)
+NWFC_-1 = @echo "Compiling $<..."; $(ACTUAL_FC) 2> >(grep -iv warning|grep -v  '\^\^' |grep -v previous\ ref >&2)
 NWFC_0 = @echo "Compiling $<..."; $(ACTUAL_FC)
 NWFC_1 = $(ACTUAL_FC)
 NWFC = $(NWFC_$(V))

@@ -827,40 +827,15 @@ c       == -> g_zora_Kinetic is defined in zora.fh ==
         do i=1,ipol
           call ga_copy(g_rel(i),g_zora_Kinetic(i))
         enddo
-      end if  ! do_zora
-c
-c     -------------------------------------------------
-c     set up an exact decoupling Hamiltonian (optional)
-c     -------------------------------------------------
-
-      if (do_x2c) then
-        if (me.eq.0) write (luout,*) 'allocating g_x2c',nbf_ao
-
-        if(.not.ga_duplicate(g_vxc(1),g_rel(1),'x2c 1'))
-     &     call errquit('dft_scf: ga_duplicate failed',666, GA_ERR)
-        call ga_zero(g_rel(1))
-
-        if (me.eq.0) write (luout,*) 'calling calc_x2c_1e_scalar'
-
-c       note: g_vxc is used as temp array in the numerical
-c       integration routines.
-c       g_x2c_u2c is created in the x2c routine and survives
-c       if keepU=.T. Same for the transformation matrices g_xc_u(:).
-c       optionally, g_x2c_c2u is also allocated and kept.
-
-        call calc_x2c_1e_scalar_ga(rtdb, 
-     &    nexc, g_dens_at, g_vxc, g_rel(1), g_x2c_u,
-     &    g_x2c_u2c, g_x2c_c2u, toll_s)
-
-
-        if (ipol.gt.1) then
-          if(.not.ga_duplicate(g_vxc(2),g_rel(2),'x2c 2'))
-     &     call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-          call ga_copy(g_rel(1),g_rel(2))
-        end if
-        
-
-      end if                    ! do_x2c
+      end if                    ! do_zora
+      call x2c_guess(rtdb,nexc,ipol,
+     t     toll_s,
+     d     do_x2c,
+     g     g_vxc,g_rel,g_dens_at,
+     g     g_x2c_u,g_x2c_u2c,
+     N     nbf_ao)
+     
+c      
 c
 c     == determine guess ==
       if(.not.rtdb_get(rtdb,'back_to_atguess',mt_int,1,

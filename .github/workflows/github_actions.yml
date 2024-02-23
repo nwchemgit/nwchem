@@ -254,6 +254,14 @@ jobs:
             fc: gfortran-10
             cc: gcc
             use_libxc: 1
+          - os: macos-14
+            experimental: true 
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "tinyqmpw python"
+            fc: gfortran-13
+            use_libxc: 1
+            xcode_version: 15.2
           - os: ubuntu-20.04
             experimental: true 
             mpi_impl: mpich
@@ -286,7 +294,7 @@ jobs:
             fc: gfortran-10
             cc: gcc-10
             use_libxc: 1
-          - os: macos-13
+          - os: macos-14
             experimental: true 
             mpi_impl: openmpi
             armci_network: MPI-PR
@@ -398,7 +406,7 @@ jobs:
             cc: gcc
             blas: "brew_openblas"
             blas_size: 4
-          - os: macos-13
+          - os: macos-14
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS

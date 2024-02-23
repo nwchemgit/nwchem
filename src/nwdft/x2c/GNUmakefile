@@ -13,6 +13,7 @@
        calc_x2c_hfc_scalar.o \
        write_x2c_pc_dip.o \
        read_x2c_pc_dip.o \
+       x2c_utils.o \
        x2c_scf.o
 
 

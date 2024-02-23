@@ -2,6 +2,7 @@
 [![NWChem_CI](https://img.shields.io/github/actions/workflow/status/nwchemgit/nwchem/github_actions.yml?style=plastic)](https://github.com/nwchemgit/nwchem/actions)   
 <!---[![Build Travis-CI Status](https://img.shields.io/travis/nwchemgit/nwchem.svg)](https://travis-ci.org/nwchemgit/nwchem/builds)--->
 [![License](https://img.shields.io/badge/license-ECL2-blue.svg)](https://raw.githubusercontent.com/nwchemgit/nwchem/master/LICENSE.md)  
+![GitHub top language](https://img.shields.io/github/languages/top/nwchemgit/nwchem)
 ![Github Downloads All Releases](https://img.shields.io/github/downloads/nwchemgit/nwchem/total)   
 ![Homebrew Downloads](https://img.shields.io/homebrew/installs/dy/nwchem?label=Homebrew%20downloads)![Conda-Forge Downloads](https://img.shields.io/conda/dn/conda-forge/nwchem?label=Conda-forge%20downloads)![Docker Pulls](https://img.shields.io/docker/pulls/nwchemorg/nwchem-700.fedora.sockets?label=Docker%20pulls)    
 ![Github Downloads Release 6.8](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total)
@@ -13,7 +14,8 @@
 ![Github Downloads Release 7.2.2](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.2.2-release/total)
 
 
-[![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg)](https://github.com/nwchemgit/nwchem/releases)  
+[![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg)](https://github.com/nwchemgit/nwchem/releases)
+![GitHub Release Date](https://img.shields.io/github/release-date/nwchemgit/nwchem)
 [![EMSL](https://rawgit.com/nwchemgit/nwchem/master/contrib/git.nwchem/emsl_logo2.svg)](https://www.emsl.pnl.gov)
  
 ## NWChem: Open Source High-Performance Computational Chemistry

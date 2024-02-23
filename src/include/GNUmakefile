@@ -12,7 +12,7 @@ ifndef QUICK_BUILD
 includes:
 	for dir in $(SUBDIRS); do \
 		echo Making include_stamp in $(SRCDIR)/$$dir ; \
-		(cd $(SRCDIR)/$$dir; $(MAKE) include_stamp) ; \
+		(cd $(SRCDIR)/$$dir; $(MAKE) SKIP_COMPILERS=1 include_stamp) ; \
 	done
 
 include_stamp sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
