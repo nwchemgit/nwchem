@@ -2156,9 +2156,7 @@ ifneq ($(TARGET),LINUX)
             endif
             ifeq ($(V),-1)
                 ifeq ($(FLANG_NEW),false)
-                FOPTIONS += -w
-		else
-		  FOPTIONS=$(FLANG_NEW)
+                  FOPTIONS += -w
 		endif
                 COPTIONS += -w
             else
