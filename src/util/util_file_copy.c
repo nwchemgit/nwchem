@@ -1,21 +1,9 @@
-/*
- $Id$
- */
-
 #include <stdio.h>
 #include <string.h>
-#if defined(CRAY) && !defined(__crayx1)
-#include <fortran.h>
-#define FATR
-#endif
 #include "ga.h"
 #include "typesf2c.h"
 
-#if defined(USE_FCD)
-int fortchar_to_string(_fcd, int, char *, const int);
-#else
 Integer fortchar_to_string(const char *, Integer, char *, const Integer);
-#endif
 
 void util_file_copy(const char *input, const char *output)
 /*
@@ -111,15 +99,8 @@ void util_file_parallel_copy(const char *input, const char *output)
     if (fout) (void) fclose(fout);
 }
 
-#if defined(USE_FCD)
-void FATR UTIL_FILE_COPY(_fcd input, _fcd output)
-{
-    int lin  = _fcdlen(input);
-    int lout = _fcdlen(output);
-#else
 void util_file_copy_(const char *input, const char *output, Integer lin, Integer lout)
 {
-#endif
     char in[255], out[255];
     if (!fortchar_to_string(input, lin, in, sizeof(in)))
 	GA_Error("util_file_copy: fortchar_to_string failed for in",0);

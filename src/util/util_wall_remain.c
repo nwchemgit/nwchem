@@ -1,13 +1,6 @@
-/*
- $Id$
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include "typesf2c.h"
-
-#if defined(USE_FCD)
-#define util_batch_job_time_remaining_ UTIL_BATCH_JOB_TIME_REMAINING
-#endif
 
 #define NOT_AVAILABLE -1
 

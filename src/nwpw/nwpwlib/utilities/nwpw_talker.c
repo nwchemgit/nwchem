@@ -1,7 +1,3 @@
-/*
- $Id$
-*/
-
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,41 +15,19 @@
 #include "typesf2c.h"
 
 
-
-#if defined(CRAY)
-#include <fortran.h>
-#if !defined(__crayx1)
-#define USE_FCD
-#endif
-#endif
-
-#if (defined(CRAY) || defined(WIN32)) &&!defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(WIN32)) && !defined(__MINGW32__)
 #define nwpw_talker_ nwpw_talker
 #define nwpw_talker_close_ nwpw_talker_close
 #define nwpw_talker_write_ nwpw_talker_write
 #define nwpw_talker_read_ nwpw_talker_read
 #endif
 
-void FATR nwpw_talker_
-#if defined(USE_FCD)
-( const _fcd fcd_addr_name,
- Integer *inet,
- Integer *n1,
- Integer *portin,
- Integer *sockout)
+void FATR nwpw_talker_ (char	addr_name[],
+                        Integer *inet,
+                        Integer	*n1,
+                        Integer *portin,
+                        Integer *sockout)
 {
-    char *addr_name = _fcdtocp(fcd_addr_name);
-
-#else
-(addr_name,inet,n1,portin,sockout)
-char	addr_name[];
-Integer *inet;
-Integer	*n1;
-Integer *portin;
-Integer *sockout;
-{
-
-#endif
 
 #if defined(__MINGW32__)
         perror("nwpw_talker: not coded for this architecture");
@@ -120,15 +94,8 @@ Integer *sockout;
 
 
 
-void FATR nwpw_talker_close_
-#if defined(USE_FCD)
-(Integer *socket1)
+void FATR nwpw_talker_close_ ( Integer *socket1 )
 {
-#else
-(socket1)
-Integer *socket1;
-{
-#endif
 #if defined(__MINGW32__)
         perror("nwpw_talker: not coded for this architecture");
         exit(1);
@@ -139,20 +106,10 @@ Integer *socket1;
 }
 
 
-void FATR nwpw_talker_write_
-#if defined(USE_FCD)
-(Integer *socket1,
- const _fcd fcd_buffer,
- Integer *n1)
+void FATR nwpw_talker_write_ ( Integer *socket1,
+                               char    buffer[],
+                               Integer *n1)
 {
-   char *buffer = _fcdtocp(fcd_buffer);
-#else
-(socket1,buffer,n1)
-Integer *socket1;
-char    buffer[];
-Integer *n1;
-{
-#endif
 #if defined(__MINGW32__)
         perror("nwpw_talker_write: not coded for this architecture");
         exit(1);
@@ -176,20 +133,10 @@ Integer *n1;
 
 
 
-void FATR nwpw_talker_read_
-#if defined(USE_FCD)
-(Integer *socket1,
- const _fcd fcd_buffer,
- Integer *n1)
-{   
-   char *buffer = _fcdtocp(fcd_buffer);
-#else
-(socket1,buffer,n1)
-Integer *socket1;
-char    buffer[];
-Integer *n1;
+void FATR nwpw_talker_read_ ( Integer *socket1,
+                              char    buffer[],
+                              Integer *n1 )
 {       
-#endif
 #if defined(__MINGW32__)
         perror("nwpw_talker_read: not coded for this architecture");
         exit(1);
@@ -216,7 +163,7 @@ Integer *n1;
 
 
 
-#if (defined(CRAY) || defined(WIN32)) &&!defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__MINGW32__)
 #define nwpw_listener_ nwpw_listener
 #endif
 

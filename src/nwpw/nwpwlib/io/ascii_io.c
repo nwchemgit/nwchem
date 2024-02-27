@@ -30,9 +30,7 @@
 #include <string.h>
 #include "typesf2c.h"
 
-#if !defined(__crayx1)
-
-#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__MINGW32__)
 #define ascii_cwrite_ ASCII_CWRITE
 #define ascii_cread_  ASCII_CREAD
 #define ascii_iwrite_ ASCII_IWRITE
@@ -43,8 +41,6 @@
 #define ascii_ishift_fileptr_  ASCII_ISHIFT_FILEPTR
 #define ascii_openfile_  ASCII_OPENFILE
 #define ascii_closefile_ ASCII_CLOSEFILE
-#endif
-
 #endif
 
 
@@ -62,34 +58,16 @@ static FILE* fd[MAX_UNIT];	/* the file descriptor of the pipe */
 *************************************************************************
 */
 
-void FATR ascii_cwrite_
-#if defined(USE_FCD)
-(const Integer *unit, _fcd fcd_c, const Integer *n)
+void FATR ascii_cwrite_(const Integer *unit, char *c, const Integer *n)
 {
-   const char *c = _fcdtocp(fcd_c);
-
-#else
-(const Integer *unit, char *c, const Integer *n)
-{
-#endif
-
    int j; 
    for (j=0; j<(*n); ++j)
       (void) fprintf(fd[*unit],"%c ",c[j]);
    (void) fprintf(fd[*unit],"\n");
 }
 
-void FATR ascii_cread_
-#if defined(USE_FCD)
-(const Integer *unit, _fcd fcd_c, const Integer *n)
+void FATR ascii_cread_(const Integer *unit, char *c, const Integer *n)
 {
-    char *c = _fcdtocp(fcd_c);
-
-#else
-(const Integer *unit, char *c, const Integer *n)
-{
-#endif
-
    int j; 
    for (j=0; j<(*n); ++j)
       (void) fscanf(fd[*unit],"%c ",&c[j]);
@@ -155,18 +133,8 @@ void FATR ascii_ishift_fileptr_(const Integer *unit, const Integer *n)
 
 #define FUDGE_FACTOR (8)
 
-void FATR ascii_openfile_
-#if defined(USE_FCD)
-(const Integer *unit, _fcd fcd_filename, Integer *n1, _fcd fcd_mode, Integer *n2)
+void FATR ascii_openfile_(const  Integer *unit, char *filename, Integer *n1, char *mode, Integer *n2)
 {
-   const char *filename = _fcdtocp(fcd_filename);
-   const char *mode = _fcdtocp(fcd_mode);
-
-#else
-(const  Integer *unit, char *filename, Integer *n1, char *mode,    Integer *n2)
-{
-#endif
-
    char *file = (char *) malloc(*n1+1);
 
    (void) strncpy(file, filename, *n1);
