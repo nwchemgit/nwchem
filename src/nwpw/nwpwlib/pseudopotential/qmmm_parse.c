@@ -25,11 +25,11 @@ void FATR qmmm_parse_(Integer	*debug_ptr,
                       char	atom[],
                       Integer	*n3)
 {
-    int      debug,
-    int      lmax_out,locp_out,
-    double   rlocal_out,
+  int      debug;
+  int      lmax_out,locp_out;
+  double   rlocal_out;
 
-    int      lmax,
+  int      lmax;
 
 
     double   Zion;      /* local psp parameters          */

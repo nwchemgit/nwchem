@@ -14,9 +14,9 @@ void FATR hgh_parse_ (Integer	*debug_ptr,
                       double 	*rlocal_ptr,
                       char	sdir_name[],
                       Integer	*n9,
-                      char	dir_name[]
+                      char	dir_name[],
                       Integer	*n0,
-                      char	in_filename[]
+                      char	in_filename[],
                       Integer	*n1,
                       char	out_filename[],
                       Integer	*n2)
