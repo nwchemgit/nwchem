@@ -55,3 +55,36 @@ c       optionally, g_x2c_c2u is also allocated and kept.
 
       return
       end
+
+      subroutine x2czora_atguess(rtdb,geom,ao_bas_han,
+     i     ipol, nbf_ao, oskel, ntotel, nclosed,
+     d     do_zora, do_x2c,
+     g     g_dens_at)
+      implicit none
+      integer rtdb,geom,ao_bas_han
+      integer ipol, nbf_ao, oskel, ntotel, nclosed
+      logical do_zora, do_x2c
+      integer g_dens_at(*)
+c
+      logical x2c_noatm
+      external x2c_noatm
+
+c
+c     -------------------------------------------
+c     calculate superposition of atomic densities
+c     if ZORA or X2C functionality is requested
+c     -------------------------------------------
+
+      if ((do_zora .or. do_x2c) .and. .not.x2c_noatm()) then
+        call ga_zero(g_dens_at(1))
+        if (ipol.gt.1) call ga_zero(g_dens_at(2))
+        call guess_dens(rtdb, geom, ao_bas_han, g_dens_at)
+        call dft_quickguess(ipol,nbf_ao,g_dens_at,oskel,
+     N     ntotel,nclosed,
+     D     .false.)
+      else if (do_x2c .and. x2c_noatm()) then
+        call ga_zero(g_dens_at(1))
+        if (ipol.gt.1) call ga_zero(g_dens_at(2))
+      end if                    ! do_zora .or. do_x2c
+      return
+      end
