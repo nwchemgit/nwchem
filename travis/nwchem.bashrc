@@ -201,4 +201,4 @@ if [[ "$USE_LIBXC" == "-1" ]]; then
     export LIBXC_INCLUDE=/usr/include
 fi
 
-export PYTHONVERSION=$(python -V| cut -d ' ' -f 2 |cut -d . -f 1-2)
+#export PYTHONVERSION=$(python -V| cut -d ' ' -f 2 |cut -d . -f 1-2)
