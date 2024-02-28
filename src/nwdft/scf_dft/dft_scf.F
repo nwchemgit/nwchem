@@ -690,26 +690,13 @@ c     == get info for int2e_ and set sleazy tolerance ==
 c
 c     == force sleazy SCF into "direct" mode ==
       call fock_force_direct(rtdb)
-c
-c     -------------------------------------------
-c     calculate superposition of atomic densities
-c     if ZORA or X2C functionality is requested
-c     -------------------------------------------
 
-      if ((do_zora .or. do_x2c) .and. .not.x2c_noatm()) then
-        call ga_zero(g_dens_at(1))
-        if (ipol.gt.1) call ga_zero(g_dens_at(2))
-        call guess_dens(rtdb, geom, ao_bas_han, g_dens_at)
-        call dft_quickguess(ipol,nbf_ao,g_dens_at,oskel,
-     N     ntotel,nclosed,
-     D     .false.)
-      else if (do_x2c .and. x2c_noatm()) then
-        call ga_zero(g_dens_at(1))
-        if (ipol.gt.1) call ga_zero(g_dens_at(2)) 
-      end if                    ! do_zora .or. do_x2c
+      call x2czora_atguess(rtdb,geom,ao_bas_han,
+     i     ipol, nbf_ao, oskel, ntotel, nclosed,
+     d     do_zora, do_x2c,
+     g     g_dens_at)
 c
 c     == get atomic zora contributions ==
-      if (.not.rtdb_get(rtdb,'zora',mt_log,1,do_zora)) do_zora = .false.
 c
       if (do_zora) then
         if (me.eq.0) then
@@ -879,6 +866,7 @@ c     no movecs available, use svecs
       endif
       if(staticguess) llldb_out=util_statldb(llldb,rtdb)
       call dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
+cedo   store g_movecs for max_ovl as g_movecs0      
       if (me.eq.0.and.oprint)
      &     write(LuOut,'(2x," Time after variat. SCF: ",f8.1)')
      &     util_wallsec()
