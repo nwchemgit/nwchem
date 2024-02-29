@@ -297,7 +297,6 @@ c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
       ocosmo_got_gasphase = .false.
-      lmaxov_sv = lmaxov
       oprint = util_print('information', print_low)
       oprint_info = util_print('common', print_debug)
       oprint_parm = util_print('parameters', print_default)
@@ -867,7 +866,19 @@ c     no movecs available, use svecs
       endif
       if(staticguess) llldb_out=util_statldb(llldb,rtdb)
       call dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
-cedo   store g_movecs for max_ovl as g_movecs0      
+      if (.not.rtdb_get(rtdb, 'dft:imom', mt_log, 1,
+     &     lmaxov_imom)) lmaxov_imom=.false.
+      if (lmaxov_imom) then
+c     store g_movecs for max_ovl as g_movecs0
+         if(.not.ga_duplicate(g_movecs(1),g_movecs0(1),'movecs0'))
+     &        call errquit('dft_scf: ga_duplicate failed',0, GA_ERR)
+         call ga_copy(g_movecs(1),g_movecs0(1))
+         if(ipol.gt.1)  then
+            if(.not.ga_duplicate(g_movecs(2),g_movecs0(2),'movecs0'))
+     &           call errquit('dft_scf: ga_duplicate failed',2,GA_ERR)
+            call ga_copy(g_movecs(2),g_movecs0(2))
+         endif
+      endif
       if (me.eq.0.and.oprint)
      &     write(LuOut,'(2x," Time after variat. SCF: ",f8.1)')
      &     util_wallsec()
@@ -1464,9 +1475,13 @@ cc AJL/End
             endif
            enddo
          endif
+         if (.not.lmaxov_imom) then
+            g_movecs0(ispin)=g_movecs(ispin)
+         endif
          call dft_diagn(levelshifting,
      ,        nmo(ispin),ncanorg,
      .        g_focks(ispin),g_s,g_movecs(ispin),g_tmp,g_svecs,
+     .        g_movecs0(ispin),
      ,        dbl_mb(k_eval(ispin)),svals,noc(ispin),
      ,        homo,lumo,toll_s,
      ,        oprint_intermediate_fock,oprint_time,
@@ -2522,7 +2537,15 @@ C
      &        ('dft_scf: could not destroy g_focks1', 0, GA_ERR)
       if (ipol.gt.1) then
          if (.not. ga_destroy(g_focks(2))) call errquit
-     &           ('dft_scf: could not destroy g_focks2', 0, GA_ERR)
+     &        ('dft_scf: could not destroy g_focks2', 0, GA_ERR)
+      if (lmaxov_imom) then
+         if (.not. ga_destroy(g_movecs0(1))) call errquit
+     &        ('dft_scf: could not destroy g_movecs01', 0, GA_ERR)
+         if (ipol.gt.1) then
+            if (.not. ga_destroy(g_movecs0(2))) call errquit
+     &           ('dft_scf: could not destroy g_movecs02', 0, GA_ERR)
+         endif
+      endif
       end if
 c
 c     == if frozen embedding ==

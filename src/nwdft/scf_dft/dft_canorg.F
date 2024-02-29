@@ -348,14 +348,6 @@ c
       endif        
       if (nodiis)diising = .false.
 c
-      lmaxov = lmaxov_sv
-c      don't turn off max_ovl
-c      if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
-c         lmaxov = .false.
-c         if (ga_nodeid().eq.0 .and. oprint)
-c     &      write(LuOut,224)homo, lumo
-c      endif
-c     
       if (oprint.and.ga_nodeid().eq.0)then         
          current_cpu = util_cpusec()
          if (nexc.le.1)then

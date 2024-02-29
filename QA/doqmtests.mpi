@@ -601,6 +601,8 @@ if [[ ! -z "${BUILD_ELPA}" ]]; then
 ./runtests.mpi.unix procs $np siosi3_elpa
 let "myexit+=$?"
 fi
+./runtests.mpi.unix procs $np dft_formaldehyde_mom
+let "myexit+=$?"
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
     echo
