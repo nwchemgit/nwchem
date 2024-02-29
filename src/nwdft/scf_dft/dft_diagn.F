@@ -3,6 +3,7 @@ cedo#define USE_ELPA 1
       subroutine dft_diagn(levelshifting,
      ,     nmo,ncanorg,
      .     g_fock,g_s,g_movecs,g_tmp,g_svecs,
+     ,     g_movecs_old,
      ,     evals,svals,nocc,homo,lumo,toll_s,
 c
 c MN solvation models -->
@@ -31,6 +32,7 @@ c
       integer g_s   ! [in]
       integer g_movecs   ! [in]
       integer g_svecs   ! [in]
+      integer g_movecs_old ! [in]
       integer nocc ! [in]
       double precision evals(*)   ! [out]
       double precision svals(*)   ! [in]
@@ -197,7 +199,7 @@ c     of maximum overlap with previous iteration.
 c     
       if (lmaxov)then
          call dft_mxovl(ao_bas_han, evals,
-     &        g_movecst, g_movecs, g_s, g_fock,
+     &        g_movecst, g_movecs_old, g_s, g_fock,
      ,        nocc,oprint_conv_details,
      ,        homo,lumo)
       endif
