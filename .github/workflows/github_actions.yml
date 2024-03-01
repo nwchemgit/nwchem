@@ -429,7 +429,6 @@ jobs:
         CC: ${{ matrix.cc }}
         COMEX_MAX_NB_OUTSTANDING: 4
         SIMINT_MAXAM: 4
-        SIMINT_VECTOR: avx2
         BLAS_ENV:  ${{ matrix.blas }}
         BLAS_SIZE:  ${{ matrix.blas_size }}
         USE_OPENMP:  ${{ matrix.use_openmp }}

@@ -172,7 +172,10 @@ c
      &   lmaxov))  lmaxov=.false.      
          if (.not. rtdb_put(rtdb, 'dft:max_ovl',
      &      mt_log, 1, lmaxov))
-     &      call errquit('dft_rdinput: rtdb_put failed', 6, RTDB_ERR)
+     &    call errquit('dft_rdinput: rtdb_put failed', 6, RTDB_ERR)
+      else
+      if (.not. rtdb_get(rtdb, 'dft:imom', mt_log, 1, lmaxov_imom))
+     &   lmaxov_imom=.false.
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:lb94', mt_log, 1,

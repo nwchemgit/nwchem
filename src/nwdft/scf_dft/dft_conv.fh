@@ -15,7 +15,7 @@ c     convergence declarations
       double precision homo, lumo, homo_lumo_gap
       double precision ssmear,rho_n
       integer ndamp_input, ndamp_def
-      logical  check_shift, lmaxov_sv
+      logical  check_shift
 c
 c     early convergence tolerances
 c
@@ -28,7 +28,7 @@ c     integer
 c     logical
      .     diising, damping, levelshifting,ldmix,
      .     keep_damp_on,keep_levl_on, keep_diis_on,
-     .      check_shift, lmaxov_sv
+     .      check_shift
 
 
 

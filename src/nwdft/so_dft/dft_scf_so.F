@@ -204,7 +204,7 @@ c
       double precision homo, lumo, homo_lumo_gap
       integer l_ir, k_ir
       logical last_time_energy
-      logical check_shift, lmaxov_sv
+      logical check_shift
       character*7 name
       character*4 scftype
       character*255 basis_name, basis_trans
@@ -273,7 +273,6 @@ c
       dft_scf_so = .false.
       lfon_occ=0
       nbf_mo = 2*nbf_ao
-      lmaxov_sv = lmaxov
       oprint = util_print('information', print_low)
       oprint_info = util_print('common', print_debug)
       oprint_parm = util_print('parameters', print_default)
@@ -2041,16 +2040,6 @@ c
 c     
       Etold = Etnew  ! store new energy
 c     
-      lmaxov = lmaxov_sv
-      if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
-         lmaxov = .false.
-         if (me.eq.0 .and. oprint_conv_details)
-     &        write(LuOut,224)homo, lumo
- 224     format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
-     &        /,10x,'Significant orbital reordering with',
-     &        ' maximum overlap',
-     &        /,10x,'turned ON.  Turning max_ovl OFF.')
-      endif
 c
       if (oprint_energy_step.and.me.eq.0)then         
          current_cpu = util_cpusec()
