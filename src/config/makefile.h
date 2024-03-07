@@ -2113,11 +2113,6 @@ ifneq ($(TARGET),LINUX)
             CFLAGS_FORGA   = -march=rv64gc -mabi=lp64d
         endif
 
-        ifeq ($(_CC),$(findstring $(_CC),gcc clang))
-            ifneq ($(DONTHAVEM64OPT),Y)
-                COPTIONS   = -m64
-            endif
-        endif
 
         GOTCLANG= $(shell $(_CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
         ifeq ($(GOTCLANG),1)
@@ -2135,9 +2130,6 @@ ifneq ($(TARGET),LINUX)
         endif
 
         ifeq ($(_FC),gfortran)
-            ifneq ($(DONTHAVEM64OPT),Y)
-                FOPTIONS   = -m64
-            endif
             ifdef  USE_ASAN
                 FOPTIONS += -fsanitize=address -fsanitize-recover=address
                 LDOPTIONS += -fsanitize=address -fsanitize-recover=address
@@ -2945,9 +2937,6 @@ ifneq ($(TARGET),LINUX)
             #      CC=gcc
             ifeq ($(CC),xlc)
                 COPTIONS  +=  -q64 -qlanglvl=extended
-            else
-                #this for gcc/cc
-                COPTIONS  +=  -m64  -O
             endif
 
             ifeq ($(_FC),xlf)
