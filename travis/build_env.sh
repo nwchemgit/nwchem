@@ -222,11 +222,12 @@ if [[ "$os" == "Linux" ]]; then
 	    icc -V
 
 	fi
-	if [[ "$FC" == "flang-new-17" ]]; then
+	if [[ "$FC" == 'flang-new-'* ]]; then
 	    wget https://apt.llvm.org/llvm.sh
 	    chmod +x llvm.sh
-	    $MYSUDO ./llvm.sh 17
-	    $MYSUDO apt-get install -y flang-17
+	    llvm_ver=$(echo $FC | cut -d - -f 3)
+	    $MYSUDO ./llvm.sh $llvm_ver
+	    $MYSUDO apt-get install -y flang-$llvm_ver
 	fi
 	if [[ "$FC" == "flang" ]]; then
 	    if [[ "USE_AOMP" == "Y" ]]; then
