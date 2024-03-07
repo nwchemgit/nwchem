@@ -20,20 +20,19 @@ end
 task dft 
 
 dft
- max_ovl
+ imom
  mult 2
  xc hfexch
  vectors input boron_ground.mos swap alpha 8 3 output boron_imom.mos
  convergence lshift 0.  density 1d-9
 end
 
-set dft:imom t
 task dft 
 
 
 dft
  vectors input boron_ground.mos swap alpha 8 3 output boron_mom.mos
+ max_ovl
 end
 
-set dft:imom f
 task dft 
