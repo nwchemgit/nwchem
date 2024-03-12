@@ -835,7 +835,7 @@ c$$$       call ga_copy(g_grad, g_x)
 c$$$       call ga_zero(g_prod)
 c$$$       pflg = 2
 c$$$       lshift = 0.d0
-c$$$       call rohf_hessv_xx( basis, geom, nbf, nclosed, nact, pflg,
+c$$$       call rohf_hessv_xx( rtdb, basis, geom, nbf, nclosed, nact, pflg,
 c$$$     $                     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
 c$$$     $                     tol2e, lshift, g_x, g_prod )
 c$$$

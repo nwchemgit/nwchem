@@ -244,7 +244,7 @@ c     *     call errquit('hess_init: error getting nmo:', 555)
         if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, dftnoc))
      *   call errquit('hess_init: rtdb_get of dftnoc failed', 555,
      &       RTDB_ERR)
-        if (bgj_restricted()) then
+        if (bgj_restricted(rtdb)) then
           nclosed = dftnoc(1)
           nalpha = nclosed
           nbeta = 0
