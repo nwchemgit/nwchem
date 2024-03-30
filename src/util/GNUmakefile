@@ -18,7 +18,7 @@ endif
 
    MXLENPATH = 200
    LIB_DEFINES += -DNWCHEM_LONG_PATHS
-   LONGNWTOP = $(shell if [ `echo $(SRCDIR) |wc -m` -gt $(MXLENPATH) ]; then echo "Y"; fi  )
+   LONGNWTOP := $(shell if [ `echo $(SRCDIR) |wc -m` -gt $(MXLENPATH) ]; then echo "Y"; fi  )
 ifeq ($(LONGNWTOP),Y)
 errorlongpwd:
 	@echo " "
@@ -157,11 +157,11 @@ endif
 ifeq ($(shell echo $(BLASOPT) |awk '/Accelerate/ {print "Y"; exit}'),Y)
   EXTRA_OBJ += veclib_threads.o
 endif
-_PDSYEVR = $(shell [ -e ${NWCHEM_TOP}/src/tools/install/lib/libga.a ] &&  nm ${NWCHEM_TOP}/src/tools/install/lib/libga.a|egrep T |egrep  ga_pdsyevr |awk '/ga_pdsyevr/ {print "Y"}')
+_PDSYEVR := $(shell [ -e ${NWCHEM_TOP}/src/tools/install/lib/libga.a ] &&  nm ${NWCHEM_TOP}/src/tools/install/lib/libga.a|egrep T |egrep  ga_pdsyevr |awk '/ga_pdsyevr/ {print "Y"}')
 ifeq ($(_PDSYEVR),Y) 
  LIB_DEFINES += -DUSE_PDSYEVR
 endif
-_USE_ELPA = $(shell ${GA_PATH}/bin/ga-config  --use_elpa| awk ' /1/ {print "Y"}')
+_USE_ELPA := $(shell ${GA_PATH}/bin/ga-config  --use_elpa| awk ' /1/ {print "Y"}')
 ifeq ($(_USE_ELPA),Y)
  LIB_DEFINES += -DUSE_ELPA
 endif
@@ -275,12 +275,12 @@ ifdef SLURM
   endif
 endif
 ifdef LSF
-  WHICHBJOBS  += $(shell which bjobs)
+  WHICHBJOBS  ::= $(shell which bjobs)
   DEFINES += -DLSF
   LIB_ALSO_BUILD = $(BINDIR)/jobtime_lsf $(BINDIR)/jobtime_lsf.pl
 endif
 ifdef PBS
-  WHICHQSTAT  += $(shell which qstat)
+  WHICHQSTAT  ::= $(shell which qstat)
   DEFINES += -DPBS
   LIB_ALSO_BUILD = $(BINDIR)/jobtime_pbs $(BINDIR)/jobtime_pbs.pl
 endif
