@@ -39,7 +39,6 @@ EOBJ	= xerbl2.o  menode.o pairup.o xstop.o
 
 all:		$(FOBJ) $(EOBJ)
 
-#.EXPORT_ALL_VARIABLES:
 
 .PHONY :	clean
 
