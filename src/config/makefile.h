@@ -3288,14 +3288,14 @@ ifeq ($(BUILDING_PYTHON),python)
     PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
     PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
     ifeq ($(PYGE38),true)
-	PYCFG := python$(PYTHONVERSION)-config --ldflags --embed
+	PYCFG := $(shell python$(PYTHONVERSION)-config --ldflags --embed)
         ifeq ($(shell uname -s),Darwin)
-	    PYCFG ::= | sed -e "s/-lintl //"
+	  PYCFG := $(shell echo $(PYCFG) | sed -e "s/-lintl //")
         endif
     else
-        PYCFG = python$(PYTHONVERSION)-config --ldflags
+        PYCFG := $(shell python$(PYTHONVERSION)-config --ldflags)
     endif
-	EXTRA_LIBS ::= -lnwcutil $(shell $(PYCFG))
+	EXTRA_LIBS += -lnwcutil $(PYCFG)
 else
     ifndef PYTHONLIBTYPE
         PYTHONLIBTYPE=a
@@ -3534,8 +3534,8 @@ ifdef BUILD_PLUMED
     LD_LIBRARY_PATH := $(NWCHEM_TOP)/src/libext/lib:$(LD_LIBRARY_PATH)
     DEFINES += -DUSE_PLUMED
     PLUMED_HOME=$(NWCHEM_TOP)/src/libext
-    PLUMED_DYNAMIC_LIBS := $(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep DYNAMIC_LIBS| cut -c 14-)
-    PLUMED_HASMPI := $(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
+    PLUMED_DYNAMIC_LIBS = $(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep DYNAMIC_LIBS| cut -c 14-)
+    PLUMED_HASMPI = $(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
 endif
 ifdef USE_PLUMED
     DEFINES += -DUSE_PLUMED
@@ -3833,11 +3833,11 @@ ifdef USE_MPI
         NWMPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
         NWMPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
         NWLIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-	NWLIBMPI      ::= $(shell pkg-config --libs-only-L hwloc 2> /dev/null)
+	NWLIBMPI      += $(shell pkg-config --libs-only-L hwloc 2> /dev/null)
         ifeq ($(NWCHEM_TARGET),MACX64)
            GOT_BREW := $(shell command -v brew 2> /dev/null)
            ifdef GOT_BREW
-	       NWLIBMPI	::= -L$(shell brew --prefix)/lib
+	       NWLIBMPI	+= -L$(shell brew --prefix)/lib
            endif
 	endif
     else ifdef FORCE_MPI_ENV
@@ -3892,7 +3892,7 @@ ifdef USE_MPI
                 $(info )
                 $(error )
         endif
-#we migh need equal here	  
+
 	NWMPI_INCLUDE := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh)
 	NWMPI_LIB     := $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
 	NWLIBMPI      := $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
@@ -3902,12 +3902,12 @@ ifdef USE_MPI
 	LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(NWMPI_INCLUDE))
     endif
     ifdef NWMPI_LIB 
-	CORE_LIBS ::= $(patsubst -L-L%,-L%,-L$(NWMPI_LIB))
+	CORE_LIBS += $(patsubst -L-L%,-L%,-L$(NWMPI_LIB))
     endif 
     ifdef OLD_GA
-	CORE_LIBS ::= -ltcgmsg-mpi $(NWLIBMPI) 
+	CORE_LIBS += -ltcgmsg-mpi $(NWLIBMPI) 
     else
-        CORE_LIBS ::= $(NWLIBMPI) 
+        CORE_LIBS += $(NWLIBMPI) 
     endif
 else 
    ifneq ($(MAKECMDGOALS),$(findstring $(MAKECMDGOALS), clean realclean distclean dependencies include_stamp deps_stamp directories $(BINDIR)/depend.x))
