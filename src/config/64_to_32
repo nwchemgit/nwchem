@@ -25,7 +25,7 @@ fi
    perlscript=${NWCHEM_TOP}/src/config/64_to_32.pl
 
 
- JOB_LIMIT=8
+ JOB_LIMIT=6
 
  njob=0
 
