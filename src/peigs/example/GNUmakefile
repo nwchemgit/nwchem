@@ -39,7 +39,6 @@ wilk:		gendrv.o wilk2.o tim_com.o xerbla.o
 tritest:	gendrv.o tri_test.o tim_com.o xerbla.o
 		$(peigs_LINK) $(peigs_FOPT) -o tritest gendrv.o  xerbla.o tri_test.o tim_com.o $(peigs_LIBS)
 
-#.EXPORT_ALL_VARIABLES:
 
 .PHONY :	clean
 

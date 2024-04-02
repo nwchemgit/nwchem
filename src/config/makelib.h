@@ -210,7 +210,11 @@ endif
 
 MAKESUBDIRS = +@for dir in $(SUBDIRS); do \
 			echo Making $@ in $$dir; \
-			$(MAKE) SKIP_COMPILERS=1 -C $$dir $@  || exit 1 ; done
+			if [ $@  == "include_stamp" ] || [ $@  == "dependencies"  ]; then   \
+			$(MAKE)  SKIP_COMPILERS=1 -C $$dir $@  || exit 1 ; \
+			else \
+			$(MAKE) QUICK_BUILD=1 SKIP_COMPILERS=1 -C $$dir $@  || exit 1 ; \
+			fi ; done
 
 ifdef SUBDIRS
 ifndef OPTIMIZE

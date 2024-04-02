@@ -31,7 +31,7 @@ ifndef NWCHEM_TOP
 	#$(info     setenv NWCHEM_TOP /msrc/home/elvis/nwchem)
 	#$(info     )
 	#$(error )
-    NWCHEM_TOP= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))| \
+   NWCHEM_TOP := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))| \
     sed -e 's/\/src.*//' )
 endif
 
@@ -131,15 +131,15 @@ ifdef EXTERNAL_GA_PATH
     endif
 
     #check if f77 was enabled
-    GA_HAS_F77 = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --enable-f77 | awk '/yes/ {print "Y"}')
+      GA_HAS_F77 := $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --enable-f77 | awk '/yes/ {print "Y"}')
     ifneq ($(GA_HAS_F77),Y)
         $(info NWChem requires Global Arrays built with Fortran support)
         $(error )
     endif
 
     #check peigs interface       
-    GA_HAS_PEIGS = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --use_peigs | awk '/1/ {print "Y"}')
-    GA_HAS_SCALAPACK = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --use_scalapack | awk '/1/ {print "Y"}')
+      GA_HAS_PEIGS := $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --use_peigs | awk '/1/ {print "Y"}')
+      GA_HAS_SCALAPACK := $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --use_scalapack | awk '/1/ {print "Y"}')
     ifneq ($(GA_HAS_PEIGS),Y)
         ifneq ($(GA_HAS_SCALAPACK),Y)
             $(info NWChem requires Global Arrays built with either Peigs or Scalapack support)
@@ -148,7 +148,7 @@ ifdef EXTERNAL_GA_PATH
     endif
 
     #check blas size
-    GA_BLAS_SIZE = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --blas_size)
+      GA_BLAS_SIZE := $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --blas_size)
     ifndef BLAS_SIZE
         BLAS_SIZE=8
     endif
@@ -190,17 +190,17 @@ else
     else
 
         ifneq ("$(wildcard ${NWCHEM_TOP}/src/ga_ldflags.txt)","")
-            GA_LDFLAGS= $(shell cat $(NWCHEM_TOP)/src/ga_ldflags.txt)
+	  GA_LDFLAGS := $(shell cat $(NWCHEM_TOP)/src/ga_ldflags.txt)
         endif
 
         ifeq ($(GA_LDFLAGS),)
-            GA_LDFLAGS=  $(shell ${GA_PATH}/bin/ga-config --ldflags  )
+ 	  GA_LDFLAGS :=  $(shell ${GA_PATH}/bin/ga-config --ldflags  )
         endif
 
       #extract GA libs location from last word in GA_LDLFLAGS
         LIBPATH :=  $(word $(words ${GA_LDFLAGS}),${GA_LDFLAGS}) 
         ifdef EXTERNAL_GA_PATH
-            LIBPATH += -L$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+	  LIBPATH ::= -L$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
         endif
     endif
 endif
@@ -220,17 +220,17 @@ else
         INCPATH = -I$(SRCDIR)/tools/install/include
     else
         ifneq ("$(wildcard ${NWCHEM_TOP}/src/ga_cppflags.txt)","")
-            GA_CPPFLAGS= $(shell cat $(NWCHEM_TOP)/src/ga_cppflags.txt)
+	  GA_CPPFLAGS := $(shell cat $(NWCHEM_TOP)/src/ga_cppflags.txt)
         endif
 
         ifeq ($(GA_CPPFLAGS),)
-            GA_CPPFLAGS=  $(shell ${GA_PATH}/bin/ga-config --cppflags  )
+	  GA_CPPFLAGS :=  $(shell ${GA_PATH}/bin/ga-config --cppflags  )
         endif
 
         INCPATH :=  $(word $(words ${GA_CPPFLAGS}),${GA_CPPFLAGS})
 
         ifdef EXTERNAL_GA_PATH
-            INCPATH += -I$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+	  INCPATH ::= -I$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
         endif
     endif
 endif
@@ -455,9 +455,9 @@ endif
 # see https://bugzilla.redhat.com/show_bug.cgi?id=1195883  (RedHat backtracked)
 # see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=798913                                                                     
 # see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=798804 (Debian did not backtrack)                                          
-#      USE_ARUR = $(shell rm -f aru.tmp;ar -U > aru.tmp 2>&1; head -1 aru.tmp| awk ' /no operation/ {print "Y";exit};{print "N"}'; rm -f aru.tmp)
+#      USE_ARUR := $(shell rm -f aru.tmp;ar -U > aru.tmp 2>&1; head -1 aru.tmp| awk ' /no operation/ {print "Y";exit};{print "N"}'; rm -f aru.tmp)
 
-USE_ARUR = $(shell rm -f aru.tmp;ar --help  > aru.tmp 2>&1; grep U aru.tmp| awk ' /ctual timest/ {print "Y";exit};'; rm -f aru.tmp)
+USE_ARUR := $(shell rm -f aru.tmp;ar --help  > aru.tmp 2>&1; grep U aru.tmp| awk ' /ctual timest/ {print "Y";exit};'; rm -f aru.tmp)
 
 ifeq ($(USE_ARUR),Y)
     ARFLAGS = rU 
@@ -675,7 +675,7 @@ ifeq ($(TARGET),HPUX64)
 #
 # HPUX 11.0
 #
-    _CPU = $(shell uname -m  )
+    _CPU := $(shell uname -m  )
     MAKEFLAGS = -j 1 --no-print-directory
     CPP = /lib/cpp -P
     CC = cc
@@ -856,7 +856,7 @@ ifeq ($(TARGET),IBM64)
         FOPTIMIZE  += -qfloat=rsqrt:fltint
     endif
 
-    XLF8= $(shell /usr/bin/lslpp -l xlfcmp  2>&1|grep COMM|head -n 1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
+    XLF8 := $(shell /usr/bin/lslpp -l xlfcmp  2>&1|grep COMM|head -n 1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
 
     ifdef XLF8
         FVECTORIZE= -O3 -qstrict -qtune=auto -qarch=auto -qcache=auto -qalign=natural \
@@ -989,9 +989,9 @@ ifeq ($(TARGET),LAPI64)
         FOPTIMIZE  += -qfloat=rsqrt:fltint
     endif
     COPTIMIZE = -O
-    XLF8= $(shell xlf -qversion  2>&1|grep Version|head -1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
-    XLF10 = $(shell xlf -qversion  2>&1|grep Version|head -1| awk ' / 10./ {print "Y"}')
-    XLF11 = $(shell xlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
+    XLF8 := $(shell xlf -qversion  2>&1|grep Version|head -1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
+    XLF10 := $(shell xlf -qversion  2>&1|grep Version|head -1| awk ' / 10./ {print "Y"}')
+    XLF11 := $(shell xlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
 
     ifdef XLF8
         FVECTORIZE= -O3 -qstrict -qtune=auto -qarch=auto -qcache=auto -qalign=natural \
@@ -1030,7 +1030,7 @@ ifeq ($(TARGET),MACX)
     # MacOSX 
     #
 
-    _CPU = $(shell machine  )
+    _CPU := $(shell machine  )
     FC = gfortran
     INSTALL = @echo nwchem is built
     RANLIB = ranlib
@@ -1059,13 +1059,13 @@ ifeq ($(TARGET),MACX)
         FVECTORIZE += $(FOPTIMIZE) -qunroll=yes 
         FDEBUG= -O2 -qcompact 
         DEFINES  +=-DXLFLINUX -DCHKUNDFLW
-        FOPTIONS += $(INCLUDES) -WF,"$(DEFINES)" $(shell echo $(LIB_DEFINES) | sed -e "s/-D/-WF,-D/g"   | sed -e 's/\"/\\\"/g'  | sed -e "s/\'/\\\'/g")
+        FOPTIONS ::= $(INCLUDES) -WF,"$(DEFINES)" $(shell echo $(LIB_DEFINES) | sed -e "s/-D/-WF,-D/g"   | sed -e 's/\"/\\\"/g'  | sed -e "s/\'/\\\'/g")
     endif
 
     ifeq ($(FC),g77)
         #g77, only decent one form Fink http://fink.sf.net
         #gcc version 3.4 20031015 (experimental)
-        _G77V33= $(shell g77 -v  2>&1|grep spec|head -n 1|awk ' /3.3/  {print "Y"}')
+	_G77V33 := $(shell g77 -v  2>&1|grep spec|head -n 1|awk ' /3.3/  {print "Y"}')
         FDEBUG= -O1 -g
         FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
         FOPTIMIZE  = -O3 -fno-inline-functions -funroll-loops
@@ -1098,14 +1098,14 @@ ifeq ($(TARGET),MACX)
         FDEBUG = -O0 -g
         FOPTIMIZE  = -O2 -ffast-math
         FOPTIMIZE  += -Wuninitialized -Wno-maybe-uninitialized 
-        DEFINES  += -DGFORTRAN
-        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+	DEFINES += -DGFORTRAN
+	GNUMAJOR :=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 
         ifdef GNUMAJOR
-            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
-            GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
-            GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
-            GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
+	    GNUMINOR :=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
+	    GNU_GE_4_6 := $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
+	    GNU_GE_4_8 := $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
+	    GNU_GE_6 := $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
         endif
 
         ifeq ($(GNU_GE_4_6),true)
@@ -1218,19 +1218,19 @@ ifeq ($(TARGET),MACX)
     ifeq ($(FC),xlf) 
         LDOPTIONS = -Wl,-multiply_defined -Wl,warning
     else
-#       _GCC4= $(shell gcc -v  2>&1|grep spec|head -n 1|awk ' / 3./  {print "N";exit}; / 2./ {print "N";exit};{print "Y"}')
-        _GCC4= $(shell $(CC) -dM -E - < /dev/null | grep __VERS | cut -c22|awk ' /3/  {print "N";exit}; /2/ {print "N";exit};{print "Y"}')
+      # _GCC4 := $(shell gcc -v  2>&1|grep spec|head -n 1|awk ' / 3./  {print "N";exit}; / 2./ {print "N";exit};{print "Y"}')
+        _GCC4 := $(shell $(CC) -dM -E - < /dev/null | grep __VERS | cut -c22|awk ' /3/  {print "N";exit}; /2/ {print "N";exit};{print "Y"}')
         ifeq ($(_GCC4),Y) 
 #           EXTRA_LIBS += 
         else
-            EXTRA_LIBS += -lm -lcc_dynamic
+	  EXTRA_LIBS += -lm -lcc_dynamic
         endif
     endif
 endif
 #
 
 
-_V104=$(shell uname -v 2>&1|awk ' /Version 7./ {print "N";exit}; /Version 8./ {print "Y";exit}')
+_V104 :=$(shell uname -v 2>&1|awk ' /Version 7./ {print "N";exit}; /Version 8./ {print "Y";exit}')
 ifeq ($(_V104),Y)
     EXTRA_LIBS +=-lSystemStubs
 endif
@@ -1268,7 +1268,7 @@ ifeq ($(TARGET),MACX64)
     DEFINES  += -DEXT_INT
     LINK.f    = $(FC) $(LDFLAGS) -Wl,-flat_namespace
     LINK.f   += -Wl,-headerpad_max_install_names
-    GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+    GOTCLANG := $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
     ifeq ($(GOTCLANG),1)
         COPTIONS   += -fPIC
     endif
@@ -1279,7 +1279,7 @@ ifeq ($(TARGET),MACX64)
     endif
     FLANG_NEW=false		  
     ifeq ($(USE_FLANG),1)
-        FLANG_NEW = $(shell [ $(shell $(FC) --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
+	FLANG_NEW := $(shell [ $(shell $(FC) --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
     endif
 
     ifeq ($(_FC),gfortran)
@@ -1324,14 +1324,14 @@ ifeq ($(TARGET),MACX64)
             FVECTORIZE+= -mtune=native
         endif
 
-        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+	GNUMAJOR :=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 
         ifneq ($(strip $(GNUMAJOR)),)
-            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
-            GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
-            GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
-            GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
-            GNU_GE_8 = $(shell [ $(GNUMAJOR) -ge 8  ] && echo true)
+	    GNUMINOR :=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
+	    GNU_GE_4_6 := $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+	    GNU_GE_4_8 := $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
+	    GNU_GE_6 := $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
+	    GNU_GE_8 := $(shell [ $(GNUMAJOR) -ge 8  ] && echo true)
 
             ifeq ($(GNU_GE_4_6),true)
                 DEFINES  += -DGCC46
@@ -1392,11 +1392,11 @@ ifeq ($(TARGET),MACX64)
 
 
     ifeq ($(FC),ifort)
-        _IFCV11= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
-        _IFCV12= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
-        _IFCV14= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
-        _IFCV15ORNEWER=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
-        _IFCV17=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
+	_IFCV11 := $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
+	_IFCV12 := $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
+	_IFCV14 := $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
+	_IFCV15ORNEWER :=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+	_IFCV17 :=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
         DEFINES  += -DIFCV8 -DIFCLINUX
 
         ifdef USE_I4FLAGS
@@ -1520,10 +1520,10 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
         endif
     endif
 
-    LINUXCPU = $(shell uname -m |\
+    LINUXCPU := $(shell uname -m |			\
                awk ' /sparc/ { print "sparc" }; /i*86/ { print "x86" };  /ppc*/ { print "ppc"};  /arm*/ { print "arm"}; /mips*/ { print "mips"} ' )
 
-    GOTMINGW32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
+    GOTMINGW32 := $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
     ifeq ($(GOTMINGW32),1)
         ifdef USE_OPENMP 
             errorompming:
@@ -1552,14 +1552,14 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
         endif
 
         DEFINES  += -DGFORTRAN
-        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+	GNUMAJOR := $(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 
         ifdef GNUMAJOR
-            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __VERS | cut -c24)
-            GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
-            GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
-            GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
-            GNU_GE_8 = $(shell [ $(GNUMAJOR) -ge 8  ] && echo true)
+	    GNUMINOR := $(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __VERS | cut -c24)
+	    GNU_GE_4_6 := $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
+	    GNU_GE_4_8 := $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
+	    GNU_GE_6 := $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
+	    GNU_GE_8 := $(shell [ $(GNUMAJOR) -ge 8  ] && echo true)
 
             ifeq ($(GNU_GE_4_6),true)
                 ifdef  USE_FPE
@@ -1601,10 +1601,10 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
             DEFINES += -DCYGWIN -DCYGNUS
         endif
   
-        _CPU = $(shell uname -m  )
+	_CPU := $(shell uname -m  )
 
         ifeq ($(FC),g77)
-            _G77V33= $(shell g77 -v  2>&1|grep spec|head -n 1|awk ' /3.3/  {print "Y"}')
+	    _G77V33 := $(shell g77 -v  2>&1|grep spec|head -n 1|awk ' /3.3/  {print "Y"}')
             FOPTIONS   += -fno-second-underscore   
             FOPTIONS   += -fno-f90  -ffixed-line-length-72 -ffixed-form
             FOPTIMIZE  +=  -O2  -malign-double -finline-functions 
@@ -1630,7 +1630,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
             _CPU=i786
         else
             ifeq ($(_CPU),i686)
-                _GOTSSE2= $(shell cat /proc/cpuinfo | grep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
+	        _GOTSSE2 := $(shell cat /proc/cpuinfo | grep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
                 ifeq ($(_GOTSSE2),Y) 
                     _CPU=i786
                 endif
@@ -1711,7 +1711,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
             ifdef  USE_DEBUG
                 FOPTIONS += -g
             endif
-            _IFCV7= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk '/7./ {print "Y"; exit}')
+	    _IFCV7 := $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk '/7./ {print "Y"; exit}')
             ifneq ($(_IFCV7),Y)
                 DEFINES+= -DIFCV8
                 ifeq ($(FC),ifc)
@@ -1898,15 +1898,15 @@ endif
 ifneq ($(TARGET),LINUX)
     ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CYGWIN64 CATAMOUNT))
 
-        GOTMINGW64=$(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21)
-        GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
+	GOTMINGW64 := $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21)
+	GOTFREEBSD := $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
         ifeq ($(GOTMINGW64),1)
             _CPU = x86_64
         else
             ifeq ($(GOTFREEBSD),1)
-                _CPU = $(shell uname -p  )
+	        _CPU := $(shell uname -p  )
             else
-                _CPU = $(shell uname -m  )
+	        _CPU := $(shell uname -m  )
             endif
         endif
 
@@ -2040,7 +2040,7 @@ ifneq ($(TARGET),LINUX)
         endif
         FLANG_NEW=false
         ifeq ($(USE_FLANG),1)
-		FLANG_NEW = $(shell [ $(shell $(FC) --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
+		FLANG_NEW := $(shell [ $(shell $(FC) --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
 	endif
 
 #@info 
@@ -2114,13 +2114,13 @@ ifneq ($(TARGET),LINUX)
         endif
 
 
-        GOTCLANG= $(shell $(_CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+	GOTCLANG := $(shell $(_CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
         ifeq ($(GOTCLANG),1)
             COPTIONS   += -fPIC
 	    COPTIONS   += -Wno-deprecated-non-prototype
         endif
 
-        GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
+	GOTFREEBSD := $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
         ifeq ($(GOTFREEBSD),1)
             DEFINES  +=-DMPICH_NO_ATTR_TYPE_TAGS
 	    DEFINES  += -DNOIO -DEAFHACK
@@ -2180,15 +2180,15 @@ ifneq ($(TARGET),LINUX)
                     FFLAGS_FORGA = -mcmodel=medium
 		endif
             else
-                GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+	        GNUMAJOR := $(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
                 ifdef GNUMAJOR
-                    GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
-                    GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
-                    GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
+		    GNUMINOR := $(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
+		    GNU_GE_4_6 := $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
+		    GNU_GE_4_8 := $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
                 endif
-                GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
-                GNU_GE_8 = $(shell [ $(GNUMAJOR) -ge 8  ] && echo true)
-                GNU_GE_10 = $(shell [ $(GNUMAJOR) -ge 10  ] && echo true)
+		GNU_GE_6 := $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
+		GNU_GE_8 := $(shell [ $(GNUMAJOR) -ge 8  ] && echo true)
+		GNU_GE_10 := $(shell [ $(GNUMAJOR) -ge 10  ] && echo true)
             endif
 
             ifeq ($(GNU_GE_4_6),true)
@@ -2271,9 +2271,9 @@ ifneq ($(TARGET),LINUX)
             endif
 
             ifeq ($(FC),ifort)
-                _IFCV9= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk '/9./ {print "Y"}; /10./ {print "Y"; exit}')
-                _IFCV81= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk ' /8.1/  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
-                _IFCV8= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk ' /8./  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
+		_IFCV9 := $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk '/9./ {print "Y"}; /10./ {print "Y"; exit}')
+                _IFCV81 := $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk ' /8.1/  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
+                _IFCV8 := $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk ' /8./  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
 
                 ifeq ($(_IFCV8),Y)
                     DEFINES+= -DIFCV8
@@ -2282,7 +2282,7 @@ ifneq ($(TARGET),LINUX)
                 ifeq ($(_IFCV81),Y)
                     DEFINES+= -DIFCV81
                 endif
-                ITANIUMNO = $(shell   cat /proc/cpuinfo | grep family | head -n 1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
+                ITANIUMNO := $(shell   cat /proc/cpuinfo | grep family | head -n 1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
                 FOPTIONS   += -auto -w -ftz $(ITANIUMNO)
                 ifdef  USE_GPROF
                     FOPTIONS += -qp
@@ -2356,20 +2356,20 @@ ifneq ($(TARGET),LINUX)
             # support for traditional Intel(R) Fortran compiler
             ifeq ($(_FC),ifort)
                 ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
-                    _GOTSSE3= $(shell cat /proc/cpuinfo | grep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
-                    _GOTSSE42= $(shell cat /proc/cpuinfo | grep sse4_2 | tail -n 1 | awk ' /sse4_2/  {print "Y"}')
-                    _GOTAVX= $(shell cat /proc/cpuinfo | grep avx | tail -n 1 | awk ' /avx/  {print "Y"}')
-                    _GOTAVX2= $(shell cat /proc/cpuinfo | grep fma | tail -n 1 | awk ' /fma/  {print "Y"}')
-                    _GOTAVX512F= $(shell cat /proc/cpuinfo | grep avx512f | tail -n 1 | awk ' /avx512f/  {print "Y"}')
+		    _GOTSSE3 := $(shell cat /proc/cpuinfo | grep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
+		    _GOTSSE42 := $(shell cat /proc/cpuinfo | grep sse4_2 | tail -n 1 | awk ' /sse4_2/  {print "Y"}')
+		    _GOTAVX := $(shell cat /proc/cpuinfo | grep avx | tail -n 1 | awk ' /avx/  {print "Y"}')
+		    _GOTAVX2 := $(shell cat /proc/cpuinfo | grep fma | tail -n 1 | awk ' /fma/  {print "Y"}')
+		    _GOTAVX512F := $(shell cat /proc/cpuinfo | grep avx512f | tail -n 1 | awk ' /avx512f/  {print "Y"}')
                 endif
-                _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
-                _IFCV7= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
-                _IFCV11= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
-                _IFCV12= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
-                _IFCV14= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
-                _IFCV15ORNEWER=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
-                _IFCV17=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
-                _IFCV18=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 18) {print "Y";exit}}')
+		_IFCE := $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
+		_IFCV7 := $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
+		_IFCV11 := $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
+		_IFCV12 := $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
+		_IFCV14 := $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
+		_IFCV15ORNEWER := $(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+	       _IFCV17 := $(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
+	       _IFCV18 := $(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 18) {print "Y";exit}}')
 
 #               Intel EM64T is required
                 ifneq ($(_IFCE),Y)
@@ -2404,7 +2404,7 @@ ifneq ($(TARGET),LINUX)
 #               CPP=fpp -P
 #
                 ifeq ($(_IFCV15ORNEWER), Y)
-		  IFORTVER=$(shell ifort -v 2>&1|cut -d " " -f 3)
+		 IFORTVER := $(shell ifort -v 2>&1|cut -d " " -f 3)
 #                ifeq ($(IFORTVER),2021.7.0)
 #                   $(info     )
 #                   $(info     ifort 2021.7.0 not validated)
@@ -2571,7 +2571,7 @@ ifneq ($(TARGET),LINUX)
             endif
 
             ifeq ($(_CC),icc)
-                ICCV15ORNEWER=$(shell icc -V  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+		ICCV15ORNEWER := $(shell icc -V  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
                 ifdef USE_KNL
                     COPTIONS   +=   -xMIC-AVX512 -ftz
                     DEFINES+= -DINTEL_64ALIGN
@@ -3031,7 +3031,7 @@ ifneq ($(TARGET),LINUX)
 	        FOPTIONS += -traceback
 		FOPTIONS += -Ktrap=inv,divz,ovf
 	    endif
-            PGF90VER=$(shell $(FC) -V| head -2|tail -1 |cut -d ' ' -f 2)
+	    PGF90VER := $(shell $(FC) -V| head -2|tail -1 |cut -d ' ' -f 2)
             ifeq ($(PGF90VER),22.5-0)
                 $(info     )
                 $(info     nvfortran 22.5 not validated)
@@ -3110,7 +3110,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
         FOPTIONS = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsuppress=1500-030
         FOPTIONS += -O3 -qstrict -qthreaded -qnosave -qalign=4k
         FOPTIMIZE += -O3 -qarch=450d -qtune=450 -qcache=auto -qunroll=auto -qfloat=rsqrt:fltint
-        XLF11 = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
+	XLF11 := $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
     endif
 
 #for BGQ
@@ -3165,8 +3165,8 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
             _FC = xlf
             CC         = mpixlc_r
             DEFINES   += -DXLFLINUX
-            XLF11      = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
-            XLF14      = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 14./ {print "Y"}')
+	    XLF11     := $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
+	    XLF14     := $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 14./ {print "Y"}')
 
             # EXT_INT means 64-bit integers are used
             DEFINES   += -DEXT_INT 
@@ -3244,12 +3244,12 @@ ifeq ($(BUILDING_PYTHON),python)
         GOTPYTHON2 := $(shell command -v python2 2> /dev/null)
         GOTPYTHON  := $(shell command -v python 2> /dev/null)
         ifdef GOTPYTHON3
-            PYTHONVERSION=$(shell python3 -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
+	    PYTHONVERSION := $(shell python3 -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
         else ifdef GOTPYTHON2
-            PYTHONVERSION=$(shell python2 -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
+	    PYTHONVERSION := $(shell python2 -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
         else ifdef GOTPYTHON
             #last try at python2
-            PYTHONVERSION=$(shell python -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
+	    PYTHONVERSION := $(shell python -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
         else
             errorpython3:
 	        $(info )
@@ -3288,14 +3288,14 @@ ifeq ($(BUILDING_PYTHON),python)
     PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
     PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
     ifeq ($(PYGE38),true)
-        PYCFG= python$(PYTHONVERSION)-config --ldflags --embed
+	PYCFG := $(shell python$(PYTHONVERSION)-config --ldflags --embed)
         ifeq ($(shell uname -s),Darwin)
-            PYCFG += | sed -e "s/-lintl //"
+	  PYCFG := $(shell echo $(PYCFG) | sed -e "s/-lintl //")
         endif
     else
-        PYCFG = python$(PYTHONVERSION)-config --ldflags
+        PYCFG := $(shell python$(PYTHONVERSION)-config --ldflags)
     endif
-    EXTRA_LIBS += -lnwcutil $(shell $(PYCFG))
+	EXTRA_LIBS += -lnwcutil $(PYCFG)
 else
     ifndef PYTHONLIBTYPE
         PYTHONLIBTYPE=a
@@ -3353,15 +3353,15 @@ ifdef USE_FDIST
     DEFINES += -DFDIST
 endif
 
-#_USE_SCALAPACK = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK 1/ {print "Y"}')
+#_USE_SCALAPACK := $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK 1/ {print "Y"}')
 #case guard against case when tools have not been compiled yet
 ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
 else
     ifneq ("$(wildcard ${NWCHEM_TOP}/src/ga_use_scalapack.txt)","")
-        _USE_SCALAPACK= $(shell cat $(NWCHEM_TOP)/src/ga_use_scalapack.txt)
+        _USE_SCALAPACK := $(shell cat $(NWCHEM_TOP)/src/ga_use_scalapack.txt)
     endif
     ifeq ($(_USE_SCALAPACK),)
-        _USE_SCALAPACK = $(shell ${GA_PATH}/bin/ga-config  --use_scalapack| awk ' /1/ {print "Y"}')
+        _USE_SCALAPACK := $(shell ${GA_PATH}/bin/ga-config  --use_scalapack| awk ' /1/ {print "Y"}')
     endif
 endif
 
@@ -3534,7 +3534,7 @@ ifdef BUILD_PLUMED
     LD_LIBRARY_PATH := $(NWCHEM_TOP)/src/libext/lib:$(LD_LIBRARY_PATH)
     DEFINES += -DUSE_PLUMED
     PLUMED_HOME=$(NWCHEM_TOP)/src/libext
-    PLUMED_DYNAMIC_LIBS=$(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep DYNAMIC_LIBS| cut -c 14-)
+    PLUMED_DYNAMIC_LIBS = $(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep DYNAMIC_LIBS| cut -c 14-)
     PLUMED_HASMPI = $(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
 endif
 ifdef USE_PLUMED
@@ -3548,10 +3548,10 @@ ifdef USE_PLUMED
 	    $(info  Please add to your PATH the directory where the plumed command is found )
 	    $(info )
     endif
-    PLUMED_HOME = $(shell plumed info --configuration|grep prefix=|head -1|cut -c 8-)
-    PLUMED_DYNAMIC_LIBS = $(shell plumed info --configuration|grep DYNAMIC_LIBS| cut -c 14-)
-    PLUMED_HASMPI = $(plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
-    #PLUMED_LOAD= /home/edo/tahoma/apps/plumed262.intel20u2/lib/libplumed.a -ldl  -lstdc++ -lfftw3 -lz -ldl -llapack -lblas   -rdynamic -Wl,-Bsymbolic -fopenmp 
+    PLUMED_HOME := $(shell plumed info --configuration|grep prefix=|head -1|cut -c 8-)
+    PLUMED_DYNAMIC_LIBS := $(shell plumed info --configuration|grep DYNAMIC_LIBS| cut -c 14-)
+    PLUMED_HASMPI := $(plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
+    #PLUMED_LOAD := /home/edo/tahoma/apps/plumed262.intel20u2/lib/libplumed.a -ldl  -lstdc++ -lfftw3 -lz -ldl -llapack -lblas   -rdynamic -Wl,-Bsymbolic -fopenmp 
     ifndef PLUMED_DYNAMIC_LIBS
         errorplumed:
 	    $(info )
@@ -3576,7 +3576,7 @@ ifeq ("$(wildcard $(NWCHEM_TOP)/src/config/NWCHEM_CONFIG)","")
         MODULES_HAS_XTB=Y
     endif
 else
-    MODULES_HAS_XTB = $(shell head -2 $(NWCHEM_TOP)/src/config/NWCHEM_CONFIG| awk '/xtb/ {print "Y"}')
+     MODULES_HAS_XTB := $(shell head -2 $(NWCHEM_TOP)/src/config/NWCHEM_CONFIG| awk '/xtb/ {print "Y"}')
 endif
 
 ifeq ($(MODULES_HAS_XTB),Y)
@@ -3637,7 +3637,7 @@ ifndef HIP
 endif
 
 ifdef TCE_HIP
-    DEFINES += -DTCE_HIP $(shell hipconfig --cpp_config)
+    DEFINES ::= -DTCE_HIP $(shell hipconfig --cpp_config)
     CORE_LIBS += $(HIP_LIBS)
     EXTRA_LIBS += -lstdc++
 endif
@@ -3833,11 +3833,11 @@ ifdef USE_MPI
         NWMPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
         NWMPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
         NWLIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-        NWLIBMPI	+= $(shell pkg-config --libs-only-L hwloc 2> /dev/null)
+	NWLIBMPI      += $(shell pkg-config --libs-only-L hwloc 2> /dev/null)
         ifeq ($(NWCHEM_TARGET),MACX64)
-           GOT_BREW = $(shell command -v brew 2> /dev/null)
+           GOT_BREW := $(shell command -v brew 2> /dev/null)
            ifdef GOT_BREW
-              NWLIBMPI	+= -L$(shell brew --prefix)/lib
+	       NWLIBMPI	+= -L$(shell brew --prefix)/lib
            endif
 	endif
     else ifdef FORCE_MPI_ENV
@@ -3883,7 +3883,7 @@ ifdef USE_MPI
 	    endif
 	endif
         # check if mpif90 is present
-	MPIF90YN=$(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh)
+	MPIF90YN := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh)
         ifeq ($(MPIF90YN),mpif90notfound)
             errormpif90:
                 $(info )
@@ -3892,19 +3892,20 @@ ifdef USE_MPI
                 $(info )
                 $(error )
         endif
-        NWMPI_INCLUDE = $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh)
-        NWMPI_LIB     = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
-        NWLIBMPI      = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+
+	NWMPI_INCLUDE := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh)
+	NWMPI_LIB     := $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+	NWLIBMPI      := $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
     endif
 
     ifdef NWMPI_INCLUDE
-      LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(NWMPI_INCLUDE))
+	LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(NWMPI_INCLUDE))
     endif
     ifdef NWMPI_LIB 
-        CORE_LIBS += $(patsubst -L-L%,-L%,-L$(NWMPI_LIB))
+	CORE_LIBS += $(patsubst -L-L%,-L%,-L$(NWMPI_LIB))
     endif 
     ifdef OLD_GA
-        CORE_LIBS += -ltcgmsg-mpi $(NWLIBMPI) 
+	CORE_LIBS += -ltcgmsg-mpi $(NWLIBMPI) 
     else
         CORE_LIBS += $(NWLIBMPI) 
     endif
@@ -4008,7 +4009,7 @@ ifndef FLINT
 
     ifdef TCE_CUDA
         ifdef USE_TTLG
-            CUDA_VERS_GE8=$(shell nvcc --version|grep rel|  awk '/release 9/ {print "Y";exit}; /release 8/ {print "Y";exit};{print "N"}')
+	    CUDA_VERS_GE8 := $(shell nvcc --version|grep rel|  awk '/release 9/ {print "Y";exit}; /release 8/ {print "Y";exit};{print "N"}')
             ifeq ($(CUDA_VERS_GE8),N)
                 CUDA_FLAGS = -O3 -Xcompiler -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH) 
             else

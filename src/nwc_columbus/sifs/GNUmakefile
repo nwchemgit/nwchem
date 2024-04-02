@@ -35,7 +35,7 @@ colib8a.f colib9.f izero.F:
 	./build_colib.sh
 
 MAKEFLAGS = -j 1 --no-print-directory
-ALLF = $(filter-out ./sifs_stubs.F, $(shell find . -name '*.F'))
+ALLF := $(filter-out ./sifs_stubs.F, $(shell find . -name '*.F'))
 
 
 #bummer.F:
