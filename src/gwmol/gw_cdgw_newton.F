@@ -40,7 +40,7 @@
       integer nclusters, clusters(pars%nmo),myll,myul
       integer llqp,ulqp,icluster
       double precision upper,lower,resupper,reslower,const
-      double precision values(25),errors(25),radius
+      double precision values(100),errors(100),radius
 
 
       main = pars%me .eq. 0
