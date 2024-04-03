@@ -122,6 +122,7 @@ jobs:
             armci_network: GA_DEBIAN
             nwchem_modules: "all python"
             blas: "libopenblas-pthread-dev"
+            fc: gfortran
             blas_size: 4
           - os: ubuntu-20.04
             experimental: true
