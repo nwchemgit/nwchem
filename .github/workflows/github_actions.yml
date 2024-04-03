@@ -116,6 +116,14 @@ jobs:
             nwchem_modules: "all"
             fc: gfortran
             blas: "build_openblas"
+          - os: ubuntu-latest
+            experimental: true
+            mpi_impl: openmpi
+            armci_network: GA_DEBIAN
+            nwchem_modules: "all python"
+            blas: "libopenblas-pthread-dev"
+            fc: gfortran
+            blas_size: 4
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich

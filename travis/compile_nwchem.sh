@@ -94,6 +94,12 @@ if [[ "$ARMCI_NETWORK" == "ARMCI" ]]; then
     ./install-armci-mpi
     export EXTERNAL_ARMCI_PATH=$NWCHEM_TOP/external-armci
     cd ..
+fi
+# try to use ubuntu flaky GA pkg 
+if [[ "$ARMCI_NETWORK" == "GA_DEBIAN" ]]; then
+    export EXTERNAL_GA_PATH=/usr
+    export EXTERNAL_ARMCI_PATH=/usr
+    unset ARMCI_NETWORK
 fi    
 
 if [[ "$FC" == "gfortran" ]]; then

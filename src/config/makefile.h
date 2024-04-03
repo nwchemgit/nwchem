@@ -217,20 +217,20 @@ ifdef OLD_GA
 else
     #case guard against case when tools have not been compiled yet
     ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
-        INCPATH = -I$(SRCDIR)/tools/install/include
+        INCPATH := -I$(SRCDIR)/tools/install/include
     else
         ifneq ("$(wildcard ${NWCHEM_TOP}/src/ga_cppflags.txt)","")
 	  GA_CPPFLAGS := $(shell cat $(NWCHEM_TOP)/src/ga_cppflags.txt)
         endif
 
         ifeq ($(GA_CPPFLAGS),)
-	  GA_CPPFLAGS :=  $(shell ${GA_PATH}/bin/ga-config --cppflags  )
+	  GA_CPPFLAGS :=  $(shell $(GA_PATH)/bin/ga-config --cppflags  )
         endif
-
-        INCPATH :=  $(word $(words ${GA_CPPFLAGS}),${GA_CPPFLAGS})
+ 
+	INCPATH :=  $(word $(words $(GA_CPPFLAGS)),$(GA_CPPFLAGS))
 
         ifdef EXTERNAL_GA_PATH
-	  INCPATH ::= -I$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+	  INCPATH += -I$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
         endif
     endif
 endif
