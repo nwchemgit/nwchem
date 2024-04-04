@@ -150,8 +150,8 @@ fi
 if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     FORCETARGET+=" CC=gcc "
     _FC=xlf
-    LAPACK_FPFLAGS_VAL=" -qstrict=ieeefp -O2 -g" 
-elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]] || [[ "${FC}" == "amdflang" ]]; then
+    LAPACK_FPFLAGS_VAL=" -qstrict=ieeefp -O2 -g"
+elif  [[ -n ${FC} ]] && [[ $(../../../config/strip_compiler.sh "${FC}") == "flang" ]]; then
     FORCETARGET+=' F_COMPILER=FLANG '
     LAPACK_FPFLAGS_VAL=" -O1 -g -fno-fast-math"
         if [[ ${BLAS_SIZE} == 8 ]]; then
