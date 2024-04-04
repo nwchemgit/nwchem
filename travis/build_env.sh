@@ -131,9 +131,6 @@ if [[ "$os" == "Linux" ]]; then
 	which mpif90
 	mpif90 -show
     else
-	if [[ "$BLAS_ENV" == "lib*openblas*" ]]; then
-	    $MYSUDO apt-get install -y $BLAS_ENV
-	fi
 	if [[ "$MPI_IMPL" == "openmpi" ]]; then
 	    mpi_bin="openmpi-bin" ; mpi_libdev="libopenmpi-dev" scalapack_libdev="libscalapack-openmpi-dev"
 	fi
