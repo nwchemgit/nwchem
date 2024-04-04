@@ -1,4 +1,4 @@
-!/usr/bin/env bash
+#!/usr/bin/env bash
 #set -v
 arch=`uname -m`
 VERSION=0.3.23
@@ -255,11 +255,8 @@ echo output redirected to libext/openblas/OpenBLAS/openblas.log
 echo
 if [[ ${_FC} == xlf ]]; then
  $MYMAKE FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib $MAKEJ >& openblas.log
-<<<<<<< HEAD
-=======
 elif [[ ${FLANG_NEW} == "true" ]]; then
  $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET FCOMMON_OPT="$LAPACK_FPFLAGS_VAL" LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib  $MAKEJ >& openblas.log
->>>>>>> 836dbea742 (changed detection of FLANG_NEW)
 else
  $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKEJ >& openblas.log
 fi
