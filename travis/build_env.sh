@@ -142,10 +142,10 @@ if [[ "$os" == "Linux" ]]; then
 	    export TERM=dumb
             rm -f l_Base*sh l_HP*sh
 	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
-			  dir_base="992857b9-624c-45de-9701-f6445d845359"
-			  dir_hpc="0722521a-34b5-4c41-af3f-d5d14e88248d"
-			  base="l_BaseKit_p_2023.2.0.49397"
-			  hpc="l_HPCKit_p_2023.2.0.49440"
+			  dir_base="fdc7a2bc-b7a8-47eb-8876-de6201297144"
+			  dir_hpc="7f096850-dc7b-4c35-90b5-36c12abd9eaa"
+			  base="l_BaseKit_p_2024.1.0.596"
+			  hpc="l_HPCKit_p_2024.1.0.560"
 			  wget -nv https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_hpc"/"$hpc".sh \
 			      && wget -nv  https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_base"/"$base".sh \
 			      && break ;\
