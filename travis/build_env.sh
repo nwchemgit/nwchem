@@ -191,7 +191,7 @@ if [[ "$os" == "Linux" ]]; then
 	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*sycl*
 	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*_pgi_*
 	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*_gf_*
-	    intel_components="intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.dpcpp-cpp-compiler-pro"
+	    intel_components="intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.dpcpp-cpp-compiler"
 	    if [[ "$MPI_IMPL" == "intel" ]]; then
 		intel_components+=":intel.oneapi.lin.mpi.devel"
 	    fi
