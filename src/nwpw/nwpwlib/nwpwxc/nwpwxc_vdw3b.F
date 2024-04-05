@@ -1114,6 +1114,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 xx(10),gsum,x,y,z
       real*8, dimension(:,:), allocatable :: gr
       logical ex
+      integer util_system
+      external util_system
 
       allocate(gr(3,nat))
 
@@ -1192,7 +1194,8 @@ c write file gradient
       close(42)
       close(43)
 
-      call system('mv gradient.tmp gradient')
+      if (util_system('mv gradient.tmp gradient').ne.0)
+     & call errquit('nwpwxc_vdw3b: util_system failed',1197,0)
 
 c write file energy
       j=1
@@ -1225,7 +1228,8 @@ c write file energy
       close(42)
       close(43)
 
-      call system('mv energy.tmp energy')
+      if (util_system('mv energy.tmp energy').ne.0)
+     & call errquit('nwpwxc_vdw3b: util_system failed',1231,0)
 
       end subroutine nwpwxc_wregrad
 

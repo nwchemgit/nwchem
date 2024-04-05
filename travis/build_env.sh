@@ -33,7 +33,7 @@ echo DISTR is "$DISTR"
  if [[ "$os" == "Darwin" ]]; then 
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
-     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep automake autoconf ||true
+     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" gsed grep automake autoconf ||true
      if [[ "$FC" != "gfortran" ]]; then
 	 #install non default gfortran, ie gfortran-9
 	 #get version
@@ -90,13 +90,17 @@ echo DISTR is "$DISTR"
 	"$FC" -V
 	icc -V
      fi
-     #hack to get 3.10 as default
-     brew install python@3.10
-     brew link --force --overwrite python@3.10
      if [[ "$MPI_IMPL" == "mpich" ]]; then
 	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
 	 brew update || true
 	 brew unlink open-mpi && brew install mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
+     fi
+     if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
+	 brew install openblas
+	 if [ -z "$HOMEBREW_PREFIX" ] ; then
+	     HOMEBREW_PREFIX=/usr/local
+	 fi
+	 PKG_CONFIG_PATH=$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig pkg-config --libs openblas
      fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
 #      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
@@ -162,9 +166,13 @@ if [[ "$os" == "Linux" ]]; then
 	    if [[ "$USE_LIBXC" == "-1" ]]; then
 		pkg_extra+=" libxc-dev"
 	    fi
-	    echo pkg to install: gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra
+	    echo "BLAS_ENV is" $BLAS_ENV
+	    if [[ "$BLAS_ENV" == lib*openblas* ]]; then
+		pkg_extra+=" $BLAS_ENV"
+	    fi
+	    echo pkg to install: gfortran make perl sync $mpi_libdev $mpi_bin $pkg_extra
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
-			  $MYSUDO apt-get -y install gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra \
+			  $MYSUDO apt-get -y install gfortran make perl rsync $mpi_libdev $mpi_bin $pkg_extra \
 			      && break ;\
 			  tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
@@ -214,25 +222,36 @@ if [[ "$os" == "Linux" ]]; then
 	    icc -V
 
 	fi
+	if [[ "$FC" == 'flang-new-'* ]]; then
+	    wget https://apt.llvm.org/llvm.sh
+	    chmod +x llvm.sh
+	    llvm_ver=$(echo $FC | cut -d - -f 3)
+	    $MYSUDO ./llvm.sh $llvm_ver
+	    $MYSUDO apt-get install -y flang-$llvm_ver
+	fi
 	if [[ "$FC" == "flang" ]]; then
 	    if [[ "USE_AOMP" == "Y" ]]; then
-		aomp_major=16
-		aomp_minor=0-3
+		aomp_major=18
+		aomp_minor=0-0
 		wget -nv https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 		$MYSUDO dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 		export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
 		export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
 		ls -lrt /usr/lib | grep aomp ||true
 	    else
-		aocc_version=4.0.0
-		aocc_dir=aocc-compiler-${aocc_version}
+		aocc_major=4
+		aocc_minor=1
+		aocc_patch=0
+		aocc_version=${aocc_major}.${aocc_minor}.${aocc_patch}
+		aocc_dir=aocc-${aocc_major}-${aocc_minor}
+		aocc_file=aocc-compiler-${aocc_version}
 #		curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
 		tries=0 ; until [ "$tries" -ge 10 ] ; do \
-                curl -sS -LJO https://download.amd.com/developer/eula/aocc-compiler/${aocc_dir}.tar \
+                curl -sS -LJO https://download.amd.com/developer/eula/aocc/${aocc_dir}/${aocc_file}.tar \
                 && break ; \
                 tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
-		tar xf ${aocc_dir}.tar
-		./${aocc_dir}/install.sh
+		tar xf ${aocc_file}.tar
+		./${aocc_file}/install.sh
 		source setenv_AOCC.sh
 		pwd
 	    fi
@@ -241,7 +260,7 @@ if [[ "$os" == "Linux" ]]; then
 	fi
 	if [[ "$FC" == "amdflang" ]]; then
 	    $MYSUDO apt-get install -y wget gnupg2 coreutils dialog tzdata
-	    rocm_version=5.4.3
+	    rocm_version=5.6.1
 	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  $MYSUDO apt-key add - \
 		&& break ; \
@@ -292,4 +311,14 @@ if [[ "$os" == "Linux" ]]; then
     if [[ ! $(command -v mpif90) ]]; then echo "mpif90 not present"; exit 1; fi
     echo "mpif90 -show output is " `mpif90 -show` || true
     echo "which mpif90 output is " `which mpif90` ||  true
+# try to use ubuntu flaky GA pkg 
+    if [[ "$ARMCI_NETWORK" == "GA_DEBIAN" ]]; then
+	$MYSUDO apt-get install -y libglobalarrays-dev libarmci-mpi-dev
+	# hack
+	$MYSUDO ln -sf /usr/lib/x86_64-linux-gnu/libarmci.a /usr/lib/x86_64-linux-gnu/libarmci-openmpi.a
+#    export EXTERNAL_GA_PATH=/usr/lib/x86_64-linux-gnu/ga/openmpi
+#	export EXTERNAL_GA_PATH=/usr
+#	export EXTERNAL_ARMCI_PATH=/usr
+#	unset ARMCI_NETWORK
+fi    
 fi

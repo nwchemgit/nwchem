@@ -25,8 +25,8 @@ echo NWCHEM_TOP is $NWCHEM_TOP
 export USE_MPI=y
 if [[ "$FC" == "flang" ]]; then
     if [[ "USE_AOMP" == "Y" ]]; then
-	aomp_major=16
-	aomp_minor=0-3
+	aomp_major=18
+	aomp_minor=0-0
 	export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
 	export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
     else
@@ -38,6 +38,9 @@ if [[ "$FC" == "amdflang" ]]; then
     export PATH=/opt/rocm/bin:$PATH
     export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
      export BUILD_MPICH=1
+fi
+if [[ "$FC" == 'flang-new-'* ]]; then
+    export BUILD_MPICH=1
 fi
 
 if [[ "$FC" == "nvfortran" ]]; then
@@ -62,16 +65,6 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 # Intel MPI not available on macos       
 #       export BUILD_MPICH=1
        unset BUILD_PLUMED
-# python arm64 not compatible with x86_64       
-       if [[ "$arch" == "arm64" ]]; then
-#         export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/python//')
-           if [[ -d ~/.pyenv/versions/3.10.6_x86 ]]; then
-	       export PYENV_ROOT="$HOME/.pyenv"
-	       command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-	       eval "$(pyenv init -)"
-	       pyenv shell 3.10.6_x86
-	 fi	  	
-       fi
        
     fi
     "$FC" -v
@@ -100,8 +93,6 @@ if [[ "$os" == "Darwin" ]]; then
   if [[ "$MPI_IMPL" == "build_mpich" ]]; then 
     export BUILD_MPICH=1
   fi
-  #python3 on brew
-#  export PATH=/usr/local/bin:$PATH
 
 fi
 if [[ "$os" == "Linux" ]]; then 
@@ -129,6 +120,20 @@ elif [[ "$BLAS_ENV" == "accelerate" ]]; then
     export BLAS_LIB=${BLASOPT}
     export LAPACK_LIB=${BLASOPT}
     export BLAS_SIZE=4
+elif [[ "$BLAS_ENV" == lib*openblas* ]] || [[ "$BLAS_ENV" == "brew_openblas" ]]; then
+     if [[ "$BLAS_ENV" == *openblas64* ]]; then
+         myob="openblas64"
+     else
+         myob="openblas"
+     fi
+     if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
+	 if [ -z "$HOMEBREW_PREFIX" ] ; then
+	     HOMEBREW_PREFIX=/usr/local
+	 fi
+	 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig
+     fi
+     export BLASOPT=$(pkg-config --libs $myob)
+     export LAPACK_LIB=$BLASOPT
 fi
 if [[ "$BLAS_SIZE" == "4" ]]; then
   export SCALAPACK_SIZE=4

@@ -140,6 +140,10 @@ ln -sf scalapack-$COMMIT scalapack
 #tar xzf scalapack.tgz
 cd scalapack
 # macos accelerate does not contain dcombossq
+if [[  ! -z "$USE_INTERNALBLAS" ]]; then
+    export USE_DCOMBSSQ=1
+    BLASOPT="-L${NWCHEM_TOP}/lib/${NWCHEM_TARGET} -lnwclapack -lnwcblas"
+fi
 if [[ $(echo "$LAPACK_LIB" |awk '/Accelerate/ {print "Y"; exit}' ) == "Y" ]]; then
     export USE_DCOMBSSQ=1
 fi
@@ -235,6 +239,8 @@ fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     if  [[ ${FC} == f95 ]] || [[ ${FC_EXTRA} == gfortran ]] ; then
     Fortran_FLAGS+=" -fdefault-integer-8 -w "
+    elif  [[ ${FC_EXTRA} == flang ]] ; then
+    Fortran_FLAGS+=" -fdefault-integer-8 "
     elif  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     Fortran_FLAGS=" -qintsize=8 -qextname "
     elif  [[ ${FC} == crayftn ]]; then
@@ -262,6 +268,9 @@ echo 'nvfortran -V is ' `nvfortran -V`
 	Fortran_FLAGS+=" -tp px "
       fi
     fi
+fi
+if  [[ ${FC_EXTRA} == flang ]]; then
+    Fortran_FLAGS+=" -fPIC "
 fi
 if  [[ ${FC_EXTRA} == gfortran ]] || [[ ${FC} == f95 ]]; then
     Fortran_FLAGS+=" -fPIC "

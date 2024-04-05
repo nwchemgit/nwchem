@@ -43,7 +43,6 @@
 	dft_frac_mo.o  dft_nwmolden.o dft_spinflip.o dft_quickguess.o
 
      LIBRARY = libnwdft.a
-#_USE_SCALAPACK = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK\ 1/ {print "Y"}')
 
 
 LIB_INCLUDES = -I../include -I../grid
@@ -55,7 +54,7 @@ HEADERS = dftps.fh dft_fdist.fh dft_conv.fh
 
 include ../../config/makefile.h
 ifeq ($(_USE_SCALAPACK),Y)
-_USE_ELPA = $(shell ${GA_PATH}/bin/ga-config  --use_elpa| awk ' /1/ {print "Y"}')
+_USE_ELPA := $(shell ${GA_PATH}/bin/ga-config  --use_elpa| awk ' /1/ {print "Y"}')
 
 ifeq ($(_USE_ELPA),Y)
  LIB_DEFINES += -DUSE_ELPA
@@ -65,7 +64,7 @@ GOTGAPZHEEVD= Y
 ifeq ($(GOTGAPZHEEVD),Y)
  LIB_DEFINES += -DUSE_GAPZHEEVD
 endif
-_PDSYEVR = $(shell [ -e ${NWCHEM_TOP}/src/tools/install/lib/libga.a ] &&  nm ${NWCHEM_TOP}/src/tools/install/lib/libga.a|egrep T |egrep  ga_pdsyevr |awk '/ga_pdsyevr/ {print "Y"}')
+_PDSYEVR := $(shell [ -e ${NWCHEM_TOP}/src/tools/install/lib/libga.a ] &&  nm ${NWCHEM_TOP}/src/tools/install/lib/libga.a|egrep T |egrep  ga_pdsyevr |awk '/ga_pdsyevr/ {print "Y"}')
 ifeq ($(_PDSYEVR),Y) 
  LIB_DEFINES += -DUSE_PDSYEVR
 endif

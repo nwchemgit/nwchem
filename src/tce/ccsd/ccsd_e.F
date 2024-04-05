@@ -432,25 +432,18 @@ C     i0 ( )_vt + = 1/4 * Sum ( h3 h4 p1 p2 ) * t ( p1 p2 h3 h4 )_t * v ( h3 h4 
       INTEGER h3b_2,h4b_2,p1b_2,p2b_2
       INTEGER dim_p1,dim_p2,dim_h3,dim_h4,dim_pphh
       INTEGER k_a,l_a,k_b,l_b,k_c,l_c
-      INTEGER k_as,l_as
       INTEGER k_bs,l_bs
-      INTEGER nsuperp,nsubh
       DOUBLE PRECISION alpha
-      DOUBLE PRECISION FACTORIAL
       EXTERNAL NXTASK
-      EXTERNAL FACTORIAL
+      double precision :: temp
+      double precision :: e_c
+      integer :: dimpp,dimhh,pp,hh,x,y
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
+      e_c = 0.0d0
       IF (next.eq.count) THEN
        IF (0 .eq. ieor(irrep_v,irrep_t)) THEN
-c
-c     create output array
-c
-      IF (.not.MA_PUSH_GET(mt_dbl,1,'noname',l_c,k_c)) 
-     1     CALL ERRQUIT('ccsd_e_2',9,MA_ERR)
-      dbl_mb(k_c) = 0.0d0
-c
       DO p1b = noab+1,noab+nvab
        DO p2b = p1b,noab+nvab
         DO h3b = 1,noab
@@ -473,19 +466,12 @@ c
 c
 c            a = t2
 c
-             IF (.not.MA_PUSH_GET(mt_dbl,dim_pphh,'as',l_as,k_as)) 
-     1            CALL ERRQUIT('ccsd_e_2',1,MA_ERR)
              IF (.not.MA_PUSH_GET(mt_dbl,dim_pphh,'a',l_a,k_a))
      1            CALL ERRQUIT('ccsd_e_2',2,MA_ERR)
              CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dim_pphh,
      1            int_mb(k_a_offset),
      2            (h4b_1 - 1 + noab * (h3b_1 - 1 + noab * 
      3            (p2b_1 - noab - 1 + nvab * (p1b_1 - noab - 1)))))
-             CALL TCE_SORT_4(dbl_mb(k_a),dbl_mb(k_as),
-     1            dim_p1,dim_p2,dim_h3,dim_h4,
-     2            3,4,1,2,1.0d0)
-             IF (.not.MA_POP_STACK(l_a))
-     1            CALL ERRQUIT('ccsd_e_2',3,MA_ERR)
 c
 c            b = v2
 c
@@ -516,16 +502,24 @@ c
 c
 c            do the contraction
 c
-             CALL DGEMM('T','N',1,1,dim_pphh,alpha,
-     1            dbl_mb(k_as),dim_pphh,dbl_mb(k_b),
-     2            dim_pphh,1.0d0,dbl_mb(k_c),1)
+             dimpp = dim_p1*dim_p2
+             dimhh = dim_h3*dim_h4
+             temp = 0.0d0
+             do pp = 1,dimpp
+              do hh = 1,dimhh
+               x = (hh-1)+dimhh*(pp-1)
+               y = (pp-1)+dimpp*(hh-1)
+               temp = temp + dbl_mb(k_b+y) * dbl_mb(k_a+x)
+              enddo
+             enddo
+             e_c = e_c + alpha * temp
 c
 c            delete arrays
 c
              IF (.not.MA_POP_STACK(l_b))
      1            CALL ERRQUIT('ccsd_e_2',7,MA_ERR)
-             IF (.not.MA_POP_STACK(l_as))
-     1            CALL ERRQUIT('ccsd_e_2',8,MA_ERR)
+             IF (.not.MA_POP_STACK(l_a))
+     1            CALL ERRQUIT('ccsd_e_2',3,MA_ERR)
             END IF
            END IF
           END IF
@@ -533,15 +527,13 @@ c
         END DO
        END DO
       END DO
-      CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_c),1,int_mb(k_c_offset),0)
-      IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_e_2',10,MA_ERR)
+      CALL ADD_HASH_BLOCK(d_c,e_c,1,int_mb(k_c_offset),0)
       END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
-      RETURN
       END
 
 
