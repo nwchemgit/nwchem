@@ -3352,31 +3352,27 @@ c
           call ccsd_t_fdist_init()
 #endif
           if (restart_ccsd_t.eq.0) then
+            if (.not.rtdb_get(rtdb,'tce:cuda',mt_int,1,icuda)) icuda = 0
+            if (icuda .ne. 0) then
 #if defined(TCE_CUDA) || defined(TCE_HIP)
-              if(.not.rtdb_get(rtdb,'tce:cuda',mt_int,1,icuda)) then
-               if (nodezero) write(LuOut,*) 'Using plain CCSD(T) code'
-               if (nodezero) call util_flush(LuOut)
-               call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
-              else
-               if (nodezero) write(LuOut,*) 'Using CUDA CCSD(T) code'
-!kbn           call errquit('tce_energy: reading cuda',icuda,CALC_ERR) 
-               if (nodezero) call util_flush(LuOut)
-               call ccsd_t_gpu(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1,icuda)
-              end if 
-#else
-              if (nodezero) write(LuOut,*) 'Using plain CCSD(T) code'
+              if (nodezero) write(LuOut,*) 'Using CUDA CCSD(T) code'
               if (nodezero) call util_flush(LuOut)
-              if(.not.slice) then
-              call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
-              else
+              call ccsd_t_gpu(d_t1,k_t1_offset,d_t2,k_t2_offset,
+     &                        d_v2,k_v2_offset,pt3_1,pt3_2,size_t1,icuda)
+#else
+            call errquit('tce_energy: ccsd_t_gpu requested but not compiled',
+     &                    iter,CALC_ERR)
+#endif
+            else if (slide) then
               if (nodezero) write(LuOut,*) 'Using sliced CCSD(T) code'
               call ccsd_t_6dts(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1,xmem)
-              end if
-#endif
+     &                         d_v2,k_v2_offset,pt3_1,pt3_2,size_t1,xmem)
+            else
+             if (nodezero) write(LuOut,*) 'Using plain CCSD(T) code'
+             if (nodezero) call util_flush(LuOut)
+             call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
+     &                   d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
+            end if 
 #ifdef USE_PSTAT
 c     
 c     cleanup profiling
