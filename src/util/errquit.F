@@ -82,7 +82,7 @@ c
 #endif
 c     
       if (errcode .eq. RTDB_ERR) then
-         write(LuOut,*) 'An error occured in the Runtime Database'
+         write(LuOut,*) 'An error occurred in the Runtime Database'
       endif
 c     
       if (errcode .eq. BASIS_ERR) then
@@ -119,11 +119,11 @@ c
 #endif
 c
       if (errcode .eq. INT_ERR) then
-         write(LuOut,*) 'An error occured while computing integrals'
+         write(LuOut,*) 'An error occurred while computing integrals'
       endif
 c
       if (errcode .eq. DISK_ERR) then
-         write(LuOut,*) 'An error occured while trying to read or ',
+         write(LuOut,*) 'An error occurred while trying to read or ',
      &        'write to disk space'
       endif
 c
