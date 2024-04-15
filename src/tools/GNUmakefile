@@ -761,6 +761,7 @@ $(STAMP_DIR):
 
 clean:
 	@test -e $(BUILDDIR)/Makefile && { cd $(BUILDDIR) && $(MAKE) clean; } || echo "Not configured"
+	rm -f ../mpi_include.txt ../ga*txt
 
 realclean:
 	@rm -rf $(BUILDDIR) $(INSTALLDIR) *amp
@@ -770,6 +771,7 @@ cleanlibga:
 	cd ob && ar -x ../build/.libs/libga.a && rm -f ../build/.libs/libga.a && ar crv ../build/.libs/libga.a *.o && mkdir -p ../install/lib && cp ../build/.libs/libga.a ../install/lib
 	cd ..
 	rm -rf ob
+	rm -f ../mpi_include.txt ../ga*txt
 
 
 #
