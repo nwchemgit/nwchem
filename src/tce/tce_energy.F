@@ -3342,15 +3342,13 @@ c
           if (nodezero) write(LuOut,*) 'CCSD(T)'
           if (do_pt) perturbative='(t)'
 !
-          cpu = - util_cpusec()
-          wall = - util_wallsec()
 #ifdef USE_PSTAT
-c
-c     profiling
-c
+!     profiling
           call ccsd_t_pstat_init(rtdb)
           call ccsd_t_fdist_init()
 #endif
+          cpu = - util_cpusec()
+          wall = - util_wallsec()
           if (restart_ccsd_t.eq.0) then
             if (.not.rtdb_get(rtdb,'tce:cuda',mt_int,1,icuda)) icuda = 0
             if (icuda .ne. 0) then
@@ -3358,28 +3356,23 @@ c
               if (nodezero) write(LuOut,*) 'Using CUDA CCSD(T) code'
               if (nodezero) call util_flush(LuOut)
               call ccsd_t_gpu(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     &                        d_v2,k_v2_offset,pt3_1,pt3_2,size_t1,icuda)
+     &                        d_v2,k_v2_offset,pt3_1,pt3_2,size_t1,
+     &                        icuda)
 #else
-            call errquit('tce_energy: ccsd_t_gpu requested but not compiled',
-     &                    iter,CALC_ERR)
+              call errquit('tce_energy: ccsd_t_gpu requested'//
+     &                     'but not compiled',iter,CALC_ERR)
 #endif
-            else if (slide) then
+            else if (slice) then
               if (nodezero) write(LuOut,*) 'Using sliced CCSD(T) code'
               call ccsd_t_6dts(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     &                         d_v2,k_v2_offset,pt3_1,pt3_2,size_t1,xmem)
+     &                         d_v2,k_v2_offset,pt3_1,pt3_2,size_t1,
+     &                         xmem)
             else
-             if (nodezero) write(LuOut,*) 'Using plain CCSD(T) code'
-             if (nodezero) call util_flush(LuOut)
-             call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     &                   d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
+              if (nodezero) write(LuOut,*) 'Using plain CCSD(T) code'
+              if (nodezero) call util_flush(LuOut)
+              call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
+     &                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
             end if 
-#ifdef USE_PSTAT
-c     
-c     cleanup profiling
-c
-              call ccsd_t_pstat_print
-#endif
-
           elseif (restart_ccsd_t.gt.0) then
             pt3_1 = 0.0d0
             call ccsd_t_restart(rtdb,d_t1,k_t1_offset,
@@ -3388,6 +3381,10 @@ c
           endif
           cpu = cpu + util_cpusec()
           wall = wall + util_wallsec()
+#ifdef USE_PSTAT
+!     cleanup profiling
+          call ccsd_t_pstat_print
+#endif
           if (nodezero) then
             write(LuOut,*)
             if (restart_ccsd_t.eq.0) then
