@@ -31,9 +31,9 @@ fi
 echo DISTR is "$DISTR"
 	IONEAPI_ROOT=~/apps/oneapi
 if [[ "$os" == "Darwin" ]]; then
-     echo "XCODE_VERSION is XCODE_VERSION"
+     echo "XCODE_VERSION is $XCODE_VERSION"
      echo " ls -l on App xcode " $(ls -l /Applications|grep -i xcode)
-     $MYSUDO xcode-select -s '/Applications/Xcode_"$XCODE_VERSION".app/Contents/Developer'
+     $MYSUDO xcode-select -s /Applications/Xcode_"$XCODE_VERSION".app/Contents/Developer
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
      HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" gsed grep automake autoconf ||true
