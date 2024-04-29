@@ -98,7 +98,7 @@ if [[ "$os" == "Darwin" ]]; then
      if [[ "$MPI_IMPL" == "mpich" ]]; then
 	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
 	 brew update || true
-	 brew unlink open-mpi && brew install mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
+	 brew unlink open-mpi || true && brew install mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
      fi
      if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
 	 brew install openblas
