@@ -31,6 +31,7 @@ fi
 echo DISTR is "$DISTR"
 	IONEAPI_ROOT=~/apps/oneapi
  if [[ "$os" == "Darwin" ]]; then 
+     $MYSUDO xcode-select -s '/Applications/Xcode_"$XCODE_VERSION".app/Contents/Developer'
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
      HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" gsed grep automake autoconf ||true
@@ -52,6 +53,8 @@ echo DISTR is "$DISTR"
      #	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
      $FC --version
      gfortran --version
+     echo "Xcode version " $(xcodebuild -version |tail -1)
+     echo "Clang version " $(clang -v)
      if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
          if [[ -f "$IONEAPI_ROOT"/setvars.sh ]]; then 
 	     echo ' using intel cache installation '

@@ -446,6 +446,7 @@ jobs:
         BLAS_ENV:  ${{ matrix.blas }}
         BLAS_SIZE:  ${{ matrix.blas_size }}
         USE_OPENMP:  ${{ matrix.use_openmp }}
+        XCODE_VERSION:  ${{ matrix.xcode_version }}
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: pkg cleanup
