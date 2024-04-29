@@ -262,6 +262,7 @@ jobs:
             fc: gfortran-12
             cc: gcc
             use_libxc: 1
+            xcode_version: 15.3
           - os: macos-14
             experimental: true 
             mpi_impl: openmpi
