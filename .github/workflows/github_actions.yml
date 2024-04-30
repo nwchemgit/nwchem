@@ -323,7 +323,8 @@ jobs:
             mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
-            fc: gfortran-12
+            fc: gfortran-11
+            cc: gcc-11
             xcode_version: 15.4
           - os: macos-latest
             experimental: true
