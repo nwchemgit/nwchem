@@ -259,9 +259,10 @@ jobs:
             mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
-            fc: gfortran-12
+            fc: gfortran-11
             cc: gcc
             use_libxc: 1
+            xcode_version: 15.3
           - os: macos-14
             experimental: true 
             mpi_impl: openmpi
@@ -316,14 +317,15 @@ jobs:
             nwchem_modules: "tce"
             fc: gfortran-11
             cc: gcc-11
-            xcode_version: 13.4.1
+            xcode_version: 15.4
           - os: macos-latest
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
             fc: gfortran-11
-            xcode_version: 13.4.1
+            cc: gcc-11
+            xcode_version: 15.4
           - os: macos-latest
             experimental: true
             mpi_impl: openmpi
@@ -332,13 +334,13 @@ jobs:
             fc: gfortran-13
             blas: "accelerate"
             blas_size: 4
-          - os: macos-13
+          - os: macos-12
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-PT
             nwchem_modules: "nwdft solvation driver"
             fc: ifort
-            xcode_version: 14.0.1
+            xcode_version: 15.4
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
@@ -446,6 +448,7 @@ jobs:
         BLAS_ENV:  ${{ matrix.blas }}
         BLAS_SIZE:  ${{ matrix.blas_size }}
         USE_OPENMP:  ${{ matrix.use_openmp }}
+        XCODE_VERSION:  ${{ matrix.xcode_version }}
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: pkg cleanup

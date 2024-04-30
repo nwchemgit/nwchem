@@ -3883,7 +3883,7 @@ ifdef USE_MPI
 	    endif
 	endif
         # check if mpif90 is present
-	MPIF90YN := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh)
+	MPIF90YN := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh $(NWCHEM_TOP))
         ifeq ($(MPIF90YN),mpif90notfound)
             errormpif90:
                 $(info )
@@ -3893,7 +3893,7 @@ ifdef USE_MPI
                 $(error )
         endif
 
-	NWMPI_INCLUDE := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh)
+	NWMPI_INCLUDE := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh $(NWCHEM_TOP))
 	NWMPI_LIB     := $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
 	NWLIBMPI      := $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
     endif

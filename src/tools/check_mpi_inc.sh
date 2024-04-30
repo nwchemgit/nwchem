@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-if [ ! -f ${NWCHEM_TOP}/src/mpi_include.txt ]; then
-    ${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include > ${NWCHEM_TOP}/src/mpi_include.txt
+if [ $# -eq 0 ]
+  then
+    echo "NWCHEM_TOP arg missing"
+    exit 1
 fi
-cat  ${NWCHEM_TOP}/src/mpi_include.txt 
+if [ ! -f $1/src/mpi_include.txt ]; then
+    $1/src/tools/guess-mpidefs --mpi_include > $1/src/mpi_include.txt
+fi
+cat  $1/src/mpi_include.txt 
