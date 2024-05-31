@@ -41,7 +41,7 @@ echo DISTR is "$DISTR"
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
      HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" gsed grep automake autoconf ||true
-     if [[ "$FC" != "gfortran" ]] || [[ "$FC" == "gfortran*" ]]; then
+     if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
 	 #install non default gfortran, ie gfortran-9
 	 #get version
 	 mygccver=$(echo "$FC"|cut -d - -f 2)
@@ -102,7 +102,9 @@ echo DISTR is "$DISTR"
      if [[ "$MPI_IMPL" == "mpich" ]]; then
 	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
 	 brew update || true
-	 brew unlink open-mpi || true && brew install mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
+	 brew list open-mpi >&  /dev/null ; myexit=$?
+	 if [[ $myexit == 0 ]]; then brew unlink open-mpi || true ; fi
+	 brew install mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
      fi
      if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
 	 brew install openblas
