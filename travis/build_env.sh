@@ -230,7 +230,7 @@ if [[ "$os" == "Linux" ]]; then
             source "$IONEAPI_ROOT"/setvars.sh || true
 	    export I_MPI_F90="$FC"
 	    "$FC" -V ; if [[ $? != 0 ]]; then echo "Intel SW install failed"; exit 1; fi
-	    icc -V
+	    icx -V
 
 	fi
 	if [[ "$FC" == 'flang-new-'* ]]; then
