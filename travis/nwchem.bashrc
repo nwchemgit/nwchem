@@ -58,10 +58,11 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 #    source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
     source "$IONEAPI_ROOT"/setvars.sh --force
     export I_MPI_F90="$FC"
-#force icc on macos to cross-compile x86 on arm64    
+#force icc on macos to cross-compile x86 on arm64
+# icx not available on macos
     if [[ "$os" == "Darwin" ]]; then
 	CC=icc
-	CXX=icpc
+	CXX=icc
 # Intel MPI not available on macos       
 #       export BUILD_MPICH=1
        unset BUILD_PLUMED

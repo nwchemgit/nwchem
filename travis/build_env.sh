@@ -41,7 +41,7 @@ echo DISTR is "$DISTR"
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
      HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" gsed grep automake autoconf ||true
-     if [[ "$FC" != "gfortran" ]]; then
+     if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
 	 #install non default gfortran, ie gfortran-9
 	 #get version
 	 mygccver=$(echo "$FC"|cut -d - -f 2)
@@ -102,7 +102,9 @@ echo DISTR is "$DISTR"
      if [[ "$MPI_IMPL" == "mpich" ]]; then
 	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
 	 brew update || true
-	 brew unlink open-mpi || true && brew install mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
+	 brew list open-mpi >&  /dev/null ; myexit=$?
+	 if [[ $myexit == 0 ]]; then brew unlink open-mpi || true ; fi
+	 brew install mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
      fi
      if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
 	 brew install openblas
@@ -151,10 +153,10 @@ if [[ "$os" == "Linux" ]]; then
 	    export TERM=dumb
             rm -f l_Base*sh l_HP*sh
 	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
-			  dir_base="992857b9-624c-45de-9701-f6445d845359"
-			  dir_hpc="0722521a-34b5-4c41-af3f-d5d14e88248d"
-			  base="l_BaseKit_p_2023.2.0.49397"
-			  hpc="l_HPCKit_p_2023.2.0.49440"
+			  dir_base="fdc7a2bc-b7a8-47eb-8876-de6201297144"
+			  dir_hpc="7f096850-dc7b-4c35-90b5-36c12abd9eaa"
+			  base="l_BaseKit_p_2024.1.0.596"
+			  hpc="l_HPCKit_p_2024.1.0.560"
 			  wget -nv https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_hpc"/"$hpc".sh \
 			      && wget -nv  https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_base"/"$base".sh \
 			      && break ;\
@@ -200,7 +202,7 @@ if [[ "$os" == "Linux" ]]; then
 	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*sycl*
 	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*_pgi_*
 	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*_gf_*
-	    intel_components="intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.dpcpp-cpp-compiler-pro"
+	    intel_components="intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.dpcpp-cpp-compiler"
 	    if [[ "$MPI_IMPL" == "intel" ]]; then
 		intel_components+=":intel.oneapi.lin.mpi.devel"
 	    fi
@@ -228,7 +230,7 @@ if [[ "$os" == "Linux" ]]; then
             source "$IONEAPI_ROOT"/setvars.sh || true
 	    export I_MPI_F90="$FC"
 	    "$FC" -V ; if [[ $? != 0 ]]; then echo "Intel SW install failed"; exit 1; fi
-	    icc -V
+	    icx -V
 
 	fi
 	if [[ "$FC" == 'flang-new-'* ]]; then
