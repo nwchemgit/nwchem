@@ -2817,7 +2817,14 @@ ifneq ($(TARGET),LINUX)
                     FDEBUG += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
                 endif
 
+                ifeq ($(USE_FLANG),1)
+                    ifdef USE_OPTREPORT
+                        FOPTIMIZE  += -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize
+                    endif
+                else
+
                 FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
+		endif
                 ifeq ($(GNU_GE_4_8),true)
                     FOPTIMIZE  += -ftree-vectorize
                          ifdef USE_OPTREPORT
@@ -2833,7 +2840,10 @@ ifneq ($(TARGET),LINUX)
                             FOPTIMIZE += -mtune=a64fx -mcpu=a64fx
                             FOPTIMIZE += -march=armv8.2-a+sve
                         else
-                            FOPTIMIZE += -mtune=native -march=native
+                            ifneq ($(USE_FLANG),1)
+                               FOPTIMIZE += -mtune=native 
+			    endif
+                            FOPTIMIZE += -march=native
                         endif
                         FOPTIMIZE += -ffp-contract=fast
                              ifdef USE_OPTREPORT
