@@ -7626,7 +7626,7 @@ c
             geom_powcmpl=CMPLX(c,s)
          endif
       endif
-      write(6,*) ' gpow returns ',geom_powcmpl
+cdbg      write(6,*) ' gpow returns ',geom_powcmpl
       return
       end
       double precision function geom_cmplxabs(cmplx_in)
