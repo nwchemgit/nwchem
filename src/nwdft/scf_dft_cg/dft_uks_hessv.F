@@ -12,11 +12,17 @@
 #include "global.fh"
 
 c     
+      integer rtdb
       double precision acc      ! [input] required accuracy of products
       integer g_x               ! [input] handle to input vectors
       integer g_ax              ! [input] handle to output products
 c
       integer gtype, vlen, nvec, nvecp, g_tmp
+c
+      integer scf_get_rtdb
+      external scf_get_rtdb
+c
+      rtdb = scf_get_rtdb()
 c
 c     Multiply a set of vectors by the level-shifted UHF hessian.
 c     
