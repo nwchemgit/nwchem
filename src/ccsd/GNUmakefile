@@ -128,7 +128,7 @@ ifdef USE_IMAX_OPENMP_TRPDRV
 
   OBJ_OPTIMIZE += ccsd_trpdrv_omp_reduce_f.o
 
-  FOPTIONS += -O3 -fiopenmp  -fopenmp-targets=spir64="-mllvm -vpo-paropt-opt-data-sharing-for-reduction=false -mllvm -vpo-paropt-atomic-free-reduction-par-global=false" -switch offload_modvars -mllvm -vpo-paropt-atomic-free-reduction-slm=true -qmkl -mllvm -vpo-paropt-dispatch-codegen-version=1 -switch -use-host-usm-for-implicit-reduction-map
+  FOPTIONS += -O3 -fiopenmp  -fopenmp-targets=spir64="-mllvm -vpo-paropt-atomic-free-reduction-par-global=false" -switch offload_modvars -mllvm -vpo-paropt-atomic-free-reduction-slm=true -qmkl
 
   DEFINES += -DMKL_ILP64 
 
