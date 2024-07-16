@@ -102,10 +102,11 @@ c
 c
 c     ----- save ocache logical variable -----
 c
-      if(type.eq.6 .or. type.eq.7 ) then
-         ocache_save=ocache
-         ocache     =.false.
-      endif
+c     LB type is never initialized, ocache never used
+      !if(type.eq.6 .or. type.eq.7 ) then
+      !   ocache_save=ocache
+      !   ocache     =.false.
+      !endif
 c     
 c     Get info about the basis sets
 c     

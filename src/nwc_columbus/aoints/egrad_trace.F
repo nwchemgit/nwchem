@@ -1,6 +1,6 @@
       subroutine egrad_trace(ibas, aodens, ninfo, info, nbft, g_force,
      &  frc_nuc, frc_kin, frc_eff, frc_2el, frc_sow, frc_sox, frc_soy,
-     &  frc_soz, frc_tot, nat, rtdb, nadct, aodensa, infoa, trans )
+     &  frc_soz, frc_tot, nat, rtdb, nadct, aodensa, infoa, asym)
       implicit none
 #include "errquit.fh"
 * #include "cint1cache.fh"
@@ -48,10 +48,10 @@
       integer ishell, mem1, max1e, lrecal, n1mx
       integer max2e, mscratch_1e, mscratch_2e, lbuf1, lscratch,
      &        max_at_bf, lsqatom
-      integer l_buf, l_scr, l_ilab, l_jlab, l_sifbuf, l_d1, l_eff, 
+      integer l_buf1, l_scr, l_ilab, l_jlab, l_sifbuf, l_d1, l_eff, 
      &        l_sifval, l_slab, l_sm, l_sym, l_map, l_b2s, 
      &        l_smin, l_smax, l_sodx, l_sody, l_sodz, l_buf2, l_scr2
-      integer k_buf, k_scr, k_ilab, k_jlab, k_sifbuf, k_d1, k_eff,
+      integer k_buf1, k_scr, k_ilab, k_jlab, k_sifbuf, k_d1, k_eff,
      &        k_sifval, k_slab, k_sm, k_sym, k_map, k_b2s, 
      &        k_smin, k_smax, k_sodx, k_sody, k_sodz, k_buf2, k_scr2
       integer sizeof_int, szlabs, numd1, sz_bf_list
@@ -73,19 +73,24 @@ c
       logical status
       INTEGER :: g_ad1, g_hd, l_asym, k_asym, l_hd, k_hd, nadx
       DOUBLE PRECISION :: nadxfl(nat,3)
-      INTEGER :: hdol ! Handle or half-drv ovlp GA
+      INTEGER :: hdol ! Handle for half-drv ovlp GA
       INTEGER :: aodensa, infoa(ninfo)
-      LOGICAL :: trans
+      LOGICAL :: asym
       INTEGER :: dims(3),chunk(3),iend(2),jstrt(3),jend(3) 
       INTEGER, PARAMETER :: istrt(2) = (/1,1/)
+      INTEGER :: l_ad1, k_ad1
+      logical ignore
 
       me = ga_nodeid()
       nproc = ga_nnodes()
 c
 cgk debug
-*      write(*,*)'gk: entered egrad_trace'
-*      write(*,*)'gk: nbft = ', nbft
-*      write(*,*)'gk: nadct = ',nadct
+      !write(6,*)'gk: entered egrad_trace'
+*     write(*,*)'gk: nbft = ', nbft
+      !write(6,*)'gk: nadct = ',nadct
+      ignore=MA_set_auto_verify(.true.)
+      ignore=MA_set_error_print(.true.)
+      ignore=MA_set_hard_fail(.true.)
 cgk end
 c     
 c     Get info about the basis sets
@@ -177,25 +182,37 @@ c     effective non spin orbit fock matrix
       g_eff = ga_create_atom_blocked(geom, ibas,
      &  'effective fock matrix')
 C LB
-c     antisymmetric transition density
-      g_ad1 = ga_create_atom_blocked(geom, ibas, 
-     &  'antisymmteric density matrix')
-c     half-derivative overlap, single derivative scratch
-      g_hd = ga_create_atom_blocked(geom, ibas,
-     &  'half-derivative overlap matrix')
-c     half-derivative overlap, all derivatives (3*# atoms)
-      dims(1) = 3*nat
-      dims(2) = nbft
-      dims(3) = nbft
-      chunk(1)= dims(1)
-      chunk(2)= -1
-      chunk(3)= -1
-      IF(.NOT. nga_create(MT_DBL,3,dims,
-     &  'half-derivative overlap GA',chunk,hdol))     
-     $  call errquit('egrad_trace: failed to create hdol GA',
-     &       3*nat*nbft*nbft,GA_ERR)
-      CALL ga_zero(hdol)
-      CALL ga_print(hdol)
+      IF (asym) THEN
+c       memory for 1e antisymmetric transition density
+        if (.not. MA_push_get(MT_DBL, n1max,'egrad_trace:ad1',
+     &     l_ad1, k_ad1))
+     $     call errquit('egrad_trace: ma failed getting ad1', n1max, 
+     &        MA_ERR)
+c       memory for 1e half-derivative overlap matrix
+        if (.not. MA_push_get(MT_DBL, n1max,'egrad_trace:hd',
+     &     l_hd, k_hd))
+     $     call errquit('egrad_trace: ma failed getting hd', n1max, 
+     &        MA_ERR)
+c       global array antisymmetric transition density
+        g_ad1 = ga_create_atom_blocked(geom, ibas, 
+     &    'antisymmteric density matrix')
+c       half-derivative overlap, single derivative scratch
+        g_hd = ga_create_atom_blocked(geom, ibas,
+     &    'half-derivative overlap matrix')
+c       half-derivative overlap, all derivatives (3*# atoms)
+        dims(1) = 3*nat
+        dims(2) = nbft
+        dims(3) = nbft
+        chunk(1)= dims(1)
+        chunk(2)= -1
+        chunk(3)= -1
+        IF(.NOT. nga_create(MT_DBL,3,dims,
+     &    'half-derivative overlap GA',chunk,hdol))     
+     $    call errquit('egrad_trace: failed to create hdol GA',
+     &         3*nat*nbft*nbft,GA_ERR)
+        CALL ga_zero(hdol)
+        !CALL ga_print(hdol)
+      ENDIF
         
 C LB
      
@@ -207,9 +224,9 @@ c       read one electron density
         itypea=0
         itypeb=7
 cgk debug
-!      write(*,*)'gk:  getting effective density'
-!      write(*,*)'gk:  calling rd1mat from egrad_trace'
-!      WRITE(*,*)"LB egrad_trace, l1rec=",l1rec,"n1max=",n1max,
+      !write(6,*)'gk:  getting effective density'
+      !write(6,*)'gk:  calling rd1mat from egrad_trace'
+      !WRITE(*,*)"LB egrad_trace, l1rec=",l1rec,"n1max=",n1max,
 !     &   "numd1s=",numd1s,"nsym=",nsym,"nmpsy=",nmpsy,"kntin=",kntin,
 !     &   "nbfs=",nbfs
 cgkd end
@@ -218,18 +235,20 @@ cgkd end
      &    int_mb(k_sym), int_mb(k_map), nsym, nmpsy, kntin, itypea, 
      &    itypeb, nbfs) 
 cgk debug
-!       write(*,*)'gk:  back from rd1mat'
-!       write(*,*)'gk: total effective density matrix:'
-!       ij=0
-!       do i=1,nbft
-!         do j=1,i
-!           write(*,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
-!           ij=ij+1
-!         enddo
-!       enddo
+       !write(6,*)'gk:  back from rd1mat'
+       !write(6,*)'gk: total effective density matrix:'
+       !ij=0
+       !do i=1,nbft
+       !  do j=1,i
+       !    write(*,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
+       !    ij=ij+1
+       !  enddo
+       !enddo
 cgk end
 c       put effective density in global arrays
         call sif2ga(g_d1,dbl_mb(k_sm),ibas,nbft)
+        write(6,*)'gk: effective 1-e density global array'
+        call ga_print(g_d1)
  
 c       get sifs effective fock matrix
         itypea=0
@@ -240,25 +259,29 @@ c       get sifs effective fock matrix
      &    itypeb, nbfs) 
 
 cgk debug
-!       write(*,*)'gk:  back from rd1mat'
-!       write(*,*)'gk: total effective fock matrix:'
-!       ij=0
-!       do i=1,nbft
-!         do j=1,i
-!           write(*,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
-!           ij=ij+1
-!         enddo
-!       enddo
+        !write(6,*)'gk:  back from rd1mat'
+        ! write(6,*)'gk: total effective fock matrix:'
+        ! ij=0
+        ! do i=1,nbft
+        !   do j=1,i
+        !     write(6,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
+        !     ij=ij+1
+        !   enddo
+        ! enddo
+        ! call util_flush(6)
 cgk end
 
 c       put effective density in global arrays
         call sif2ga(g_eff,dbl_mb(k_sm),ibas,nbft)
+        write(6,*)'gk: effective fock matrix global array'
+        call util_flush(6)
+        call ga_print(g_eff)
+        call util_flush(6)
 
-C LB
-
-c       get antisymmetric density  matrix
-!       USING MEMORY ALLOCATIONS FROM AODENS -- will this always work?
-        IF(trans) THEN
+        IF(asym)THEN
+c         get antisymmetric density  matrix
+          !WRITE(*,*)"LB, before rd1mat for asym dens, nadct", nadct
+!         USING MEMORY ALLOCATIONS FROM AODENS -- will this always work?
           itypea=2
           itypeb=9
           call rd1mat(aodensa,infoa(2),infoa(3), info, dbl_mb(k_sifbuf),
@@ -266,19 +289,16 @@ c       get antisymmetric density  matrix
      &      int_mb(k_sym), int_mb(k_map), nsym, nmpsy, kntin, itypea, 
      &      itypeb, nbfs) 
 
-!        WRITE(*,*)"LB egrad_trace, back from rd1mat for asym dens"
+          !WRITE(6,*)"LB egrad_trace, back from rd1mat for asym dens"
 
 c         put  antisymmetric density in global arrays
           call asif2ga(g_ad1,dbl_mb(k_sm),ibas,nbft)
-
-*          write(*,*)'gk: antisymmteric density matrix global array'
+          write(6,*)'gk: effective asym densitiy matrix global array'
+          call util_flush(6)
           call ga_print(g_ad1)
+          call util_flush(6)
         ENDIF
 
-*        write(*,*)'gk: effective densitiy matrix global array'
-        call ga_print(g_d1)
-*        write(*,*)'gk: effective fock matrix global array'
-        call ga_print(g_eff)
 C LB
       end if
       call ga_sync()
@@ -319,7 +339,7 @@ cgk debug
 cgk end
 
 c     buffers for one electron integral derivatives
-      if (.not. ma_push_get(mt_dbl,lbuf1,'deriv buffer',l_buf,k_buf))
+      if (.not. ma_push_get(mt_dbl,lbuf1,'deriv buffer',l_buf1,k_buf1))
      $     call errquit('egrad_trace:could not allocate buffer',lbuf1,
      &       MA_ERR)
 *      call ma_summarize_allocated_blocks()
@@ -347,7 +367,7 @@ c     local density matrix block
 
       oskel=.false.
 c     g_force does not appear to be used
-      call grad1(dbl_mb(k_buf), lbuf1, dbl_mb(k_scr), lscratch,
+      call grad1(dbl_mb(k_buf1), lbuf1, dbl_mb(k_scr), lscratch,
      $     dbl_mb(k_d1), dbl_mb(k_eff), frc_nuc,
      $     frc_kin, frc_eff, g_force,
      $     g_d1, g_eff, ibas, geom, nproc, nat, max_at_bf,
@@ -368,13 +388,15 @@ c     g_force does not appear to be used
 *     goto 1000
 
 C LB  calculate half-derivative overlap matrices
-      IF (trans) THEN
-!        ENDIF
+      !WRITE(*,*)"LB, before hdoverlap, asym=",asym
+      IF (asym) THEN
        if (.not. bas_numbf(AO_bas_han, nbf_ao)) then
            call errquit('Exiting from nadct_trace',1, BASIS_ERR)
         endif 
-        CALL hdoverlap(dbl_mb(k_buf), lbuf1, lscratch, AO_bas_han, geom,
+        !WRITE(*,*)"LB now calling hdoverlap"
+        CALL hdoverlap(dbl_mb(k_hd), lbuf1, lscratch, AO_bas_han, geom,
      &                  nproc, nat, max1e, mem1, hdol, nbft)
+        !WRITE(*,*)"LB back from hdoverlap"
 
         nadxfl=0D0
         iend(1) =nbft
@@ -398,11 +420,12 @@ C LB  calculate half-derivative overlap matrices
         ENDDO
         !CALL ga_print(hdol)
         WRITE(LUOUT,*)"nadxfl :"
-        CALL output(nadxfl,1,nat,1,3,nat,3,1)
+!        CALL output(nadxfl,1,nat,1,3,nat,3,1)
+        WRITE(LUOUT,1010)(nadxfl(i,:), i=1,nat)
         OPEN(nadx,file='nadxfl',form='formatted')
         WRITE(nadx,1010) (nadxfl(i,:), i=1,nat)
         
-1010    FORMAT (3d15.6)
+1010    FORMAT (3e15.6)
 
       ENDIF
 C LB
@@ -435,78 +458,100 @@ c     spin orbit contributions
      &      ('egrad_trace;could not allocate l_sodz',lsqatom, MA_ERR)
       if(me.eq.0) then
  
+!############# SO Density X ############
+
         itypea=2
         itypeb=11
 cgk debug
-*     write(*,*)'gk:  x spin orbit density'
+      write(6,*)'gk:  x spin orbit density'
 cgkd end
         call rd1mat(aodens, l1rec, n1max, info, dbl_mb(k_sifbuf), 
      &    int_mb(k_slab), dbl_mb(k_sifval), dbl_mb(k_sm), numd1s,
      &    int_mb(k_sym), int_mb(k_map), nsym, nmpsy, kntin, itypea, 
      &    itypeb, nbfs) 
 cgk debug
-*       write(*,*)'gk: x spin orbit density matrix matrix:'
-*       ij=0
-*       do i=1,nbft
-*         do j=1,i
-*           write(*,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
-*           ij=ij+1
-*         enddo
-*       enddo
+       !write(6,*)'gk: x spin orbit density matrix matrix:'
+       !ij=0
+       !do i=1,nbft
+       !  do j=1,i
+       !    write(6,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
+       !    ij=ij+1
+       !  enddo
+       !enddo
+       ! call util_flush(6)
 cgk end
 c       put x so effective density in global arrays
         call asif2ga(g_sod(1),dbl_mb(k_sm),ibas,nbft)
+        !CALL ga_zero(g_sod(1)) !LB DEBUG
         write(*,*)'x so effective density global array'
+        call util_flush(6)
         call ga_print(g_sod(1))
+        call util_flush(6)
+
+!############# SO Density Y ############
 
         itypea=2
         itypeb=12
 cgk debug
-*     write(*,*)'gk:  y spin orbit density'
+      write(6,*)'gk:  y spin orbit density'
 cgkd end
         call rd1mat(aodens, l1rec, n1max, info, dbl_mb(k_sifbuf), 
      &    int_mb(k_slab), dbl_mb(k_sifval), dbl_mb(k_sm), numd1s,
      &    int_mb(k_sym), int_mb(k_map), nsym, nmpsy, kntin, itypea, 
      &    itypeb, nbfs) 
 cgk debug
-*       write(*,*)'y spin orbit density matrix matrix:'
-*       ij=0
-*       do i=1,nbft
-*         do j=1,i
-*           write(*,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
-*           ij=ij+1
-*         enddo
-*       enddo
+       !write(6,*)'y spin orbit density matrix matrix:'
+       !ij=0
+       !do i=1,nbft
+       !  do j=1,i
+       !    write(6,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
+       !    ij=ij+1
+       !  enddo
+       !enddo
+       ! call util_flush(6)
 cgk end
 c       put y so effective density in global arrays
         call asif2ga(g_sod(2),dbl_mb(k_sm),ibas,nbft)
-        write(*,*)'y so effective density global array'
+        !CALL ga_zero(g_sod(2)) !LB DEBUG
+        write(6,*)'y so effective density global array'
+        call util_flush(6)
         call ga_print(g_sod(2))
+        call util_flush(6)
+
+!############# SO Density Z ############
 
         itypea=2
         itypeb=13
 cgk debug
-*     write(*,*)'gk:  z spin orbit density'
+      write(6,*)'gk:  z spin orbit density'
 cgkd end
         call rd1mat(aodens, l1rec, n1max, info, dbl_mb(k_sifbuf), 
      &    int_mb(k_slab), dbl_mb(k_sifval), dbl_mb(k_sm), numd1s,
      &    int_mb(k_sym), int_mb(k_map), nsym, nmpsy, kntin, itypea, 
      &    itypeb, nbfs) 
 cgk debug
-*       write(*,*)'gk: z spin orbit dinsity matrix matrix:'
-*       ij=0
-*       do i=1,nbft
-*         do j=1,i
-*           write(*,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
-*           ij=ij+1
-*         enddo
-*       enddo
+       !write(6,*)'gk: z spin orbit dinsity matrix matrix:'
+       !ij=0
+       !do i=1,nbft
+       !  do j=1,i
+       !    write(6,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
+       !    ij=ij+1
+       !  enddo
+       !enddo
+       ! call util_flush(6)
 cgk end
 c       put z so effective density in global arrays
         call asif2ga(g_sod(3),dbl_mb(k_sm),ibas,nbft)
-        write(*,*)'z so effective density global array'
+        !CALL ga_zero(g_sod(3)) !LB DEBUG
+        write(6,*)'z so effective density global array'
+        call util_flush(6)
         call ga_print(g_sod(3))
+        call util_flush(6)
  
+
+
+!############# SO Fock Matrix ############
+
 c       get spin orbit effective fock matrix
         itypea=1
         itypeb=35
@@ -516,37 +561,42 @@ c       get spin orbit effective fock matrix
      &    itypeb, nbfs) 
 
 cgk debug
-*       write(*,*)'gk: total spin orbit effective fock matrix:'
-*       ij=0
-*       do i=1,nbft
-*         do j=1,i
-*           write(*,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
-*           ij=ij+1
-*         enddo
-*       enddo
+       !write(6,*)'gk: total spin orbit effective fock matrix:'
+       !ij=0
+       !do i=1,nbft
+       !  do j=1,i
+       !    write(6,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
+       !    ij=ij+1
+       !  enddo
+       !enddo
+       !call util_flush(6)
 cgk end
 
 c       put effective density in global arrays
         call sif2ga(g_eff,dbl_mb(k_sm),ibas,nbft)
 
 cgk debug
-*        write(*,*)'spin orbit effective fock matrix global array'
-*        call ga_print(g_eff)
+        write(6,*)'spin orbit effective fock matrix global array'
+        call util_flush(6)
+        !call ga_zero(g_eff) ! LB DEBUG
+        call ga_print(g_eff)
+        call util_flush(6)
 cgk end
       end if
 
 cgk debug
-*      write(*,*)'gk:calling sopgrdtrc'
+      !write(6,*)'gk:calling sopgrdtrc'
 cgk end
-      call sopgrdtrc(dbl_mb(k_buf),lbuf1,dbl_mb(k_scr),lscratch,
+      call sopgrdtrc(dbl_mb(k_buf1),lbuf1,dbl_mb(k_scr),lscratch,
      & dbl_mb(k_eff),frc_sow,g_sod,g_eff,ibas,geom,nproc,nat,max_at_bf,
      & oskel,frc_sox,frc_soy,frc_soz, dbl_mb(k_sodx),dbl_mb(k_sody),
      & dbl_mb(k_sodz))
 cgk debug
-*      write(*,*)'gk:  back from sopgrdtrc'
+      !write(6,*)'gk:  back from sopgrdtrc'
 cgk end
 
       if(me.eq.0) then
+        WRITE(6,*)"          ***** Spin-Orbit Partial Gradients *****"
         write(6,2201) 'SOx gradient',' ',' ',
      $    ((frc_sox(i,j),i=1,3),j=1,nat)
         write(6,2201) 'SOy gradient',' ',' ',
@@ -559,6 +609,7 @@ cgk end
 
  2201   format(A,A,A/,1000(3(1x,E18.6),/))
 
+      ! Sum together Tr(q.Z) and -Tr(dS.F_so).
       do j=1, nat
        do i=1,3
         frc_sow(i,j)=-frc_sow(i,j)+frc_sox(i,j)+frc_soy(i,j)+
@@ -581,7 +632,7 @@ c     chop stack at first item allocated
       if (.not. MA_pop_stack(l_sodx)) call errquit
      $     ('egrad_trace: pop failed at l_sodx', 0, GA_ERR)
 
-c     jump to here of no spin orbit
+c     jump to here if no spin orbit
 
  1000 continue
 
@@ -595,9 +646,11 @@ c     jump to here of no spin orbit
       if(me.eq.0) then
         call sifo2f(aodens, aodens, 'aodens', info, aodens2, ierr)
       endif
+      !WRITE(6,*)"LB back from sifo2f aodens"
 
       l2rec = info(4)
       n2max = info(5)
+      !WRITE(6,*)"LB, n2max =",n2max
 
 c     memory for basis function to shell mapping array
       if (.not. ma_push_get(mt_dbl,nbft,'bf2shell_map',l_b2s,
@@ -611,8 +664,8 @@ c     memory for basis function to shell mapping array
      &      ('egrad_trace;could not allocate l_smax',nshell, MA_ERR)
 
       call int_mem_2e4c(max2e4c, mscr2e4c) ! blocking algorithm
-*      write(*,*)'gk:  max2e4c = ', max2e4c
-*      write(*,*)'gk:  mscr2e4c = ', mscr2e4c
+      !write(6,*)'gk:  max2e4c = ', max2e4c
+      !write(6,*)'gk:  mscr2e4c = ', mscr2e4c
       lbuf2=3*4*max2e4c
       lscr2=mscr2e4c
 
@@ -631,6 +684,7 @@ c     two electron trace
       call schwarz_tidy()
       call intd_terminate()
 
+      !WRITE(6,*)"LB, nadct=",nadct
       if(nadct) then
         do j=1, nat
          do i=1,3
@@ -648,10 +702,18 @@ c     two electron trace
       endif
 
       if(me.eq.0) then
-        write(6,2200) '2 electron energy gradient',' ',' ',
+        WRITE(6,*)"         ***** Partial Gradients *****"
+        write(6,2201) 'kinetic energy gradient',' ',' ',
+     $    ((frc_kin(i,j),i=1,3),j=1,nat)
+        write(6,2201) 'Fock gradient',' ',' ',
+     $    ((frc_eff(i,j),i=1,3),j=1,nat)
+        write(6,2201) 'Nuclear gradient',' ',' ',
+     $    ((frc_nuc(i,j),i=1,3),j=1,nat)
+        write(6,2201) 'SO gradient',' ',' ',
+     $    ((frc_sow(i,j),i=1,3),j=1,nat)
+        write(6,2201) '2 electron energy gradient',' ',' ',
      $    ((frc_2el(i,j),i=1,3),j=1,nat)
-        write(6,2200) 'total gradient',' ',' ',
-     $    ((frc_tot(i,j),i=1,3),j=1,nat)
+        WRITE(6,*)"          ***** Total Gradients *****"
         write(6,2201) 'sci total gradient',' ',' ',
      $    ((frc_tot(i,j),i=1,3),j=1,nat)
       endif
@@ -672,8 +734,14 @@ c     two electron trace
      $     ('egrad_trace: pop failed at l_d1', 0, GA_ERR)
       if (.not. MA_pop_stack(l_scr)) call errquit
      $     ('egrad_trace: pop failed at l_scr', 0, GA_ERR)
-      if (.not. MA_pop_stack(l_buf)) call errquit
-     $     ('egrad_trace: pop failed at l_buf', 0, GA_ERR)
+      if (.not. MA_pop_stack(l_buf1)) call errquit
+     $     ('egrad_trace: pop failed at l_buf1', 0, GA_ERR)
+      IF (asym) THEN
+        if (.not. MA_pop_stack(l_hd)) call errquit
+     $       ('egrad_trace: pop failed at l_hd', 0, GA_ERR)
+        if (.not. MA_pop_stack(l_ad1)) call errquit
+     $       ('egrad_trace: pop failed at l_ad1', 0, GA_ERR)
+      ENDIF
       if (.not. MA_pop_stack(l_map)) call errquit
      $     ('egrad_trace: pop failed at l_map', 0, GA_ERR)
       if (.not. MA_pop_stack(l_sym)) call errquit
@@ -705,6 +773,6 @@ c
       call ga_sync()            ! So that no nasty races can result
 c     
 cgk debug
-*     write(*,*)'gk: leaving egrad_trace at end of routine'
+      !write(6,*)'gk: leaving egrad_trace at end of routine'
 cgk end
       end

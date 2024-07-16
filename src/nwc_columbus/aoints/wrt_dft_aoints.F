@@ -487,8 +487,8 @@ cgk debug
 cgk end
 
 cgk debug
-*     write(*,*)'gk: calling int_1e_sifs'
-*     write(*,*)'gk:    mxengy=', mxengy
+!      write(*,*)'gk: calling int_1e_sifs'
+!      write(*,*)'gk:    mxengy=', mxengy
 !      write(*,*)'LB before int_1e_sifs, info=', info(1:5)
 !      WRITE(*,*)"k_map=",k_map,"szintarr=",szintarr,"nmap=",nmap
 cgk write
@@ -500,8 +500,8 @@ cgk write
      &   ninfo, info)
 
 cgk debug
-*     write(*,*)'gk: back from int_1e_sifs'
-*     write(*,*)'gk:  nbf_ao=',nbf_ao
+!      write(*,*)'gk: back from int_1e_sifs'
+!      write(*,*)'gk:  nbf_ao=',nbf_ao
 cgk write
 
 cgk debug
