@@ -10,8 +10,7 @@ else
 
 OBJ_OPTIMIZE = colib1.o colib2.o colib3.o colib4.o \
 	       colib5.o colib6.o colib7.o colib8.o \
-	       colib8a.o colib9.o blaswrapper.o izero.o \
-	       cdcopy.o 
+	       colib8a.o colib9.o blaswrapper.o izero.o 
 
 endif
       LIBRARY = libnwc_columbus.a
@@ -28,7 +27,7 @@ include ../../config/makelib.h
 izero.F:
 	./build_colib.sh
 
-blaswrapper.f cdcopy.f\
+blaswrapper.f \
 colib1.f colib2.f colib3.f colib4.f \
 colib5.f colib6.f colib7.f colib8.f \
 colib8a.f colib9.f izero.F:
