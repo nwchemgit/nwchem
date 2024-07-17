@@ -12,6 +12,7 @@ OBJ_OPTIMIZE = colib1.o colib2.o colib3.o colib4.o \
 	       colib5.o colib6.o colib7.o colib8.o \
 	       colib8a.o colib9.o blaswrapper.o izero.o 
 
+USES_BLAS = blaswrapper.f
 endif
       LIBRARY = libnwc_columbus.a
 
