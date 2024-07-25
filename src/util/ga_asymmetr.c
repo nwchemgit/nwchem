@@ -47,7 +47,6 @@ ga_antisymmetrize_(Integer *g_a) {
   
   DoublePrecision alpha = 0.5;
   int i, me = GA_Nodeid();
-  extern void FATR ga_free(void *ptr);
   void FATR gai_subtr(int *lo, int *hi, void *a, void *b, DoublePrecision alpha,
                       int type, Integer nelem, int ndim);
 
@@ -97,7 +96,7 @@ ga_antisymmetrize_(Integer *g_a) {
   if(have_data) {
     gai_subtr(alo, ahi, a_ptr, b_ptr, alpha, type, nelem, ndim);
     NGA_Release_update((int)(*g_a), alo, ahi);
-    ga_free(b_ptr);
+    free(b_ptr);
   }
   GA_Sync();
 }
