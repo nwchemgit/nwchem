@@ -12,14 +12,11 @@
 # (9)                 1/2 * delV * delQdyn term =        -0.0000281700 (   -0.0008 eV)
 # (10) VEM vertical excitation energy (6) - (1) =         0.0721102600 (    1.9622 eV)
 #
-echo 'p2ta_VEMExc_StressTest: Porphyrin in DMSO'
+echo 
+title "p2ta_VEMExc_StressTest: Porphyrin in DMSO"
 
 start p2ta-vem
 
-scratch_dir /scratch
-permanent_dir ./perm
-
-memory stack 1200 mb heap 100 mb global 1500 mb noverify
 
 geometry units angstrom
 symmetry d2h
