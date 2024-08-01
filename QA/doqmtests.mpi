@@ -704,6 +704,16 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np mep-test
 let "myexit+=$?"
+./runtests.mpi.unix procs $np ActnAcntrl_VEMExc_TDB3LYP
+let "myexit+=$?"
+./runtests.mpi.unix procs $np H2COMetnl_VEMExcSSP_TDB3LYP-2
+let "myexit+=$?"
+./runtests.mpi.unix procs $np H2COMetnl_VEMExcSSP_TDB3LYP
+let "myexit+=$?"
+./runtests.mpi.unix procs $np H2COWat_VEMExc_CISHF
+let "myexit+=$?"
+./runtests.mpi.unix procs $np p2ta-vem
+let "myexit+=$?"
 if [[ "$what" != "flaky" ]]; then
     echo
     echo  "the number of failed tests is" $myexit
