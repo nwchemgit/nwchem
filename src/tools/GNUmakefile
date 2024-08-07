@@ -629,7 +629,7 @@ ifdef USE_GAGITHUB
       GA_BRANCH = develop
     else
       GA_DIR0=ga-$(GA_BRANCH)
-      GA_DIR := (shell echo $(GA_DIR0) | sed -e 's/\//_/g')
+      GA_DIR := $(shell echo $(GA_DIR0) | sed -e 's/\//_/g')
     endif
   endif
 else
