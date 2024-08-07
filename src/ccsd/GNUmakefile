@@ -128,12 +128,11 @@ ifdef USE_IMAX_OPENMP_TRPDRV
 
   OBJ_OPTIMIZE += ccsd_trpdrv_omp_reduce_f.o
 
-  FOPTIONS += -O3 -fiopenmp  -fopenmp-targets=spir64="-mllvm -vpo-paropt-opt-data-sharing-for-reduction=false -mllvm -vpo-paropt-atomic-free-reduction-par-global=false" -switch offload_modvars -mllvm -vpo-paropt-atomic-free-reduction-slm=true -qmkl -DMKL_ILP64 -I"${MKLROOT}/include" -I ${NWCHEM_TOP}/src/ccsd/module -mllvm -vpo-paropt-dispatch-codegen-version=1 -switch -use-host-usm-for-implicit-reduction-map
+  FOPTIONS += -O3 -fiopenmp  -fopenmp-targets=spir64="-mllvm -vpo-paropt-atomic-free-reduction-par-global=false" -switch offload_modvars -mllvm -vpo-paropt-atomic-free-reduction-slm=true -qmkl
 
-  COPTIONS:=$(filter-out -fopenmp,$(COPTIONS))
-  COPTIONS:=$(filter-out -O1,$(COPTIONS))
+  DEFINES += -DMKL_ILP64 
 
-  COPTIONS += -O3 -fiopenmp  -fopenmp-targets=spir64="-mllvm -vpo-paropt-opt-data-sharing-for-reduction=false -mllvm -vpo-paropt-atomic-free-reduction-par-global=false" -mllvm -vpo-paropt-atomic-free-reduction-slm=true -qmkl -DMKL_ILP64 -I"${MKLROOT}/include" -mllvm -vpo-paropt-dispatch-codegen-version=1
+  INCLUDES += -I"${MKLROOT}/include" -I ${NWCHEM_TOP}/src/ccsd/module
 
 endif
 
@@ -148,6 +147,9 @@ ifdef USE_OPENACC_TRPDRV
   endif
 endif
 
+ifdef USE_BATCHDGEMM_TRPDRV
+  DEFINES += -DUSE_BATCHDGEMM_TRPDRV
+endif
 
 ifeq ($(ARMCI_NETWORK),MPI-PR)
    LIB_DEFINES += -DACC_STRIPS
