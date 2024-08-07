@@ -242,8 +242,8 @@ if [[ "$os" == "Linux" ]]; then
 	fi
 	if [[ "$FC" == "flang" ]]; then
 	    if [[ "USE_AOMP" == "Y" ]]; then
-		aomp_major=18
-		aomp_minor=0-0
+		aomp_major=19
+		aomp_minor=0-3
 		wget -nv https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 		$MYSUDO dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 		export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
