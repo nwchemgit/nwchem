@@ -646,14 +646,8 @@ let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch4-dft-scf-prop
 let "myexit+=$?"
 # superheavy elements check
-source ./qa_funcs.sh
-strings -a $(get_nwchem_executable) |grep Tennessine >& /dev/null
-exit_code=$?
-if [[ $exit_code == 0 ]]; then
-    echo NWChem code ready for superheavy elements
-    ./runtests.mpi.unix procs $np dft_tennessine
-    let "myexit+=$?"
-fi
+./runtests.mpi.unix procs $np dft_tennessine
+let "myexit+=$?"
 #
 ./runtests.mpi.unix procs $np ccsdt_ompt_w3pvdz
 let "myexit+=$?"
