@@ -397,6 +397,12 @@ jobs:
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
+            fc: flang-new-20
+          - os: ubuntu-22.04
+            experimental: true
+            mpi_impl: mpich
+            armci_network: MPI-TS
+            nwchem_modules: "tinyqmpw"
             fc: flang-new-19
           - os: ubuntu-latest
             experimental: true
