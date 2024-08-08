@@ -29,7 +29,11 @@ if [ -z "$DISTR" ] ; then
     DISTR=$dist
 fi
 echo DISTR is "$DISTR"
-	IONEAPI_ROOT=~/apps/oneapi
+if [[ "$os" == "Darwin" ]]; then
+    IONEAPI_ROOT=~/apps/oneapi
+else
+    IONEAPI_ROOT=/opt/intel/oneapi
+fi
 	if [[ "$os" == "Darwin" ]]; then
 	    if [ -z $XCODE_VERSION ]; then
 		echo XCODE_VERSION  is not set
@@ -151,16 +155,9 @@ if [[ "$os" == "Linux" ]]; then
 	if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" || "$FC" == "ifx" ]]; then
 	    export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 	    export TERM=dumb
-            rm -f l_Base*sh l_HP*sh
-	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
-			  dir_base="e6ff8e9c-ee28-47fb-abd7-5c524c983e1c"
-			  dir_hpc="d4e49548-1492-45c9-b678-8268cb0f1b05"
-			  base="l_BaseKit_p_2024.2.1.100"
-			  hpc="l_HPCKit_p_2024.2.0.635"
-			  wget -nv https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_hpc"/"$hpc".sh \
-			      && wget -nv  https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_base"/"$base".sh \
-			      && break ;\
-			      tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
+	    wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | $MYSUDO tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+	    echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | $MYSUDO tee /etc/apt/sources.list.d/oneAPI.list
+	    $MYSUDO apt-get update
 
 	    if [[ "$MPI_IMPL" == "intel" ]]; then
 		mpi_bin="  " ; mpi_libdev=" " scalapack_libdev=" "
@@ -189,49 +186,17 @@ if [[ "$os" == "Linux" ]]; then
 
 	fi
 	if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
-#            sh ./"$base".sh -a -c -s --action remove --install-dir $IONEAPI_ROOT   --eula accept
-#            sh ./"$hpc".sh -a -c -s --action remove --install-dir  $IONEAPI_ROOT  --eula accept
-	    
-            sh ./"$base".sh -a -c -s --action install --components intel.oneapi.lin.mkl.devel --install-dir $IONEAPI_ROOT  --eula accept
+	    $MYSUDO apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-mkl intel-oneapi-compiler-dpcpp-cpp
 	    if [[ "$?" != 0 ]]; then
 		df -h
-		echo "base kit install failed: exit code " "${?}"
+		echo "intel-oneapi-compiler-fortran install failed: exit code " "${?}"
 		exit 1
 	    fi
-	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/ia32
-	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*sycl*
-	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*_pgi_*
-	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*_gf_*
-	    intel_components="intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.dpcpp-cpp-compiler"
-	    if [[ "$MPI_IMPL" == "intel" ]]; then
-		intel_components+=":intel.oneapi.lin.mpi.devel"
-	    fi
-            sh ./"$hpc".sh -a -c -s --action install \
-               --components  "$intel_components"  \
-               --install-dir $IONEAPI_ROOT     --eula accept
-	    if [[ "$?" != 0 ]]; then
-		df -h
-		echo "hpc kit install failed: exit code " "${?}"
-		exit 1
-	    fi
-	    rm  -rf $IONEAPI_ROOT/compiler/latest/linux/lib/oclfpga
-	    rm -f ./"$hpc".sh ./"$base".sh
-#Critical updates for 2023.2
-	    wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/0d65c8d4-f245-4756-80c4-6712b43cf835/l_fortran-compiler_p_2023.2.1.8.sh
-	    sh l_fortran-compiler_p_2023.2.1.8.sh -a -c -s --action install --install-dir $IONEAPI_ROOT  --components intel.oneapi.lin.ifort-compiler  --eula accept
-	    wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/ebf5d9aa-17a7-46a4-b5df-ace004227c0e/l_dpcpp-cpp-compiler_p_2023.2.1.8.sh
-	    sh l_dpcpp-cpp-compiler_p_2023.2.1.8.sh -a -s  --install-dir $IONEAPI_ROOT  --eula accept
-	    if [[ "$?" != 0 ]]; then
-		echo "apt-get install failed: exit code " "${?}"
-		exit 1
-	    fi
-	    rm -f l_*comp*sh || true
-	    rm  -rf $IONEAPI_ROOT/compiler/latest/linux/lib/oclfpga || true
             source "$IONEAPI_ROOT"/setvars.sh || true
 	    export I_MPI_F90="$FC"
 	    "$FC" -V ; if [[ $? != 0 ]]; then echo "Intel SW install failed"; exit 1; fi
 	    icx -V
-
+	    sudo rm -rf $MKLROOT/lib/*sycl* || true
 	fi
 	if [[ "$FC" == 'flang-new-'* ]]; then
 	    wget https://apt.llvm.org/llvm.sh
