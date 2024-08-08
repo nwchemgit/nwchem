@@ -186,7 +186,7 @@ if [[ "$os" == "Linux" ]]; then
 
 	fi
 	if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
-	    $MYSUDO apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-mkl intel-oneapi-compiler-dpcpp-cpp
+	    $MYSUDO apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-mkl intel-oneapi-compiler-dpcpp-cpp  libfabric-bin libnuma1
 	    if [[ "$?" != 0 ]]; then
 		df -h
 		echo "intel-oneapi-compiler-fortran install failed: exit code " "${?}"
