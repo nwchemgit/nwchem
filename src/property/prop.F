@@ -33,7 +33,7 @@ c
 c     start ecce property output module
 c
       call util_print_push
-      call util_print_rtdb_load(rtdb,'prop')
+      call util_print_rtdb_load(rtdb,'property')
       call ecce_print_module_entry('task property')
 c
 c     Find out if this is a restart
