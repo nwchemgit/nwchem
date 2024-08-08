@@ -62,6 +62,11 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 	IONEAPI_ROOT=~/apps/oneapi
     else
 	IONEAPI_ROOT=/opt/intel/oneapi
+# fix runtime mpi_init error
+#	export FI_LOG_LEVEL=TRACE
+	export FI_PROVIDER=shm
+	echo "*** output of fi_info ***"
+	echo $(fi_info -l) || true
     fi
 #    source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
     source "$IONEAPI_ROOT"/setvars.sh --force
