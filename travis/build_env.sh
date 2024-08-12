@@ -113,7 +113,8 @@ fi
 	 brew update || true
 	 brew list open-mpi >&  /dev/null ; myexit=$?
 	 if [[ $myexit == 0 ]]; then brew unlink open-mpi || true ; fi
-	 brew reinstall mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
+	 brew reinstall --quiet mpich  && brew unlink mpich && brew link mpich || true
+##	 brew reinstall --quiet mpich || true
      fi
      if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
 	 brew install openblas
@@ -123,7 +124,7 @@ fi
 	 PKG_CONFIG_PATH=$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig pkg-config --libs openblas
      fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
-#      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
+#      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install --quiet scalapack
 #  fi
 fi
 if [[ "$os" == "Linux" ]]; then
