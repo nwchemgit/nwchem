@@ -7340,7 +7340,6 @@ c
       endif
       if(abs(c).le.toll.and.
      .     abs(s).le.toll)then
-         write(6,*) ' zeroes'
          geom_powcmpl=cmplx(0d0,0d0)
       else
          if(n.ne.1) then
