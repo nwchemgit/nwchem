@@ -86,11 +86,6 @@ c     local variables:
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 
-
-      character*(256) lmotrans
-      logical file_write_ga
-      external file_write_ga
-
       character*(16) pname
 
 c     =================================================================
@@ -696,15 +691,6 @@ c         swap LMOs in IAO basis, for the analysis below
       end if ! master
 
       call ga_sync
-
-c     write transformation to scratch file
-
-      call util_file_name('lmotrans',.true.,.true.,lmotrans)
-      if(.not.file_write_ga(lmotrans,g_tmp1)) call errquit
-     &  (pname//': could not write lmotrans',0, DISK_ERR)
-
-      if (debug) write (luout,*)
-     &  pname//': lmos reordered and lmotrans written'
 
 c     transform CMOs to re-ordered LMOs
 

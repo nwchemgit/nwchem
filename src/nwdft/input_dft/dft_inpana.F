@@ -840,6 +840,12 @@ c
             call util_print_centered
      &         (LuOut,'Convergence Information',20,.true.)
             write(LuOut,3231)hl_tol, nfock
+            if(lmaxov_imom) then
+               write(luout,'(10x,a,/)')
+     I              ' Initial Maximum Overlap Method'
+            elseif(lmaxov) then
+               write(luout,'(10x,a,/)') ' Maximum Overlap Method'
+            endif
             write(LuOut,3232)ndamp, rlshift
             asap_10c  = '  ASAP    '
             start_10c = '  start   '

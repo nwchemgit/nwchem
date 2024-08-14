@@ -40,6 +40,7 @@ c
       double precision hbar, gfactor, masselec, echarge, bohrrad
       double precision uamu, amu, massprot, pramu, light, autohz
       double precision factor, nfc, nsd, nsdfc, npso, ndso
+      integer max_pairs,max_icom
 c
       parameter(pi=3.14159265358979323846264338327950288419d0)
       parameter(clight=2.99782458d8)                                    ! Speed of light in m/s
@@ -63,6 +64,7 @@ c
       parameter(nsd=(gfactor/2.0d0)**2*factor)                          ! SD-SD term prefactor
       parameter(nsdfc=4.0d0/6.0d0*(gfactor**2)*pi*factor)               ! SD-FC term prefactor
       parameter(npso=factor, ndso=factor)                               ! PSO-PSO and DSO-DSO term prefactor
+      parameter(max_icom=9,max_pairs=max_icom*(max_icom-1)/2) ! safe
 c
       if (ga_nodeid().eq.0) write(luout,9999)
 c
@@ -80,7 +82,26 @@ c
       if (.not.rtdb_get(rtdb, 'spinspin:pairs', MT_INT, 1,ipairs)) then 
          if (.not.geom_ncent(geom, icom_atom)) call                   
      &       errquit('hnd_spinspin: geom_ncent failed ',0, GEOM_ERR)
-         ipairs = icom_atom*(icom_atom-1)
+         ipairs = icom_atom*(icom_atom-1)/2
+      if(ga_nodeid().eq.0) then
+         write(luout,*) ' Spin-spin coupling atoms = ',icom_atom
+         write(luout,*) ' Spin-spin coupling Number of pairs = ',ipairs
+      endif
+      if(ipairs.gt.max_pairs) then
+         if(ga_nodeid().eq.0) then
+            write(luout,*) ' '
+            write(luout,*) ' WARNING:'
+            write(luout,*) ' Spin-spin coupling number of pairs reduced'
+            write(luout,2023) ' from ',ipairs,' to ',max_pairs
+            write(luout,*) ' Spin-spin coupling atoms reduced'
+            write(luout,2023) ' from ',icom_atom,' to ',max_icom
+ 2023       format(a,i8,a,i8)
+            write(luout,*) ' '
+         endif
+         call ga_sync()
+         ipairs=max_pairs
+         icom_atom=max_icom
+      endif
       endif
       if (.not. ma_push_get(mt_int,ipairs*2,'pairs',l_pr,k_pr)) 
      &   call errquit('hnd_spinspin: ma_push_get failed k_tmp',0,MA_ERR)
@@ -98,13 +119,11 @@ c     Stored with all perturbing atoms first and all responding atoms second
 c
       if (icom_atom.gt.0) then
          ixy = 0
-         do i = 1, icom_atom
-            do j = 1, icom_atom
-               if (i.ne.j) then
-                  int_mb(k_pr+ixy)        = i
-                  int_mb(k_pr+ipairs+ixy) = j
-                  ixy = ixy + 1
-               endif
+         do i = 1, icom_atom-1
+            do j = i+1, icom_atom
+               int_mb(k_pr+ixy)        = i
+               int_mb(k_pr+ipairs+ixy) = j
+               ixy = ixy + 1
             enddo
          enddo
       else

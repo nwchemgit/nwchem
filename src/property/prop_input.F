@@ -332,7 +332,7 @@ c ... jochen: localization input
             if (inp_i(itmp)) then ! localization option
               loc_opt = itmp
             end if
-          else ! default is PM
+          else ! default is PM loc. for the occupied set
             loc_pm = 0
             loc_opt = 0
           end if

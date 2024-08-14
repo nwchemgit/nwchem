@@ -1,0 +1,29 @@
+start testjob
+
+title "allylic_radical IBO localization"
+
+geometry units angstrom
+C         -0.25784636     1.21851111     0.00000000
+H         -1.34417006     1.24248062     0.00000000
+H          0.25678777     2.17304362     0.00000000
+C          0.43614025     0.01428420     0.00000000
+H          1.52527261     0.06222464     0.00000000
+C         -0.14953749    -1.24624893     0.00000000
+H         -1.22943924    -1.36577805     0.00000000
+H          0.44767502    -2.15141880     0.00000000
+end
+
+basis "ao basis"
+  * library 6-31G
+end
+
+dft
+  xc b3lyp
+  mult 2
+end
+
+property
+localization pm 2
+end
+
+task dft property

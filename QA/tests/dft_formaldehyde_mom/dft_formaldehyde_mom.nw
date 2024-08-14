@@ -1,0 +1,38 @@
+start
+
+title "formaldehyde n to pi-star excitation"
+#https://dx.doi.org/10.1021/acs.jctc.0c00502
+geometry
+C  0.00000000  0.00000000   -0.6029850807
+O  0.00000000  0.00000000    0.6053939853
+H  0.00000000  0.934673129  -1.182174761
+H  0.00000000 -0.934673129  -1.182174761
+end
+
+basis spherical
+* library aug-cc-pvtz
+end
+
+
+dft
+ xc hfexch
+ vectors input atomic output form_ground.mos
+end
+
+task dft
+
+dft
+ odft
+ vectors input form_ground.mos swap beta 11 8 output form_excited_mom.mos
+ convergence lshift 0. density 1d-8
+ max_ovl
+end
+
+task dft
+
+dft
+ vectors input form_ground.mos swap beta 11 8 output form_excited_imom.mos
+end
+set dft:imom t
+
+task dft 

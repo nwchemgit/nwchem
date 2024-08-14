@@ -4832,6 +4832,9 @@ c
                write(LuOut,*)' total ',funcname(1:inp_strlen(funcname)),
      &              ' is used. '
                goto 1
+            else
+               fact_out=1d0
+               call inp_prev_field()
             endif
          else
             fact_out=1d0

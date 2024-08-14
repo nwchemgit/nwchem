@@ -132,21 +132,26 @@ c
          efgxy = dbl_mb(k_efgs+3+6*(iat-1))/3.0d0
          efgxz = dbl_mb(k_efgs+4+6*(iat-1))/3.0d0
          efgyz = dbl_mb(k_efgs+5+6*(iat-1))/3.0d0
-         do 210 i = 1,nat
+         do i = 1,nat
+            if(i.ne.iat) then
             xn  = dbl_mb(k_xyzpt  +3*(i-1)) - xp
             yn  = dbl_mb(k_xyzpt+1+3*(i-1)) - yp
             zn  = dbl_mb(k_xyzpt+2+3*(i-1)) - zp
             zan = dbl_mb(k_zanpt+i-1)
             rr = sqrt(xn*xn + yn*yn + zn*zn)
-            if (rr.lt.1.0d-3) go to 210
-            rr5=rr*rr*rr*rr*rr
-            efgxx = efgxx - zan*xn*xn/rr5
-            efgyy = efgyy - zan*yn*yn/rr5
-            efgzz = efgzz - zan*zn*zn/rr5
-            efgxy = efgxy - zan*xn*yn/rr5
-            efgxz = efgxz - zan*xn*zn/rr5
-            efgyz = efgyz - zan*yn*zn/rr5
-  210    continue
+            if (rr.lt.1d-3) then
+               write(luout,9993) xp,yp,zp,i,rr
+            else
+               rr5=rr*rr*rr*rr*rr
+               efgxx = efgxx - zan*xn*xn/rr5
+               efgyy = efgyy - zan*yn*yn/rr5
+               efgzz = efgzz - zan*zn*zn/rr5
+               efgxy = efgxy - zan*xn*yn/rr5
+               efgxz = efgxz - zan*xn*zn/rr5
+               efgyz = efgyz - zan*yn*zn/rr5
+            endif
+            endif
+         enddo
 c
 c     ----- form -efc- contribution -----
 c           from cosmo point charges !!!!
@@ -158,7 +163,7 @@ c
               zn = dbl_mb(k_efcc+3*(i-1)+2) - zp
               rr =  sqrt(xn*xn + yn*yn + zn*zn)
               if (rr.lt.1.0d-3) then
-                if (ga_nodeid().eq.0) write(luout,9993) xp,yp,zp,i
+                if (ga_nodeid().eq.0) write(luout,9993) xp,yp,zp,i,rr
               else
                rr5=rr*rr*rr*rr*rr
                efgxx = efgxx - dbl_mb(k_efcz+i-1)*xn*xn/rr5
@@ -180,7 +185,7 @@ c        ----------------------------------
                zn = dbl_mb(i_cbq+3*(i-1)+2) - zp
                rr =  sqrt(xn*xn + yn*yn + zn*zn)
                if (rr.lt.1.0d-3) then
-                  write(luout,9993) xp,yp,zp,i
+                  write(luout,9993) xp,yp,zp,i,rr
                else
                rr5=rr*rr*rr*rr*rr
                efgxx = efgxx - dbl_mb(i_qbq+i-1)*xn*xn/rr5
@@ -303,7 +308,8 @@ c
  9994 format(' 1 a.u. = 0.324123 10**(16) esu/cm**3 ',
      1       ' ( or statvolts/cm**2 )',' = 0.97174 10**(22) v/m**2 ',/)
  9993 format(' --- Warning - electric field gradient at ',
-     1 3f10.5,' . contribution from  -efc-  ',i3,' ignored')
+     1     3f10.5,' . contribution from  -efc-  ',i3,' ignored for rr=',
+     1     1f10.5)
  9992 format(1x,'Principal components (a.u.) and orientation ',
      1       /,' of principal axis w.r.t. absolute frame',
      2       22x,'Asymmetry parameter eta',/,1x,86(1h-))
