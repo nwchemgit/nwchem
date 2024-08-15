@@ -58,18 +58,19 @@ END
 
 scf
 thresh 1.0e-10
-tol2e 1.0e-10
-doublet 
+tol2e 1.0e-13
+doublet
 rohf
 end
 
 tce
 freeze atomic
 creomsd(t)
+eomsol 1
 tilesize 10
-thresh 1.0d-6
+thresh 5.0d-6
 nroots 2
 end
 
-task tce energy
 
+task tce energy
