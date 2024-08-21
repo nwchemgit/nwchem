@@ -24,7 +24,8 @@ cd ../util
 cd ..
 # set USE_64TO32=y on by default since we do make 64_to_32 for this tarball
 patch -p1  < ../contrib/git.nwchem/use6432y.patch
-# do  make 64_to_32 
+# do  make 64_to_32
+export BLAS_SIZE=4
 export USE_TBLITE=1
 export NWCHEM_MODULES=all\ python\ gwmol\ xtb
 make nwchem_config NWCHEM_MODULES=all\ python\ xtb
