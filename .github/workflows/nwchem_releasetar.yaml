@@ -1,9 +1,6 @@
 name: NWChem_Release_Tar
 
 on:
-  push:
-    paths-ignore:
-      - .gitlab-ci.yml
   repository_dispatch:
     types: [backend_automation]
   workflow_dispatch:
@@ -13,7 +10,7 @@ jobs:
     steps:
       - name: install pkg
         run: |
-          sudo apt-get install -y curl make perl bash bzip2 tar gzip          
+          sudo apt-get install -y curl make perl bash bzip2 tar gzip openmpi-bin
       - name: grab script
         run: |
           curl -LJO https://raw.githubusercontent.com/$GITHUB_REPOSITORY_OWNER/nwchem/$GITHUB_REF_NAME/contrib/git.nwchem/dotar_release.sh
