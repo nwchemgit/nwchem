@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 Vx=7
-Vy=2
+Vy=3
 Vz=0
 NWVER="$Vx"."$Vy"."$Vz"-release
 unset NWCHEM_TOP
 export USE_MPI=y
 TOPDIR=nwchem-"$Vx"."$Vy"."$Vz"
-BRANCH=release-"$Vx"-"$Vy"-"$Vz"
+#BRANCH=release-"$Vx"-"$Vy"-"$Vz"
+BRANCH=hotfix/release-7-2-0
 #TOPDIR=nwchem
 #BRANCH=master
 # need to change BRANCH for patch releases
@@ -24,8 +25,9 @@ cd ..
 # set USE_64TO32=y on by default since we do make 64_to_32 for this tarball
 patch -p1  < ../contrib/git.nwchem/use6432y.patch
 # do  make 64_to_32 
-export NWCHEM_MODULES=all\ python\ gwmol
-make nwchem_config NWCHEM_MODULES=all\ python
+export USE_TBLITE=1
+export NWCHEM_MODULES=all\ python\ gwmol\ xtb
+make nwchem_config NWCHEM_MODULES=all\ python\ xtb
 export EACCSD=1
 export IPCCSD=1
 export CCSDTQ=1
