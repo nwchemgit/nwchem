@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 Vx=7
-Vy=3
-Vz=0
+Vy=2
+Vz=3
 NWVER="$Vx"."$Vy"."$Vz"-release
 unset NWCHEM_TOP
 export USE_MPI=y
