@@ -20,6 +20,9 @@ ifndef PYTHONVERSION
 endif
 
 LIB_INCLUDES = $(shell python$(PYTHONVERSION)-config --includes| sed -e "s/\-iwithsysroot/\-I/g")
+ifdef CONDA_BUILD_SYSROOT
+LIB_INCLUDES += -I${PREFIX}/include
+endif
 
 
 
