@@ -3,14 +3,14 @@ name: NWChem_Release_Tar
 on:
   workflow_dispatch:
     inputs:
-    nwchem_version:
-      description: 'Release version'
-      required: true
-      default: 'nightly'
-      type: choice
-      options:
-        - nightly
-        - 7.2.3
+      nwchem_version:
+        description: 'Release version'
+        required: true
+        default: 'nightly'
+        type: choice
+        options:
+          - nightly
+          - 7.2.3
 
 jobs:
   do_tar:
