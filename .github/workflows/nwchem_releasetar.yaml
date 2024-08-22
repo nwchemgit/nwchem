@@ -28,4 +28,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nwchem-tarball
-          path: ${{ env.tmpdir_name }}
+          path: ${{ env.tmpdir_name }}/
