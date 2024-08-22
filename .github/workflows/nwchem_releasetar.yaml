@@ -19,11 +19,12 @@ jobs:
       - name: run script
         run: |
           ./dotar_release.sh
-          ls -Rlrt
       - name: generate tempdir name
         run: |
           echo "tmpdir_name=temp.$(date +%Y%m%d)" >>  $GITHUB_ENV
-          ls -Rlrt ${{ env.tmpdir_name }}/*tar*
+      - name: check tempdir
+        run: |
+          ls -lrt ${{ env.tmpdir_name }}/*tar*
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
