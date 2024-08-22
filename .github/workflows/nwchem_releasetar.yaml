@@ -1,8 +1,6 @@
 name: NWChem_Release_Tar
 
 on:
-  repository_dispatch:
-    types: [backend_automation]
   workflow_dispatch:
     inputs:
     nwchem_version:
