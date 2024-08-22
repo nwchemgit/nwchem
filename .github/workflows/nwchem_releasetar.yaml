@@ -30,3 +30,11 @@ jobs:
         with:
           name: nwchem-tarball
           path: ${{ env.tmpdir_name }}/*tar*
+      - name: Release nightly
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: true
+          name: nightly
+          tag_name: nightly
+          files: ${{ env.tmpdir_name }}/*tar*
+          fail_on_unmatched_files: true
