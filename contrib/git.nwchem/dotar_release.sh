@@ -46,15 +46,21 @@ cd ..
 echo 'revision ' $REVGIT
 pwd
 rm -f *md5 *tar*
+echo 'generating tarballs '
 tar --exclude=".git" -czf nwchem-"${NWVER}".revision-"${REVGIT}"-src.`date +%Y-%m-%d`.tar.gz $TOPDIR/*
+echo 'tarball #1 done'
 md5sum nwchem-"${NWVER}".revision-"${REVGIT}"-src.`date +%Y-%m-%d`.tar.gz > nwchem-"${NWVER}".revision"${REVGIT}"-src.`date +%Y-%m-%d`.tar.gz.md5
 tar --exclude=".git" -cjf nwchem-"${NWVER}".revision-"${REVGIT}"-src.`date +%Y-%m-%d`.tar.bz2 $TOPDIR/*
+echo 'tarball #2 done'
 md5sum nwchem-"${NWVER}".revision-"${REVGIT}"-src.`date +%Y-%m-%d`.tar.bz2 >  nwchem-"${NWVER}".revision"${REVGIT}"-src.`date +%Y-%m-%d`.tar.bz2.md5
 tar --exclude=".git" -cJf nwchem-"${NWVER}".revision-"${REVGIT}"-src.`date +%Y-%m-%d`.tar.xz $TOPDIR/*
+echo 'tarball #3 done'
 md5sum nwchem-"${NWVER}".revision-"${REVGIT}"-src.`date +%Y-%m-%d`.tar.xz >  nwchem-"${NWVER}".revision"${REVGIT}"-src.`date +%Y-%m-%d`.tar.xz.md5
 tar --exclude=".git" -cjf nwchem-"${NWVER}".revision-"${REVGIT}"-srconly.`date +%Y-%m-%d`.tar.bz2 $TOPDIR/src/*
+echo 'tarball #4 done'
 md5sum nwchem-"${NWVER}".revision-"${REVGIT}"-srconly.`date +%Y-%m-%d`.tar.bz2>  nwchem-"${NWVER}".revision"${REVGIT}"-srconly.`date +%Y-%m-%d`.tar.bz2.md5
 tar --exclude=".git" --exclude="src" -cjf nwchem-"${NWVER}".revision-"${REVGIT}"-nonsrconly.`date +%Y-%m-%d`.tar.bz2 $TOPDIR/*
+echo 'tarball #5 done'
 md5sum nwchem-"${NWVER}".revision-"${REVGIT}"-nonsrconly.`date +%Y-%m-%d`.tar.bz2 > nwchem-"${NWVER}".revision"${REVGIT}"-nonsrconly.`date +%Y-%m-%d`.tar.bz2.md5
 ls -lrt
 echo 'upload to http://192.101.105.206/'
