@@ -28,7 +28,7 @@ jobs:
           echo "input_date=$(date +%Y%m%d)" >>  $GITHUB_ENV
       - name: generate tempdir name
         run: |
-          echo "tmpdir_name=temp.${{ env.input_date }})" >>  $GITHUB_ENV
+          echo "tmpdir_name=temp.${{ env.input_date }}" >>  $GITHUB_ENV
       - name: run script
         run: |
           ./dotar_release.sh ${{ github.event.inputs.nwchem_version }} ${{ env.input_date }}
