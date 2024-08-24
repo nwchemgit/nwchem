@@ -1,9 +1,16 @@
 name: NWChem_Release_Tar
 
 on:
-  repository_dispatch:
-    types: [backend_automation]
   workflow_dispatch:
+    inputs:
+      nwchem_version:
+        description: 'Release version'
+        required: true
+        default: 'nightly'
+        type: choice
+        options:
+          - nightly
+          - 7.2.3
 
 jobs:
   do_tar:
@@ -16,12 +23,15 @@ jobs:
         run: |
           curl -LJO https://raw.githubusercontent.com/$GITHUB_REPOSITORY_OWNER/nwchem/$GITHUB_REF_NAME/contrib/git.nwchem/dotar_release.sh
           chmod +x ./dotar_release.sh
-      - name: run script
+      - name: generate date
         run: |
-          ./dotar_release.sh
+          echo "input_date=$(date +%Y%m%d)" >>  $GITHUB_ENV
       - name: generate tempdir name
         run: |
-          echo "tmpdir_name=temp.$(date +%Y%m%d)" >>  $GITHUB_ENV
+          echo "tmpdir_name=temp.${{ env.input_date }}" >>  $GITHUB_ENV
+      - name: run script
+        run: |
+          ./dotar_release.sh ${{ github.event.inputs.nwchem_version }} ${{ env.input_date }}
       - name: check tempdir
         run: |
           ls -lrt ${{ env.tmpdir_name }}/*tar*
@@ -30,11 +40,22 @@ jobs:
         with:
           name: nwchem-tarball
           path: ${{ env.tmpdir_name }}/*tar*
-      - name: Release nightly
+      - if: github.event.inputs.release_version == 'nightly'
+        name: Nightly
         uses: softprops/action-gh-release@v2
         with:
           prerelease: true
           name: nightly
           tag_name: nightly
+          files: ${{ env.tmpdir_name }}/*tar*
+          fail_on_unmatched_files: true
+      - if: github.event.inputs.release_version != 'nightly'
+        name: Release 
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: false
+          draft: true
+          name: ${{ github.event.inputs.nwchem_version }}
+          tag_name: v${{ github.event.inputs.nwchem_version }}-release
           files: ${{ env.tmpdir_name }}/*tar*
           fail_on_unmatched_files: true
