@@ -54,7 +54,7 @@ jobs:
         name: Release 
         uses: softprops/action-gh-release@v2
         with:
-          prerelease: false
+          prerelease: true
           draft: true
           name: ${{ github.event.inputs.nwchem_version }}
           tag_name: v${{ github.event.inputs.nwchem_version }}-release
