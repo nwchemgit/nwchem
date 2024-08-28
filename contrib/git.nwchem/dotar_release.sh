@@ -14,7 +14,8 @@ echo " input_date = $input_date"
 NWVER="$release_version"-release
 unset NWCHEM_TOP
 export USE_MPI=y
-TOPDIR=nwchem-"$release-version"
+TOPDIR=nwchem-"$release_version"
+echo TOPDIR is $TOPDIR
 #BRANCH=release-"$Vx"-"$Vy"-"$Vz"
 BRANCH=hotfix/release-7-2-0
 #TOPDIR=nwchem
