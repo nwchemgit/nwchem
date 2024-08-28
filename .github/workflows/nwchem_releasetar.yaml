@@ -56,7 +56,7 @@ jobs:
         with:
           prerelease: true
           draft: true
-          name: ${{ github.event.inputs.nwchem_version }}
+          name: NWChem ${{ github.event.inputs.nwchem_version }}
           tag_name: v${{ github.event.inputs.nwchem_version }}-release
           files: ${{ env.tmpdir_name }}/*tar*
           fail_on_unmatched_files: true
