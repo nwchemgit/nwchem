@@ -12,6 +12,7 @@
 ![Github Downloads Release 7.2.0](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.2.0-release/total)
 ![Github Downloads Release 7.2.1](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.2.1-release/total)  
 ![Github Downloads Release 7.2.2](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.2.2-release/total)
+![Github Downloads Release 7.2.3](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.2.3-release/total)
 
 
 [![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg)](https://github.com/nwchemgit/nwchem/releases)
@@ -31,19 +32,19 @@ Source download instructions for developers
 ```
 git clone https://github.com/nwchemgit/nwchem.git
 ```
-* 7.2.2 Release
+* 7.2.3 Release
 ```
-git clone  -b hotfix/release-7-2-0 https://github.com/nwchemgit/nwchem.git nwchem-7.2.2
+git clone  -b hotfix/release-7-2-0 https://github.com/nwchemgit/nwchem.git nwchem-7.2.3
 ```
-### Release 7.2.2
+### Release 7.2.3
 
 Release files available at the page  
-https://github.com/nwchemgit/nwchem/releases/tag/v7.2.2-release    
+https://github.com/nwchemgit/nwchem/releases/tag/v7.2.3-release    
 Tar files for download:  
-https://github.com/nwchemgit/nwchem/releases/download/v7.2.2-release/nwchem-7.2.2-release.revision-74936fb9-srconly.2023-11-03.tar.bz2  
-https://github.com/nwchemgit/nwchem/releases/download/v7.2.2-release/nwchem-7.2.2-release.revision-74936fb9-nonsrconly.2023-11-03.tar.bz2  
+https://github.com/nwchemgit/nwchem/releases/download/v7.2.3-release/nwchem-7.2.3-release.revision-d690e065-srconly.2024-08-27.tar.bz2  
+https://github.com/nwchemgit/nwchem/releases/download/v7.2.3-release/nwchem-7.2.3-release.revision-d690e065-nonsrconly.2024-08-27.tar.bz2  
 Release notes available at  
-https://github.com/nwchemgit/nwchem/blob/master/release.notes.7.2.2.md  
+https://github.com/nwchemgit/nwchem/blob/master/release.notes.7.2.3.md  
 
 ### Documentation
 https://nwchemgit.github.io
