@@ -3,7 +3,7 @@ source ../libext_utils/get_tgz.sh
 rm -rf mpich  mpich-?.?.?
 #VERSION=3.4.2
 #VERSION=4.0.2
-VERSION=4.1.2
+VERSION=4.2.2
 #curl -L http://www.mpich.org/static/downloads/${VERSION}/mpich-${VERSION}.tar.gz -o mpich.tgz
 #curl -L https://github.com/pmodels/mpich/releases/download/v${VERSION}/mpich-${VERSION}.tar.gz -o mpich.tgz
 get_tgz https://github.com/pmodels/mpich/releases/download/v${VERSION}/mpich-${VERSION}.tar.gz  mpich.tgz
@@ -21,14 +21,6 @@ fi
 echo FC is $FC
 FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
 echo FC_EXTRA is $FC_EXTRA
-if  [[ ${FC_EXTRA} == gfortran ]] ; then
-    GNUMAJOR=`$FC -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-`
-    echo GNUMAJOR is $GNUMAJOR
-    if [[ $GNUMAJOR -ge 10  ]]; then
-	export FFLAGS=" -fallow-argument-mismatch "
-        export FCFLAGS=" -fallow-argument-mismatch "
-    fi
-fi
 if  [[ ${FC_EXTRA} == nvfortran ]] ; then
     export FFLAGS+=" -fPIC "
     export FCFLAGS+=" -fPIC "
