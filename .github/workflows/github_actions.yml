@@ -395,6 +395,15 @@ jobs:
             cc: gcc
             blas: "brew_openblas"
             blas_size: 4
+          - os: macos-latest
+            experimental: true
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "nwdft driver solvation"
+            fc: gfortran
+            cc: gcc
+            blas: "brew_openblas"
+            blas_size: 4
           - os: macos-14
             experimental: true
             mpi_impl: openmpi
@@ -405,6 +414,15 @@ jobs:
             blas: "brew_openblas"
             blas_size: 4
             xcode_version: 15.0.1
+          - os: macos-latest
+            experimental: true
+            mpi_impl: build_mpich
+            armci_network: MPI-TS
+            nwchem_modules: "nwdft driver solvation"
+            fc: gfortran-14
+            cc: gcc-14
+            blas: "brew_openblas"
+            blas_size: 4
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
