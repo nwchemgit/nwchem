@@ -28,7 +28,6 @@ endif
 	ccsd_idx34.o \
 	ccsd_tengy.o \
         ccsd_trpdrv.o \
-        ccsd_trpdrv_nb.o \
         ccsd_trpdrv_omp.o \
 	ccsd_trpdrv_omp_mixprec.o \
         moints_trp.o \
@@ -76,7 +75,6 @@ endif
      ccsd_pdiis.F \
      ccsd_sortmo.F \
      ccsd_trpdrv.F \
-     ccsd_trpdrv_nb.F \
      ccsd_trpdrv_omp.F \
      ccsd_trpdrv_omp_mixprec.F \
      moints_trp.F \
@@ -94,16 +92,10 @@ endif
      aoccsd2.F \
      ccsd_fsig1.F \
      ccsd_fsig2.F \
-     ccsd_trpdrv_bgp2.F \
      ccsd_trpdrv_offload.F \
      ccsd_trpdrv_openacc.F \
      ccsd_trpdrv_openmp_imax.F \
      moints_trp.F
-
-ifeq ($(TARGET),BGP)
-  OBJ_OPTIMIZE += ccsd_trpdrv_bgp2.o ccsd_tengy_bgp2.o ccsd_tengy_bgp.o
-  LIB_DEFINES += -DBGP
-endif
 
 ifdef USE_MIC_TRPDRV
   OBJ_OPTIMIZE += ccsd_trpdrv_offload.o
