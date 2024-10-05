@@ -49,7 +49,8 @@ fi
 	    else
 		MPI_FORMULA="$MPI_IMPL"
 	    fi
-     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc $MPI_FORMULA gsed grep automake autoconf hwloc ||true
+	    HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc hwloc $MPI_FORMULA gsed grep automake autoconf  ||true
+	    HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew unlink $MPI_FORMULA && brew link $MPI_FORMULA ||true
      if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
 	 #install non default gfortran, ie gfortran-9
 	 #get version
@@ -116,11 +117,20 @@ fi
 	 brew reinstall --quiet mpich  && brew unlink mpich && brew link mpich || true
 ##	 brew reinstall --quiet mpich || true
      fi
+     if [ -z "$HOMEBREW_PREFIX" ] ; then
+	 HOMEBREW_PREFIX=/usr/local
+     fi
+     if [[ "$MPI_IMPL" != "build_mpich" ]]; then
+	 #check mpi install
+	 if [[ "$MPI_IMPL" == "mpich" ]]; then
+	     echo 'mpicc -show' $("$HOMEBREW_PREFIX"/opt/mpich/bin/mpif90 -show)
+	 fi
+	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
+	     echo 'mpicc -show' $("$HOMEBREW_PREFIX"/opt/open-mpi/bin/mpif90 -show)
+	 fi
+     fi
      if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
 	 brew install openblas
-	 if [ -z "$HOMEBREW_PREFIX" ] ; then
-	     HOMEBREW_PREFIX=/usr/local
-	 fi
 	 PKG_CONFIG_PATH=$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig pkg-config --libs openblas
      fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
