@@ -49,7 +49,7 @@ fi
 	    else
 		MPI_FORMULA="$MPI_IMPL"
 	    fi
-     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc $MPI_FORMULA gsed grep automake autoconf ||true
+     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc $MPI_FORMULA gsed grep automake autoconf hwloc ||true
      if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
 	 #install non default gfortran, ie gfortran-9
 	 #get version
