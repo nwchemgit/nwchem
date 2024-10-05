@@ -52,7 +52,13 @@ if [ -x "$(command -v xx-info)" ]; then
     fi
 fi
 echo SHARED_FLAGS is $SHARED_FLAGS
-./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --enable-romio --disable-cuda --disable-opencl --enable-silent-rules  --enable-fortran=all
+if [ $(uname -s) == "Darwin" ]; then
+    if pkg-config hwloc --exists; then
+	HWLOC_FLAGS=" --with-hwloc=$(pkg-config hwloc  --variable=prefix) "
+    fi
+fi
+echo HWLOC_FLAGS is $HWLOC_FLAGS
+./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --enable-romio  --enable-silent-rules  --enable-fortran=all $HWLOC_FLAGS
 #./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --enable-romio --with-pm=gforker --with-device=ch3:nemesis --disable-cuda --disable-opencl --enable-silent-rules  --enable-fortran=all
 if [[ "$?" != "0" ]]; then
     cat config.log
