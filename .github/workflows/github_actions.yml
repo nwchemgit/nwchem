@@ -522,6 +522,10 @@ jobs:
         if: steps.setup-cache.outputs.cache-hit == 'true'
         run: |
           ./travis/cache_fetch.sh
+      - name: get external files
+        if: steps.setup-cache.outputs.cache-hit == 'false'
+        run: |
+          bash ./contrib/getfiles.nwchem ~/cache
       - name: compile
         id: compile
         run: |
