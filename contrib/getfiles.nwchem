@@ -12,4 +12,9 @@ cd $NWCHEM_TOP/src/libext/scalapack
 COMMIT=782e739f8eb0e7f4d51ad7dd23fc1d03dc99d240
 rm -f scalapack-$COMMIT.zip
 curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip -o scalapack-$COMMIT.zip
-
+#caching
+if [ ! -z "$1" ]; then
+    rsync -av $NWCHEM_TOP/src/nwpw/nwpwlib/nwpwxc/dftd3.tgz "$1"/.
+    rsync -av $NWCHEM_TOP/src/libext/openblas/OpenBLAS*gz "$1"/.
+    rsync -av $NWCHEM_TOP/src/libext/scalapack/scalapack*zip "$1"/.
+fi
