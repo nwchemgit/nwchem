@@ -44,13 +44,13 @@ fi
 	    fi
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 	    #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
-	    if [[ "$MPI_IMPL" == "build_mpich" ]]; then
-		MPI_FORMULA=" "
-	    else
-		MPI_FORMULA="$MPI_IMPL"
+	    HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc hwloc  gsed grep automake autoconf  ||true
+	    if [[ "$MPI_IMPL" != "build_mpich" ]]; then
+		HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew unlink -q open-mpi ||true
+		HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew unlink -q mpich ||true
+		HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall  $MPI_IMPL  ||true
+#		HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew link --overwrite $MPI_IMPL ||true
 	    fi
-	    HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc hwloc $MPI_FORMULA gsed grep automake autoconf  ||true
-	    HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew unlink $MPI_FORMULA && brew link $MPI_FORMULA ||true
      if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
 	 #install non default gfortran, ie gfortran-9
 	 #get version
@@ -109,14 +109,14 @@ fi
 	"$FC" -V
 	icc -V
      fi
-     if [[ "$MPI_IMPL" == "mpich" ]]; then
-	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
-	 brew update || true
-	 brew list open-mpi >&  /dev/null ; myexit=$?
-	 if [[ $myexit == 0 ]]; then brew unlink open-mpi || true ; fi
-	 brew reinstall --quiet mpich  && brew unlink mpich && brew link mpich || true
-##	 brew reinstall --quiet mpich || true
-     fi
+#     if [[ "$MPI_IMPL" == "mpich" ]]; then
+#	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
+#	 brew update || true
+#	 brew list open-mpi >&  /dev/null ; myexit=$?
+#	 if [[ $myexit == 0 ]]; then brew unlink open-mpi || true ; fi
+#	 brew reinstall --quiet mpich  && brew unlink mpich && brew link mpich || true
+###	 brew reinstall --quiet mpich || true
+#     fi
      if [ -z "$HOMEBREW_PREFIX" ] ; then
 	 HOMEBREW_PREFIX=/usr/local
      fi
