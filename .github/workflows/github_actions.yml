@@ -334,6 +334,7 @@ jobs:
             armci_network: MPI-TS
             nwchem_modules: "nwdft solvation driver"
             fc: ifort
+            cc: gcc-11
             xcode_version: 15.4
           - os: ubuntu-20.04
             experimental: true
