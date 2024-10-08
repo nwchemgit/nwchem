@@ -70,8 +70,8 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 #force icc on macos to cross-compile x86 on arm64
 # icx not available on macos
     if [[ "$os" == "Darwin" ]]; then
-	CC=icc
-	CXX=icc
+#	CC=icc
+#	CXX=icc
 # Intel MPI not available on macos       
 #       export BUILD_MPICH=1
        unset BUILD_PLUMED
