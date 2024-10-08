@@ -469,6 +469,10 @@ c     get memory for labels
 *     call schwarz_init(geom, AO_bas_han)
 *     call int_terminate()
 *     call intd_init(rtdb, 1, AO_bas_han)
+C LB
+      ! Calculate the symmetrized orbital transition matrix
+      CALL sym_adapt(AO_bas_han)
+C LB
 cgk debug
 *     write(*,*)'gk: calling int_init'
 cgk end

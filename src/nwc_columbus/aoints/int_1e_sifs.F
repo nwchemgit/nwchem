@@ -14,6 +14,8 @@
 #include "cscfps.fh"
 #include "sym.fh"
 #include "cdft.fh"
+!#include "geomP.fh"
+#include "sym_adapt.fh"
 c     
 c     Compute the desired type of integrals (kinetic, potential, overlap)
 c     
@@ -52,14 +54,15 @@ c     sifs parameters
 c
       integer aoints
       integer n1max
-      INTEGER l1rec, ntitle, ibuf, nsym, ibvtyp, ierr
+      INTEGER l1rec, ntitle, ibuf, nsym, ibvtyp, ierr!,mxsym
       integer ibitv
-      integer mxbf
-      parameter (mxbf=1000)
+      !integer mxbf
+      !parameter (mxbf=1000)
 c     header 1
       integer nbas, mxenrgy, nenrgy, nmap
       INTEGER ninfo
-      parameter(ntitle=1,nsym=1,mxenrgy=1)
+      !parameter(ntitle=1,nsym=1,mxenrgy=1)
+      parameter(ntitle=1,mxenrgy=1)
 c     header 2
       integer info(ninfo)  ! not to be confused with NWChem info
       integer ietype(mxenrgy)
@@ -68,8 +71,8 @@ c     header 2
       integer clab(2,*)
       real*8 energy(nenrgy)
       character*80 stitle(ntitle)
-      character*4 slabel(nsym)
-      integer nbpsy(nsym)
+      character*4 slabel(mxsym)
+      !integer nbpsy(mxsym)
       character*1 shtypes(-1:7)
       data shtypes/'l','s', 'p', 'd', 'f', 'g', 'h', 'i', 'k'/
       integer shmap(-1:7)
@@ -83,6 +86,32 @@ c     header 2
       real*8 fcore
       logical basok
       
+C LB
+      !logical status
+      !character*20 zname
+      !character*8  zir(mxsym), zclass(mxsym)
+      !integer      iclass(mxsym), nop, nir
+      !double precision chars(mxsym*mxsym)
+      !character*8 grp_name
+
+      !INTEGER, PARAMETER :: mxshel=120
+      !integer sh_op_map(8,mxshel), bf_op_map(8,mxbf)
+      !double precision bf_phase(8,mxbf) 
+      !integer sh_n_uq_op(mxshel), bf_n_uq_op(mxbf)
+      !integer sh_uq_op(8,mxshel), bf_uq_op(8,mxbf)
+      !integer sh_n_uq, bf_n_uq
+      !integer sh_uq(mxshel), bf_uq(mxbf)
+      !integer sh_nat(2,mxshel), bf_nat(2,mxbf), sh_uq_bf(4,mxshel)
+      !double precision char_tab(1:8,0:7)
+      !integer bf_per_ir(0:7)
+      !integer bf_per_ir_cum(0:7)
+      !integer bf_so_ir(0:7,mxbf)
+      !integer so_uq_to_lab(2,0:7,mxbf)
+      !integer so_lab1(3,mxbf)
+      !integer so_lab2(mxbf)
+      !logical oprint 
+ 
+C LB
 
 cgk provisional
 *     change thresh to the appropriate user supplied zero tolerance
@@ -125,6 +154,7 @@ c
       if (nbft.gt.mxbf) call errquit
      $     ('int_1e_sifs: nbft gt maximum aoints basis functions', nbft,
      &       BASIS_ERR)
+
 c     
 c     allocate necessary local temporary arrays on the stack
 c     
@@ -209,12 +239,22 @@ c     put effective nuclear repulsion energy in energy(1)
 cgk debug
 !       write(*,*)'gk:  i, iat, shmap(otype)'
 !       write(*,*)'gk:  nmap=',nmap
+!        WRITE(*,*)"C LB, nshell=",nshell
 cgk end
       i=0
       do ishell=1,nshell
          basok=bas_continfo(ibas, ishell, otype, nprim, ngen, sphcart)
+!        WRITE(*,*)"C LB, ibas=",ibas
+!        WRITE(*,*)"C LB, ishell=",ishell
+!        WRITE(*,*)"C LB, otype=",otype
+!        WRITE(*,*)"C LB, nprim=",nprim
+!        WRITE(*,*)"C LB, ngen=",ngen
+!        WRITE(*,*)"C LB, sphcart=",sphcart
          basok=bas_cn2bfr(ibas, ishell, ilo, ihi)
+!        WRITE(*,*)"C LB, ilo=",ilo
+!        WRITE(*,*)"C LB, ihi=",ihi
          basok=bas_cn2ce(ibas, ishell, iat)
+!        WRITE(*,*)"C LB, iat=",iat
          if (otype.gt.6 .or. otype.lt.0) call errquit
      $        ('int_1e_sifs: unsupported sifs basis otype?',otype,
      &       BASIS_ERR)
@@ -249,9 +289,24 @@ cgk end
          enddo
       enddo
 
-      slabel(1)='a1'
+c      slabel(1)='a1'
+C LB: Add symmetry labels to aoints files
+      !status = sym_char_table(grp_name,nop,nir,iclass,zir,zclass,chars)
+      nsym=nir
+      slabel(1:nsym)=zir(1:nsym)
+      !CALL sym_bas_irreps(ibas,.true.,nbpsy(1:nsym))
+      WRITE(*,*)"----Geometry and Symmetry Information----"
+      write(*,'(a,i3)')"geom= ",geom
+      write(*,'(a,a)')"sym group= ",grp_name
+      write(*,*)"slabel= ",slabel(1:nsym)
+      WRITE(*,'(a,i3)')"ibas= ",ibas
+      WRITE(*,'(a,i3)')"nbft= ",nbft
+      WRITE(*,'(a,8i3)')"nbpsy= ",nbpsy(1:nsym)
+      WRITE(*,'(a,i3)')"sym_num_ops= ",sym_num_ops(geom)
+      WRITE(*,'(a,i3)')"nop= ",nop
+C LB
       stitle(1)='AO integrals from NWChem'
-      nbpsy(1)=nbft
+      !nbpsy(1)=nbft
 
 *     call sifwh( aoints,  ntitle,  nsym,    nbft,
 *    &   ninfo,   nenrgy,  nmap,    stitle,   nbpsy,   slabel,  info,    
@@ -272,7 +327,8 @@ cgk debug
 
 cgk end
          call sifwh( aoints,  ntitle,  nsym,    nbft,
-     &      ninfo,   nenrgy,  nmap,    stitle,   nbpsy,   slabel,  info,
+     &               ninfo,   nenrgy,  nmap,    stitle,   
+     &               nbpsy,   slabel(1:nsym),  info, 
      &      byte_mb(k_bfnlab),  ietype,  energy,  imtype,  map, 
      &      ierr )
 cgk debug
@@ -302,18 +358,20 @@ c        start loop over integral types here.
          end if
 
 cgk debug
-!      write(*,*)'gk: processing integral type: ', integ_type
+      write(*,*)'gk: processing integral type: ', integ_type
 cgk end
 
          do jshell = 1, nshell
             do ishell = 1, nshell
 cgk debug
-!      write(*,*)'gk: ishell=',ishell,' jshell=',jshell
+      write(*,*)'gk: ishell=',ishell,' jshell=',jshell
 cgk end
  
                odoit = .true.
-               if (oskel) 
-     $            odoit = sym_shell_pair(ibas, ishell, jshell, q2)
+!               if (oskel) 
+!     $            odoit = sym_shell_pair(ibas, ishell, jshell, q2)
+!               WRITE(*,*)"C LB, odoit= ", odoit
+!               WRITE(*,*)"C LB, q2= ", q2
  
                if (odoit) then
                   if (.not. bas_cn2bfr(ibas, ishell, ilo, ihi)) 
@@ -324,32 +382,46 @@ cgk end
                   call ifill(max1e,0,int_mb(k_ilab),1)
                   call ifill(max1e,0,int_mb(k_jlab),1)
       
-                  if (type .eq. 1) then
+                  if (type .eq. 1) then !Kinetic Energy
                      call int_l1eke (ibas, jshell, ibas, ishell, 
      &                  thresh, int_mb(k_ilab),int_mb(k_jlab), max1e,
      $                  dbl_mb(k_buf), mem1, dbl_mb(k_scr), numints)
-                  else if (type .eq. 2) then
+                  else if (type .eq. 2) then !Potential Energy
 cgk debug
-*       write(*,*)'gk: calling int_l1epe'
-*       write(*,*)'gk: ibas = ', ibas
-*       write(*,*)'gk: ishell = ', ishell
-*       write(*,*)'gk: jshell = ', jshell
-*       write(*,*)'gk: thresh = ', thresh
-*       write(*,*)'gk: k_ilab = ', k_ilab
-*       write(*,*)'gk: k_jlab = ', k_jlab
-*       write(*,*)'gk: max1e = ', max1e
-*       write(*,*)'gk: k_buf = ', k_buf
-*       write(*,*)'gk: mem1 = ', mem1
-*       write(*,*)'gk: k_scr = ', k_scr
-*       write(*,*)'gk: numints = ', numints
+       write(*,*)'gk: calling int_l1epe'
+       write(*,*)'gk: ibas = ', ibas
+       write(*,*)'gk: ishell = ', ishell
+       write(*,*)'gk: jshell = ', jshell
+       write(*,*)'gk: thresh = ', thresh
+       write(*,*)'gk: k_ilab = ', k_ilab
+       write(*,*)'gk: k_jlab = ', k_jlab
+       write(*,*)'gk: max1e = ', max1e
+       write(*,*)'gk: k_buf = ', k_buf
+       write(*,*)'gk: mem1 = ', mem1
+       write(*,*)'gk: k_scr = ', k_scr
 cgk end
                      call int_l1epe (ibas, jshell, ibas, ishell, 
      &                  thresh, int_mb(k_ilab),int_mb(k_jlab), max1e,
      $                  dbl_mb(k_buf), mem1, dbl_mb(k_scr), numints)
 cgk debug
+!       write(*,*)'gk: numints = ', numints
 !       write(*,*)'gk: back from int_l1epe'
 cgk end
-                  else if (type .eq. 3) then
+                  else if (type .eq. 3) then !Overlap
+cgk debug
+!       write(*,*)'gk: calling int_l1epe'
+!       write(*,*)'gk: ibas = ', ibas
+!       write(*,*)'gk: ishell = ', ishell
+!       write(*,*)'gk: jshell = ', jshell
+!       write(*,*)'gk: thresh = ', thresh
+!       write(*,*)'gk: k_ilab = ', k_ilab
+!       write(*,*)'gk: k_jlab = ', k_jlab
+!       write(*,*)'gk: max1e = ', max1e
+!       write(*,*)'gk: k_buf = ', k_buf
+!       write(*,*)'gk: mem1 = ', mem1
+!       write(*,*)'gk: k_scr = ', k_scr
+cgk end
+
 c                    ECP is summed here, but COLUMBUS should not care.
                      call int_l1eov (ibas, ishell, ibas, jshell, thresh,
      &                  int_mb(k_ilab),int_mb(k_jlab), max1e,
@@ -357,6 +429,7 @@ c                    ECP is summed here, but COLUMBUS should not care.
                   end if
 c     
 cgk debug
+       write(*,*)'gk: numints = ', numints
 *      write(*,*)'gk: this batch, numints = ', numints
 cgk end
 

@@ -11,7 +11,7 @@ include ../../config/makefile.h
                     d2geri_trace.o     dint_block_trc.o sequ.o \
                     sopgrdtrc.o	       asif2ga.o \
                     print_dint_block.o print_soblock.o  trc_soblock.o \
-                    int_mom_sifs.o     hdoverlap.o 
+                    int_mom_sifs.o     hdoverlap.o	sym_adapt.o
 
      LIBRARY = libnwc_columbus.a
 
