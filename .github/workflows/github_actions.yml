@@ -331,7 +331,7 @@ jobs:
           - os: macos-13
             experimental: true
             mpi_impl: mpich
-            armci_network: MPI-PT
+            armci_network: MPI-TS
             nwchem_modules: "nwdft solvation driver"
             fc: ifort
             xcode_version: 15.4
