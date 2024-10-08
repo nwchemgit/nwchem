@@ -53,19 +53,32 @@ fi
 		HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall  $MPI_IMPL  ||true
 #		HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew link --overwrite $MPI_IMPL ||true
 	    fi
+     if [ -z "$HOMEBREW_CELLAR" ] ; then
+	 HOMEBREW_CELLAR=/usr/local/Cellar
+     fi
      if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
 	 #install non default gfortran, ie gfortran-9
 	 #get version
 	 mygccver=$(echo "$FC"|cut -d - -f 2)
 	 echo mygccver is "$mygccver"
 	 HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc@"$mygccver" || true
+	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
+	 echo gfortran is $(gfortran -v)
+	 echo gfortran-"$mygccver" is $(gfortran-"$mygccver" -v)
+     fi
+     if [[ "$CC" != gcc ]] && [[ "$CC" == gcc* ]]; then
+	 #install non default gfortran, ie gcc-9
+	 #get version
+	 mygccver=$(echo "$CC"|cut -d - -f 2)
+	 echo mygccver is "$mygccver"
+	 HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc@"$mygccver" || true
+	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
+	 echo gcc is $(gcc -v)
+	 echo gcc-"$mygccver" is $(gcc-"$mygccver" -v)
      fi
      #hack to fix Github actions mpif90
      gccver=`brew list --versions gcc| head -1 |cut -c 5-`
      echo brew gccver is $gccver
-     if [ -z "$HOMEBREW_CELLAR" ] ; then
-	 HOMEBREW_CELLAR=/usr/local/Cellar
-     fi
      ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran || true
      ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
      #	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
@@ -125,10 +138,10 @@ fi
      if [[ "$MPI_IMPL" != "build_mpich" ]]; then
 	 #check mpi install
 	 if [[ "$MPI_IMPL" == "mpich" ]]; then
-	     echo 'mpicc -show' $("$HOMEBREW_PREFIX"/opt/mpich/bin/mpif90 -show)
+	     echo 'mpi90 -show' $("$HOMEBREW_PREFIX"/opt/mpich/bin/mpif90 -show)
 	 fi
 	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
-	     echo 'mpicc -show' $("$HOMEBREW_PREFIX"/opt/open-mpi/bin/mpif90 -show)
+	     echo 'mpif90 -show' $("$HOMEBREW_PREFIX"/opt/open-mpi/bin/mpif90 -show)
 	 fi
      fi
      if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
