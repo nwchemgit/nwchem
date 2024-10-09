@@ -328,14 +328,6 @@ jobs:
             fc: gfortran-13
             blas: "accelerate"
             blas_size: 4
-          - os: macos-13
-            experimental: true
-            mpi_impl: mpich
-            armci_network: MPI-TS
-            nwchem_modules: "nwdft solvation driver"
-            fc: ifort
-            cc: gcc-11
-            xcode_version: 15.4
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
