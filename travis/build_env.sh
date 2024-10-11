@@ -43,8 +43,13 @@ fi
 		$MYSUDO xcode-select -s /Applications/Xcode_"$XCODE_VERSION".app/Contents/Developer
 	    fi
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
-#  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
-     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc "$MPI_IMPL" gsed grep automake autoconf ||true
+	    #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
+	    if [[ "$MPI_IMPL" == "build_mpich" ]]; then
+		MPI_FORMULA=" "
+	    else
+		MPI_FORMULA="$MPI_IMPL"
+	    fi
+     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc $MPI_FORMULA gsed grep automake autoconf ||true
      if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
 	 #install non default gfortran, ie gfortran-9
 	 #get version
@@ -108,7 +113,8 @@ fi
 	 brew update || true
 	 brew list open-mpi >&  /dev/null ; myexit=$?
 	 if [[ $myexit == 0 ]]; then brew unlink open-mpi || true ; fi
-	 brew reinstall mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
+	 brew reinstall --quiet mpich  && brew unlink mpich && brew link mpich || true
+##	 brew reinstall --quiet mpich || true
      fi
      if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
 	 brew install openblas
@@ -118,7 +124,7 @@ fi
 	 PKG_CONFIG_PATH=$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig pkg-config --libs openblas
      fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
-#      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
+#      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install --quiet scalapack
 #  fi
 fi
 if [[ "$os" == "Linux" ]]; then

@@ -312,7 +312,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	}
         if (! $sgroup) {
 	if (/Total/ && /energy/) {
-	 if (/SCF/ || /DFT/ || /CCSD/ || /MP2/ || /MCSCF/ || /RIMP2/ || /RISCF/ || /BAND/ || /PAW/ || /PSPW/ || /WFN1/ || /xTB/ ) {
+	 if (/SCF/ || /DFT/ || /CCSD/ || /MP2/ || /MCSCF/ || /RIMP2/ || /RISCF/ || /BAND/ || /PAW/ || /WFN1/ || /xTB/ ) {
 		if ($debug) {print "\ndebug: $_";}
 		@line_tokens = split(' ');
 		$num_line_tokens = @line_tokens;
@@ -331,6 +331,30 @@ foreach $filename (@FILES_TO_PARSE) {
 		    printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 		}
 		printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+	    }
+	}
+	}
+        if (! $sgroup) {
+	if (/Total/ && /energy/) {
+	 if ( /PSPW/  ) {
+		if ($debug) {print "\ndebug: $_";}
+		@line_tokens = split(' ');
+		$num_line_tokens = @line_tokens;
+		if ($debug) {
+		    print "debug:line_tokens: @line_tokens \n";
+		    print "debug:number     : $num_line_tokens \n";
+		}
+		for($itok = 0;$itok < ($num_line_tokens-1); $itok++){
+		    if (! $quiet) {
+			printf "%s ", @line_tokens[$itok];
+		    }
+		    printf FILE_OUTPUT "%s ", @line_tokens[$itok];
+		}
+#                                                    *** Assumes $itok was incremented above
+		if (! $quiet) {
+		    printf "%.5f\n", set_to_digits(@line_tokens[$itok],4);
+		}
+		printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],4);
 	    }
 	}
 	}

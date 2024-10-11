@@ -3,9 +3,9 @@
 *
 
 *     ***************************
-*     *				*
-*     *		ion_end 	*
-*     *				*
+*     *                         *
+*     *        ion_end          *
+*     *                         *
 *     ***************************
       subroutine ion_end()
       implicit none
@@ -54,9 +54,9 @@
       end
 
 *     ***************************
-*     *				*
-*     *		ion_write	*
-*     *				*
+*     *                         *
+*     *        ion_write        *
+*     *                         *
 *     ***************************
       subroutine ion_write(rtdb)
       implicit none
@@ -164,9 +164,9 @@
       end
 
 *     ***************************
-*     *				*
-*     *		ion_destroy 	*
-*     *				*
+*     *                         *
+*     *        ion_destroy      *
+*     *                         *
 *     ***************************
       subroutine ion_destroy()
       implicit none
@@ -187,9 +187,9 @@
     
 
 *     ***************************
-*     *				*
-*     *		ion_init	*
-*     *				*
+*     *                         *
+*     *        ion_init         *
+*     *                         *
 *     ***************************
 *
 *        This routine reads in the ion data structure from the
@@ -1991,9 +1991,9 @@ c      end if
 
 
 *     ***************************
-*     *				*
-*     *		ion_vion	*
-*     *				*
+*     *                         *
+*     *          ion_vion       *
+*     *                         *
 *     ***************************
 
       double precision function ion_vion(i,j)
