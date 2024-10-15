@@ -30,7 +30,7 @@ OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o
 OBJ_OPTIMIZE += tce_sort1.o
 
 # This is for CCSD - uses do concurrent for GPU support
-OBJ_OPTIMIZE += new_sort4_x.o
+OBJ_OPTIMIZE += new_sort2_x.o new_sort4_x.o
 
 # replace this with something better later
 ifdef USE_OPENACC_TRPDRV
