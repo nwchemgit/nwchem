@@ -988,8 +988,6 @@ C     i1 ( h6 p3 h1 p5 )_vt+= -1*Sum ( p7 )*t ( p7 h1 )_t*v ( h6 p3 p5 p7 )_v
              IF (next.eq.count) THEN
               dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h6b-1)
      &             * int_mb(k_range+h1b-1) * int_mb(k_range+p5b-1)
-!              IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) 
-!     &         CALL ERRQUIT('ccsd_t2_7_2',0,MA_ERR)
               f_c = 0.0d0
               do p7b_in=ga_nodeid()+1,ga_nodeid()+nvab
                p7b=mod(p7b_in,nvab)+noab+1
@@ -1005,27 +1003,14 @@ C     i1 ( h6 p3 h1 p5 )_vt+= -1*Sum ( p7 )*t ( p7 h1 )_t*v ( h6 p3 p5 p7 )_v
                  dimb_sort = int_mb(k_range+p3b-1)
      &                     * int_mb(k_range+h6b-1)
      &                     * int_mb(k_range+p5b-1)
-!                 dima = dim_common*dima_sort
-                 dima = int_mb(k_range+p7b-1) * int_mb(k_range+h1b-1)
-!                 dimb = dim_common*dimb_sort
-                 dimb = int_mb(k_range+p7b-1) * int_mb(k_range+p3b-1)
-     &                * int_mb(k_range+h6b-1) * int_mb(k_range+p5b-1)
+                 dima = dim_common*dima_sort
+                 dimb = dim_common*dimb_sort
                  IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
-!                  IF (.not.MA_PUSH_GET(mt_dbl,dima,'as',l_as,k_as)) 
-!     &              CALL ERRQUIT('ccsd_t2_7_2',1,MA_ERR)
-!                  IF (.not.MA_PUSH_GET(mt_dbl,dima,'a',l_a,k_a)) 
-!     &              CALL ERRQUIT('ccsd_t2_7_2',2,MA_ERR)
                   CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),f_t,dima,
      &                 int_mb(k_a_offset),(h1b_1-1+noab*(p7b_1-noab-1)))
                   CALL TCE_SORT_2_X(f_t,f_a,
      &                 int_mb(k_range+p7b-1),int_mb(k_range+h1b-1),
      &                 2,1,1.0d0)
-!                  IF (.not.MA_POP_STACK(l_a)) 
-!     &              CALL ERRQUIT('ccsd_t2_7_2',3,MA_ERR)
-!                  IF (.not.MA_PUSH_GET(mt_dbl,dimb,'bs',l_bs,k_bs)) 
-!     &              CALL ERRQUIT('ccsd_t2_7_2',4,MA_ERR)
-!                  IF (.not.MA_PUSH_GET(mt_dbl,dimb,'b',l_b,k_b)) 
-!     &              CALL ERRQUIT('ccsd_t2_7_2',5,MA_ERR)
                   IF ((h6b .le. p3b) .and. (p7b .lt. p5b)) THEN
                    if(.not.intorb) then
                     CALL GET_HASH_BLOCK(d_b,f_t,dimb,
@@ -1060,8 +1045,6 @@ C     i1 ( h6 p3 h1 p5 )_vt+= -1*Sum ( p7 )*t ( p7 h1 )_t*v ( h6 p3 p5 p7 )_v
      &                  int_mb(k_range+p5b-1),int_mb(k_range+p7b-1),
      &                  3,1,2,4,1.0d0)
                   END IF
-!                  IF (.not.MA_POP_STACK(l_b)) 
-!     &              CALL ERRQUIT('ccsd_t2_7_2',6,MA_ERR)
                   block
 #ifdef USE_TCE_CUBLAS
                     ! the CUBLAS interface only support INT32
@@ -1077,16 +1060,10 @@ C     i1 ( h6 p3 h1 p5 )_vt+= -1*Sum ( p7 )*t ( p7 h1 )_t*v ( h6 p3 p5 p7 )_v
                     CALL DGEMM('T','N',m,n,k,
      &                   1.0d0,f_a,k,f_b,k,1.0d0,f_c,m)
                   end block
-!                  IF (.not.MA_POP_STACK(l_bs)) 
-!     &              CALL ERRQUIT('ccsd_t2_7_2',7,MA_ERR)
-!                  IF (.not.MA_POP_STACK(l_as)) 
-!     &              CALL ERRQUIT('ccsd_t2_7_2',8,MA_ERR)
                  END IF
                 END IF
                END IF
               END DO
-!              IF (.not.MA_PUSH_GET(mt_dbl,dimc,'c',l_c,k_c)) 
-!     &          CALL ERRQUIT('ccsd_t2_7_2',9,MA_ERR)
               CALL TCE_SORT_4_X(f_c,f_t,
      &             int_mb(k_range+p5b-1),int_mb(k_range+h6b-1),
      &             int_mb(k_range+p3b-1),int_mb(k_range+h1b-1),
@@ -1094,10 +1071,6 @@ C     i1 ( h6 p3 h1 p5 )_vt+= -1*Sum ( p7 )*t ( p7 h1 )_t*v ( h6 p3 p5 p7 )_v
               CALL ADD_HASH_BLOCK(d_c,f_t,dimc,
      &             int_mb(k_c_offset),(h6b-1+noab*(p5b-noab-1+nvab*
      &             (h1b-1+noab*(p3b-noab-1)))))
-!              IF (.not.MA_POP_STACK(l_c)) 
-!     &           CALL ERRQUIT('ccsd_t2_7_2',10,MA_ERR)
-!              IF (.not.MA_POP_STACK(l_cs)) 
-!     &          CALL ERRQUIT('ccsd_t2_7_2',11,MA_ERR)
               next = NXTASK(nprocs, 1)
              END IF
              count = count+1
