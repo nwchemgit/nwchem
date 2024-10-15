@@ -3,13 +3,18 @@
 # $Id$
 cd $NWCHEM_TOP/src/nwpw/nwpwlib/nwpwxc/
 rm -f dftd3.tgz
-wget https://www.chemie.uni-bonn.de/pctc/mulliken-center/software/dft-d3/dftd3.tgz
+wget https://www.chemie.uni-bonn.de/grimme/de/software/dft-d3/dftd3.tgz
 cd $NWCHEM_TOP/src/libext/openblas
-VERSION=0.3.13
+VERSION=0.3.27
 rm -rf OpenBLAS*gz
 curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz
 cd $NWCHEM_TOP/src/libext/scalapack
-COMMIT=bc6cad585362aa58e05186bb85d4b619080c45a9
+COMMIT=782e739f8eb0e7f4d51ad7dd23fc1d03dc99d240
 rm -f scalapack-$COMMIT.zip
 curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip -o scalapack-$COMMIT.zip
-
+#caching
+if [ ! -z "$1" ]; then
+    rsync -av $NWCHEM_TOP/src/nwpw/nwpwlib/nwpwxc/dftd3.tgz "$1"/.
+    rsync -av $NWCHEM_TOP/src/libext/openblas/OpenBLAS*gz "$1"/.
+    rsync -av $NWCHEM_TOP/src/libext/scalapack/scalapack*zip "$1"/.
+fi

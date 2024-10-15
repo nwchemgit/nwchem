@@ -1073,12 +1073,12 @@ c      end if
       real*8  H2gg,H2ge,H2ee
       real*8  Hgg,Hge,Hee
       real*8  scal1,scal2,dv,ehartr
-      real*8  A,B,C,Elow,Ehigh,c1,c2,lmbda,sum,sigma,thresh
+      real*8  A,B,C,Elow,Ehigh,c1,c2,lmbda,sum,sigma
 
       logical  control_print
       external control_print
-      real*8   control_Ep,control_Sp,lattice_omega,control_CI_cg_thresh
-      external control_Ep,control_Sp,lattice_omega,control_CI_cg_thresh
+      real*8   control_Ep,control_Sp,lattice_omega
+      external control_Ep,control_Sp,lattice_omega
       integer  electron_psi_r_ptr
       external electron_psi_r_ptr
 
@@ -1094,8 +1094,6 @@ c      end if
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
       dv = scal1*lattice_omega()
-
-      thresh = control_CI_cg_thresh()
 
       call D3dB_n2ft3d(1,n2ft3d)
 
@@ -1289,23 +1287,23 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
          call psi_project_out_virtual(ii,dcpl_mb(r1(1)))
 
 *        *** determine conjuagate direction ***
-        call Pack_cc_dot(1,dcpl_mb(r1(1)),
-     >                     dcpl_mb(r1(1)),
-     >                     lmbda_r1)
+cc       call Pack_cc_dot(1,dcpl_mb(r1(1)),
+cc   >                   dcpl_mb(r1(1)),
+cc   >                   lmbda_r1)
 
          call Pack_c_Copy(1,dcpl_mb(r1(1)),dcpl_mb(t(1)))
 
-         if ((it.gt.1).and.((lmbda_r1/lmbda_r0).lt.thresh))  then
-            call Pack_cc_daxpy(1,(lmbda_r1/lmbda_r0),
-     >                           dcpl_mb(t0(1)),
-     >                           dcpl_mb(t(1)))
-         end if
-         lmbda_r0 = lmbda_r1
-         oneloop = .true.
- 3       call Pack_c_Copy(1,dcpl_mb(t(1)),dcpl_mb(t0(1)))
+cc       if (it.gt.1) then
+cc          call Pack_cc_daxpy(1,(lmbda_r1/lmbda_r0),
+cc   >                      dcpl_mb(t0(1)),
+cc   >                      dcpl_mb(t(1)))
+cc       end if
+cc       lmbda_r0 = lmbda_r1
+cc       oneloop = .true.
+c3       call Pack_c_Copy(1,dcpl_mb(t(1)),dcpl_mb(t0(1)))
 
 *        *** normalize search direction, t ****
-         call psi_project_out_virtual(ii,dcpl_mb(t(1)))
+cc       call psi_project_out_virtual(ii,dcpl_mb(t(1)))
          call Pack_cc_dot(1,dcpl_mb(t(1)),dcpl_mb(t(1)),sigma)
          sigma = dsqrt(sigma)
          de0 = 1.0d0/sigma
@@ -1313,18 +1311,18 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
 
 *        **** compute de0 = <t|g> ****
          call Pack_cc_dot(1,dcpl_mb(t(1)),
-     >                      dcpl_mb(r1(1)),
+     >                      dcpl_mb(g(1)),
      >                      de0)
 
 *        *** bad direction ***
-         if ((de0.lt.0.0d0).and.oneloop) then
-           call Pack_c_Copy(1,dcpl_mb(r1(1)),dcpl_mb(t(1)))
-           oneloop = .false.
-           go to 3
-         end if
+cc       if ((de0.lt.0.0d0).and.oneloop) then
+cc         call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(t(1)))
+cc         oneloop = .false.
+cc         go to 3
+cc       end if
 
          call psi_linesearch_CI_virtual(ci_algorithm,maxit_ls,
-     >                                  ii,theta,eci,de0,dcpl_mb(t(1)),
+     >                                   ii,theta,eci,de0,dcpl_mb(t(1)),
      >                                  dcpl_mb(psig_ptr),
      >                                  dbl_mb(psig_r(1)),
      >                                  dbl_mb(psie_r(1)),
@@ -1919,6 +1917,7 @@ c      end
 
       !write(*,*) "ENTER 2x2 GRADIENT"
       oprint = .false.
+c     oprint = .true.
 
       !*** generate psie_r ****
       call Pack_c_Copy(1,psie,psie_r)
@@ -2069,7 +2068,7 @@ c        H2ge = H2ge + ehfx
       Hgg = H1gg + H2gg + Eion
       Hge = H1ge + H2ge 
       Hee = H1ee + H2ee + Eion
-c     if (oprint) write(*,*) "Hgg=",Hgg," Hge=",Hge," Hee=",Hee
+      if (oprint) write(*,*) "Hgg=",Hgg," Hge=",Hge," Hee=",Hee
       !write(*,*) "Hgg=",Hgg," Hge=",Hge," Hee=",Hee
       A = 1.0d0
       B = -Hgg - Hee
@@ -2103,6 +2102,15 @@ c        call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
      
       call Pack_cc_daxpy(1,2.0d0*c2*c2,h1psie,dEdpsie)
       E = Elow
+
+      if (oprint) then
+         call Pack_cc_dot(1,psig,dEdpsie,c1)
+         write(*,*) "check last gradient=",c1
+         call Pack_cc_dot(1,psie,dEdpsie,c1)
+         write(*,*) "check last gradient=",c1
+         call Pack_cc_dot(1,dEdpsie,dEdpsie,c1)
+         write(*,*) "check last gradient=",c1
+      end if
 
       return
       end
@@ -2193,7 +2201,7 @@ c        call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
       !write(*,*) "ENTER 2x2 ne GRADIENT"
       call Parallel_taskid(taskid)
       oprint = .false.
-c      oprint = .true.
+c     oprint = .true.
 
       !*** generate psilumo_r ****
       call Pack_c_Copy(1,psilumo,psilumo_r)
@@ -2223,7 +2231,7 @@ c      oprint = .true.
 *     **** ion-ion part ****
       if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
       if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
-      if (oprint) write(*,*) "Eion=",Eion
+c!    if (oprint) write(*,*) "Eion=",Eion
       if (taskid.eq.MASTER) then
          filename = "ion_ion.dat"
          call util_file_name_noprefix(filename,.false.,.false.,
@@ -2361,8 +2369,8 @@ c    >                          "Exchangeee=",ehfx
          call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
          call pspw_potential_HFX(ispin,psig_r,hpsig_r)
          call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
-         if (oprint) write(*,*) "Coulombee=",H2ee,
-     >                          "Exchangeee=",ehfx
+c        if (oprint) write(*,*) "Coulombee=",H2ee,
+c    >                          "Exchangeee=",ehfx
          H2ee = H2ee + ehfx
          Hee = H1ee + H2ee + Eion
          call D3dB_rr_Mul2(1,psilumo_r,vcee)
@@ -2433,7 +2441,7 @@ c        call D3dB_rr_Sum2(1,hpsie_r,vcge)
       c1 =  1.0d0/dsqrt(1.0d0+lmbda**2)
       !c2 =  dsqrt(1.0d0-c1*c1)
       c2 =  lmbda/dsqrt(1.0d0+lmbda**2)
-      if (oprint)  write(*,*) "Elow=",Elow," Ehigh=",Ehigh 
+c!    if (oprint)  write(*,*) "Elow=",Elow," Ehigh=",Ehigh 
       !write(*,*)
 
 *     **** generate dElow/dpsie ****
@@ -2464,13 +2472,30 @@ c        call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
       !write(*,*) "2x2ne c1,c2=",c1,c2,Elow
 
       if (oprint) then
-         call Pack_cc_dot(1,psig,h1psie,c1)
+c        call Pack_cc_dot(1,psihomo,h1psig,c1)
+c        write(*,*) "check last gradient=",c1
+         call Pack_cc_dot(1,psihomo,h1psie,c1)
          write(*,*) "check last gradient=",c1
-         call Pack_cc_dot(1,psig,dEdpsie,c1)
+c        call Pack_cc_dot(1,psilumo,h1psig,c1)
+c        write(*,*) "check last gradient=",c1
+         call Pack_cc_dot(1,psilumo,h1psie,c1)
+         write(*,*) "check last gradient=",c1
+         call Pack_cc_dot(1,psilumo,dEdpsie,c1)
+         write(*,*) "check last gradient=",c1
+         call Pack_cc_dot(1,psihomo,dEdpsie,c1)
          write(*,*) "check last gradient=",c1
          call Pack_cc_dot(1,dEdpsie,dEdpsie,c1)
          write(*,*) "check last gradient=",c1
       end if
+
+c     if (oprint) then
+c        call Pack_cc_dot(1,psig,h1psie,c1)
+c        write(*,*) "check last gradient=",c1
+c        call Pack_cc_dot(1,psig,dEdpsie,c1)
+c        write(*,*) "check last gradient=",c1
+c        call Pack_cc_dot(1,dEdpsie,dEdpsie,c1)
+c        write(*,*) "check last gradient=",c1
+c     end if
 c     call Pack_cc_dot(1,psie,dEdpsie,c1)
 c     call Pack_cc_dot(1,psie,h1psie,c1)
 c     write(*,*) "check last gradient=",c1
@@ -2573,9 +2598,9 @@ c
 
 c     call Parallel_taskid(taskid)
       !write(*,*) "ENTER 3x3 GRADIENT"
-      oprint = .false.
-c     oprint = (taskid.eq.MASTER)
 c     oprint = .false.
+c     oprint = (taskid.eq.MASTER)
+      oprint = .true.
 c     if (oprint) then
 c        write(*,*) "here here taskid=",taskid
 c     end if
@@ -2919,6 +2944,8 @@ c
       call Pack_cc_daxpy(1,2.0d0*c3*c3,h1psie,dEdpsie)
 
       if (oprint) then
+         call Pack_cc_dot(1,h1psig,h1psig,c1)
+         write(*,*) "check last gradient=",c1
          call Pack_cc_dot(1,psig,h1psig,c1)
          write(*,*) "check last gradient=",c1
          call Pack_cc_dot(1,psig,h1psie,c1)
@@ -3040,7 +3067,7 @@ c
       external coulomb_e,ewald_e,ion_ion_e
 
 c     write(*,*) "ENTER 3x3 GRADIENT"
-c      oprint = .true.
+c     oprint = .true.
       oprint = .false.
 
       !*** generate psilumo_r ****
@@ -3329,7 +3356,7 @@ c      oprint = .true.
       c1 = Hci(1,1)
       c2 = Hci(2,1)
       c3 = Hci(3,1)
-      if (oprint) write(*,*) "c1,c2,c3",c1,c2,c3,Eci(1)
+      if (oprint) write(*,*) "c1,c2,c3",c1,c2,c3!,Eci(1)
 
 *     **** generate dElow/dpsie ****
       if (control_version().eq.4) then
@@ -3397,7 +3424,6 @@ c      oprint = .true.
          call Pack_c_Copy(1,psilumo,psig)
          call D3dB_r_Copy(1,psilumo_r,psig_r)
          call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhoee)
-
          call D3dB_r_SMul1(1,scal1,rhoee)
          call D3dB_rc_fft3f(1,rhoee)
          call Pack_c_pack(0,rhoee)
@@ -3466,6 +3492,8 @@ c      oprint = .true.
       call Pack_cc_daxpy(1,2.0d0*c3*c3,h1psie,dEdpsie)
 
       if (oprint) then
+         call Pack_cc_dot(1,h1psig,h1psig,c1)
+         write(*,*) "check last gradient=",c1
          call Pack_cc_dot(1,psihomo,h1psig,c1)
          write(*,*) "check last gradient=",c1
          call Pack_cc_dot(1,psihomo,h1psie,c1)
@@ -3867,9 +3895,6 @@ c     write(*,*) ciE(1),ciE(2),ciE(3),ciE(4)
 
       return
       end
-
-
-
 
 
 
@@ -11990,7 +12015,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer nall,nnall,n4all,nx,ny,nz
       integer psiij
       integer ipackm(2),jpackm(2)
-      integer h1_integrals(2),h2_integrals(2)
+      integer h1_integrals(2),h2c_integrals(2),h2x_integrals(2)
       integer vij(2),dnij(2),orbi(2),orbj(2),vhij(2)
       real*8 e1,e2,e2h,scal1,scal2,dv
       character*50  filename
@@ -12036,8 +12061,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
      >        BA_alloc_get(mt_dbl,nnall,'h1_integrals',
      >                     h1_integrals(2),h1_integrals(1))
       value = value.and.
-     >        BA_alloc_get(mt_dbl,n4all,'h2_integrals',
-     >                     h2_integrals(2),h2_integrals(1))
+     >        BA_alloc_get(mt_dbl,n4all,'h2c_integrals',
+     >                     h2c_integrals(2),h2c_integrals(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dbl,n4all,'h2x_integrals',
+     >                     h2x_integrals(2),h2x_integrals(1))
       value = value.and.
      >        BA_alloc_get(mt_int,nnall,'ipackm',
      >                     ipackm(2),ipackm(1))
@@ -12050,7 +12078,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       call Parallel_shared_vector_zero(.true.,nnall,
      >                                 dbl_mb(h1_integrals(1)))
       call Parallel_shared_vector_zero(.true.,n4all,
-     >                                 dbl_mb(h2_integrals(1)))
+     >                                 dbl_mb(h2c_integrals(1)))
+      call Parallel_shared_vector_zero(.true.,n4all,
+     >                                 dbl_mb(h2x_integrals(1)))
 
       !**** generate 1e integrals - H1 only contains kinetic + ion-electron potentials ****
       call electron_gen_vall0()
@@ -12159,42 +12189,19 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
                call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vij(1)),e2)
                !e2 = 0.5d0*e2*dv
                e2 = e2*dv
-               dbl_mb(h2_integrals(1)+iicount) = e2
+               dbl_mb(h2c_integrals(1)+iicount) = 2.0d0*e2
+               dbl_mb(h2x_integrals(1)+iicount) = e2
 
             else 
-               if (i.eq.j .and. k.eq.l) then
                   call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vhij(1)),
      >                             e2h)
                   e2h = e2h*dv
+                  dbl_mb(h2c_integrals(1)+iicount) = 2.0d0*e2h
+
                   call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vij(1)),
      >                             e2)
                   e2 = e2*dv
-                  e2 = 2.0d0*e2h - e2
-                  dbl_mb(h2_integrals(1)+iicount) = e2
-               else if (i.eq.j .and. k.ne.l) then
-                  call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vhij(1)),
-     >                             e2h)
-                  e2h = e2h*dv
-                  call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vij(1)),
-     >                             e2)
-                  e2 = e2*dv
-                  e2 = 2.0d0*e2h - e2
-                  dbl_mb(h2_integrals(1)+iicount) = e2
-               else if (i.ne.j .and. k.eq.l) then
-                  call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vhij(1)),
-     >                             e2h)
-                  e2h = e2h*dv
-                  call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vij(1)),
-     >                             e2)
-                  e2 = e2*dv
-                  e2 = 2.0d0*e2h - e2
-                  dbl_mb(h2_integrals(1)+iicount) = e2
-               else
-                  call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vij(1)),
-     >                             e2)
-                  e2 = e2*dv
-                  dbl_mb(h2_integrals(1)+iicount) = e2
-               end if
+                  dbl_mb(h2x_integrals(1)+iicount) = e2
             end if
 
             !write(*,*) "i,j,k,l,e2=",i,j,k,l,e2
@@ -12205,7 +12212,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       if (oprint) then
          write(luout,*)
-         write(luout,*) "begin_two_electron_integrals"
+         write(luout,*) "begin_two_electron_integrals_coulomb"
          iicount = 0
          do ij=1,nnall
             i = int_mb(ipackm(1)+ij-1)
@@ -12214,18 +12221,39 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
                k = int_mb(ipackm(1)+kl-1)
                l = int_mb(jpackm(1)+kl-1)
                write(luout,'(I5,I5,I5,I5,F20.10)') 
-     >         j,i,l,k,dbl_mb(h2_integrals(1)+iicount)
+     >         j,i,l,k,dbl_mb(h2c_integrals(1)+iicount)
                iicount = iicount + 1
             end do
          end do
-         write(luout,*) "end_two_electron_integrals"
+         write(luout,*) "end_two_electron_integrals_coulomb"
+         write(luout,*)
+         write(luout,*)
+         write(luout,*) "begin_two_electron_integrals_exchange"
+         iicount = 0
+         do ij=1,nnall
+            i = int_mb(ipackm(1)+ij-1)
+            j = int_mb(jpackm(1)+ij-1)
+            do kl=ij,nnall
+               k = int_mb(ipackm(1)+kl-1)
+               l = int_mb(jpackm(1)+kl-1)
+               write(luout,'(I5,I5,I5,I5,F20.10)') 
+     >         j,i,l,k,dbl_mb(h2x_integrals(1)+iicount)
+               iicount = iicount + 1
+            end do
+         end do
+         write(luout,*) "end_two_electron_integrals_exchange"
          write(luout,*)
 
-         filename = "two_electron_integrals.dat"
+         filename = "two_electron_integrals_coulomb.dat"
          call util_file_name_noprefix(filename,.false.,.false.,
      >                                full_filename)
          open(unit=102,file=full_filename,form="formatted")
          write(102,'(2I5,I10)') ne(1),ne_excited(1),iicount
+         filename = "two_electron_integrals_exchange.dat"
+         call util_file_name_noprefix(filename,.false.,.false.,
+     >                                full_filename)
+         open(unit=103,file=full_filename,form="formatted")
+         write(103,'(2I5,I10)') ne(1),ne_excited(1),iicount
          iicount = 0
          do ij=1,nnall
             i = int_mb(ipackm(1)+ij-1)
@@ -12234,11 +12262,14 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
                k = int_mb(ipackm(1)+kl-1)
                l = int_mb(jpackm(1)+kl-1)
                write(102,'(I5,I5,I5,I5,F20.10)') 
-     >         j,i,l,k,dbl_mb(h2_integrals(1)+iicount)
+     >         j,i,l,k,dbl_mb(h2c_integrals(1)+iicount)
+               write(103,'(I5,I5,I5,I5,F20.10)') 
+     >         j,i,l,k,dbl_mb(h2x_integrals(1)+iicount)
                iicount = iicount + 1
             end do
          end do
          close(102)
+         close(103)
       end if
 
 *     **** deallocate memory from heap ****
@@ -12248,7 +12279,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       value = value.and.BA_free_heap(orbi(2))
       value = value.and.BA_free_heap(orbj(2))
       value = value.and.BA_free_heap(h1_integrals(2))
-      value = value.and.BA_free_heap(h2_integrals(2))
+      value = value.and.BA_free_heap(h2c_integrals(2))
+      value = value.and.BA_free_heap(h2x_integrals(2))
       value = value.and.BA_free_heap(ipackm(2))
       value = value.and.BA_free_heap(jpackm(2))
       if (.not. value)

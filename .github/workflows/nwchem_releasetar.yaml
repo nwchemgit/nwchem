@@ -1,0 +1,62 @@
+name: NWChem_Release_Tar
+
+on:
+  workflow_dispatch:
+    inputs:
+      nwchem_version:
+        description: 'Release version'
+        required: true
+        default: 'nightly'
+        type: choice
+        options:
+          - nightly
+          - 7.2.3
+
+jobs:
+  do_tar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: install pkg
+        run: |
+          sudo apt-get install -y curl make perl bash bzip2 tar gzip openmpi-bin
+      - name: grab script
+        run: |
+          curl -LJO https://raw.githubusercontent.com/$GITHUB_REPOSITORY_OWNER/nwchem/$GITHUB_REF_NAME/contrib/git.nwchem/dotar_release.sh
+          chmod +x ./dotar_release.sh
+      - name: generate date
+        run: |
+          export TZ='America/Los_Angeles'
+          echo "input_date=$(date +%Y-%m-%d)" >>  $GITHUB_ENV
+      - name: generate tempdir name
+        run: |
+          echo "tmpdir_name=temp.${{ env.input_date }}" >>  $GITHUB_ENV
+      - name: run script
+        run: |
+          ./dotar_release.sh ${{ github.event.inputs.nwchem_version }} ${{ env.input_date }}
+      - name: check tempdir
+        run: |
+          ls -lrt ${{ env.tmpdir_name }}/*tar*
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nwchem-tarball
+          path: ${{ env.tmpdir_name }}/*tar*
+      - if: github.event.inputs.release_version == 'nightly'
+        name: Nightly
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: true
+          name: nightly
+          tag_name: nightly
+          files: ${{ env.tmpdir_name }}/*tar*
+          fail_on_unmatched_files: true
+      - if: github.event.inputs.release_version != 'nightly'
+        name: Release 
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: true
+          draft: true
+          name: NWChem ${{ github.event.inputs.nwchem_version }}
+          tag_name: v${{ github.event.inputs.nwchem_version }}-release
+          files: ${{ env.tmpdir_name }}/*tar*
+          fail_on_unmatched_files: true

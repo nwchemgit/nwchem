@@ -1,4 +1,4 @@
-      logical function nadct_trace(rtdb, nadct, trans)
+      logical function nadct_trace(rtdb, nadct)
 c     
 c Compute the terms that go into the nonadiabatic derivative coupling
 c terms 
@@ -32,7 +32,7 @@ c This is also computing gradients apparently
 #endif
 c
       integer rtdb
-      logical nadct
+      logical nadct ! calculate transition properties
       integer me, nproc, cinfo
       logical IOLGC, oprint, oprint_time, oprint_ioinfo
       logical ldirect
@@ -57,10 +57,10 @@ c
       integer infocda(ninfmx)
       character*80 siftitsa(ntitmx)
       integer nsifta
-      LOGICAL :: trans ! is this a transition property run?
+      LOGICAL :: asym ! calculate antisymmetric nadct
 
 cgk debug
-*      write(*,*)'gk: in nadct_trace'
+      !write(6,*)'gk: in nadct_trace'
 cgk end
       nadct_trace=.true.
 c  
@@ -373,11 +373,11 @@ c
         endif
 
 cgk debug
-*     write(*,*)'gk: calling rdhcid'
+       !write(6,*)'gk: calling rdhcid'
 cgk end
         call rdhcid(aodens, infocd, nsift, siftits, nsym, nmot, nmbpsy)
 cgk debug
-!      write(*,*)'gk: back from rdhcid'
+!       write(6,*)'gk: back from rdhcid'
 !      write(*,*)'gk: nsym = ', nsym
 !      WRITE(*,*)"LB, info=",infocd
 cgk end
@@ -393,17 +393,30 @@ cgk end
      & aodens, nsym=', nsym, BASIS_ERR)
       endif 
 
-c     open aodensa
-c
-      IF (trans) THEN
+!c     open aodensa
+!c
+      !WRITE(*,*)"LB, before opening aodensa, nadct=",nadct
+      asym=.false.
+      IF (nadct) THEN
         if(me.eq.0) then
           if(ga_nodeid().eq.0) then
-            open(unit=aodensa,status='old',form='unformatted',
-     &        file='aodens.asym')
-            rewind aodens
+            INQUIRE(FILE="aodens.asym",EXIST=asym)
+            WRITE(*,*)"LB, asym =",asym
+            IF(asym) THEN
+                open(unit=aodensa,status='old',form='unformatted',
+     &             file='aodens.asym')
+                WRITE(6,*)"aodens.asym found, calculating antisymmetric
+     &NADs"
+                !rewind aodensa
+                call rdhcid(aodensa, infocda,nsifta,siftitsa,nsym,nmot,
+     &                  nmbpsy)
+                !WRITE(*,*)"LB, back from rdhcid"
+            ELSE
+                WRITE(6,*)"aodens.asym not found, not calculating
+     &antisymmetric NADs"
+            ENDIF
           endif
 
-          call rdhcid(aodensa, infocda,nsifta,siftitsa,nsym,nmot,nmbpsy)
         endif
 
         if (nmot.ne.nbf_ao) then
@@ -474,7 +487,7 @@ c     Calculate non spin-orbit energy gradient terms
 c       trace( del(h)*D + del(g)*d - del(S)*F )
 c
 cgk debug
-*     write(*,*)'gk: calling egrad_trace'
+      !write(6,*)'gk: calling egrad_trace'
 *     write(*,*)'gk:  nmot = ', nmot
 *     write(*,*)'gk:  nbf_ao = ', nbf_ao
 cgk end
@@ -482,12 +495,12 @@ cgk end
      &  g_force, dbl_mb(k_frc_nuc), dbl_mb(k_frc_kin), 
      &  dbl_mb(k_frc_fds), dbl_mb(k_frc_2el), dbl_mb(k_frc_sow),
      &  dbl_mb(k_frc_sox), dbl_mb(k_frc_soy), dbl_mb(k_frc_soz),
-     &  dbl_mb(k_force), nat, rtdb, nadct, aodensa, infocda, trans)
+     &  dbl_mb(k_force), nat, rtdb, nadct, aodensa, infocda, asym)
 cgk debug
-*     write(*,*)'gk: back from egrad_trace'
+      !write(6,*)'gk: back from egrad_trace'
 cgk end
       close(unit=aodens)
-      IF(trans) CLOSE(UNIT=aodensa)
+      IF(nadct) CLOSE(UNIT=aodensa)
 
  1000 continue
 cgk debug

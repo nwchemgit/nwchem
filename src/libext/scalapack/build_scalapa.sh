@@ -233,7 +233,11 @@ if [[  -z "$PE_ENV"   ]] ; then
 fi
 #fix for clang 12 error in implicit-function-declaration
 GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
-if [[ ${GOTCLANG} == "1" ]] ; then
+if [[ `${MPICC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
+    let GCCVERSIONGT12=$(expr `${MPICC} -dumpversion | cut -f1 -d.` \> 12)
+fi
+
+if [[ ${GOTCLANG} == "1" ]] || [[ ${GCCVERSIONGT12} == "1" ]]  ; then
     C_FLAGS=" -Wno-error=implicit-function-declaration "
 fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then

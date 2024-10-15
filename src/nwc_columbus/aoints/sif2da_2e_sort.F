@@ -30,8 +30,8 @@ c     local
       integer ijkl, mx_d2, sh_ijkl, ijsh, klsh, sh_ijkl_len
       integer ij_max, kl_min, mxp
       integer sizeof_int, szlabs
-      integer l_sq, l_d2, l_vb, l_lb, l_buf, l_dbg
-      integer k_sq, k_d2, k_vb, k_lb, k_buf, k_dbg
+      integer l_sq, l_d2, l_vb, l_lb, l_buf2e, l_dbg
+      integer k_sq, k_d2, k_vb, k_lb, k_buf2e, k_dbg
       integer cijkl
       logical status
       integer nipv
@@ -45,7 +45,12 @@ c     local
       integer iln, kln
 
 cgk debug
-*     write(*,*)'gk: entered sif2da_2e_sort'
+      logical ignore
+      !write(6,*)'gk: entered sif2da_2e_sort'
+      ignore=MA_set_auto_verify(.true.)
+      ignore=MA_set_error_print(.true.)
+      ignore=MA_set_hard_fail(.true.)
+
 cgk end
 
 
@@ -205,6 +210,7 @@ c     memory for the 2 electron sifs buffer
      $     k_vb)) call errquit
      &      ('sif2da_2e_sort;could not allocate l_vb',i8n2max, MA_ERR)
 
+
 c     get memory for sifs 2e labels
       sizeof_int=MA_sizeof(MT_INT, 1, MT_BYTE)
       if(sizeof_int.eq.4) then
@@ -221,28 +227,27 @@ c     get memory for sifs 2e labels
      &    nipv*szlabs, MA_ERR) 
 c     memory for the 2 electron sifs buffer
       i8l2rec=l2rec
-      if (.not. ma_push_get(mt_dbl,i8l2rec,'vals buf array',l_buf,
-     $     k_buf)) call errquit
-     &      ('sif2da_2e_sort;could not allocate l_buf',l2rec, MA_ERR)
+      if (.not. ma_push_get(mt_dbl,i8l2rec,'buf array',l_buf2e,
+     $     k_buf2e)) call errquit
+     &      ('sif2da_2e_sort;could not allocate l_buf2e',l2rec, MA_ERR)
 
-c
 c     generate array of integrals from sifs file
 c
 cgk debug
-*     write(*,*)'gk: calling sif2arr'
+      !write(6,*)'gk: calling sif2arr'
 *     open(unit=26,form='formatted')
 cgk end
       call sif2arr(aodens, dbl_mb(k_d2), mx_d2, dbl_mb(k_vb), nipv,
-     & int_mb(k_lb), dbl_mb(k_buf), info, b2s, sminb, smaxb, 
+     & int_mb(k_lb), dbl_mb(k_buf2e), info, b2s, sminb, smaxb, 
      & int_mb(k_sq), nsp, nshell, int_mb(k_dbg))
 cgk debug
-*     write(*,*)'gk: back from sif2arr'
+      !write(6,*)'gk: back from sif2arr'
 *     close(26)
 cgk end
 
 c     dump sif 2e buffers
-      if (.not. MA_pop_stack(l_buf)) call errquit
-     $     ('sif2da_2e: pop failed at l_buf', 0, GA_ERR)
+      if (.not. MA_pop_stack(l_buf2e)) call errquit
+     $     ('sif2da_2e: pop failed at l_buf2e', 0, GA_ERR)
       if (.not. MA_pop_stack(l_lb)) call errquit
      $     ('sif2da_2e: pop failed at l_lb', 0, GA_ERR)
       if (.not. MA_pop_stack(l_vb)) call errquit
@@ -259,7 +264,7 @@ cgk end
      &  frc_2el, ibas, int_mb(k_dbg))
  
 cgk debug
-*     write(*,*)'gk: in sif2da_2e_sort back for d2geri_trace'
+      !write(6,*)'gk: in sif2da_2e_sort back for d2geri_trace'
 cgk end
 
 

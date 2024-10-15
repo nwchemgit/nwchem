@@ -12,3 +12,6 @@ set -v
 	  ls -lart /home/runner/work/nwchem/nwchem/src/libext/mpich/mpich/../../include || true
 	  ls -lart /home/runner/work/nwchem/nwchem/src/libext/include || true
 	  ls -lart /home/runner/work/nwchem/nwchem/src/libext/mpich || true
+	  rsync -av ~/cache/dftd3.tgz src/nwpw/nwpwlib/nwpwxc/. || true
+	  rsync -av ~/cache/OpenBLAS*gz src/libext/openblas/. || true
+          rsync -av ~/cache/scalapack*zip src/libext/scalapack/. || true

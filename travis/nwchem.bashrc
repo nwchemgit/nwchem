@@ -54,14 +54,36 @@ if [[ "$FC" == "nvfortran" ]]; then
      export MPICH_FC=nvfortran
 fi
 if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
-    IONEAPI_ROOT=~/apps/oneapi
+    if [[ "$os" == "Darwin" ]]; then
+	IONEAPI_ROOT=~/apps/oneapi
+    else
+	IONEAPI_ROOT=/opt/intel/oneapi
+# fix runtime mpi_init error
+#	export FI_LOG_LEVEL=TRACE
+	export FI_PROVIDER=shm
+	echo "*** output of fi_info ***"
+	echo $(fi_info -l) || true
+    fi
 #    source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
     source "$IONEAPI_ROOT"/setvars.sh --force
     export I_MPI_F90="$FC"
-#force icc on macos to cross-compile x86 on arm64    
+#force icc on macos to cross-compile x86 on arm64
+# icx not available on macos
     if [[ "$os" == "Darwin" ]]; then
-	CC=icc
-	CXX=icpc
+     if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
+	 mygccver=$(echo "$FC"|cut -d - -f 2)
+	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
+	 echo gfortran is $(gfortran -v)
+	 echo gfortran-"$mygccver" is $(gfortran-"$mygccver" -v)
+     fi
+     if [[ "$CC" != gcc ]] && [[ "$CC" == gcc* ]]; then
+	 mygccver=$(echo "$CC"|cut -d - -f 2)
+	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
+	 echo gcc is $(gcc -v)
+	 echo gcc-"$mygccver" is $(gcc-"$mygccver" -v)
+     fi
+#	CC=icc
+#	CXX=icc
 # Intel MPI not available on macos       
 #       export BUILD_MPICH=1
        unset BUILD_PLUMED

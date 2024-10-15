@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #set -v
 arch=`uname -m`
-VERSION=0.3.26
+VERSION=0.3.27
 #COMMIT=974acb39ff86121a5a94be4853f58bd728b56b81
 BRANCH=develop
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
@@ -250,13 +250,19 @@ fi
 GOTFREEBSD=$(uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
 MYMAKE=make
 MAKEJ="MAKE_NB_JOBS=2"
+MAKE_MAJOR=$(make --version 2>& 1|head -1| cut -d " " -f 3 |cut -d .  -f 1)
+MAKE_MINOR=$(make --version 2>& 1|head -1| cut -d " " -f 3 |cut -d .  -f 2)
+if [[ ${MAKE_MAJOR} -ge 4 ]] && [[ ${MAKE_MINOR} -ge 4 ]]; then
+    MAKEJ="MAKE_NB_JOBS=1"
+    echo MAKEJ is $MAKEJ
+fi
 if [[  "${GOTFREEBSD}" == 1 ]]; then
 MAKEJ="MAKE_NB_JOBS=1"
 MYMAKE=gmake
 fi
 echo FC is $FC
 echo CC is $CC
-echo $MYMAKE FC=$FC $FORCETARGET LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib $MAKEJ
+echo $MYMAKE FC=$FC $FORCETARGET LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib $MAKEJ 
 echo
 echo OpenBLAS compilation in progress
 echo output redirected to libext/openblas/OpenBLAS/openblas.log
@@ -268,7 +274,7 @@ elif [[ ${FLANG_NEW} == "true" ]]; then
     echo $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET FCOMMON_OPT="$LAPACK_FPFLAGS_VAL" LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD ="$THREADOPT"  libs netlib  $MAKEJ
  $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET FCOMMON_OPT="$LAPACK_FPFLAGS_VAL" LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib  $MAKEJ >& openblas.log
 else
- $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKE >& openblas.log
+ $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKE $MAKEJ >& openblas.log
 fi
 if [[ "$?" != "0" ]]; then
     echo error code '$?'

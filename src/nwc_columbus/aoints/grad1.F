@@ -20,7 +20,7 @@ C     now also UMP2
 C-------------------------parameters--------------------------------
       integer lbuf, lscr,
      $     g_dens,        ! density matrix (summed if ROHF, UHF)
-     $     g_wdens,       ! weighted density (Lagrangian)
+     $     g_wdens,       ! weighted density (Lagrangian) LB: Fock matrix?
      $     g_force,       ! global force array
      $     basis, geom, nproc, nat, max_at_bf, rtdb
 
@@ -69,7 +69,7 @@ c
       dobq = geom_extbq_on()
       call hf_print_set(1)
 cgk debug
-*      write(*,*)'gk: in grad1, dobq = ', dobq
+       !write(6,*)'gk: in grad1, dobq = ', dobq
 *      write(*,*)'gk: in grad1, pointforce = ', pointforce
 cgk end
 
@@ -118,17 +118,18 @@ C               shell block in atomic (D/Dw)-matrix block
 
                 nint = ( il1 - if1 + 1 ) * ( il2 - if2 + 1 )
 
-C               overlap derivatives
+C               Calculate overlap derivatives
                 call intd_1eov(basis,ish1,basis,ish2,lscr,scr,
      &               lbuf,H,idatom)
+                !WRITE(6,*)" Deriv overlap"
 
 C     Dw x S
-
+!               Multiply overlap derivatives by Fock matrix
                 if ( idatom(1) .ge. 1 ) then
 C               idatom(1).ge.0 <=> idatom(2).ge.0 (no check necessary)
                   ic = 1
                   do 28, icart = 1, 3
-                    de = 0.D0
+                    dE = 0.D0
                     do 22, ip1 = if1, il1
                       do 20, ip2 = if2, il2
                         dE = dE + wdens(ip1,ip2) * H(ic)
@@ -145,9 +146,11 @@ C               idatom(1).ge.0 <=> idatom(2).ge.0 (no check necessary)
 
 C               1el. derivatives
                 if(.not.dobq) then
+                ! Calculate KE derivatives
                 call intd_1eh1(basis,ish1,basis,ish2,lscr,scr,
      &               lbuf,H)
                 else
+                ! Calculate 1-e potential derivatives
                 call intd_1epot(basis,ish1,basis,ish2,lscr,scr,
      &               lbuf,H)
                 end if
@@ -255,7 +258,7 @@ c
       next = nxtask(-nproc,task_size)
 
 cgk debug
-*      write(*,*)'gk: leaving grad1'
+       !write(6,*)'gk: leaving grad1'
 cgk end
 
       return

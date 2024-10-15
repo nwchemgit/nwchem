@@ -27,7 +27,7 @@ c
       parameter(nipv=2, msame=0,nmsame = 1, nomore = 2 )
       integer last, nrec, ierr
       real*8 buf(lbuf),val(nipbuf),fcore
-      double precision d1(nnmt)
+      real*8 d1(nnmt)
       integer ilab(nipv,nipbuf),sym(*),map(*)
       integer nmpsy(*)
       integer infomo(*),kntin(*)
@@ -41,22 +41,22 @@ c
       integer numd
 c
 cgk debug
-*     write(*,*)'gk: calling sifr1x from rd1mat'
-*     write(*,*)'gk: ntape = ', ntape
-*     write(*,*)'gk: itypea = ', itypea
-*     write(*,*)'gk: itypeb = ', itypeb
-*     write(*,*)'gk: nipbuf = ', nipbuf
-*     write(*,*)'gk: lbuf = ', lbuf
-*     write(*,*)'gk: nsym = ', nsym
-*     write(*,*)'gk: nnmt = ', nnmt
-*     write(*,*)'gk: nbf = ', nbf
-*     write(*,*)'gk: nmpsy(*) = ', (nmpsy(i),i=1,nsym)
-*     write(*,*)'gk: infomo(1) = ', infomo(1)
-*     write(*,*)'gk: infomo(2) = ', infomo(2)
-*     write(*,*)'gk: infomo(3) = ', infomo(3)
-*     write(*,*)'gk: infomo(4) = ', infomo(4)
-*     write(*,*)'gk: infomo(5) = ', infomo(5)
-*     write(*,*)'gk: symoff(1) = ', symoff(1)
+      !write(6,*)'gk: calling sifr1x from rd1mat'
+      !write(6,*)'gk: ntape = ', ntape
+      !write(6,*)'gk: itypea = ', itypea
+      !write(6,*)'gk: itypeb = ', itypeb
+      !write(6,*)'gk: nipbuf = ', nipbuf
+      !write(6,*)'gk: lbuf = ', lbuf
+      !write(6,*)'gk: nsym = ', nsym
+      !write(6,*)'gk: nnmt = ', nnmt
+      !write(6,*)'gk: nbf = ', nbf
+      !write(6,*)'gk: nmpsy(*) = ', (nmpsy(i),i=1,nsym)
+      !write(6,*)'gk: infomo(1) = ', infomo(1)
+      !write(6,*)'gk: infomo(2) = ', infomo(2)
+      !write(6,*)'gk: infomo(3) = ', infomo(3)
+      !write(6,*)'gk: infomo(4) = ', infomo(4)
+      !write(6,*)'gk: infomo(5) = ', infomo(5)
+      !write(6,*)'gk: symoff(1) = ', symoff(1)
 cgk end
       fcore= zero
       symoff(1)=0
@@ -76,8 +76,9 @@ cgk end
         map(i)=i
       enddo
 cgk debug
-*      write(*,*)'gk: calling sifr1x'
-*      WRITE(*,*)"LB: itypeb=",itypeb
+      !write(*,*)'gk: calling sifr1x'
+      !WRITE(*,*)"LB: itypea=",itypea
+      !WRITE(*,*)"LB: itypeb=",itypeb
 cgk end
       call sifr1x(
      1 ntape, infomo, itypea, itypeb,
@@ -87,8 +88,9 @@ cgk end
      5 lasta,lastb,   last,   nrec,
      6 ierr)
 cgk debug
-*     write(*,*)'gk: back from sifr1x in rd1mat'
-*     write(*,*)'gk:  nmpsy(1)=', nmpsy(1)
+      !write(6,*)'gk: back from sifr1x in rd1mat'
+      !WRITE(6,*)"LB ierr =",ierr
+      !write(6,*)'gk:  nmpsy(1)=', nmpsy(1)
 cgk end
       if ( ierr.ne. 0) then
         call bummer('rd1mat: from sifr1x, ierr=',ierr,faterr)

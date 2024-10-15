@@ -529,6 +529,7 @@ c
       double precision s52,s63,s1263,s5263
       integer k
       double precision phi0
+      double precision acos_in
       character*30 pname
 c    
       pname = "cons_dihed"
@@ -544,8 +545,10 @@ c
       call cons_ddot(r52,r52,s52)
       call cons_ddot(r63,r63,s63)
       call cons_ddot(r52,r63,s5263)
-
-      phi0 = acos(s5263/sqrt(s52*s63))
+      acos_in=s5263/sqrt(s52*s63)
+c     keeps acos value between -1 and 1
+      acos_in=sign(min(1d0,abs(acos_in)),acos_in)
+      phi0 = acos(acos_in)
 
       call cons_ddot(r12,r63,s1263)
 

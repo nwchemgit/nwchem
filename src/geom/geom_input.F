@@ -4536,7 +4536,8 @@ C
       external deter3,dlamch
       logical sameatm,ngotax(3)
       double complex geom_powcmpl
-      external geom_powcmpl
+      double precision geom_cmplxabs
+      external geom_powcmpl,geom_cmplxabs
       double precision xx,yy,zz,zero
       double precision THREQUIV
       integer iat,jat
@@ -5070,26 +5071,26 @@ C
             if (.not.stopordrx) then
                QDUMX= geom_powcmpl(C2(2,IAT),C2(3,IAT),IORDR,big)
                QX(IORDR)=QX(IORDR)+QDUMX
-               if (abs(qx(iordr)).gt.big) stopordrx = .true.
+               if (geom_cmplxabs(qx(iordr)).gt.big) stopordrx = .true.
             endif
             if (.not.stopordry) then
                QDUMY= geom_powcmpl(C2(1,IAT),C2(3,IAT),IORDR,big)
                QY(IORDR)=QY(IORDR)+QDUMY
-               if (abs(qy(iordr)).gt.big) stopordry = .true.
+               if (geom_cmplxabs(qy(iordr)).gt.big) stopordry = .true.
             endif
             if (.not.stopordrz) then
                QDUMZ= geom_powcmpl(C2(1,IAT),C2(2,IAT),IORDR,big)
                QZ(IORDR)=QZ(IORDR)+QDUMZ
-               if (abs(qz(iordr)).gt.big) stopordrz = .true.
+               if (geom_cmplxabs(qz(iordr)).gt.big) stopordrz = .true.
             endif
             IF(MUCH) THEN
                WRITE(IW,9996) IORDR,IAT
                WRITE(IW,9995) QDUMX,QDUMY,QDUMZ
             ENDIF
          ENDDO
-         XMAG(IORDR)=ABS(QX(IORDR))     
-         YMAG(IORDR)=ABS(QY(IORDR))
-         ZMAG(IORDR)=ABS(QZ(IORDR))
+         XMAG(IORDR)=geom_cmplxabs(QX(IORDR))
+         YMAG(IORDR)=geom_cmplxabs(QY(IORDR))
+         ZMAG(IORDR)=geom_cmplxabs(QZ(IORDR))
          IF(MUCH) THEN
             WRITE(IW,9998) QX(IORDR),QY(IORDR),QZ(IORDR)
          ENDIF
@@ -5172,10 +5173,10 @@ C
             DO JAT=1,NAT
                IF(sameatm(JAT,IAT).AND..NOT.PRPAXS) THEN
                   QDUMI=CMPLX(C2(I,IAT),C2(J,IAT))
-                  RR=ABS(QDUMI)
+                  RR=geom_cmplxabs(QDUMI)
                   QDUMI=CMPLX(COS(THETA),SIN(THETA))*QDUMI
                   QDUMJ=CMPLX(C2(I,JAT),C2(J,JAT))
-                  DD=ABS(QDUMI-QDUMJ)
+                  DD=geom_cmplxabs(QDUMI-QDUMJ)
                   DZ=C2(K,IAT)-C2(K,JAT)
                   PRPAXS=(ABS(DD).LT.THREQUIV).AND.
      1                   (ABS(DZ).LT.THREQUIV)
@@ -5200,10 +5201,10 @@ C
             DO JAT=1,NAT
                IF(sameatm(JAT,IAT).AND..NOT.IMPAXS) THEN
                   QDUMI=CMPLX(C2(I,IAT),C2(J,IAT))
-                  RR=ABS(QDUMI)
+                  RR=geom_cmplxabs(QDUMI)
                   QDUMI=CMPLX(COS(THETA),SIN(THETA))*QDUMI
                   QDUMJ=CMPLX(C2(I,JAT),C2(J,JAT))
-                  DD=ABS(QDUMI-QDUMJ)
+                  DD=geom_cmplxabs(QDUMI-QDUMJ)
                   DZ=C2(K,IAT)+C2(K,JAT)
                   IMPAXS=(ABS(DD).LT.THREQUIV).AND.
      1                   (ABS(DZ).LT.THREQUIV)
@@ -5259,10 +5260,10 @@ C
             DO JAT=1,NAT
                IF(sameatm(JAT,IAT).AND..NOT.PRPAXS) THEN
                   QDUMI=CMPLX(C2(I,IAT),C2(J,IAT))
-                  RR=ABS(QDUMI)
+                  RR=geom_cmplxabs(QDUMI)
                   QDUMI=CMPLX(COS(THETA),SIN(THETA))*QDUMI
                   QDUMJ=CMPLX(C2(I,JAT),C2(J,JAT))
-                  DD=ABS(QDUMI-QDUMJ)
+                  DD=geom_cmplxabs(QDUMI-QDUMJ)
                   DZ=C2(K,IAT)-C2(K,JAT)
                   PRPAXS=(ABS(DD).LT.THREQUIV).AND.
      1                   (ABS(DZ).LT.THREQUIV)
@@ -7347,7 +7348,24 @@ c
             geom_powcmpl=CMPLX(c,s)
          endif
       endif
- 
+cdbg      write(6,*) ' gpow returns ',geom_powcmpl
+      return
+      end
+      double precision function geom_cmplxabs(cmplx_in)
+      implicit none
+      double complex cmplx_in
+c
+      double precision my_real,my_img
+c
+      double precision toll
+      parameter (toll=1d-9)
+      my_img=abs(aimag(cmplx_in))
+      my_real=abs(real(cmplx_in))
+      if(my_img.lt.toll.and.my_real.lt.toll) then
+         geom_cmplxabs=0d0
+      else
+         geom_cmplxabs=abs(cmplx_in)
+      endif
       return
       end
 C> @}

@@ -155,6 +155,9 @@ ifeq ($(_FC),g77)
     FDEBUG +=-ffloat-store -fno-fast-math
 endif
 ifeq ($(_FC),gfortran)
-    FDEBUG +=-ffloat-store -fno-fast-math
+    ifneq ($(USE_FLANG),1)
+        FDEBUG += -ffloat-store
+    endif
+    FDEBUG += -fno-fast-math
 endif
 

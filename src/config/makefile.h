@@ -20,7 +20,7 @@
 # For development tree 
 #RELEASE := 
 # For current release tree
-RELEASE := 7.2.1
+RELEASE := 7.2.3
 
 #
 ifndef NWCHEM_TOP
@@ -2423,7 +2423,7 @@ ifneq ($(TARGET),LINUX)
                         FOPTIONS += -qopt-report-file=stderr
                     endif
                     ifeq ($(V),-1)
-                        FOPTIONS += -diag-disable=7713,8291,15009
+		         FOPTIONS += -diag-disable=7713,8291,15009,10448
                     endif
 #                   to avoid compiler crashes on simd directive. e.g .Version 15.0.2.164 Build 20150121
                     ifdef USE_NOSIMD
@@ -2817,7 +2817,14 @@ ifneq ($(TARGET),LINUX)
                     FDEBUG += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
                 endif
 
+                ifeq ($(USE_FLANG),1)
+                    ifdef USE_OPTREPORT
+                        FOPTIMIZE  += -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize
+                    endif
+                else
+
                 FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
+		endif
                 ifeq ($(GNU_GE_4_8),true)
                     FOPTIMIZE  += -ftree-vectorize
                          ifdef USE_OPTREPORT
@@ -2833,7 +2840,10 @@ ifneq ($(TARGET),LINUX)
                             FOPTIMIZE += -mtune=a64fx -mcpu=a64fx
                             FOPTIMIZE += -march=armv8.2-a+sve
                         else
-                            FOPTIMIZE += -mtune=native -march=native
+                            ifneq ($(USE_FLANG),1)
+                               FOPTIMIZE += -mtune=native 
+			    endif
+                            FOPTIMIZE += -march=native
                         endif
                         FOPTIMIZE += -ffp-contract=fast
                              ifdef USE_OPTREPORT
@@ -3883,7 +3893,7 @@ ifdef USE_MPI
 	    endif
 	endif
         # check if mpif90 is present
-	MPIF90YN := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh)
+	MPIF90YN := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh $(NWCHEM_TOP))
         ifeq ($(MPIF90YN),mpif90notfound)
             errormpif90:
                 $(info )
@@ -3893,7 +3903,7 @@ ifdef USE_MPI
                 $(error )
         endif
 
-	NWMPI_INCLUDE := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh)
+	NWMPI_INCLUDE := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh $(NWCHEM_TOP))
 	NWMPI_LIB     := $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
 	NWLIBMPI      := $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
     endif

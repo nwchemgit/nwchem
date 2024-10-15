@@ -10,9 +10,16 @@
 #include "errquit.fh"      
 
 c     purpose: solve linear equation system AX = B with square but
-c     perhaps non-symmetric matrix. ga_solve relies on SCALAPACK for
-c     reliable results, which we may not have available in a given build
+c     perhaps non-symmetric matrix A. Tests showed that ga_solve needs
+c     SCALAPACK for reliable results for certain equation systems
+c     encountered in X2C calcualtions or in the construction of IBOs,
+c     which we may not have available in a given build. The IBO
+c     localization calls ma_solve once even when SCALAPACK is available,
+c     because ga_solve gave an error 'ga_to_SL: rows/cols error'.
 
+c     this code used LU factorization with Lapack routine
+c     dgetrs to solve the equation system with Lapack dgetrs.
+c     the code runs serial.
 
       integer g_a   ! input: square coefficient matrix A
       integer g_bx  ! in-out: rhs B and solution matrix X
@@ -71,6 +78,8 @@ c$$$      end if
 
       info1 = 0
       info2 = 0
+
+      if (master) then    
 
 c     allocate MA arrays and retrieve data from GAs
 
@@ -144,6 +153,8 @@ c     MA arrays no longer needed
 
       if (.not.ma_chop_stack(l_amat)) call
      &  errquit(pname//': ma_chop_stack failed k_amat',l_tmp,MA_ERR)
+
+       end if ! running on master node
 
 c$$$c     allocate one more GA, perform X = A**(-1) B, and
 c$$$c     store the result in g_bx

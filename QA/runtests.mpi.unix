@@ -32,7 +32,7 @@
 export HYDRA_DEBUG=0
 # find memory leaks using  this glibc feature that
 # initialized memory blocks to non-zero values
-if [[ -z "${USE_ASAN}" ]]; then
+if [[ -z "${USE_ASAN}"  ]] && [[ "${FC}" != "flang-new-20"  ]]; then
     export MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
 fi    
 source ./qa_funcs.sh

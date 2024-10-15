@@ -17,8 +17,8 @@ c
       Double Precision RefEner, Convi, Tol2E
       Character*(*) CC_Theory
       Integer RTDB, geom
-      logical oconverged, occd, use_trpdrv_nb
-      logical use_trpdrv_omp, use_trpdrv_bgp2
+      logical oconverged, occd
+      logical use_trpdrv_omp
       logical use_trpdrv_omp_mp
       logical use_trpdrv_openmp_imax
       logical use_trpdrv_openacc
@@ -717,9 +717,6 @@ C
 !
 ! Determine if OpenMP, etc. should be used in (T) code
 !
-      if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_nb', mt_log, 1,
-     1                   use_trpdrv_nb))
-     2    use_trpdrv_nb=.false.
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_omp', mt_log, 1,
      1                   use_trpdrv_omp))
      2    use_trpdrv_omp=.false.
@@ -735,9 +732,6 @@ C
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_offload', mt_log, 1,
      1                   use_trpdrv_offload))
      2    use_trpdrv_offload=.false.
-      if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_bgp2', mt_log, 1,
-     1                   use_trpdrv_bgp2))
-     2    use_trpdrv_bgp2=.false.
 !
       mem_avail = ma_inquire_avail(MT_DBL)
       if(iam.eq.0.and.oprint)write(luout,*)'memory',mem_avail
@@ -1058,29 +1052,6 @@ c
          call errquit('aoccsd: trpdrv_omp_mixprec disabled ',0,0)
 #endif
 c
-         elseif (use_trpdrv_nb) then
-c
-         if (iam.eq.0.and.oprint) then
-            write(luout,1847) nvpass
-            call util_flush(luout)
-         endif
- 1847    format(' commencing triples evaluation - non-blocking',i8)
-         call ccsd_trpdrv_nb(dbl_mb(k_t1),
-#ifdef USE_F90_ALLOCATABLE
-     $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
-#else
-     $        dbl_mb(k_f1n),dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
-     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),dbl_mb(k_f4t),
-#endif
-     $        eorb,g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,iprt,
-     $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
-     $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia),
-     $        dbl_mb(k_trp_Tka), dbl_mb(k_trp_Xia), dbl_mb(k_trp_Xka),
-     $        dbl_mb(k_trp_Jia), dbl_mb(k_trp_Jka), dbl_mb(k_trp_Kia),
-     $        dbl_mb(k_trp_Kka), dbl_mb(k_trp_Jij), dbl_mb(k_trp_Jkj),
-     $        dbl_mb(k_trp_Kij), dbl_mb(k_trp_Kkj), dbl_mb(k_trp_Dja),
-     $        dbl_mb(k_trp_Djka), dbl_mb(k_trp_Djia))
-c
 #ifdef USE_MIC_TRPDRV
          elseif (use_trpdrv_offload) then
 c
@@ -1097,31 +1068,6 @@ c
      $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),dbl_mb(k_f4t),
 #endif
      $        eorb,g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,
-     $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
-     $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia),
-     $        dbl_mb(k_trp_Tka), dbl_mb(k_trp_Xia), dbl_mb(k_trp_Xka),
-     $        dbl_mb(k_trp_Jia), dbl_mb(k_trp_Jka), dbl_mb(k_trp_Kia),
-     $        dbl_mb(k_trp_Kka), dbl_mb(k_trp_Jij), dbl_mb(k_trp_Jkj),
-     $        dbl_mb(k_trp_Kij), dbl_mb(k_trp_Kkj), dbl_mb(k_trp_Dja),
-     $        dbl_mb(k_trp_Djka), dbl_mb(k_trp_Djia))
-c
-#endif
-#ifdef BGP
-         elseif (use_trpdrv_bgp2) then
-c
-         if (iam.eq.0.and.oprint) then
-            write(luout,1849)nvpass
-            call util_flush(luout)
-         endif
- 1849    format(' commencing triples evaluation - Blue Gene v2',i8)
-         call ccsd_trpdrv_bgp2(dbl_mb(k_t1),
-#ifdef USE_F90_ALLOCATABLE
-     $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
-#else
-     $        dbl_mb(k_f1n),dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
-     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),dbl_mb(k_f4t),
-#endif
-     $        eorb,g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,iprt,
      $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
      $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia),
      $        dbl_mb(k_trp_Tka), dbl_mb(k_trp_Xia), dbl_mb(k_trp_Xka),

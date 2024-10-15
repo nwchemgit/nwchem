@@ -87,7 +87,7 @@ echo yes > sifs.patched
 fi
 
 # dcopy is cursed, won't work with COLUMBUS
-sed -i -e 's/dcopy_wr/cdcopy/g' ./colib8.f
+#sed -i -e 's/dcopy_wr/cdcopy/g' ./colib8.f
 
 # SO effective density matrix has btype 35.  Needed until this change is made in COLUMBUS
 sed -i -e 's/btypmx=34/btypmx=40/g' ./colib8.f
