@@ -943,15 +943,33 @@ C     i1 ( h6 p3 h1 p5 )_vt+= -1*Sum ( p7 )*t ( p7 h1 )_t*v ( h6 p3 p5 p7 )_v
       integer, intent(in) :: d_a, d_b, d_c
       integer, intent(in) :: k_a_offset, k_b_offset, k_c_offset
       integer, intent(in) :: maxh,maxp
-      integer :: dimhhpp,dimpppp
       integer :: p3b, h6b, h1b, p5b, p7b
       integer :: p7b_1, h1b_1, p3b_2, h6b_2, p5b_2, p7b_2, p7b_in
       integer :: dima, dimb, dimc, dim_common, dima_sort, dimb_sort
-      integer :: k_a, l_a, k_b, l_b, k_c, l_c
-      integer :: k_as, l_as, k_bs, l_bs, k_cs, l_cs
+#ifdef USE_TCE_CUBLAS
+      double precision, allocatable, dimension(:), pinned :: f_t
+      double precision, allocatable, dimension(:), device :: f_a, f_b, f_c
+#else
+#warning NO GPU ALLOCATIONS
+      double precision, allocatable, dimension(:) :: f_t
+      double precision, allocatable, dimension(:) :: f_a, f_b, f_c
+#endif
       integer :: next, nprocs, count
       integer :: NXTASK
       EXTERNAL NXTASK
+
+      integer :: dimhhpp,dimhppp,dimhp
+      integer :: e_a
+
+      dimhp   = maxh*maxp           ! A
+      dimhppp = maxh*maxp*maxp*maxp ! B
+      dimhhpp = maxh*maxh*maxp*maxp ! C
+      allocate( f_a(1:dimhp), f_b(1:dimhppp), f_c(1:dimhhpp),
+     &          f_t(1:dimhppp), stat=e_a)
+      if (e_a .ne. 0) then
+        CALL ERRQUIT('ccsd_t2_7_2_x',dimhhpp*4,MA_ERR)
+      end if
+
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -970,9 +988,9 @@ C     i1 ( h6 p3 h1 p5 )_vt+= -1*Sum ( p7 )*t ( p7 h1 )_t*v ( h6 p3 p5 p7 )_v
              IF (next.eq.count) THEN
               dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h6b-1)
      &             * int_mb(k_range+h1b-1) * int_mb(k_range+p5b-1)
-              IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) 
-     &         CALL ERRQUIT('ccsd_t2_7_2',0,MA_ERR)
-              CALL DFILL(dimc,0.0d0,dbl_mb(k_cs),1)
+!              IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) 
+!     &         CALL ERRQUIT('ccsd_t2_7_2',0,MA_ERR)
+              f_c = 0.0d0
               do p7b_in=ga_nodeid()+1,ga_nodeid()+nvab
                p7b=mod(p7b_in,nvab)+noab+1
                IF (int_mb(k_spin+p7b-1) .eq. int_mb(k_spin+h1b-1)) THEN
@@ -987,85 +1005,99 @@ C     i1 ( h6 p3 h1 p5 )_vt+= -1*Sum ( p7 )*t ( p7 h1 )_t*v ( h6 p3 p5 p7 )_v
                  dimb_sort = int_mb(k_range+p3b-1)
      &                     * int_mb(k_range+h6b-1)
      &                     * int_mb(k_range+p5b-1)
-                 dima = dim_common*dima_sort
-                 dimb = dim_common*dimb_sort
+!                 dima = dim_common*dima_sort
+                 dima = int_mb(k_range+p7b-1) * int_mb(k_range+h1b-1)
+!                 dimb = dim_common*dimb_sort
+                 dimb = int_mb(k_range+p7b-1) * int_mb(k_range+p3b-1)
+     &                * int_mb(k_range+h6b-1) * int_mb(k_range+p5b-1)
                  IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
-                  IF (.not.MA_PUSH_GET(mt_dbl,dima,'as',l_as,k_as)) 
-     &              CALL ERRQUIT('ccsd_t2_7_2',1,MA_ERR)
-                  IF (.not.MA_PUSH_GET(mt_dbl,dima,'a',l_a,k_a)) 
-     &              CALL ERRQUIT('ccsd_t2_7_2',2,MA_ERR)
-                  CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),dbl_mb(k_a),dima,
+!                  IF (.not.MA_PUSH_GET(mt_dbl,dima,'as',l_as,k_as)) 
+!     &              CALL ERRQUIT('ccsd_t2_7_2',1,MA_ERR)
+!                  IF (.not.MA_PUSH_GET(mt_dbl,dima,'a',l_a,k_a)) 
+!     &              CALL ERRQUIT('ccsd_t2_7_2',2,MA_ERR)
+                  CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),f_t,dima,
      &                 int_mb(k_a_offset),(h1b_1-1+noab*(p7b_1-noab-1)))
-                  CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_as),
+                  CALL TCE_SORT_2_X(f_t,f_a,
      &                 int_mb(k_range+p7b-1),int_mb(k_range+h1b-1),
      &                 2,1,1.0d0)
-                  IF (.not.MA_POP_STACK(l_a)) 
-     &              CALL ERRQUIT('ccsd_t2_7_2',3,MA_ERR)
-                  IF (.not.MA_PUSH_GET(mt_dbl,dimb,'bs',l_bs,k_bs)) 
-     &              CALL ERRQUIT('ccsd_t2_7_2',4,MA_ERR)
-                  IF (.not.MA_PUSH_GET(mt_dbl,dimb,'b',l_b,k_b)) 
-     &              CALL ERRQUIT('ccsd_t2_7_2',5,MA_ERR)
+!                  IF (.not.MA_POP_STACK(l_a)) 
+!     &              CALL ERRQUIT('ccsd_t2_7_2',3,MA_ERR)
+!                  IF (.not.MA_PUSH_GET(mt_dbl,dimb,'bs',l_bs,k_bs)) 
+!     &              CALL ERRQUIT('ccsd_t2_7_2',4,MA_ERR)
+!                  IF (.not.MA_PUSH_GET(mt_dbl,dimb,'b',l_b,k_b)) 
+!     &              CALL ERRQUIT('ccsd_t2_7_2',5,MA_ERR)
                   IF ((h6b .le. p3b) .and. (p7b .lt. p5b)) THEN
                    if(.not.intorb) then
-                    CALL GET_HASH_BLOCK(d_b,dbl_mb(k_b),dimb,
+                    CALL GET_HASH_BLOCK(d_b,f_t,dimb,
      &                   int_mb(k_b_offset),(p5b_2-1+(noab+nvab)*
      &                   (p7b_2-1+(noab+nvab)*(p3b_2-1+(noab+nvab)*
      &                   (h6b_2-1)))))
                    else
-                    CALL GET_HASH_BLOCK_I(d_b,dbl_mb(k_b),dimb,
+                    CALL GET_HASH_BLOCK_I(d_b,f_t,dimb,
      &                   int_mb(k_b_offset),(p5b_2-1+(noab+nvab)*
      &                   (p7b_2-1+(noab+nvab)*(p3b_2-1+(noab+nvab)*
      &                   (h6b_2-1)))),p5b_2,p7b_2,p3b_2,h6b_2)
                    end if
-                   CALL TCE_SORT_4(dbl_mb(k_b),dbl_mb(k_bs),
+                   CALL TCE_SORT_4_X(f_t,f_b,
      &                  int_mb(k_range+h6b-1),int_mb(k_range+p3b-1),
      &                  int_mb(k_range+p7b-1),int_mb(k_range+p5b-1),
      &                  4,1,2,3,-1.0d0)
                   END IF
                   IF ((h6b .le. p3b) .and. (p5b .le. p7b)) THEN
                    if(.not.intorb) then
-                    CALL GET_HASH_BLOCK(d_b,dbl_mb(k_b),dimb,
+                    CALL GET_HASH_BLOCK(d_b,f_t,dimb,
      &                   int_mb(k_b_offset),(p7b_2-1+(noab+nvab)*
      &                   (p5b_2-1+(noab+nvab)*(p3b_2-1+(noab+nvab)*
      &                   (h6b_2-1)))))
                    else
-                    CALL GET_HASH_BLOCK_I(d_b,dbl_mb(k_b),dimb,
+                    CALL GET_HASH_BLOCK_I(d_b,f_t,dimb,
      &                   int_mb(k_b_offset),(p7b_2-1+(noab+nvab)*
      &                   (p5b_2-1+(noab+nvab)*(p3b_2-1+(noab+nvab)*
      &                   (h6b_2-1)))),p7b_2,p5b_2,p3b_2,h6b_2)
                    end if
-                   CALL TCE_SORT_4(dbl_mb(k_b),dbl_mb(k_bs),
+                   CALL TCE_SORT_4_X(f_t,f_b,
      &                  int_mb(k_range+h6b-1),int_mb(k_range+p3b-1),
      &                  int_mb(k_range+p5b-1),int_mb(k_range+p7b-1),
      &                  3,1,2,4,1.0d0)
                   END IF
-                  IF (.not.MA_POP_STACK(l_b)) 
-     &              CALL ERRQUIT('ccsd_t2_7_2',6,MA_ERR)
-                  CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
-     &                 1.0d0,dbl_mb(k_as),dim_common,
-     &                       dbl_mb(k_bs),dim_common,
-     &                 1.0d0,dbl_mb(k_cs),dima_sort)
-                  IF (.not.MA_POP_STACK(l_bs)) 
-     &              CALL ERRQUIT('ccsd_t2_7_2',7,MA_ERR)
-                  IF (.not.MA_POP_STACK(l_as)) 
-     &              CALL ERRQUIT('ccsd_t2_7_2',8,MA_ERR)
+!                  IF (.not.MA_POP_STACK(l_b)) 
+!     &              CALL ERRQUIT('ccsd_t2_7_2',6,MA_ERR)
+                  block
+#ifdef USE_TCE_CUBLAS
+                    ! the CUBLAS interface only support INT32
+                    use iso_fortran_env, only: INT32
+                    use cublas, only : DGEMM
+                    integer(kind=INT32) :: m,n,k
+#else
+                    integer :: m,n,k
+#endif
+                    m = dima_sort
+                    n = dimb_sort
+                    k = dim_common
+                    CALL DGEMM('T','N',m,n,k,
+     &                   1.0d0,f_a,k,f_b,k,1.0d0,f_c,m)
+                  end block
+!                  IF (.not.MA_POP_STACK(l_bs)) 
+!     &              CALL ERRQUIT('ccsd_t2_7_2',7,MA_ERR)
+!                  IF (.not.MA_POP_STACK(l_as)) 
+!     &              CALL ERRQUIT('ccsd_t2_7_2',8,MA_ERR)
                  END IF
                 END IF
                END IF
               END DO
-              IF (.not.MA_PUSH_GET(mt_dbl,dimc,'c',l_c,k_c)) 
-     &          CALL ERRQUIT('ccsd_t2_7_2',9,MA_ERR)
-              CALL TCE_SORT_4(dbl_mb(k_cs),dbl_mb(k_c),
+!              IF (.not.MA_PUSH_GET(mt_dbl,dimc,'c',l_c,k_c)) 
+!     &          CALL ERRQUIT('ccsd_t2_7_2',9,MA_ERR)
+              CALL TCE_SORT_4_X(f_c,f_t,
      &             int_mb(k_range+p5b-1),int_mb(k_range+h6b-1),
      &             int_mb(k_range+p3b-1),int_mb(k_range+h1b-1),
      &             3,2,4,1,-1.0d0)
-              CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_c),dimc,
+              CALL ADD_HASH_BLOCK(d_c,f_t,dimc,
      &             int_mb(k_c_offset),(h6b-1+noab*(p5b-noab-1+nvab*
      &             (h1b-1+noab*(p3b-noab-1)))))
-              IF (.not.MA_POP_STACK(l_c)) 
-     &           CALL ERRQUIT('ccsd_t2_7_2',10,MA_ERR)
-              IF (.not.MA_POP_STACK(l_cs)) 
-     &          CALL ERRQUIT('ccsd_t2_7_2',11,MA_ERR)
+!              IF (.not.MA_POP_STACK(l_c)) 
+!     &           CALL ERRQUIT('ccsd_t2_7_2',10,MA_ERR)
+!              IF (.not.MA_POP_STACK(l_cs)) 
+!     &          CALL ERRQUIT('ccsd_t2_7_2',11,MA_ERR)
               next = NXTASK(nprocs, 1)
              END IF
              count = count+1
@@ -1076,6 +1108,12 @@ C     i1 ( h6 p3 h1 p5 )_vt+= -1*Sum ( p7 )*t ( p7 h1 )_t*v ( h6 p3 p5 p7 )_v
         END DO
        END DO
       END DO
+
+      deallocate( f_a, f_b, f_c, f_t, stat=e_a )
+      if (e_a .ne. 0) then
+        CALL ERRQUIT('ccsd_t2_7_2_x',e_a,MA_ERR)
+      end if
+
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
       END
