@@ -29,29 +29,63 @@ if [ -z "$DISTR" ] ; then
     DISTR=$dist
 fi
 echo DISTR is "$DISTR"
-	IONEAPI_ROOT=~/apps/oneapi
- if [[ "$os" == "Darwin" ]]; then 
+if [[ "$os" == "Darwin" ]]; then
+    IONEAPI_ROOT=~/apps/oneapi
+else
+    IONEAPI_ROOT=/opt/intel/oneapi
+fi
+	if [[ "$os" == "Darwin" ]]; then
+	    if [ -z $XCODE_VERSION ]; then
+		echo XCODE_VERSION  is not set
+	    else
+		echo "XCODE_VERSION is $XCODE_VERSION"
+		echo " ls -l on App xcode " $(ls -l /Applications|grep -i xcode)
+		$MYSUDO xcode-select -s /Applications/Xcode_"$XCODE_VERSION".app/Contents/Developer
+	    fi
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
-#  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
-     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep automake autoconf ||true
-     if [[ "$FC" != "gfortran" ]]; then
+	    #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
+	    HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc hwloc  gsed grep automake autoconf  ||true
+	    if [[ "$MPI_IMPL" != "build_mpich" ]]; then
+		brew list open-mpi >&  /dev/null ; myexit=$?
+		if [[ $myexit == 0 ]]; then HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew unlink -q open-mpi ||true ; fi
+                brew list mpich >&  /dev/null ; myexit=$?
+		if [[ $myexit == 0 ]]; then HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew unlink -q mpich ||true ; fi
+		HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall  $MPI_IMPL  ||true
+#		HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew link --overwrite $MPI_IMPL ||true
+	    fi
+     if [ -z "$HOMEBREW_CELLAR" ] ; then
+	 HOMEBREW_CELLAR=/usr/local/Cellar
+     fi
+     if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
 	 #install non default gfortran, ie gfortran-9
 	 #get version
 	 mygccver=$(echo "$FC"|cut -d - -f 2)
 	 echo mygccver is "$mygccver"
 	 HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc@"$mygccver" || true
+	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
+	 echo gfortran is $(gfortran -v)
+	 echo gfortran-"$mygccver" is $(gfortran-"$mygccver" -v)
+     fi
+     if [[ "$CC" != gcc ]] && [[ "$CC" == gcc* ]]; then
+	 #install non default gfortran, ie gcc-9
+	 #get version
+	 mygccver=$(echo "$CC"|cut -d - -f 2)
+	 echo mygccver is "$mygccver"
+	 HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc@"$mygccver" || true
+	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
+	 echo gcc is $(gcc -v)
+	 echo gcc-"$mygccver" is $(gcc-"$mygccver" -v)
      fi
      #hack to fix Github actions mpif90
      gccver=`brew list --versions gcc| head -1 |cut -c 5-`
      echo brew gccver is $gccver
-     if [ -z "$HOMEBREW_CELLAR" ] ; then
-	 HOMEBREW_CELLAR=/usr/local/Cellar
-     fi
      ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran || true
      ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
      #	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
      $FC --version
      gfortran --version
+     echo "Xcode version " $(xcodebuild -version |tail -1)
+     echo "Clang version " $(clang -v)
      if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
          if [[ -f "$IONEAPI_ROOT"/setvars.sh ]]; then 
 	     echo ' using intel cache installation '
@@ -90,16 +124,32 @@ echo DISTR is "$DISTR"
 	"$FC" -V
 	icc -V
      fi
-     #hack to get 3.10 as default
-     brew install python@3.10
-     brew link --force --overwrite python@3.10
-     if [[ "$MPI_IMPL" == "mpich" ]]; then
-	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
-	 brew update || true
-	 brew unlink open-mpi && brew install mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
+#     if [[ "$MPI_IMPL" == "mpich" ]]; then
+#	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
+#	 brew update || true
+#	 brew list open-mpi >&  /dev/null ; myexit=$?
+#	 if [[ $myexit == 0 ]]; then brew unlink open-mpi || true ; fi
+#	 brew reinstall --quiet mpich  && brew unlink mpich && brew link mpich || true
+###	 brew reinstall --quiet mpich || true
+#     fi
+     if [ -z "$HOMEBREW_PREFIX" ] ; then
+	 HOMEBREW_PREFIX=/usr/local
+     fi
+     if [[ "$MPI_IMPL" != "build_mpich" ]]; then
+	 #check mpi install
+	 if [[ "$MPI_IMPL" == "mpich" ]]; then
+	     echo 'mpi90 -show' $("$HOMEBREW_PREFIX"/opt/mpich/bin/mpif90 -show)
+	 fi
+	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
+	     echo 'mpif90 -show' $("$HOMEBREW_PREFIX"/opt/open-mpi/bin/mpif90 -show)
+	 fi
+     fi
+     if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
+	 brew install openblas
+	 PKG_CONFIG_PATH=$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig pkg-config --libs openblas
      fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
-#      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
+#      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install --quiet scalapack
 #  fi
 fi
 if [[ "$os" == "Linux" ]]; then
@@ -136,16 +186,9 @@ if [[ "$os" == "Linux" ]]; then
 	if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" || "$FC" == "ifx" ]]; then
 	    export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 	    export TERM=dumb
-            rm -f l_Base*sh l_HP*sh
-	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
-			  dir_base="992857b9-624c-45de-9701-f6445d845359"
-			  dir_hpc="0722521a-34b5-4c41-af3f-d5d14e88248d"
-			  base="l_BaseKit_p_2023.2.0.49397"
-			  hpc="l_HPCKit_p_2023.2.0.49440"
-			  wget -nv https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_hpc"/"$hpc".sh \
-			      && wget -nv  https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_base"/"$base".sh \
-			      && break ;\
-			      tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
+	    wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | $MYSUDO tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+	    echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | $MYSUDO tee /etc/apt/sources.list.d/oneAPI.list
+	    $MYSUDO apt-get update
 
 	    if [[ "$MPI_IMPL" == "intel" ]]; then
 		mpi_bin="  " ; mpi_libdev=" " scalapack_libdev=" "
@@ -162,61 +205,40 @@ if [[ "$os" == "Linux" ]]; then
 	    if [[ "$USE_LIBXC" == "-1" ]]; then
 		pkg_extra+=" libxc-dev"
 	    fi
-	    echo pkg to install: gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra
+	    echo "BLAS_ENV is" $BLAS_ENV
+	    if [[ "$BLAS_ENV" == lib*openblas* ]]; then
+		pkg_extra+=" $BLAS_ENV"
+	    fi
+	    echo pkg to install: gfortran make perl sync $mpi_libdev $mpi_bin $pkg_extra
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
-			  $MYSUDO apt-get -y install gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra \
+			  $MYSUDO apt-get -y install gfortran make perl rsync $mpi_libdev $mpi_bin $pkg_extra \
 			      && break ;\
 			  tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
 	fi
 	if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
-#            sh ./"$base".sh -a -c -s --action remove --install-dir $IONEAPI_ROOT   --eula accept
-#            sh ./"$hpc".sh -a -c -s --action remove --install-dir  $IONEAPI_ROOT  --eula accept
-	    
-            sh ./"$base".sh -a -c -s --action install --components intel.oneapi.lin.mkl.devel --install-dir $IONEAPI_ROOT  --eula accept
+	    $MYSUDO apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-mkl intel-oneapi-compiler-dpcpp-cpp  libfabric-bin libnuma1
 	    if [[ "$?" != 0 ]]; then
 		df -h
-		echo "base kit install failed: exit code " "${?}"
+		echo "intel-oneapi-compiler-fortran install failed: exit code " "${?}"
 		exit 1
 	    fi
-	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/ia32
-	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*sycl*
-	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*_pgi_*
-	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*_gf_*
-	    intel_components="intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.dpcpp-cpp-compiler-pro"
-	    if [[ "$MPI_IMPL" == "intel" ]]; then
-		intel_components+=":intel.oneapi.lin.mpi.devel"
-	    fi
-            sh ./"$hpc".sh -a -c -s --action install \
-               --components  "$intel_components"  \
-               --install-dir $IONEAPI_ROOT     --eula accept
-	    if [[ "$?" != 0 ]]; then
-		df -h
-		echo "hpc kit install failed: exit code " "${?}"
-		exit 1
-	    fi
-	    rm  -rf $IONEAPI_ROOT/compiler/latest/linux/lib/oclfpga
-	    rm -f ./"$hpc".sh ./"$base".sh
-#Critical updates for 2023.2
-	    wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/0d65c8d4-f245-4756-80c4-6712b43cf835/l_fortran-compiler_p_2023.2.1.8.sh
-	    sh l_fortran-compiler_p_2023.2.1.8.sh -a -c -s --action install --install-dir $IONEAPI_ROOT  --components intel.oneapi.lin.ifort-compiler  --eula accept
-	    wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/ebf5d9aa-17a7-46a4-b5df-ace004227c0e/l_dpcpp-cpp-compiler_p_2023.2.1.8.sh
-	    sh l_dpcpp-cpp-compiler_p_2023.2.1.8.sh -a -s  --install-dir $IONEAPI_ROOT  --eula accept
-	    if [[ "$?" != 0 ]]; then
-		echo "apt-get install failed: exit code " "${?}"
-		exit 1
-	    fi
-	    rm -f l_*comp*sh || true
-	    rm  -rf $IONEAPI_ROOT/compiler/latest/linux/lib/oclfpga || true
             source "$IONEAPI_ROOT"/setvars.sh || true
 	    export I_MPI_F90="$FC"
 	    "$FC" -V ; if [[ $? != 0 ]]; then echo "Intel SW install failed"; exit 1; fi
-	    icc -V
-
+	    icx -V
+	    sudo rm -rf $MKLROOT/lib/*sycl* || true
+	fi
+	if [[ "$FC" == 'flang-new-'* ]]; then
+	    wget https://apt.llvm.org/llvm.sh
+	    chmod +x llvm.sh
+	    llvm_ver=$(echo $FC | cut -d - -f 3)
+	    $MYSUDO ./llvm.sh $llvm_ver
+	    $MYSUDO apt-get install -y flang-$llvm_ver
 	fi
 	if [[ "$FC" == "flang" ]]; then
 	    if [[ "USE_AOMP" == "Y" ]]; then
-		aomp_major=16
+		aomp_major=19
 		aomp_minor=0-3
 		wget -nv https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 		$MYSUDO dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
@@ -224,15 +246,19 @@ if [[ "$os" == "Linux" ]]; then
 		export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
 		ls -lrt /usr/lib | grep aomp ||true
 	    else
-		aocc_version=4.0.0
-		aocc_dir=aocc-compiler-${aocc_version}
+		aocc_major=4
+		aocc_minor=1
+		aocc_patch=0
+		aocc_version=${aocc_major}.${aocc_minor}.${aocc_patch}
+		aocc_dir=aocc-${aocc_major}-${aocc_minor}
+		aocc_file=aocc-compiler-${aocc_version}
 #		curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
 		tries=0 ; until [ "$tries" -ge 10 ] ; do \
-                curl -sS -LJO https://download.amd.com/developer/eula/aocc-compiler/${aocc_dir}.tar \
+                curl -sS -LJO https://download.amd.com/developer/eula/aocc/${aocc_dir}/${aocc_file}.tar \
                 && break ; \
                 tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
-		tar xf ${aocc_dir}.tar
-		./${aocc_dir}/install.sh
+		tar xf ${aocc_file}.tar
+		./${aocc_file}/install.sh
 		source setenv_AOCC.sh
 		pwd
 	    fi
@@ -241,7 +267,7 @@ if [[ "$os" == "Linux" ]]; then
 	fi
 	if [[ "$FC" == "amdflang" ]]; then
 	    $MYSUDO apt-get install -y wget gnupg2 coreutils dialog tzdata
-	    rocm_version=5.4.3
+	    rocm_version=5.6.1
 	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  $MYSUDO apt-key add - \
 		&& break ; \
@@ -292,4 +318,14 @@ if [[ "$os" == "Linux" ]]; then
     if [[ ! $(command -v mpif90) ]]; then echo "mpif90 not present"; exit 1; fi
     echo "mpif90 -show output is " `mpif90 -show` || true
     echo "which mpif90 output is " `which mpif90` ||  true
+# try to use ubuntu flaky GA pkg 
+    if [[ "$ARMCI_NETWORK" == "GA_DEBIAN" ]]; then
+	$MYSUDO apt-get install -y libglobalarrays-dev libarmci-mpi-dev
+	# hack
+	$MYSUDO ln -sf /usr/lib/x86_64-linux-gnu/libarmci.a /usr/lib/x86_64-linux-gnu/libarmci-openmpi.a
+#    export EXTERNAL_GA_PATH=/usr/lib/x86_64-linux-gnu/ga/openmpi
+#	export EXTERNAL_GA_PATH=/usr
+#	export EXTERNAL_ARMCI_PATH=/usr
+#	unset ARMCI_NETWORK
+fi    
 fi

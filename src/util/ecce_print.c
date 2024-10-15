@@ -1,14 +1,6 @@
-/*
- $Id$
- */
-
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#if defined(CRAY) && !defined(__crayx1)
-#define FATR
-#include <fortran.h>
-#endif
 #include "typesf2c.h"
 #include "ecce_print.h"
 #include "macommon.h"
@@ -347,31 +339,8 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
   return 1;
 }
 
-#if defined(USE_FCD)
-#define ecce_print_file_open_    ECCE_PRINT_FILE_OPEN
-#define ecce_print_file_close_   ECCE_PRINT_FILE_CLOSE
-#define ecce_print_control_      ECCE_PRINT_CONTROL
-#define ecce_print1_             ECCE_PRINT1
-#define ecce_print2_             ECCE_PRINT2
-#define ecce_print2_dbl_tol_     ECCE_PRINT2_DBL_TOL
-#define ecce_print1_char_        ECCE_PRINT1_CHAR
-#define ecce_print_module_entry_ ECCE_PRINT_MODULE_ENTRY
-#define ecce_print_module_exit_  ECCE_PRINT_MODULE_EXIT
-#define ecce_print_echo_input_   ECCE_PRINT_ECHO_INPUT
-#define ecce_print_echo_string_  ECCE_PRINT_ECHO_STRING
-#define ecce_print_version_      ECCE_PRINT_VERSION
-#define is_ecce_print_on_        IS_ECCE_PRINT_ON
-#endif
-
-#if defined(USE_FCD)
-void FATR ecce_print_file_open_(_fcd f) 
-{
-    const char *filename = _fcdtocp(f);
-    int flen = _fcdlen(f);
-#else
 void FATR ecce_print_file_open_(const char *filename, int flen)
 {
-#endif
     char buf[1024];
 
     if (!fortchar_to_string(filename, flen, buf, sizeof(buf))) {
@@ -388,15 +357,8 @@ void FATR ecce_print_file_close_(void)
     ecce_print_file_close();
 }
 
-#if defined(USE_FCD)
-void FATR ecce_print_echo_input_(_fcd f) 
-{
-    const char *filename = _fcdtocp(f);
-    int flen = _fcdlen(f);
-#else
 void FATR ecce_print_echo_input_(const char *filename, int flen)
 {
-#endif
     char buf[1024];
 
     if (!fortchar_to_string(filename, flen, buf, sizeof(buf))) {
@@ -415,18 +377,10 @@ void FATR ecce_print_control_(Integer *pnew, Integer *pold)
     *pold = (Integer) old;
 }
 
-#if defined(USE_FCD)
-void FATR ecce_print2_(_fcd f, Integer *ma_type, 
-		  const void *data, Integer *ld1, Integer *dim1, Integer *dim2)
-{
-    const char *key = _fcdtocp(f);
-    int keylen = _fcdlen(f);
-#else
 void FATR ecce_print2_(const char *key, Integer *ma_type, 
 		  const void *data, Integer *ld1, Integer *dim1, Integer *dim2,
 		  int keylen)
 {
-#endif
     char buf[1024];
 
     if (!fortchar_to_string(key, keylen, buf, sizeof(buf))) {
@@ -439,21 +393,11 @@ void FATR ecce_print2_(const char *key, Integer *ma_type,
 		(int) *dim2);
 }
 
-#if defined(USE_FCD)
-void FATR ecce_print2_dbl_tol_(_fcd f, 
-			 const double *data, Integer *ld1, 
-			 Integer *dim1, Integer *dim2,
-			 const double *tol)
-{
-    const char *key = _fcdtocp(f);
-    int keylen = _fcdlen(f);
-#else
 void FATR ecce_print2_dbl_tol_(const char *key, 
 			 const double *data, 
 			 Integer *ld1, Integer *dim1, Integer *dim2,
 			 const double *tol, int keylen)
 {
-#endif
     char buf[1024];
 
     if (!fortchar_to_string(key, keylen, buf, sizeof(buf))) {
@@ -466,16 +410,9 @@ void FATR ecce_print2_dbl_tol_(const char *key,
 		(int) *dim2, *tol);
 }
 
-#if defined(USE_FCD)
-void FATR ecce_print1_( _fcd f, Integer *ma_type, const void *data, Integer *dim1)
-{
-    const char *key = _fcdtocp(f);
-    int keylen = _fcdlen(f);
-#else
 void FATR ecce_print1_(const char *key, Integer *ma_type, 
 		  const void *data, Integer *dim1, int keylen)
 {
-#endif
     char buf[1024];
     if (!ecce_print_enabled) return;
     if (!fortchar_to_string(key, keylen, buf, sizeof(buf))) {
@@ -487,15 +424,8 @@ void FATR ecce_print1_(const char *key, Integer *ma_type,
     ecce_print1(buf, (int) *ma_type, data, (int) *dim1);
 }
 
-#if defined(USE_FCD)
-void FATR ecce_print_module_entry_(_fcd f) 
-{
-    const char *module = _fcdtocp(f);
-    int modlen = _fcdlen(f);
-#else
 void FATR ecce_print_module_entry_(const char *module, int modlen) 
 {
-#endif
     char buf[1024];
     if (!ecce_print_enabled) return;
     if (!fortchar_to_string(module, modlen, buf, sizeof(buf))) {
@@ -507,18 +437,9 @@ void FATR ecce_print_module_entry_(const char *module, int modlen)
     ecce_print_module_entry(buf);
 }
 
-#if defined(USE_FCD)
-void FATR ecce_print_module_exit_(_fcd f, _fcd g) 
-{
-    const char *module = _fcdtocp(f);
-    int modlen = _fcdlen(f);
-    const char *status = _fcdtocp(g);
-    int statlen = _fcdlen(g);
-#else
 void FATR ecce_print_module_exit_(const char *module, const char *status,
 			     int modlen, int statlen) 
 {
-#endif
     char buf[1024], buf1[1024];
     if (!ecce_print_enabled) return;
     if (!fortchar_to_string(module, modlen, buf, sizeof(buf))) {
@@ -536,18 +457,9 @@ void FATR ecce_print_module_exit_(const char *module, const char *status,
     ecce_print_module_exit(buf, buf1);
 }
 
-#if defined(USE_FCD)
-void FATR ecce_print1_char_( _fcd f, _fcd g, Integer *dim1)
-{
-    const char *key = _fcdtocp(f);
-    const char *data = _fcdtocp(g);
-    int keylen = _fcdlen(f);
-    int dlen = _fcdlen(g);
-#else
 void FATR ecce_print1_char_(const char *key, const char *data, Integer *dim1, 
 		       int keylen, int dlen)
 {
-#endif
     char buf[1024], buf1[1024];
     int i;
     if (!ecce_print_enabled) return;
@@ -570,15 +482,8 @@ void FATR ecce_print1_char_(const char *key, const char *data, Integer *dim1,
     fflush(ecce_file);
 }
 
-#if  defined(USE_FCD)
-void FATR ecce_print_echo_string_(_fcd f) 
-{
-    const char *filename = _fcdtocp(f);
-    int flen = _fcdlen(f);
-#else
 void FATR ecce_print_echo_string_(const char *filename, int flen)
 {
-#endif
     char buf[1024];
 
     if (!fortchar_to_string(filename, flen, buf, sizeof(buf))) {
@@ -590,15 +495,8 @@ void FATR ecce_print_echo_string_(const char *filename, int flen)
     ecce_print_echo_string(buf);
 }
 
-#if defined(USE_FCD)
-void FATR ecce_print_version_(_fcd f) 
-{
-    const char *filename = _fcdtocp(f);
-    int flen = _fcdlen(f);
-#else
 void FATR ecce_print_version_(const char *filename, int flen)
 {
-#endif
     char buf[1024];
 
     if (!fortchar_to_string(filename, flen, buf, sizeof(buf))) {

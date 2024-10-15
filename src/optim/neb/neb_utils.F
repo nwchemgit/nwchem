@@ -868,10 +868,11 @@ c
             if (.not.geom_rtdb_load(rtdb,geom,'midgeom')) then
                hasmiddle = .false.
             end if
-         else
-            if (.not.geom_cart_coords_get(geom,dbl_mb(rmid(1))))
-     >      call errquit('neb_initial_path failed',2,0)
-         end if
+         endif
+      endif
+      if (hasmiddle) then
+         if (.not.geom_cart_coords_get(geom,dbl_mb(rmid(1))))
+     >   call errquit('neb_initial_path failed',2,0)
       end if
 
       if (oprint) then

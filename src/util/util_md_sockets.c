@@ -11,7 +11,7 @@
 #include <arpa/inet.h>
 #endif
 
-#if defined(CRAY) && !defined(__crayx1)
+#if defined(CRAY)
 #define create_server_socket_ CREATE_SERVER_SOCKET
 #define create_client_socket_ CREATE_CLIENT_SOCKET
 #define client_socket_write_ CLIENT_SOCKET_WRITE

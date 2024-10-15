@@ -2,7 +2,7 @@
  $Id$
  */
 
-#if defined(CRAY) &&!defined(__crayx1)
+#if defined(CRAY)
 
 void UTIL_SLEEP(long *t)
 {}

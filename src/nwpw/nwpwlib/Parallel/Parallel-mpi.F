@@ -55,7 +55,8 @@ ccc#include "ga_mpi.fh"
 *     **** local variables ****
       integer MASTER
       parameter (MASTER=0)
-      integer i,mpierr,mygroup,myio,mydepth
+      integer i,mygroup,myio,mydepth
+      integer*4  mpierr
       character*50 nwfilename
       character*7 c_index_name
       external    c_index_name
@@ -100,8 +101,13 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
 #ifdef USE_SUBGROUPS
 #ifdef GA_DEV
+#if 0
       call MPI_COMM_RANK(comm_world,taskid,mpierr)
       call MPI_COMM_SIZE(comm_world,np,mpierr)
+#else      
+      np     = ga_nnodes()
+      taskid = ga_nodeid()
+#endif      
       mydepth = util_sgroup_depth()
       mygroup = util_sgroup_mygroup()
       if ((taskid.eq.MASTER).and.(mydepth.gt.0)) then
@@ -109,13 +115,12 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >              "nwpw"//c_index_name(mygroup)//".output")
       end if
 #else
-      np     = nnodes()
-      taskid = nodeid()
+      taskid = ga_nodeid()
 #endif
 
 #else
-      np     = nnodes()
-      taskid = nodeid()
+      np     = ga_nnodes()
+      taskid = ga_nodeid()
 #endif
 
 

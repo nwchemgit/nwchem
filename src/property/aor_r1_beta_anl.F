@@ -234,7 +234,7 @@ c       ----------------------------------------------
      &      g_tran))            ! create g_tran
      &      call errquit (trim(cstemp),0,GA_ERR)
           if (debug) write (luout,*) 'g_tran allocated'
-          call util_file_name('lmotrans',.true.,.true.,lmotrans)
+          call util_file_name('lmotrans',.false.,.false.,lmotrans)
           if(.not.file_read_ga(lmotrans,g_tran)) call errquit
      $      ('aor_r1_beta_anl: could not read lmotrans',0, DISK_ERR)
         end if                  ! lmo

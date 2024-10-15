@@ -57,6 +57,8 @@ fi
 #
 #--- localization tests
 ./runtests.mpi.unix procs $np localize-ibo-aa
+./runtests.mpi.unix procs $np localize-ibo-allyl
+./runtests.mpi.unix procs $np localize-pm-allyl
 #
 #--- relativity tests
 ./runtests.mpi.unix procs $np x2c-h2se

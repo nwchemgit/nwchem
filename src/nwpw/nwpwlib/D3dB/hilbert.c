@@ -30,7 +30,7 @@ $Id$
 int     hilbert2d(int i, int j, int level);
 int     hilbert_dir(int i, int j, int level, int high, int* start);
 
-#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__MINGW32__)
 #define pspsolve_ PSPSOLVE
 #endif
 

@@ -38,7 +38,7 @@ function ga_download()
 	        echo " "
 	        echo "wget or curl required for downloading GA tar file" 
 	        echo " "
-	        return 1
+	        exit 1
             fi
 	fi
 # check tar.gz integrity	
@@ -205,6 +205,12 @@ if [[ -d "ga-5.8.2" ]]; then
 	./gamalloc_patch.sh $GA_DIR
 	./peigstubs_patch.sh $GA_DIR
 	./mpipr-too-many_patch.sh $GA_DIR
+	./ga_ma_align_patch.sh $GA_DIR
+	./scalapacki4_patch.sh $GA_DIR
+	./ga_diag_seg_i4_patch.sh $GA_DIR
+	if [ $(uname -s) != "Darwin" ]; then
+	    ./autoconf_patch.sh $GA_DIR
+	fi
 	echo patched
 	touch ga-5.8.2/patched581
     fi

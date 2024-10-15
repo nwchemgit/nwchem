@@ -487,8 +487,8 @@ cgk debug
 cgk end
 
 cgk debug
-*     write(*,*)'gk: calling int_1e_sifs'
-*     write(*,*)'gk:    mxengy=', mxengy
+!      write(*,*)'gk: calling int_1e_sifs'
+!      write(*,*)'gk:    mxengy=', mxengy
 !      write(*,*)'LB before int_1e_sifs, info=', info(1:5)
 !      WRITE(*,*)"k_map=",k_map,"szintarr=",szintarr,"nmap=",nmap
 cgk write
@@ -496,12 +496,12 @@ cgk write
       info(6) = ifmt1 ! new for Columbus 7
       call int_1e_sifs(AO_bas_han, aoints, energy, mxengy, 
      &   nbf_ao, nmap, int_mb(k_map),imtype,
-     &   ifmt1, ibvtyp, ibitv, l1rec, n1max, int_mb(k_lab),
+     &   ibvtyp, ibitv, l1rec, n1max, int_mb(k_lab),
      &   ninfo, info)
 
 cgk debug
-*     write(*,*)'gk: back from int_1e_sifs'
-*     write(*,*)'gk:  nbf_ao=',nbf_ao
+!      write(*,*)'gk: back from int_1e_sifs'
+!      write(*,*)'gk:  nbf_ao=',nbf_ao
 cgk write
 
 cgk debug
@@ -526,7 +526,7 @@ cgk end
 
       info(6) = ifmt ! new for Columbus 7
       call int_2e_sifs(geom, AO_bas_han, tol2e, oskel, aoint2, ninfo, 
-     &     info, ifmt, ibvtyp, ibitv, int_mb(k_lab))
+     &     info, ibvtyp, ibitv, int_mb(k_lab))
 
 c
 c     done with memory for sifs files

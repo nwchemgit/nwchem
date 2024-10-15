@@ -138,7 +138,7 @@ ccx      IF (.not.MA_POP_STACK(l_b)) CALL ERRQUIT('icsd_t2_8',6,MA_ERR)
       ELSE
       isuperp = isuperp + 1
       END IF
-ccx      CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,2.0d0/FACTORIAL(
+ccx      CALL ?GEMM('T','N',dima_sort,dimb_sort,dim_common,2.0d0/FACTORIAL(
 ccx     &nsuperp(1))/FACTORIAL(nsuperp(2)),dbl_mb(k_a_sort),dim_common,dbl_
 ccx     &mb(k_b_sort),dim_common,1.0d0,dbl_mb(k_c_sort),dima_sort)
 ccx      IF (.not.MA_POP_STACK(l_b_sort)) CALL ERRQUIT('icsd_t2_8',7,MA_ERR
@@ -188,7 +188,7 @@ c old way      call GA_SYNC()
  9021 format('  V2 GA',i4,1x,'Cpu  wall ',2(f17.12,1x),1x,4i4,2x,i10)
  9022 format('  TRANS',i4,1x,'Cpu  wall ',2(f17.12,1x))  
  9023 format('  SORT ',i4,1x,'Cpu  wall ',2(f17.12,1x))
- 9024 format('  DGEMM',i4,1x,'Cpu  wall ',2(f17.12,1x))
+ 9024 format('  GEMM',i4,1x,'Cpu  wall ',2(f17.12,1x))
  9025 format(' ADD_BL',i4,1x,'Cpu  wall ',2(f17.12,1x))
       RETURN
       END

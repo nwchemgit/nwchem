@@ -30,7 +30,7 @@
 
    LIB_INCLUDES = -I../nwdft/include -I../ddscf -I../util -I../nwdft/grid -I../NWints/hondo
 
-USES_BLAS = qmr_real.F dimqm_main.F 
+USES_BLAS = qmr_real.F dimqm_main.F CubicSpline.F dim_elfcon.F dim_elfder.F dim_tabcd.F qmr_complex.F qmr_seed_complex.F qmr_seed_real.F seeded_qmr_complex.F seeded_qmr_real.F seeded_qmr_real_augment.F 
 
 HEADERS = dimqm.fh dimqm_constants.fh
 

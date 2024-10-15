@@ -2,22 +2,15 @@
 #include <stdlib.h>
 #include "mdglobal.h"
 #include "md5.h"
-#if defined(CRAY)&& !defined(__crayx1)
-#include <fortran.h>
-#endif
 #include "typesf2c.h"
 
 /*
  $Id$
  */
 
-#if defined(USE_FCD)
-extern int string_to_fortchar(_fcd f, int flen, char *buf);
-#else
 extern int string_to_fortchar(char *f, int flen, char *buf);
-#endif
 
-#if (defined(CRAY) || defined(WIN32))&& !defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(WIN32)) && !defined(__MINGW32__)
 #define checksum_simple_ CHECKSUM_SIMPLE
 #define checksum_init_   CHECKSUM_INIT
 #define checksum_update_ CHECKSUM_UPDATE
@@ -169,17 +162,10 @@ requires a special interface for Fortran.
 \param len [Input] The number of characters in the string
 */
 
-#if defined(USE_FCD)
-void FATR checksum_char_update_(_fcd f)
-{
-    checksum_update(_fcdlen(f), _fcdtocp(f));
-}
-#else
 void FATR checksum_char_update_(const char *buf, int len)
 {
     checksum_update(len, buf);
 }
-#endif
 
 /**
 \brief Fortran binding for `checksum_final`
@@ -189,14 +175,8 @@ void FATR checksum_char_update_(const char *buf, int len)
 
 */
 
-#if defined(USE_FCD)
-void FATR checksum_final_(_fcd f)
-{
-    int flen = _fcdlen(f);
-#else
 void FATR checksum_final_(char *f, int flen)
 {
-#endif
     char tmp[33];
     
     checksum_final(tmp);
@@ -218,21 +198,12 @@ Fortran compared to C. Hence a special function is needed for that data type.
 \param f [Output] The checksum
 */
 
-#if defined(USE_FCD)
-void checksum_simple_(integer *len, const void *buf, _fcd f)
-{
-    checksum_init();
-    checksum_update((int) *len, buf);
-    checksum_final_(f);
-}
-#else
 void checksum_simple_(integer *len, const void *buf, char *f, int flen)
 {
     checksum_init();
     checksum_update((int) *len, buf);
     checksum_final_(f, flen);
 }
-#endif
 
 /**
 \brief The Fortran binding for `checksum_simple` for character strings
@@ -245,21 +216,12 @@ Fortran compared to C. Hence a special function is needed for that data type.
 \param f [Output] The checksum
 */
 
-#if defined(USE_FCD)
-void checksum_char_simple_(_fcd b, _fcd f)
-{
-    checksum_init();
-    checksum_char_update_(b);
-    checksum_final_(f);
-}
-#else
 void checksum_char_simple_(const char *buf, char *sum, int blen, int slen)
 {
     checksum_init();
     checksum_char_update_(buf, blen);
     checksum_final_(sum, slen);
 }
-#endif
 
 #ifdef MD5TEST    
 int cmain()
@@ -279,31 +241,15 @@ int cmain()
 
 /* Normally defined by NWChem */
 
-#if defined(USE_FCD)
-static int string_to_fortchar(_fcd f, int flen, char *buf)
-#else
 static int string_to_fortchar(char *f, int flen, char *buf)
-#endif
 {
   int len = (int) strlen(buf), i;
-#if defined(USE_FCD)
-  flen = _fcdlen(f);
-#endif
 
-  if (len > flen) 
-    return 0;			/* Won't fit */
+  if (len > flen) return 0; /* Won't fit */
 
-#if defined(USE_FCD)
-  for (i=0; i<len; i++)
-    _fcdtocp(f)[i] = buf[i];
-  for (i=len; i<flen; i++)
-    _fcdtocp(f)[i] = ' ';
-#else
-  for (i=0; i<len; i++)
-    f[i] = buf[i];
-  for (i=len; i<flen; i++)
-    f[i] = ' ';
-#endif
+  for (i=0; i<len; i++) f[i] = buf[i];
+  for (i=len; i<flen; i++) f[i] = ' ';
+
   return 1;
 }
 #endif

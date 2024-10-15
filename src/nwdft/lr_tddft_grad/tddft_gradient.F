@@ -169,7 +169,7 @@ c
 c     Init pstat
       call dft_pstat_init(rtdb)
 c      
-      call util_print_push
+c     call util_print_push
       call util_print_rtdb_load(rtdb,'tddft')
 c
 c     Print header
@@ -499,7 +499,7 @@ c
 c <-- MN solvation models 
 c
       call dft_pstat_print
-      call util_print_pop
+c     call util_print_pop
       return
       end
 c $Id$

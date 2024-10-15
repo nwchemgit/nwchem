@@ -1,13 +1,6 @@
-/*
- $Id$
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include "typesf2c.h"
-
-#if defined(USE_FCD)
-#define util_batch_job_time_remaining_ UTIL_BATCH_JOB_TIME_REMAINING
-#endif
 
 #define NOT_AVAILABLE -1
 
@@ -46,13 +39,8 @@ Integer FATR util_batch_job_time_remaining_(void)
 Integer FATR util_batch_job_time_remaining_(void)
 {
   Integer wallspent=0;
-  uint32_t uval;
-  char *cval;
-  cval = getenv("SLURM_JOBID");
-  if(cval != NULL){
-    sscanf(cval,"%d",&uval);
-    wallspent = (Integer) slurm_get_rem_time(uval);
-  }
+  if (SLURM_VERSION_MAJOR(SLURM_VERSION_NUMBER) >= 23 && SLURM_VERSION_MINOR(SLURM_VERSION_NUMBER) >= 11) slurm_init(NULL);
+  wallspent = (Integer) slurm_get_rem_time(0);
   return ((Integer) wallspent);
 }
 #else

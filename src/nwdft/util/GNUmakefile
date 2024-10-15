@@ -28,7 +28,7 @@
 LIB_INCLUDES = -I../include
 
 
-USES_BLAS = ga_chol_seq.F ga_inv_seq.F int_1e_fde.F
+USES_BLAS = ga_chol_seq.F ga_inv_seq.F int_1e_fde.F dft_utilmap.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h

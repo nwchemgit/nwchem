@@ -346,6 +346,10 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np localize-ibo-aa
 let "myexit+=$?"
+./runtests.mpi.unix procs $np localize-ibo-allyl
+let "myexit+=$?"
+./runtests.mpi.unix procs $np localize-pm-allyl
+let "myexit+=$?"
 #
 #--- range-separated functionals tests
 ./runtests.mpi.unix procs $np acr-camb3lyp-cdfit
@@ -597,6 +601,10 @@ if [[ ! -z "${BUILD_ELPA}" ]]; then
 ./runtests.mpi.unix procs $np siosi3_elpa
 let "myexit+=$?"
 fi
+./runtests.mpi.unix procs $np dft_formaldehyde_mom
+let "myexit+=$?"
+./runtests.mpi.unix procs $np dft_boron_imom
+let "myexit+=$?"
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
     echo
@@ -638,14 +646,8 @@ let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch4-dft-scf-prop
 let "myexit+=$?"
 # superheavy elements check
-source ./qa_funcs.sh
-strings -a $(get_nwchem_executable) |grep Tennessine >& /dev/null
-exit_code=$?
-if [[ $exit_code == 0 ]]; then
-    echo NWChem code ready for superheavy elements
-    ./runtests.mpi.unix procs $np dft_tennessine
-    let "myexit+=$?"
-fi
+./runtests.mpi.unix procs $np dft_tennessine
+let "myexit+=$?"
 #
 ./runtests.mpi.unix procs $np ccsdt_ompt_w3pvdz
 let "myexit+=$?"
@@ -715,6 +717,16 @@ let "myexit+=$?"
 ./runtests.mpi.unix procs $np cui_hiraobs
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np mep-test
+let "myexit+=$?"
+./runtests.mpi.unix procs $np ActnAcntrl_VEMExc_TDB3LYP
+let "myexit+=$?"
+./runtests.mpi.unix procs $np H2COMetnl_VEMExcSSP_TDB3LYP-2
+let "myexit+=$?"
+./runtests.mpi.unix procs $np H2COMetnl_VEMExcSSP_TDB3LYP
+let "myexit+=$?"
+./runtests.mpi.unix procs $np H2COWat_VEMExc_CISHF
+let "myexit+=$?"
+./runtests.mpi.unix procs $np p2ta-vem
 let "myexit+=$?"
 if [[ "$what" != "flaky" ]]; then
     echo

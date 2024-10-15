@@ -1,0 +1,38 @@
+echo
+start
+# 2 2P (2px -> 3py) state of boron
+# https://dx.doi.org/10.1021/acs.jctc.0c00502
+
+geometry 
+ symmetry c2v
+ B 0.       0.        0.
+end
+
+BASIS "ao basis" spherical
+* library aug-cc-pvtz
+END
+
+dft
+ xc hfexch
+ mult 2
+  vectors input atomic output boron_ground.mos
+end
+task dft 
+
+dft
+ imom
+ mult 2
+ xc hfexch
+ vectors input boron_ground.mos swap alpha 8 3 output boron_imom.mos
+ convergence lshift 0.  density 1d-9
+end
+
+task dft 
+
+
+dft
+ vectors input boron_ground.mos swap alpha 8 3 output boron_mom.mos
+ max_ovl
+end
+
+task dft 

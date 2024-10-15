@@ -18,7 +18,7 @@ endif
 
    MXLENPATH = 200
    LIB_DEFINES += -DNWCHEM_LONG_PATHS
-   LONGNWTOP = $(shell if [ `echo $(SRCDIR) |wc -m` -gt $(MXLENPATH) ]; then echo "Y"; fi  )
+   LONGNWTOP := $(shell if [ `echo $(SRCDIR) |wc -m` -gt $(MXLENPATH) ]; then echo "Y"; fi  )
 ifeq ($(LONGNWTOP),Y)
 errorlongpwd:
 	@echo " "
@@ -101,7 +101,7 @@ ifdef NO_MPIF
 endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ LINUX CYGWIN CYGWIN64 CYGNUS LINUX64 MACX MACX64))
-  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  erfc.o linux_printaff.o
+  EXTRA_OBJ += linux_cpu.o linux_shift.o linux_random.o  erfc.o linux_printaff.o
   ifeq ($(LINUXCPU),x86)
     EXTRA_OBJ += linux_setfpucw.o
   endif
@@ -158,11 +158,11 @@ endif
 ifeq ($(shell echo $(BLASOPT) |awk '/Accelerate/ {print "Y"; exit}'),Y)
   EXTRA_OBJ += veclib_threads.o
 endif
-_PDSYEVR = $(shell [ -e ${NWCHEM_TOP}/src/tools/install/lib/libga.a ] &&  nm ${NWCHEM_TOP}/src/tools/install/lib/libga.a|egrep T |egrep  ga_pdsyevr |awk '/ga_pdsyevr/ {print "Y"}')
+_PDSYEVR := $(shell [ -e ${NWCHEM_TOP}/src/tools/install/lib/libga.a ] &&  nm ${NWCHEM_TOP}/src/tools/install/lib/libga.a|egrep T |egrep  ga_pdsyevr |awk '/ga_pdsyevr/ {print "Y"}')
 ifeq ($(_PDSYEVR),Y) 
  LIB_DEFINES += -DUSE_PDSYEVR
 endif
-_USE_ELPA = $(shell ${GA_PATH}/bin/ga-config  --use_elpa| awk ' /1/ {print "Y"}')
+_USE_ELPA := $(shell ${GA_PATH}/bin/ga-config  --use_elpa| awk ' /1/ {print "Y"}')
 ifeq ($(_USE_ELPA),Y)
  LIB_DEFINES += -DUSE_ELPA
 endif
@@ -250,7 +250,7 @@ endif
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F ga_lkain_ext.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F util_dgeev.F \
-		util_test_cholesky.F dfill.F ga_lkain_2cpl3_ext.F ga_it2.F util_poltensor.F util_dpofa.F util_dgedi.F
+		util_test_cholesky.F dfill.F ga_lkain_2cpl3_ext.F ga_it2.F util_poltensor.F util_dpofa.F util_dgedi.F ma_solve.F zfill.f util_memcpy.c
 
 ifdef SPEECH
    LIB_DEFINES += -DSPEECH
@@ -276,12 +276,12 @@ ifdef SLURM
   endif
 endif
 ifdef LSF
-  WHICHBJOBS  += $(shell which bjobs)
+  WHICHBJOBS  ::= $(shell which bjobs)
   DEFINES += -DLSF
   LIB_ALSO_BUILD = $(BINDIR)/jobtime_lsf $(BINDIR)/jobtime_lsf.pl
 endif
 ifdef PBS
-  WHICHQSTAT  += $(shell which qstat)
+  WHICHQSTAT  ::= $(shell which qstat)
   DEFINES += -DPBS
   LIB_ALSO_BUILD = $(BINDIR)/jobtime_pbs $(BINDIR)/jobtime_pbs.pl
 endif

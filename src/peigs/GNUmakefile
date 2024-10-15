@@ -19,7 +19,6 @@ peigs_stamp:	include_stamp
 include_stamp:	./h/blas_lapack.h
 	touch include_stamp
 
-#.EXPORT_ALL_VARIABLES:
 
 .PHONY :        clean	cleanF	realclean
 
@@ -45,12 +44,14 @@ sngl_to_dbl dbl_to_sngl:
 	(cd ./src/f77; $(MAKE) 64_to_32)
 	(cd ./comm; $(MAKE) 64_to_32)
 	(cd ./ctof; $(MAKE) 64_to_32)
+	(cd ./h; $(MAKE) 64_to_32)
 
 32_to_64:
 	(cd ./src/c; $(MAKE) 32_to_64)
 	(cd ./src/f77; $(MAKE) 32_to_64)
 	(cd ./comm; $(MAKE) 32_to_64)
 	(cd ./ctof; $(MAKE) 32_to_64)
+	(cd ./h; $(MAKE) 32_to_64)
 
 depend:
 	@echo No dependencies in include

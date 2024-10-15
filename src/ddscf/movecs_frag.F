@@ -81,7 +81,7 @@ c
      &       INPUT_ERR)
          if (.not. ga_create(MT_DBL, nbf_frag, nmo_frag(1), 
      $        ' frag mos',  32, 32, g_frag)) 
-     $        call errquit('movecs_fragment: GA for frag MOs', nmo_frag,
+     $     call errquit('movecs_fragment: GA for frag MOs', nmo_frag(1),
      &       GA_ERR)
          if (.not. ma_push_get(mt_dbl, nbf_frag, 
      $        ' fragment eva', l_eval, k_eval)) call errquit

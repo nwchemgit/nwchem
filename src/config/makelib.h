@@ -147,12 +147,10 @@ optimized:
 endif
 
 dummy:
-	
 else
 
   LIBOBJ := $(patsubst %,$(LIBRARY_PATH)(%),$(OBJ_OPTIMIZE))
 $(LIBRARY_PATH):	$(LIBOBJ)
-	
 # Previous line must contain tab for empty command
 endif
 
@@ -189,7 +187,7 @@ endif
 	  if [ "$$list" ] ; then \
 	        $(CNFDIR)/lockfile -steal $(LOCKFILE) || exit 1 ; \
                 echo  $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list ; \
-  		echo $$list|grep -v truncated | xargs -n 300 $(AR) $(ARFLAGS) $(LIBRARY_PATH) 2>&1  ; \
+		echo $$list|grep -v truncated | xargs -n 300 $(AR) $(ARFLAGS) $(LIBRARY_PATH) 2>&1  ; \
 	        /bin/rm -f $$list ; \
 	        echo $(RANLIB) $(LIBRARY_PATH) ; $(RANLIB) $(LIBRARY_PATH) ; \
 	        /bin/rm -f $(LOCKFILE) ; \
@@ -212,7 +210,11 @@ endif
 
 MAKESUBDIRS = +@for dir in $(SUBDIRS); do \
 			echo Making $@ in $$dir; \
-			$(MAKE)	-C $$dir $@ || exit 1 ; done
+			if [ $@  == "include_stamp" ] || [ $@  == "dependencies"  ]; then   \
+			$(MAKE)  SKIP_COMPILERS=1 -C $$dir $@  || exit 1 ; \
+			else \
+			$(MAKE) QUICK_BUILD=1 SKIP_COMPILERS=1 -C $$dir $@  || exit 1 ; \
+			fi ; done
 
 ifdef SUBDIRS
 ifndef OPTIMIZE
@@ -223,7 +225,12 @@ $(LIBRARY_PATH):	subdirs
 subdirs:        
 	@for dir in $(SUBDIRS); do \
 		echo Making all in $$dir; \
+		if [ $@  == "include_stamp" ] || [ $@  == "dependencies"  ]; then \
+		echo skipping ; \
+		$(MAKE)	SKIP_COMPILERS=1 -C $$dir || exit 1  ; \
+		else \
 		$(MAKE)	 -C $$dir || exit 1 ;  \
+		fi \
         done
 endif
 endif
@@ -254,7 +261,7 @@ ifdef SUBDIRS
 endif
 	touch include_stamp
 endif
-endif
+endif # QUICKBUILD
 ifdef CONVERT_ALL
 64_to_32:
 	$(CNFDIR)/64_to_32 *.F *.f *.c *.f90
@@ -309,7 +316,7 @@ ifdef SUBDIRS
 endif
 	-$(RM) -f *.o *.a *.mod *__genmod.f90 *core *stamp *trace mputil.mp* *events* *ipo *optrpt $(LIB_TARGETS)
 	if [ -f $(LIBRARY_PATH) ] ; then \
-  		echo $(OBJ) $(OBJ_OPTIMIZE)| xargs -n 300 $(AR) d $(LIBRARY_PATH) ; \
+		echo $(OBJ) $(OBJ_OPTIMIZE)| xargs -n 300 $(AR) d $(LIBRARY_PATH) ; \
 		if [ `$(AR) t $(LIBRARY_PATH) | wc | awk ' {print $$1;}'` -eq 0 ] ; then \
 			$(RM) -f $(LIBRARY_PATH) ; \
 		fi ; \
@@ -327,7 +334,7 @@ tags_file:
 .PHONY: tags_clean
 tags_clean:
 	find . -name TAGS -print -exec rm -f "{}" ";"
-	
+
 .PHONY:	cleanF
 cleanF:
 ifdef SUBDIRS
@@ -392,7 +399,20 @@ $(BINDIR)/depend.x:
 
 dependencies:	$(wildcard *.c) $(wildcard *.F) $(BINDIR)/depend.x
 ifndef QUICK_BUILD
-	$(BINDIR)/depend.x $(LIB_INCLUDES) $(INCPATH) > dependencies
+#	  if [ $V  == '-1' ]; then \
+#	  $$MYSTDERR = " 2> /dev/null"		\
+#	  fi \
+#				echo MYSTDERROR $$MYSTDERR \
+#	ifeq ($(V),-1)
+#	MYSTDERR = " 2> /dev/null"
+#	else
+#	MYSTDERR = " "
+#	endif
+ifeq ($(V),-1)
+	@$(BINDIR)/depend.x $(LIB_INCLUDES) $(INCPATH)  > dependencies
+else
+	$(BINDIR)/depend.x $(LIB_INCLUDES) $(INCPATH)  > dependencies
+endif
 endif
 
 -include dependencies

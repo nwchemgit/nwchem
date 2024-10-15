@@ -1,8 +1,4 @@
 /*
- $Id$
- */
-
-/*
   Try to route all sequential file operations thru eaf/elio
   so that can handle extents correctly
 */
@@ -16,18 +12,11 @@
 #else
 #include <unistd.h>
 #endif
-#if defined(CRAY) && !defined(__crayx1)
-#include <fortran.h>
-#define FATR
-#endif
+
 #include "eaf.h"
 #include "ga.h"
 
-#if defined(USE_FCD)
-int fortchar_to_string(_fcd, int, char *, const int);
-#else
 int fortchar_to_string(const char *, int, char *, const int);
-#endif
 
 void util_file_unlink(const char *filename)
 /*
@@ -48,14 +37,8 @@ void util_file_unlink(const char *filename)
     GA_Error("util_file_unlink",0);
 }
 
-#if defined(USE_FCD)
-void FATR UTIL_FILE_UNLINK(_fcd input)
-{
-    int lin  = _fcdlen(input);
-#else
 void util_file_unlink_(const char *input, int lin)
 {
-#endif
     char in[255];
     if (!fortchar_to_string(input, lin, in, sizeof(in)))
 	GA_Error("util_file_unlink: fortchar_to_string failed for in",0);

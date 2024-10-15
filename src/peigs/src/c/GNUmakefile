@@ -93,7 +93,6 @@ COBJ  = \
 all:		$(COBJ)
 		$(peigs_AR) $(peigs_LIB) $?
 
-#.EXPORT_ALL_VARIABLES:
 .PHONY:	clean
 clean:		
 	-rm -f *.o maxx.f F*.f
@@ -273,10 +272,10 @@ peigs_tldlfact.o:	peigs_tldlfact.c
      CNFDIR := $(NWCHEM_TOP)/src/config
 .PHONY:	 64_to_32 32_to_64
 64_to_32:
-	$(CNFDIR)/64_to_32 "*c *f *F"
+	$(CNFDIR)/64_to_32 *c *f *F
 
 32_to_64:
-	$(CNFDIR)/32_to_64 "*c *f *F"
+	$(CNFDIR)/32_to_64 *c *f *F
 
 .c.o:;	$(peigs_CC) $(OPTC) -c $<
 .f.o:;	$(peigs_FC) $(OPT) -c $<

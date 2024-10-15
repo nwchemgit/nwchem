@@ -25,14 +25,14 @@ fi
    perlscript=${NWCHEM_TOP}/src/config/32_to_64.pl
 
 
- JOB_LIMIT=4
+ JOB_LIMIT=6
 
  njob=0
 
 for file in "$@"
 do
 
-   echo converting "$file" to 32-bit integers for BLAS/LAPACK
+   echo converting "$file" to 64-bit integers for BLAS/LAPACK
       ($perlexe $perlscript $file) &	
 
    let njob++

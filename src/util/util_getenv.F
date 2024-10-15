@@ -7,6 +7,8 @@
       character*(*) env_value ! [output] the value of the named environement variable
 #if defined(CRAY)
       integer*4 lname, lvalue, lerror
+#else
+      integer len,status
 #endif
 *
 #if defined(CRAY)
@@ -24,7 +26,8 @@
      *        lerror, UNKNOWN_ERR)
       endif
 #else
-      call getenv(env_name, env_value)
+cold      call getenv(env_name, env_value)
+      call GET_ENVIRONMENT_VARIABLE(env_name, env_value, len, status)
 #endif
 *
       end
@@ -108,7 +111,9 @@ c     offloading enabled.
       span = offload_span()
 #if USE_OPENMP
       ndev = omp_get_num_devices()
+#ifdef DEBUG
       write(6,*) ' omp_get_num_devices() ',ndev
+#endif
       offload_device = mod(ga_nodeid() / span, ndev)
       call omp_set_default_device(offload_device)
 #else

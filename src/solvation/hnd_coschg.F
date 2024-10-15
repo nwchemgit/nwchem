@@ -563,7 +563,6 @@ c
       logical stat
       logical oprint_energies
 c
-      double precision derf
       logical util_io_unit
       external util_io_unit
 c
@@ -589,6 +588,7 @@ c
       integer iter_cosmo_vem
       integer l_efczfx, k_efczfx  ! memory handles for fixed cosmo-vem charges
       integer g_vem(3) ! ga handles for cosmo-vem GS potential, GS charges, and ES noneq charges
+      integer nefc_rtdb
       double precision, external :: ddot
 c
       oprint_energies = util_print("cosmo_energies",print_never)
@@ -874,30 +874,9 @@ c
 c
 c        ----- calculate qraw = q* = A^{-1}BQ -----
 c
-         if (all) then
-           if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,
-     d           dbl_mb(i20))) then
-c             If no raw total COSMO charges were found initialize x=0
-              call dfill(nefc,zero,dbl_mb(i20),1)
-           endif
-         else if (nucl) then
-           if (.not.rtdb_get(rtdb,'cosmo:qrawn',mt_dbl,nefc,
-     d           dbl_mb(i21)))then
-c             If no raw nuclear COSMO charges were found initialize x=0
-              call dfill(nefc,zero,dbl_mb(i21),1)
-           endif
-         else if (elec) then
-           if (.not.rtdb_get(rtdb,'cosmo:qrawe',mt_dbl,nefc,
-     d           dbl_mb(i22)))then
-c             If no raw electron COSMO charges were found initialize x=0
-              call dfill(nefc,zero,dbl_mb(i22),1)
-           endif
-         endif
-c
-         direct=.true.
-c
-c        ----- solve ... -----
-c
+         if (.not.rtdb_get(rtdb,'cosmo:n_raw',mt_int,1,nefc_rtdb))
+     c        nefc_rtdb=0
+
          iep=-99
          ieq=-99
          if (all) then
@@ -911,11 +890,47 @@ c
            ieq=i22
          endif
 
+         if((nefc_rtdb.eq.0).or.(nefc_rtdb.ne.nefc)) then
+            call dfill(nefc,zero,dbl_mb(ieq),1)
+            status = rtdb_delete(rtdb,'cosmo:qraw')
+            status = rtdb_delete(rtdb,'cosmo:qrawn')
+            status = rtdb_delete(rtdb,'cosmo:qrawe')
+         else
+         if (all) then
+           if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,
+     d           dbl_mb(i20))) then
+c             If no raw total COSMO charges were found initialize x=0
+              call dfill(nefc,zero,dbl_mb(i20),1)
+           endif
+         else if (nucl) then
+           if (.not.rtdb_get(rtdb,'cosmo:qrawn',mt_dbl,nefc,
+     d           dbl_mb(i21)))then
+c             If no raw nuclear COSMO charges were found initialize x=0
+              call dfill(nefc,zero,dbl_mb(i21),1)
+           endif
+        else if (elec) then
+           if (.not.rtdb_get(rtdb,'cosmo:qrawe',mt_dbl,nefc,
+     d           dbl_mb(i22)))then
+c             If no raw electron COSMO charges were found initialize x=0
+              call dfill(nefc,zero,dbl_mb(i22),1)
+           endif
+           endif
+        endif
+c
+         direct=.true.
+c
+c        ----- solve ... -----
+c
+
          call hnd_cg(nat,dbl_mb(iep),dbl_mb(ieq),nefc,
      1        dbl_mb(i40),dbl_mb(i50),dbl_mb(i60),
      d        dbl_mb(i70),
      2                   efcc,efcs,efczz,efciat,ratm)
 c
+         if (.not.rtdb_put(rtdb,'cosmo:n_raw',mt_int,1,nefc))
+     c        call errquit('hnd_coschg: could not store n_raw COSMO ',
+     1                  nefc,RTDB_ERR)
+
          if (all) then
             if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_dbl,nefc,
      d           dbl_mb(i20))) then

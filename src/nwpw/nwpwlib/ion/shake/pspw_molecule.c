@@ -12,14 +12,7 @@
 #include        "pspw_bond.h"
 #include	"pspw_molecule.h"
 
-#if defined(CRAY) || defined(CRAY_T3D)
-#include <fortran.h>
-#if !defined(__crayx1)
-#define USE_FCD
-#endif
-#endif
-
-#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(WIN32)) && !defined(__MINGW32__)
 #define pspw_molecule_read_ PSPW_MOLECULE_READ
 #define pspw_molecule_data_ PSPW_MOLECULE_DATA
 #define pspw_molecule_end_ 	PSPW_MOLECULE_END
@@ -252,18 +245,8 @@ void FATR pspw_molecule_end_()
  *				*
  ********************************/
 
-void FATR pspw_molecule_read_
-#if defined(USE_FCD)
-( _fcd fcd_filename, Integer *n1)
+void FATR pspw_molecule_read_(char *filename, Integer *n1)
 {
- const char *filename = _fcdtocp(fcd_filename);
-			  
-#else
-(char *filename, Integer *n1)
-{
-#endif
-
-
    FILE *fp;
    int value;
    int j,m,msize;

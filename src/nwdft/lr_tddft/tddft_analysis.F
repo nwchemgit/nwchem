@@ -199,6 +199,7 @@ c
       double precision s2_save(nroots) 
       logical lstores2
       double precision s2_tmp(nroots)
+      integer ioserr
 c
 c     MN solvation models --> 
 c
@@ -1845,7 +1846,9 @@ c
          write(luout,*) "fn_civecs: ",fn_civecs
          call util_file_name_resolve(fn_civecs, .false.)
          open(unit=69,file=fn_civecs,form='unformatted',
-     1             status='unknown')
+     1             status='unknown',
+     $        iostat=ioserr)
+         write(luout,*) ' open iostat ',ioserr
          write(LuOut,2010) fn_civecs
          rewind(69)
          write(69) tda

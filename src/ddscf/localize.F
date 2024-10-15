@@ -248,30 +248,25 @@ c
 #include "bas.fh"
 #include "util.fh"
 c
-c     Localize the nloc orbitals in iloc(*) by mixing with each other
+c     Localize the nloc orbitals in iloc() by mixing with each other
 c
-      integer basis, nloc, iloc(*), nbf, nmo
-      double precision c(nbf, 2), sc(nbf, 2)
+      integer basis, nloc, iloc(nmo), nbf, nmo
       integer g_c, g_sc
-      integer maxat, nlist
-*............................   these should be dynamically allocated ?
-      parameter (maxat = nw_max_atom)
-      integer list(maxat)
-      double precision pop(maxat)
-c
-      integer iter, ss, s, tt, t, a, u, bflo, bfhi, natoms, geom
+      double precision c(nbf, 2), sc(nbf, 2)
+
+      integer iter, ss, s, tt, t, a, u, bflo, bfhi, geom, natoms
       double precision ast, bst, qast, qat, qas, gamma, cosg, sing, d,
      $     qs, dprev, tol, dmax, gamma_tol, gamma_max, tmp
-      integer nrot, set, pair, neven
+      integer nrot, set, pair, neven, locpow
 c
       if (.not. bas_geom(basis, geom)) call errquit
      $     ('localize: basis ', 0, BASIS_ERR)
       if (.not. geom_ncent(geom, natoms)) call errquit
      $     ('localize: geom',0, GEOM_ERR)
-c
-      if (natoms.gt.maxat) call errquit
-     &      ('localize: maxat too small ', 911, UNKNOWN_ERR)
-c
+
+c     locpow (localization sum exponent) should be 2 or 4
+      locpow = 2
+      
       tol = 1d-8
       gamma_tol = 1d-10
 c
@@ -368,8 +363,20 @@ c
                      end do
                      qast = qast * 0.5d0
 c     
+                     if (locpow.eq.2) then
                      ast = ast + qast**2 - 0.25d0*(qas - qat)**2
                      bst = bst + qast*(qas - qat)
+                     elseif (locpow.eq.4) then
+                       tmp = -1.0d0*(qas**4 + qat**4)
+                       tmp = tmp + 6.0d0*((qas**2 + qat**2)* qast**2)
+                       tmp = tmp + qas**3 * qat + qas * qat**3
+                       ast = ast + 0.25d0*tmp
+                       tmp = 4.0d0 * qast*(qas**3 - qat**3)
+                       bst = bst + 0.25d0*tmp
+                     else
+                       call errquit('pmloc: locpow ', locpow,
+     &                   UNKNOWN_ERR)
+                     end if
                   end do
 c     
                   gamma = 0.25d0*acos(-ast/sqrt(ast**2+bst**2))
@@ -401,53 +408,8 @@ c
 c
  1000 continue
 
-      
-c     Analyze localization of each mo:
-c     per lmo, a list of atomic populations is printed
-c     in decreasing magnitude, with the polulations in parentheses. 
-c
-      if (ga_nodeid() .eq. 0) then
-         write(6,*)
-         do ss = 1, nloc
-            s = iloc(ss)
-            call ga_get(g_c,  1, nbf, s, s, c(1,1), 1)
-            call ga_get(g_sc, 1, nbf, s, s,sc(1,1), 1)
-            nlist = 0
-            do a = 1, natoms
-               if (.not. bas_ce2bfr(basis, a, bflo, bfhi))
-     $              call errquit('localized: basis ', 0,
-     &       BASIS_ERR)
-               qas  = 0.0d0
-               do u = bflo, bfhi
-                  qas  = qas  + c(u,1)*sc(u,1)
-               end do
-               if (abs(qas) .gt. 0.01d0) then
-                  nlist = nlist + 1
-                  list(nlist) = a
-                  pop(nlist) = qas
-               end if
-            end do
-            do u = 1, nlist
-               do t = 1, u-1
-                  if (abs(pop(t)).lt.abs(pop(u))) then
-                     tmp = pop(u)
-                     pop(u) = pop(t)
-                     pop(t) = tmp
-                     tt = list(u)
-                     list(u) = list(t)
-                     list(t) = tt
-                  end if
-               end do
-            end do
-            write(6,9002) s, (list(a), pop(a), a=1,nlist)
- 9002         format(i5, 100(2x,i4,'(',f5.2,')'))
-         end do
-         call util_flush(6)
-      end if
-c
       call ga_sync
-c
-      end      
+      end
 c
 c     =================================================================
 c      
@@ -469,7 +431,7 @@ c
 c
 c     Localize the nloc orbitals in iloc(*) by mixing with each other
 c
-      integer basis, nloc, iloc(*), nbf, nmo
+      integer basis, nloc, iloc(nmo), nbf, nmo
       double precision c(nbf, 2), uc(nbf, 2, 4)
       integer g_c, g_uc(4) ! x, y, z, overlap
 c

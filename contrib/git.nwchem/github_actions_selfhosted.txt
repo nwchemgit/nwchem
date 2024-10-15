@@ -23,7 +23,6 @@ jobs:
       matrix:
         os:
           - [self-hosted, ubuntu1604]
-          - [self-hosted, osx-arm64]
         blas: [build_openblas]
         blas_size:
           - 8
@@ -43,7 +42,7 @@ jobs:
         build_plumed:
           - 1
         branch:
-          - master
+          - main
         include:
           - os: [self-hosted, ubuntu1804]
             experimental: false
@@ -55,16 +54,7 @@ jobs:
             use_libxc: 1
             use_openmp: 2
             use_tblite: 1
-          - os: [self-hosted, osx-arm64]
-            experimental: false
-            mpi_impl: build_mpich
-            armci_network: MPI-PT
-            nwchem_modules: "all python xtb"
-            fc: ifort
-            blas: "build_openblas"
-            use_libxc: 1
-            use_openmp: 2
-            use_tblite: 1
+            simint_vector: avx2
           - os: [self-hosted, ubuntu1604]
             experimental: false
             mpi_impl: intel
@@ -74,6 +64,7 @@ jobs:
             blas: "build_openblas"
             use_libxc: 1
             use_tblite: 1
+            simint_vector: avx2
           - os: [self-hosted, fedora]
             experimental: false
             mpi_impl: openmpi
@@ -85,7 +76,8 @@ jobs:
             use_simint: 1
             use_openmp: 2
             use_tblite: 1
-            branch: hotfix/release-7-2-0
+            simint_vector: scalar
+            branch: main
           - os: [self-hosted, ubuntu2304]
             experimental: false
             mpi_impl: openmpi
@@ -96,28 +88,53 @@ jobs:
             use_libxc: 1
             use_openmp: 2
             use_tblite: 1
-            branch: hotfix/release-7-2-0
+            simint_vector: scalar
+            branch: main
+          - os: [self-hosted, osx-arm64, ajay]
+            experimental: false
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "all python "
+            fc: gfortran
+            blas: "build_openblas"
+            use_libxc: 1
+            use_simint: 1
+            simint_vector: scalar
+            branch: main
+          - os: [self-hosted, osx-x64]
+            experimental: false
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "all python xtb"
+            fc: gfortran
+            blas: "build_openblas"
+            use_libxc: 1
+            use_simint: 1
+            use_openmp: 2
+            use_tblite: 1
+            simint_vector: avx2
+            branch: main
       fail-fast: false
     env:
-        MPI_IMPL: ${{ matrix.mpi_impl }}
-        ARMCI_NETWORK: ${{ matrix.armci_network }}
-        NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
-        USE_SIMINT: ${{ matrix.use_simint }}
-        USE_LIBXC: ${{ matrix.use_libxc }}
-        USE_TBLITE: ${{ matrix.use_tblite }}
-        BUILD_PLUMED: ${{ matrix.build_plumed }}
-        FC: ${{ matrix.fc }}
-        CC: ${{ matrix.cc }}
-        COMEX_MAX_NB_OUTSTANDING: 16
-        SIMINT_MAXAM: 4
-        SIMINT_VECTOR: avx2
-        BLAS_ENV:  ${{ matrix.blas }}
-        BLAS_SIZE:  ${{ matrix.blas_size }}
-        USE_OPENMP:  ${{ matrix.use_openmp }}
+      MPI_IMPL: ${{ matrix.mpi_impl }}
+      ARMCI_NETWORK: ${{ matrix.armci_network }}
+      NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
+      USE_SIMINT: ${{ matrix.use_simint }}
+      USE_LIBXC: ${{ matrix.use_libxc }}
+      USE_TBLITE: ${{ matrix.use_tblite }}
+      BUILD_PLUMED: ${{ matrix.build_plumed }}
+      FC: ${{ matrix.fc }}
+      CC: ${{ matrix.cc }}
+      COMEX_MAX_NB_OUTSTANDING: 16
+      SIMINT_MAXAM: 4
+      SIMINT_VECTOR: ${{ matrix.simint_vector }}
+      BLAS_ENV: ${{ matrix.blas }}
+      BLAS_SIZE: ${{ matrix.blas_size }}
+      USE_OPENMP: ${{ matrix.use_openmp }}
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 32
           ref: ${{ matrix.branch }}
@@ -133,11 +150,16 @@ jobs:
         shell: bash
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/cache
-          key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-blas_size${{ matrix.blas_size}}-libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}-simd${{ env.simd }}-nwchemcache-v003
+          key: |
+            ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}
+            -xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}
+            -blas${{ matrix.blas}}-blas_size${{ matrix.blas_size}}
+            -libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}
+            -simd${{ env.simd }}-nwchemcache-v003
       - name: fetch cache
         if: steps.setup-cache.outputs.cache-hit == 'true'
         run: |
@@ -145,8 +167,10 @@ jobs:
       - name: compile
         id: compile
         run: |
-          ./travis/config_nwchem.sh
-          ./travis/compile_nwchem.sh
+          mytee=tee
+          if  [[ `uname -s` == "Darwin" ]]; then mytee=gtee; fi
+          ./travis/config_nwchem.sh  | $mytee >(ts "%d%b%Y %H:%M:%S" > ../../../config.log.` date +%b%d%Y_%H:%M`)
+          ./travis/compile_nwchem.sh  | $mytee >(ts "%d%b%Y %H:%M:%S" > ../../../compile.log.` date +%b%d%Y_%H:%M`)
       - name: Check compilation result
         if: ${{ failure() }}
         run: |
@@ -171,9 +195,3 @@ jobs:
         if: ${{ failure() }} &&  steps.qa_test.outcome == 'failure'
         run: |
           ./travis/check_qas.sh
-
-  
-
-
-
-     

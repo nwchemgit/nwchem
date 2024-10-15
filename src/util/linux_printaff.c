@@ -3,7 +3,7 @@
 Integer linux_printaff_(){
   return (Integer) 0;
 }
-int linux_setffaff_(){
+int linux_unsetaff_(){
   return (Integer) 0;
 }
 #else

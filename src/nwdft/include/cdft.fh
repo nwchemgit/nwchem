@@ -43,6 +43,7 @@ cc AJL/Begin/FDE
 cc AJL/End
       logical
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
+     &     lmaxov_imom,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
      &     nlxfac, xccomb, levelshift, damp, diis, direct, oskel, 
      &     oadapt, lssw, lkeeps,trunc_neigh, lb94, cs00, bqdontcare,
@@ -69,7 +70,7 @@ c
      &     AO_bas_han, CD_bas_han, XC_bas_han,
      ,     lrchi,irchi,lrdelchi,irdelchi,
      ,     g_cdinv, g_2ceri, sic_orb_spin, sic_orb_occ, sic_orb_index,
-     ,     g_sic_dens(2), aux_ik, g_s12m,g_s12p,
+     ,     g_sic_dens(2), aux_ik, g_s12m,g_s12p, g_movecs0(2),
 cc AJL/Begin/FDE
      &     geom_fde, FD_bas_han, nbf_fde, nbf_fde_mxprim, nbf_fde_mxang,
      &     nbf_fde_mxcont, nbf_fde_mxnbf_cn, nbf_fde_mxnbf_ce, 
@@ -93,6 +94,7 @@ c
 c     Logicals
 c
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
+     &     lmaxov_imom,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac(numfunc), 
      ,     nlcfac(numfunc),lxfac(numfunc), nlxfac(numfunc), 
      ,     xccomb(numfunc), levelshift, damp, diis, 
@@ -123,7 +125,7 @@ c
      &     AO_bas_han, CD_bas_han, XC_bas_han,
      ,     lrchi,irchi,lrdelchi,irdelchi,
      ,     g_cdinv, g_2ceri, sic_orb_spin, sic_orb_occ, sic_orb_index,
-     ,     g_sic_dens, aux_ik, g_s12m,g_s12p,
+     ,     g_sic_dens, aux_ik, g_s12m,g_s12p, g_movecs0,
 cc AJL/Begin/FDE
      &     geom_fde, FD_bas_han, nbf_fde, nbf_fde_mxprim, nbf_fde_mxang, 
      &     nbf_fde_mxcont, nbf_fde_mxnbf_cn, nbf_fde_mxnbf_ce, 

@@ -86,12 +86,12 @@ c      if(me.eq.0) then
 c        write(*,*)' orbital order: ',(int_mb(k_ord+i-1),i=1,nbf)
 c      endif
 c
-      call ga_copy(g_evecs,g_oevecs)
+      call ga_copy(g_evecs,g_tmp)
       call dcopy(nbf,evals,1,dbl_mb(k_tmp),1)
       call dfill(nbf,0.d0,evals,1)
       do i=me+1,nbf,nproc
         ix=int_mb(k_ord+i-1)
-        call get_col(g_oevecs,nbf,ix,DBL_MB(k_scr))
+        call get_col(g_tmp,nbf,ix,DBL_MB(k_scr))
         evals(i)=dbl_mb(k_tmp+ix-1)
         call put_col(g_evecs,nbf,i,DBL_MB(k_scr))
       enddo

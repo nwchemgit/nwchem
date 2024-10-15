@@ -30,6 +30,7 @@ C> @{
 ! string:linopt   : Turn on/off linear optimization
 ! string:projection1  : Turn off/on projection of gradient
 ! string:pathguess  : which method for guessing path from 1 to TS to N
+! string:mode     : do all beads in serial or parallel
 
 
 ! This code requires at two or three geometry blocks to be defined
@@ -51,6 +52,7 @@ C> @{
 #include "geom.fh"
 #include "global.fh"
 #include "stdio.fh"
+#include "inp.fh"
 
 
 ! Input parameters that do not get changed
@@ -69,15 +71,14 @@ C> @{
       logical converged, freeze1, freezeN, newchain,hasmiddle,impose
       logical oprint,value
       character*255 geom_name
+      character*8 mode
       integer geom_len,nbeads_exist
       integer lold_coords,kold_coords,j1,j2,shift,shift1,shift2,m
       integer string_algorithm
       integer ks,km,ke,ifit(2),wfit(2),nfit
 
 *     **** external functions ****
-      integer     inp_strlen
       character*7 bead_index_name
-      external    inp_strlen
       external    bead_index_name
 
 
@@ -110,6 +111,9 @@ C> @{
       if(.not.rtdb_get(rtdb,'string:algorithm',mt_int,1,
      >                 string_algorithm))
      >     string_algorithm = 3
+
+! mode
+      if(.not.rtdb_cget(rtdb,'string:mode',1,mode)) mode = 'serial'
 
 ! The general geometry structure
       if (.not. geom_create(geom, 'geometry'))
@@ -144,12 +148,15 @@ C> @{
      $                    l_tmp_list, k_tmp_list))
      $     call errquit('task_string: memory', size, MA_ERR)
 
-      size = 3*natoms
-      if(.not.ma_push_get(mt_dbl,size,'mass',l_mass, k_mass))
+      if(.not.ma_push_get(mt_dbl,natoms,'mass',l_mass, k_mass))
      $     call errquit('task_string: memory', size, MA_ERR)
       if (.not.geom_masses_get(geom,natoms,dbl_mb(k_mass)))
      $     call errquit('task_string: masses?',geom,GEOM_ERR)
       call dscal(natoms,1822.89d0,dbl_mb(k_mass),1)
+
+      if (inp_compare(.false.,'parallel',mode)) then
+        if (ga_nnodes().lt.nbeads) mode = 'serial'
+      endif
 
 
 ! Warning: No way to read in all nbead geomtries
@@ -350,7 +357,7 @@ c        **** impose ****
      &       dbl_mb(k_tmp_list+3*natoms*nbeads*m),
      &       dbl_mb(k_tmp_list+3*natoms*nbeads*2*m),
      &       dbl_mb(k_mass),
-     &    interpol,freeze1,freezeN,converged)
+     &    interpol,freeze1,freezeN,converged,mode)
       if (.not. rtdb_put(rtdb,'opt:string',mt_log,1,.false.))
      $     call errquit('task_string: rtdb_put failed',0,
      &       RTDB_ERR)
@@ -397,7 +404,7 @@ C> @}
      &    natoms,middle,
      &    coords,geom,rtdb,dg,energy,dVdx,dcoords,coords_old,wrk,
      &    m,coords_list,dVdx_list,HdVdx,masses,
-     &    interpol,freeze1,freezeN,converged)
+     &    interpol,freeze1,freezeN,converged,mode)
       implicit none
       
 ! External stuff
@@ -425,6 +432,7 @@ C> @}
       integer rtdb   ! The runtime database
       integer interpol ! The style of interpolation
       logical freeze1, freezeN ! Freeze ends of string
+      character*8 mode ! the mode of execution: serial or parallel
 
 ! Input/output
       real*8  coords(3,natoms,nbeads)
@@ -563,9 +571,17 @@ C> @}
       end do
 
       !*** Calculate the energy and forces for each bead ***
-      call zts_runall(rtdb,geom,natoms,nbeads,0,
-     >                      freeze1,freezeN,projection1,
-     >                      coords,energy,dVdx)
+      if (inp_compare(.false.,'serial',mode)) then
+        call zts_runall(rtdb,geom,natoms,nbeads,0,
+     >                        freeze1,freezeN,projection1,
+     >                        coords,energy,dVdx)
+      else if (inp_compare(.false.,'parallel',mode)) then
+        call zts_runall_parallel(rtdb,geom,natoms,nbeads,0,
+     >                        freeze1,freezeN,projection1,
+     >                        coords,energy,dVdx)
+      else
+        call errquit("zts_mepgs",0,CAPMIS_ERR)
+      endif
       sum0 = ddot(ng,dVdx,1,dVdx,1)
       sum0_old = sum0
       manyjj = 0
@@ -655,10 +671,17 @@ C> @}
              end if
              call string_move(alpha,interpol,geom,natoms,nbeads,
      >                      dg,wrk,dcoords,coords_old,HdVdx,coords)
-
-             call zts_runall(rtdb,geom,natoms,nbeads,nstep,
-     >                      freeze1,freezeN,projection1,
-     >                      coords,energy,dVdx)
+             if (inp_compare(.false.,'serial',mode)) then
+               call zts_runall(rtdb,geom,natoms,nbeads,nstep,
+     >                        freeze1,freezeN,projection1,
+     >                        coords,energy,dVdx)
+             else if (inp_compare(.false.,'parallel',mode)) then
+               call zts_runall_parallel(rtdb,geom,natoms,nbeads,nstep,
+     >                        freeze1,freezeN,projection1,
+     >                        coords,energy,dVdx)
+             else
+               call errquit("zts_mepgs",0,CAPMIS_ERR)
+             endif
              sum0 = ddot(ng,dVdx,1,dVdx,1)
 
              finishedstep = (sum0.le.sum0_old).or.
@@ -697,9 +720,17 @@ C> @}
           call string_verlet_move(stepsize,interpol,geom,natoms,nbeads,
      >                    dg,wrk,masses,dcoords,coords_old,dVdx,coords)
 
-          call zts_runall(rtdb,geom,natoms,nbeads,nstep,
-     >                    freeze1,freezeN,projection1,
-     >                    coords,energy,dVdx)
+          if (inp_compare(.false.,'serial',mode)) then
+            call zts_runall(rtdb,geom,natoms,nbeads,nstep,
+     >                      freeze1,freezeN,projection1,
+     >                      coords,energy,dVdx)
+          else if (inp_compare(.false.,'parallel',mode)) then
+            call zts_runall_parallel(rtdb,geom,natoms,nbeads,nstep,
+     >                      freeze1,freezeN,projection1,
+     >                      coords,energy,dVdx)
+          else
+            call errquit("zts_mepgs",0,CAPMIS_ERR)
+          endif
 
         end if
 
@@ -791,7 +822,7 @@ C> @}
                 read(19,*,ERR=30,END=30) ch_tmp
               end do
  30           continue
-#if defined(FUJITSU) || defined(PSCALE) || defined(SOLARIS) || defined(__crayx1) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(SOLARIS) || defined(GCC46)
               backspace 19
 #endif
             write(19,*) " "
@@ -1848,7 +1879,7 @@ C> @}
      &          'zts_meps: failed getting gradient',0,RTDB_ERR)
             if (oprint) 
      >        write(*,'(A,I3,A,F18.6)') 
-     >        "string: finished bead ",i," energy=",energy(i)
+     >        " string: finished bead ",i," energy=",energy(i)
          end if
       end do
 

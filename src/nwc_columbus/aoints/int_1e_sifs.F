@@ -1,5 +1,5 @@
       subroutine int_1e_sifs(ibas, aoints, energy, nenrgy, nbft,
-     &   nmap,map,imtype,ifmt1,ibvtyp,ibitv,l1rec,n1max,
+     &   nmap,map,imtype,ibvtyp,ibitv,l1rec,n1max,
      &   clab, ninfo, info)
       implicit none
 #include "errquit.fh"
@@ -51,7 +51,7 @@ c
 c     sifs parameters
 c
       integer aoints
-      integer ifmt1, n1max
+      integer n1max
       INTEGER l1rec, ntitle, ibuf, nsym, ibvtyp, ierr
       integer ibitv
       integer mxbf
@@ -111,10 +111,11 @@ c
 c
 c     ----- save ocache logical variable -----
 c
-      if(type.eq.6 .or. type.eq.7 ) then
-         ocache_save=ocache
-         ocache     =.false.
-      endif
+c     LB type is never initialized, ocache never used
+      !if(type.eq.6 .or. type.eq.7 ) then
+      !   ocache_save=ocache
+      !   ocache     =.false.
+      !endif
 c     
 c     Get info about the basis sets
 c     
@@ -426,17 +427,17 @@ cgk debug
 cgk end
       call int_so_sifs(ibas, oskel, aoints, nbft, max1e, mem1, l1rec,
      &  n1max, dbl_mb(k_sifbuf), dbl_mb(k_sifval), ninfo, info, clab,
-     &  fcore, ibvtyp, ibitv, ifmt1)
+     &  fcore, ibvtyp, ibitv)
 
 cgk debug
-!      write(*,*)'gk: calling int_mom_sifs from int_1e_sifs'
+*      write(*,*)'gk: calling int_mom_sifs from int_1e_sifs'
 *      write(*,*)'gk:  mem1=', mem1
 cgk end
       call int_mom_sifs(ibas, oskel, aoints, nbft, l1rec,
      &  n1max, dbl_mb(k_sifbuf), dbl_mb(k_sifval), ninfo, info, 
-     &  fcore, ibvtyp, ibitv, ifmt1)
+     &  fcore, ibvtyp, ibitv)
 cgk debug
-!      write(*,*)'gk: back from int_so_sifs in int_1e_sifs'
+*      write(*,*)'gk: back from int_so_sifs in int_1e_sifs'
 cgk end
 c     
 c     chop stack at first item allocated
@@ -460,9 +461,10 @@ c
 c
 c     ----- restore ocache -----
 c
-      if(type.eq.6 .or. type.eq.7) then
-         ocache=ocache_save
-      endif
+c     LB type is never initialized, ocache never used
+      !if(type.eq.6 .or. type.eq.7) then
+      !   ocache=ocache_save
+      !endif
 c     
 *     if (.not.inp_compare(.false., integ_type, 'so')) then
 *        call ga_dadd(1.0d0, g_loc, 1.0d0, g, g)

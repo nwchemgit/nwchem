@@ -44,20 +44,26 @@ c     subroutine arguments:
       integer loctype
 
 c     local GA handles:
-      integer g_uc(4), g_smat, g_sc, g_tran
+      integer g_uc(4), g_smat, g_sc, g_t
       integer g_movecs(2), g_cmo(2), g_temp, g_tmp1, g_tmp2
+      integer g_sc0
 
 c     MA variables:
       integer l_c, k_c, l_sc, k_sc, l_eval, k_eval, l_occ, k_occ
       integer l_dip(3), k_dip(3)
       integer l_pop, k_pop, l_list, k_list
+      integer l_iloc, k_iloc
 
 c     other local variables:
 
       integer loc_opt
 
       integer nclosed(2), nopen(2), nvirt(2), ncore, nocc, nvir,
-     &  ndens, nbf, nmo, nloc, i, natoms
+     &  nbf, nmo, nloc, i, natoms, nspin
+
+      character*(2) lspin(2)
+      data lspin /'_A','_B'/
+      character*(10) filename
 
       integer info, dbg, ispin
       
@@ -69,10 +75,6 @@ c     other local variables:
 
       logical     oskel, status
       data tol2e   /1.0d-10/
-
-      integer maxnloc
-      parameter (maxnloc = 10000)
-      integer iloc(maxnloc)
 
       double precision dummy(3)
       double precision origin(3)
@@ -107,7 +109,7 @@ c     ==================================================================
       if (debug) write(luout,*) 'entering '//pname
 
       if (loctype.lt.1 .or. loctype.gt.3)
-     &   call errquit('loc_driver: loctype out of range',0, RTDB_ERR)
+     &   call errquit(pname//': loctype out of range',0, RTDB_ERR)
 
       oprint = util_print('information', print_low)
       oprint = oprint .and. ga_nodeid().eq.0
@@ -140,15 +142,6 @@ c     retrieve localization option from rtdb if it exists
      &                               loc_opt  ))
      &  loc_opt = 0
 
-c     option is currently only implemented for IBOs:
-
-      if (loc_opt.gt.0 .and. (loctype.ne.3)) then
-        if (oprint) write(luout,'(/1x,a/1x,a)')
-     &    'localization option not implemented for chosen loc. type',
-     &    'setting option to 0 ...'
-        loc_opt = 0
-      end if
-
       if (oprint) then
         if (loc_opt .eq.0) then
           call util_print_centered(luout,
@@ -165,8 +158,6 @@ c     option is currently only implemented for IBOs:
         end if
       end if
 
-
-
 c     -------------------------------------------------------
 c     assemble some data:
 c     MO coeffs, orbital energies, density matrix, occupation
@@ -174,13 +165,13 @@ c     numbers, basis set info, matrix elements, etc.
 c     -------------------------------------------------------
 
       if (.not. bas_numbf(basis,nbf)) call
-     &   errquit('loc_driver: could not get nbf',0, BASIS_ERR)
+     &   errquit(pname//': could not get nbf',0, BASIS_ERR)
 c     allocate dbl_mb(k_occ) = fractional occupation numbers:
       if (.not. ma_push_get(mt_dbl,2*nbf,'occ num',l_occ,k_occ)) call
-     &    errquit('loc_driver: ma_push_get failed k_occ',0,MA_ERR)
+     &    errquit(pname//': ma_push_get failed k_occ',0,MA_ERR)
 c     allocate dbl_mb(leval) = orbital energies:
       if (.not. ma_push_get(mt_dbl,2*nbf,'eigenval',l_eval,k_eval)) call
-     &    errquit('loc_driver: ma_push_get failed k_eval',0,MA_ERR)
+     &    errquit(pname//': ma_push_get failed k_eval',0,MA_ERR)
 
       call hnd_prp_vec_read(rtdb,geom,basis,nbf,nclosed,nopen,
      &                      nvirt,scftyp,g_movecs,dbl_mb(k_occ),
@@ -188,7 +179,8 @@ c     allocate dbl_mb(leval) = orbital energies:
 
       if (debug)
      &   write (luout,*) 'loc driver: nclosed,nopen,nvirt',nclosed(1),
-     &  nopen(1), nvirt(1)
+     &  nopen(1), nvirt(1),nclosed(2),
+     &  nopen(2), nvirt(2)
 
       natoms = 0
 
@@ -201,41 +193,47 @@ c     allocate dbl_mb(leval) = orbital energies:
       if (natoms.gt.nw_max_atom) call errquit
      &  (pname//': nw_max_atom too small ', 911, UNKNOWN_ERR)
 
-c     Skip localization if we have an open-shell system
-c     (to be extended eventually, localizing alpha and
-c     beta spin orbitals separately):
-      
+c     Check if we have a spin-restricted or unrestricted
+c     calculation and set nspin accoringly
+
+      nspin = 0
+
       if (scftyp.eq.'UHF') then
-        if (oprint) write(luout,9020)
-        goto 7000
-c       Note: ndens = 1 means closed shell
-c             ndens = 3 open shell, then g_dens has 3 components
-c                       with 1=alpha, 2=beta, 3=total
-      endif
-      
-c     perform some sanity checks for the orbital occupations:
-      
+
+        if (master) write (luout,'(/1x,a)')
+     &    'UNRESTRICTED calculation'
+        nspin = 2
+        if (nclosed(1).ne.0 .or. nclosed(2).ne.0) call
+     &    errquit(pname//': UHF but nclosed.ne.0',1, CALC_ERR)
+
+      else if (scftyp.eq.'RHF') then
+        nspin = 1
 c     for RHF system there should be no open shell orbitals
       if (nopen(1).ne.0) call
-     &  errquit('loc_driver: nopen.ne.0',0, CALC_ERR)
-      
-c     in this case, nclosed and nvirt should add up to nmo
+     &    errquit(pname//': RHF but nopen.ne.0',nopen(1), CALC_ERR)
+
+      else
+c       at present, ROHF, MCSCF not supported
+        call errquit(pname//': SCF type not supported: '//
+     &    trim(scftyp),1,INPUT_ERR)
+      end if
+
+c     Restricted: nclosed and nvirt should add up to nmo
+      if (nspin .eq. 1) then
       if ((nclosed(1)+nvirt(1)).ne.nmo) call
-     &   errquit('loc_driver: wrong no. of orbitals',0, CALC_ERR)
+     &    errquit(pname//': wrong no. of rhf orbitals',
+     &    nmo, CALC_ERR)
+c     Unrestrcited: nopen + nvirt = nmo, per spin
+      else if (nspin.eq.2) then
+        if ((nopen(1)+nvirt(1)+nopen(2)+nvirt(2)).ne.(2*nmo)) call
+     &    errquit(pname//': wrong no. of uhf orbitals',
+     &    nmo, CALC_ERR)
+      end if
 
+      if (nspin.le.0 .or. nspin.gt.2) call
+     &  errquit(pname//': nspin wrong',nspin, CALC_ERR)
 
-c     maxnloc is hard coded. We should allocate array iloc
-c     dynamically but for now let's make sure we don't get out of
-c     bounds:
-
-      if (nmo.gt.maxnloc) call
-     &  errquit('loc_driver: maxnloc too small',0, BASIS_ERR)
-
-c     for the time being, we set these variables here:
-
-      ispin = 1
-      nocc = nclosed(1)
-      nvir = nvirt(ispin)
+      if (debug) write (luout,*) 'loc_driver: setup complete'
 
 
 c     --------------------------------------------
@@ -255,7 +253,9 @@ c     =================================================================
 c       ========================
 c       Pipek-Mezey localization
 c       ========================
-        
+
+        if (.not. ma_push_get(mt_int, nmo, 'iloc', l_iloc,
+     &    k_iloc)) call errquit(pname//': loc:iloc', 0, MA_ERR)
 
 c       AO Overlap Matrix S:
 
@@ -263,83 +263,145 @@ c       AO Overlap Matrix S:
         call ga_zero(g_smat)
         call int_1e_ga(basis, basis, g_smat, 'overlap', .false.)
 
-c       PM localization needs S*C: 
- 
+c       allocate memory
+
         if (.not. ga_create(MT_DBL, nbf, nmo, 'loc:sc',
-     $        nbf, 0, g_sc)) call errquit('loc_driver: sc',0, GA_ERR)
-         call ga_dgemm('n', 'n', nbf, nmo, nbf, 
-     $        1.0d0, g_smat, g_movecs(1), 0.0d0, g_sc)
+     $    nbf, 0, g_sc)) call errquit(pname//': sc',0, GA_ERR)
 
-c        allocate some memory used in the localization routine:
+        if (.not.ga_duplicate(g_sc, g_sc0,'g_sc0')) call
+     &     errquit(pname//': ga_create failed g_sc0',1,GA_ERR)
 
-         if (.not. ma_push_get(mt_dbl, 2*nbf, 'sc', l_sc, k_sc))
-     $        call errquit('loc_driver: ma for sc', 0, MA_ERR)
-         if (.not. ma_push_get(mt_dbl, 2*nbf, 'c', l_c, k_c))
-     $        call errquit('loc_driver: ma for c', 0, MA_ERR)
+        if (.not. ma_push_get(mt_dbl, 2*nbf, 'sc', l_sc, k_sc))
+     $       call errquit(pname//': ma for sc', 0, MA_ERR)
+        if (.not. ma_push_get(mt_dbl, 2*nbf, 'c', l_c, k_c))
+     $       call errquit(pname//': ma for c', 0, MA_ERR)
+        if (.not. ma_push_get(mt_dbl, natoms, 'pop', l_pop, k_pop))
+     &    call errquit(pname//': loc:pop', 0, MA_ERR)
+         if (.not. ma_push_get(mt_int, natoms,'list', l_list, k_list))
+     &     call errquit(pname//': loc:list', 0, MA_ERR)
 
-c        localize core and occupied orbitals
+         do ispin = 1,nspin
 
-         ispin = 1
+           if (nspin.eq.1) then
+             nocc = nclosed(ispin)
+           else if (nspin.eq.2) then
+             nocc = nopen(ispin)
+           else
+             call errquit(pname//': pmloc nspin out of order',
+     &         nspin, UNKNOWN_ERR)
+           end if
+           nvir = nvirt(ispin)
 
-         do i = 1, nclosed(ispin)
-            iloc(i) = i
-         end do
-         nloc = nclosed(ispin)
-         
-c        jochen: comment:
-c        the PM localization routine was already available
-c        in nwchem
-         call localizePM(basis, dbl_mb(k_c), dbl_mb(k_sc), 
-     &        nloc, iloc, nbf, nmo, g_movecs, g_sc)
+           if (nspin.gt.1 .and. master) then
+             write(luout,"(/1x,6('=')/1x,'Spin ',i1/1x,6('='))") ispin
+           end if
 
+c          PM localization needs S*C for this spin:
+           call ga_dgemm('n', 'n', nbf, nmo, nbf,
+     $       1.0d0, g_smat, g_movecs(ispin), 0.0d0, g_sc)
+
+c          save g_sc in g_sc0 to calculate the loc. transform later
+
+           call ga_copy(g_sc, g_sc0)
+
+           if (loc_opt.eq.0) then
+
+             ltyp = 'occ'
+             call pm_localization(rtdb, geom, ltyp, basis,
+     &         g_movecs(ispin), g_sc, g_sc0,
+     &         nocc, nvir, nmo, nbf, natoms,
+     &         dbl_mb(k_eval+(ispin-1)*nbf),
+     &         dbl_mb(k_occ+(ispin-1)*nbf),
+     &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
+     &         dbl_mb(k_pop), int_mb(k_list))
+
+           else if (loc_opt.eq.1) then
+
+             ltyp = 'vir'
+             call pm_localization(rtdb, geom, ltyp, basis,
+     &         g_movecs(ispin), g_sc, g_sc0,
+     &         nocc, nvir, nmo, nbf, natoms,
+     &         dbl_mb(k_eval+(ispin-1)*nbf),
+     &         dbl_mb(k_occ+(ispin-1)*nbf),
+     &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
+     &         dbl_mb(k_pop), int_mb(k_list))
+
+           else if (loc_opt.eq.2) then
+
+             ltyp = 'occ'
+             call pm_localization(rtdb, geom, ltyp, basis,
+     &         g_movecs(ispin), g_sc, g_sc0,
+     &         nocc, nvir, nmo, nbf, natoms,
+     &         dbl_mb(k_eval+(ispin-1)*nbf),
+     &         dbl_mb(k_occ+(ispin-1)*nbf),
+     &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
+     &         dbl_mb(k_pop), int_mb(k_list))
+
+             ltyp = 'vir'
+             call pm_localization(rtdb, geom, ltyp, basis,
+     &         g_movecs(ispin), g_sc, g_sc0,
+     &         nocc, nvir, nmo, nbf, natoms,
+     &         dbl_mb(k_eval+(ispin-1)*nbf),
+     &         dbl_mb(k_occ+(ispin-1)*nbf),
+     &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
+     &         dbl_mb(k_pop), int_mb(k_list))
+
+           else
+             call errquit(pname//': loc_opt out of range',loc_opt,
+     &         UNKNOWN_ERR)
+
+           end if
+
+c          write transformation for this spin to scratch file
+c          (occ-occ transformation only)
+
+           if (loc_opt.eq.0 .or. loc_opt.eq.2) then
+
+             if (.not. ga_create(MT_DBL, nocc, nocc, 'loc:trans',
+     &         nocc, 0, g_t)) call errquit(pname//' pmloc: g_t',
+     &         1, GA_ERR)
+
+             call ga_dgemm('t', 'n', nocc, nocc, nbf,
+     &         1.0d0, g_sc0, g_movecs(ispin), 0.0d0, g_t)
+
+             if (nspin.eq.1) then
+               filename='lmotrans'
+             else if (nspin.eq.2) then
+               filename='lmotrans'//lspin(ispin)
+             else
+               call errquit (
+     &           pname//' pmloc: nspin value not valid',1,
+     &           UNKNOWN_ERR)
+             end if
+
+             call util_file_name(filename,.false.,.false.,lmotrans)
+             if(.not.file_write_ga(lmotrans,g_t)) call errquit
+     &         (pname//' pmloc: could not write lmotrans',1, DISK_ERR)
+
+             if (master) write (luout,'(1x,a/1x,a)')
+     &         'PM transformation (occ.) written to file ',
+     &         trim(lmotrans)
+
+             if (.not. ga_destroy(g_t)) call errquit(
+     &         pname//' pmloc: error destroying g_t',1, GA_ERR)
+
+           end if ! save lmotrans for occ MOs
+
+         end do ! ispin
+
+c        deallocate arrays
 
 c        clean up some temp arrays
          if (.not. ga_destroy(g_sc)) call errquit(
-     &      'loc_driver: error destroying g_sc',0, GA_ERR)
-         if (.not. ma_pop_stack(l_c)) call errquit(
-     &      'loc_driver: error MA pop c',0, MA_ERR)
-         if (.not. ma_pop_stack(l_sc)) call errquit(
-     &      'loc_driver: error MA pop sc',0, MA_ERR)
+     &      pname//': error destroying g_sc',0, GA_ERR)
 
-c        calculate the LMO transformation matrix 
-c        from C(dagger,canonical) S C(locorb)
-
-c        first, read the CMOs again -> g_cmo
-
-         call hnd_prp_vec_read(rtdb,geom,basis,nbf,nclosed,nopen,
-     &      nvirt,scftyp,g_cmo,dbl_mb(k_occ),
-     &      dbl_mb(k_eval),nmo)
-
-         if (.not. ga_create(MT_DBL, nclosed(1), nbf, 'loc:temp',
-     &      nbf, 0, g_temp))
-     &      call errquit('loc_driver: temp',0, GA_ERR)
-         call ga_zero(g_temp)
-         call ga_dgemm('t', 'n', nclosed(1), nbf, nbf, 
-     $      1.0d0, g_cmo(1), g_smat, 0.0d0, g_temp)
+         if (.not. ma_chop_stack(l_sc)) call errquit(
+     &      pname//': error MA pop sc',0, MA_ERR)
 
          if (.not. ga_destroy(g_smat)) call errquit(
-     &      'loc_driver: error destroying g_smat',0, GA_ERR)
-         if (.not. ga_create(MT_DBL, nclosed(1), nclosed(1),
-     &      'loc:smat',nbf, 0, g_smat))
-     &      call errquit('loc_driver: smat',0, GA_ERR)
-         call ga_zero(g_smat)
-         call ga_dgemm('n', 'n', nclosed(1), nclosed(1), nbf, 
-     $      1.0d0, g_temp, g_movecs(1), 0.0d0, g_smat)
-
-         if (.not. ga_destroy(g_temp)) call errquit(
-     &      'loc_driver: error destroying g_temp',0, GA_ERR)
-         if (.not. ga_destroy(g_cmo(1))) call errquit(
-     &      'loc_driver: error destroying g_cmo(1)',0, GA_ERR)
-
-c        loc transform is in g_smat. Write to file
-
-         call util_file_name('lmotrans',.true.,.true.,lmotrans)
-         if(.not.file_write_ga(lmotrans,g_smat)) call errquit
-     $      ('loc_driver: could not write lmotrans',0, DISK_ERR)
-
-c        smat not needed anymore
-         if (.not. ga_destroy(g_smat)) call errquit(
-     &     'loc_driver: error destroying g_smat',0, GA_ERR)
+     &     pname//': error destroying g_smat',1, GA_ERR)
+         if (.not. ga_destroy(g_sc0)) call errquit(
+     &     pname//': error destroying g_sc0',1, GA_ERR)
 
 c     =================================================================
 
@@ -349,9 +411,17 @@ c       =================
 c       Boys localization
 c       =================
 
+        if (nspin.gt.1) call
+     &    errquit(pname//': Boys loc. not supported for open shell',
+     &    nspin, INPUT_ERR)
+
+        if (loc_opt.gt.0) call
+     &    errquit(pname//': Boys loc. not supported for virtuals',
+     &    loc_opt, INPUT_ERR)
+
         do i = 1,4
           if (.not. ga_create(MT_DBL, nbf, nbf, 'uc',
-     $       nbf, 0, g_uc(i))) call errquit('loc_driver:uc'
+     $       nbf, 0, g_uc(i))) call errquit(pname//': uc'
      &       ,i,GA_ERR)
           call ga_zero(g_uc(i))
          end do
@@ -365,7 +435,7 @@ c        dipole moment AO matrices -> uc(1) - uc(3)
 
 c        calculate dipole-AO times C (mo-coeffs), store in uc(i)
          if (.not. ga_create(MT_DBL, nbf, nmo, 'sc',
-     $        nbf, 0, g_sc)) call errquit('loc_driver: sc',0, GA_ERR)
+     $        nbf, 0, g_sc)) call errquit(pname//': sc',0, GA_ERR)
          do i = 1, 3
             call ga_dgemm('n', 'n', nbf, nmo, nbf, 
      $           1.0d0, g_uc(i), g_movecs, 0.0d0, g_sc)
@@ -389,16 +459,20 @@ c       store S C in array uc(4)
         if (debug) write(luout,*) 'g_uc(4) done'
 c     
          if (.not. ma_push_get(mt_dbl, 8*nbf, 'sc', l_sc, k_sc))
-     $        call errquit('loc_driver: ma for sc', 0, MA_ERR)
+     $        call errquit(pname//': ma for sc', 0, MA_ERR)
          if (.not. ma_push_get(mt_dbl, 8*nbf, 'c', l_c, k_c))
-     $        call errquit('ma for c', 0, MA_ERR)
+     $     call errquit(pname//': ma for c', 0, MA_ERR)
+
+         if (.not. ma_push_get(mt_int, nmo, 'iloc', l_iloc,
+     &     k_iloc)) call errquit(pname//': loc:iloc', 1, MA_ERR)
 
          if (debug) write(luout,*) 'MA c, sc complete'
 
 c        localize core and occupied orbitals:
 
          do i = 1, nclosed(1)
-            iloc(i) = i
+           int_mb(k_iloc - 1 + i) = i
+c           iloc(i) = i
          end do
          nloc = nclosed(1)
 
@@ -408,13 +482,13 @@ c        The Boys localization maximizes B2.
 c        we can use g_sc as a temp array as it is not further used
 
          if (.not. ga_destroy(g_sc)) call errquit(
-     &      'loc_driver: error destroying g_sc',0, GA_ERR)
+     &      pname//': error destroying g_sc',0, GA_ERR)
          if (.not. ga_create(MT_DBL, nmo, nmo, 'sc',
-     $      nbf, 0, g_sc)) call errquit('loc_driver: sc',0, GA_ERR)
+     $      nbf, 0, g_sc)) call errquit(pname//': sc',0, GA_ERR)
 
          do i = 1,3
            if (.not. ma_push_get(mt_dbl, nmo, 'sc', l_dip(i), k_dip(i)))
-     $        call errquit('loc_driver: ma for dip', i, MA_ERR)
+     $        call errquit(pname//': ma for dip', i, MA_ERR)
          end do
 
          do i = 1,3
@@ -447,20 +521,20 @@ c         end if
 
          do i = 3,1,-1
            if (.not. ma_pop_stack(l_dip(i))) call errquit(
-     &        'loc_driver: error MA pop dip',i, MA_ERR)
+     &        pname//': error MA pop dip',i, MA_ERR)
          end do
 
 c        jochen: comment:
 c        the Boys localization routine was already available
 c        in nwchem
          call localizeFB(basis, dbl_mb(k_c), dbl_mb(k_sc), 
-     $        nloc, iloc, nbf, nmo, g_movecs, g_uc)
+     $        nloc, int_mb(k_iloc), nbf, nmo, g_movecs, g_uc)
 
 c        calculate orbital centroids again and print information
 
          do i = 1,3
            if (.not. ma_push_get(mt_dbl, nmo, 'sc', l_dip(i), k_dip(i)))
-     $        call errquit('loc_driver: ma for dip', i, MA_ERR)
+     $        call errquit(pname//': ma for dip', i, MA_ERR)
          end do
 
          do i = 1,3
@@ -493,28 +567,28 @@ c         end if
 
          do i = 3,1,-1
            if (.not. ma_pop_stack(l_dip(i))) call errquit(
-     &        'loc_driver: error MA pop dip',i, MA_ERR)
+     &        pname//': error MA pop dip',i, MA_ERR)
          end do
 
 c        clean up  temp arrays:
 
          if (.not. ga_destroy(g_sc)) call errquit(
-     &      'loc_driver: error destroying g_sc',0, GA_ERR)
+     &      pname//': error destroying g_sc',0, GA_ERR)
 
          if (.not. ma_pop_stack(l_c)) call errquit(
-     &      'loc_driver: error MA pop c',0, MA_ERR)
+     &      pname//': error MA pop c',0, MA_ERR)
 
          if (.not. ma_pop_stack(l_sc)) call errquit(
-     &      'loc_driver: error MA pop sc',0, MA_ERR)
+     &      pname//': error MA pop sc',0, MA_ERR)
 
          do i = 1, 4
             if (.not. ga_destroy(g_uc(i)))
-     &        call errquit('loc_driver: error destroying uc',i, GA_ERR)
+     &        call errquit(pname//': error destroying uc',i, GA_ERR)
          end do
 
 c        smat not needed anymore
          if (.not. ga_destroy(g_smat)) call errquit(
-     &     'loc_driver: error destroying g_smat',0, GA_ERR)
+     &     pname//': error destroying g_smat',0, GA_ERR)
 
 
 c      ===============================================================
@@ -525,13 +599,11 @@ c        ===================================================
 c        IAO-IBO localization (occupied or virtual orbitals)
 c        ===================================================
 
+         g_smat  = ga_create_atom_blocked(geom, basis, 'loc:smat')
+         call ga_zero(g_smat)
+         call int_1e_ga(basis, basis, g_smat, 'overlap', .false.)
 
-         ispin = 1
-         nocc = nclosed(ispin)
-         nvir = nvirt(ispin)
-
-c        allocate MA array for pairs of MOs. The actual dimensions
-c        needed are less or equal to 2*nbf
+c        allocate memory
 
          if (.not. ma_push_get(mt_dbl, 2*nbf, 'c mo', l_c, k_c))
      &     call errquit(pname//': ma for c', 0, MA_ERR)
@@ -539,49 +611,125 @@ c        needed are less or equal to 2*nbf
          if (.not. ma_push_get(mt_dbl, natoms, 'pop', l_pop, k_pop))
      &     call errquit(pname//': loc:pop', 0, MA_ERR)
 
-         if (.not. ma_push_get(mt_int, natoms, 'list', l_list, k_list))
-     &     call errquit(pname//': loc:list', 0, MA_ERR)
+         if (.not. ma_push_get(mt_int, natoms, 'list', l_list,
+     &     k_list)) call errquit(pname//': loc:list', 0, MA_ERR)
 
-         if (loc_opt.eq.0) then
-           ltyp = 'occ'
-           call ibo_localization(rtdb, geom, ltyp, basis,
-     &       g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
-     &       dbl_mb(k_eval+(ispin-1)*nbf),
-     &       dbl_mb(k_occ+(ispin-1)*nbf),
-     &       dbl_mb(k_c),
-     &       dbl_mb(k_pop), int_mb(k_list))
+         if (.not. ga_create(MT_DBL, nbf, nmo, 'loc:sc0',
+     &     nbf, 0, g_sc0)) call errquit(pname//' ibo: sc0',0, GA_ERR)
 
-         else if (loc_opt.eq.1) then
-           ltyp = 'vir'
-           call ibo_localization(rtdb, geom, ltyp, basis,
-     &       g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
-     &       dbl_mb(k_eval+(ispin-1)*nbf),
-     &       dbl_mb(k_occ+(ispin-1)*nbf),
-     &       dbl_mb(k_c),
-     &       dbl_mb(k_pop), int_mb(k_list))
+         do ispin = 1,nspin
 
-         else if(loc_opt.eq.2) then
-           ltyp = 'occ'
-           call ibo_localization(rtdb, geom, ltyp, basis,
-     &       g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
-     &       dbl_mb(k_eval+(ispin-1)*nbf),
-     &       dbl_mb(k_occ+(ispin-1)*nbf),
-     &       dbl_mb(k_c),
-     &       dbl_mb(k_pop), int_mb(k_list))
+           if (nspin.eq.1) then
+             nocc = nclosed(ispin)
+           else if (nspin.eq.2) then
+             nocc = nopen(ispin)
+           else
+             call errquit(pname//': nspin out of order',
+     &         nspin, UNKNOWN_ERR)
+           end if
+           nvir = nvirt(ispin)
 
-           ltyp = 'vir'
-           call ibo_localization(rtdb, geom, ltyp, basis,
-     &       g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
-     &       dbl_mb(k_eval+(ispin-1)*nbf),
-     &       dbl_mb(k_occ+(ispin-1)*nbf),
-     &       dbl_mb(k_c),
-     &       dbl_mb(k_pop), int_mb(k_list))
+           if (nspin.gt.1 .and. master) then
+             write(luout,"(/1x,6('=')/1x,'Spin ',i1/1x,6('='))") ispin
+           end if
 
-         else
-           call errquit(pname//': loc_opt out of range',loc_opt,
+           if (debug) write(luout,*) pname//': ispin,nocc,nvir,nmo',
+     &       ispin,nocc,nvir,nmo
+
+           if (nocc+nvir.ne.nmo) call errquit(pname//
+     &       ': nocc+nvir.ne.nmo. Non-aufbau config?',nocc+nvir,
      &       UNKNOWN_ERR)
 
-         end if ! loc_opt
+c          calculate SC with the original MOs, so we can generate
+c          the localization transformation later for this spin
+
+           call ga_dgemm('n', 'n', nbf, nmo, nbf,
+     $       1.0d0, g_smat, g_movecs(ispin), 0.0d0, g_sc0)
+
+           if (loc_opt.eq.0) then
+             ltyp = 'occ'
+             call ibo_localization(rtdb, geom, ltyp, basis,
+     &         g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
+     &         dbl_mb(k_eval+(ispin-1)*nbf),
+     &         dbl_mb(k_occ+(ispin-1)*nbf),
+     &         dbl_mb(k_c),
+     &         dbl_mb(k_pop), int_mb(k_list))
+
+           else if (loc_opt.eq.1) then
+             ltyp = 'vir'
+             call ibo_localization(rtdb, geom, ltyp, basis,
+     &         g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
+     &         dbl_mb(k_eval+(ispin-1)*nbf),
+     &         dbl_mb(k_occ+(ispin-1)*nbf),
+     &         dbl_mb(k_c),
+     &         dbl_mb(k_pop), int_mb(k_list))
+
+           else if(loc_opt.eq.2) then
+             ltyp = 'occ'
+             call ibo_localization(rtdb, geom, ltyp, basis,
+     &         g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
+     &         dbl_mb(k_eval+(ispin-1)*nbf),
+     &         dbl_mb(k_occ+(ispin-1)*nbf),
+     &         dbl_mb(k_c),
+     &         dbl_mb(k_pop), int_mb(k_list))
+
+             ltyp = 'vir'
+             call ibo_localization(rtdb, geom, ltyp, basis,
+     &         g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
+     &         dbl_mb(k_eval+(ispin-1)*nbf),
+     &         dbl_mb(k_occ+(ispin-1)*nbf),
+     &         dbl_mb(k_c),
+     &         dbl_mb(k_pop), int_mb(k_list))
+
+           else
+             call errquit(pname//': loc_opt out of range',loc_opt,
+     &         UNKNOWN_ERR)
+
+           end if ! loc_opt
+
+           if (debug) write (luout,*)
+     &       pname//': back from ibo_localization'
+
+c          write transformation for this spin to scratch file
+c          (occ-occ transformation only)
+
+           if (loc_opt.eq.0 .or. loc_opt.eq.2) then
+
+             if (.not. ga_create(MT_DBL, nocc, nocc, 'loc:trans',
+     &         nocc, 0, g_t)) call errquit(pname//' ibo: g_t',1, GA_ERR)
+
+             call ga_dgemm('t', 'n', nocc, nocc, nbf,
+     &         1.0d0, g_sc0, g_movecs(ispin), 0.0d0, g_t)
+
+             if (nspin.eq.1) then
+               filename='lmotrans'
+             else if (nspin.eq.2) then
+               filename='lmotrans'//lspin(ispin)
+             else
+               call errquit (
+     &           pname//' ibo: nspin value not valid',1,
+     &           UNKNOWN_ERR)
+             end if
+
+             call util_file_name(filename,.false.,.false.,lmotrans)
+             if(.not.file_write_ga(lmotrans,g_t)) call errquit
+     &         (pname//' ibo: could not write lmotrans',1, DISK_ERR)
+
+             if (master) write (luout,'(1x,a/1x,a)')
+     &         'IBO transformation (occ.) written to file ',
+     &         trim(lmotrans)
+
+             if (.not. ga_destroy(g_t)) call errquit(
+     &         pname//' ibo: error destroying g_t',1, GA_ERR)
+
+           end if ! save lmotrans for occ MOs
+
+         end do ! ispin
+
+         if (.not. ga_destroy(g_smat)) call errquit(
+     &     pname//' ibo: error destroying g_smat',1, GA_ERR)
+         if (.not. ga_destroy(g_sc0)) call errquit(
+     &     pname//' ibo: error destroying g_sc0',1, GA_ERR)
 
        end if ! loctype
 
@@ -602,11 +750,16 @@ c     clean up
 c     --------
 
 
-      if (.not.ga_destroy(g_movecs(1))) call 
-     &    errquit('loc_driver: ga_destroy failed g_movecs',0,GA_ERR)
+      if (.not.ga_destroy(g_movecs(1))) call
+     &  errquit(pname//': ga_destroy failed g_movecs',0,GA_ERR)
+
+      if (nspin.eq.2) then
+        if (.not.ga_destroy(g_movecs(2))) call
+     &    errquit(pname//': ga_destroy failed g_movecs-2',0,GA_ERR)
+      end if
 
       if (.not.ma_chop_stack(l_occ)) call
-     &   errquit('loc_driver: ma_chop_stack failed k_occ',l_occ,MA_ERR)
+     &   errquit(pname//': ma_chop_stack failed k_occ',l_occ,MA_ERR)
 
       call schwarz_tidy()
       call int_terminate()
@@ -618,7 +771,7 @@ c     Localization done. return
 c     ---------------------------------------
       
       if (oprint) then
-        write (LuOut,*) 'Exiting Localization driver routine'
+        write (LuOut,'(/1x,a)') 'Exiting Localization driver routine'
       endif
 
 c     ==================================================================

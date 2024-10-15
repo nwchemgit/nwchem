@@ -199,9 +199,12 @@ static int check_type(PyObject *obj)
 char *Parse_String(PyObject *arg)
 {
   char *out;
-  PyObject *ascii_string;
   if (PyUnicode_Check(arg)) {
-    ascii_string = PyUnicode_AsASCIIString(arg);
+    PyObject* ascii_string = PyUnicode_AsASCIIString(arg);
+    if (NULL == ascii_string ) {
+      PyErr_SetString(PyExc_TypeError, "PyUnicode_AsASCIIString failed");
+    return NULL;
+    }
     out = PyBytes_AsString(ascii_string);
     Py_DECREF(ascii_string);
   } else if (PyBytes_Check(arg)) {
@@ -294,7 +297,6 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
     void *array = 0;
     PyObject *obj, *option_obj;
 
-    name = Parse_String(PyTuple_GetItem(args, 0));
     obj = PyTuple_GetItem(args, 1);
 
     if (PyList_Check(obj)) 
@@ -405,6 +407,7 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
       break;
     }
     
+    name = Parse_String(PyTuple_GetItem(args, 0));
     if (!(rtdb_put(rtdb_handle, name, ma_type, list_len, array))) {
       PyErr_SetString(NwchemError, "rtdb_put failed");
       if ((ma_type != MT_CHAR) && array) free(array);
@@ -1794,12 +1797,6 @@ struct module_state {
 static struct module_state _state;
 #endif
 
-static PyObject* error_out(PyObject *m) {
-  struct module_state *st = GETSTATE(m);
-  PyErr_SetString(st->error, "something bad happened");
-  return NULL;
-}
-
 #if PY_MAJOR_VERSION >= 3
 
 static int nwchem_traverse(PyObject *m, visitproc visit, void *arg) {
@@ -1838,6 +1835,10 @@ void initnwchem()
 #endif
   if (module == NULL)
     INITERROR;
+
+  NwchemError = PyErr_NewException("nwchem.NwchemError", NULL, NULL);
+  PyModule_AddObject(module, "NwchemError", NwchemError);
+
   struct module_state *st = GETSTATE(module);
   st->error = PyErr_NewException("nwchem.error", NULL, NULL);
   if (st->error == NULL) {
