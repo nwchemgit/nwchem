@@ -242,9 +242,7 @@ c
       external scf
       integer i
       integer j
-#if defined(TCE_CUDA) || defined(TCE_HIP)
       integer icuda
-#endif
 !#ifdef EACCSD
       logical eaccsd
 !#endif
