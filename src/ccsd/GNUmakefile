@@ -2,6 +2,10 @@
 
 include ../config/makefile.h
 
+ifdef USE_IMAX_OPENMP_TRPDRV
+SUBDIRS += module
+endif
+
  OBJ_OPTIMIZE = \
         ccden_driver.o \
         ccden_interm2.o \
@@ -24,7 +28,6 @@ include ../config/makefile.h
 	ccsd_idx34.o \
 	ccsd_tengy.o \
         ccsd_trpdrv.o \
-        ccsd_trpdrv_nb.o \
         ccsd_trpdrv_omp.o \
 	ccsd_trpdrv_omp_mixprec.o \
         moints_trp.o \
@@ -72,7 +75,6 @@ endif
      ccsd_pdiis.F \
      ccsd_sortmo.F \
      ccsd_trpdrv.F \
-     ccsd_trpdrv_nb.F \
      ccsd_trpdrv_omp.F \
      ccsd_trpdrv_omp_mixprec.F \
      moints_trp.F \
@@ -88,17 +90,15 @@ endif
      ccsd_mktau_ga.F \
      ccden_2pdmb.F \
      aoccsd2.F \
+     ccsd_fsig1.F \
+     ccsd_fsig2.F \
+     ccsd_trpdrv_offload.F \
+     ccsd_trpdrv_openacc.F \
+     ccsd_trpdrv_openmp_imax.F \
      moints_trp.F
-
-ifeq ($(TARGET),BGP)
-  OBJ_OPTIMIZE += ccsd_trpdrv_bgp2.o ccsd_tengy_bgp2.o ccsd_tengy_bgp.o
-  USES_BLAS += ccsd_trpdrv_bgp2.F
-  LIB_DEFINES += -DBGP
-endif
 
 ifdef USE_MIC_TRPDRV
   OBJ_OPTIMIZE += ccsd_trpdrv_offload.o
-  USES_BLAS    += ccsd_trpdrv_offload.F
   LIB_DEFINES += -DUSE_MIC_TRPDRV
 endif
 ifeq ($(_FC),xlf)
@@ -114,9 +114,22 @@ ifeq ($(HAVE_SET_GA_PROPERTY),Y)
       LIB_DEFINES += -DHAVE_SET_GA_PROPERTY
 endif
 
+ifdef USE_IMAX_OPENMP_TRPDRV
+
+  OBJ_OPTIMIZE += ccsd_trpdrv_openmp_imax.o
+
+  OBJ_OPTIMIZE += ccsd_trpdrv_omp_reduce_f.o
+
+  FOPTIONS += -O3 -fiopenmp  -fopenmp-targets=spir64="-mllvm -vpo-paropt-atomic-free-reduction-par-global=false" -switch offload_modvars -mllvm -vpo-paropt-atomic-free-reduction-slm=true -qmkl
+
+  DEFINES += -DMKL_ILP64 
+
+  INCLUDES += -I"${MKLROOT}/include" -I ${NWCHEM_TOP}/src/ccsd/module
+
+endif
+
 ifdef USE_OPENACC_TRPDRV
   OBJ_OPTIMIZE += ccsd_trpdrv_openacc.o
-  USES_BLAS    += ccsd_trpdrv_openacc.F
   FOPTIONS += -DUSE_OPENACC_TRPDRV
   ifeq ($(_FC),pgf90)
       FOPTIONS += -Mextend -acc -cuda -cudalib=cublas
@@ -126,6 +139,9 @@ ifdef USE_OPENACC_TRPDRV
   endif
 endif
 
+ifdef USE_BATCHDGEMM_TRPDRV
+  DEFINES += -DUSE_BATCHDGEMM_TRPDRV
+endif
 
 ifeq ($(ARMCI_NETWORK),MPI-PR)
    LIB_DEFINES += -DACC_STRIPS

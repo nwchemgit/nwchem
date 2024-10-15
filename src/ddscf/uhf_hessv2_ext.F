@@ -2775,7 +2775,8 @@ c ---- Move g_Axreim --> g_Az1---- END
      &       GA_ERR)
         enddo ! end-loop-iset (spin A,B)
        enddo ! end-loop-cnt
-        if (.not. ga_destroy(g_Axreim)) call errquit('uhf_hv2e: Axreim',0,
+       if (.not. ga_destroy(g_Axreim))
+     c      call errquit('uhf_hv2e: Axreim',0,
      &       GA_ERR)
       if (debug) then
            if (ga_nodeid().eq.0)        
@@ -4111,8 +4112,9 @@ c ---- Move g_Axreim --> g_Az---- END
      &       GA_ERR)
         enddo ! end-loop-iset (spin A,B)
        enddo ! end-loop-cnt
-        if (.not. ga_destroy(g_Axreim)) call errquit('uhf_hv2e: Axreim',0,
-     &       GA_ERR)
+       if (.not. ga_destroy(g_Axreim))
+     &      call errquit('uhf_hv2e: Axreim',0,
+     &      GA_ERR)
       if (debug) then
            if (ga_nodeid().eq.0)        
      &     write(*,*) '------- g_Az-1------ START' 

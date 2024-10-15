@@ -48,6 +48,7 @@ c
       external file_write_ga,file_read_ga, file_read_ga_info
       integer vlen, nvirt, nmos(2), nbf_vecs, nsets
       integer bases(2), nbases, nvec, ncol,ndata
+      integer gtype,a_nrow,a_ncol
       character*255 title_vecs, basis_vecs
       character*20 scftype_vecs
       double precision residual
@@ -428,6 +429,20 @@ c == copy solution (g_work) --> g_grad 2nd subspace===START
           shift=3 ! skip first subspace that corresponds to g_b
           m1=shift+1
           m2=shift+nvec
+          call ga_inquire(g_grad, gtype, a_nrow, a_ncol)
+          if(m2.gt.a_ncol) then
+             if(ga_nodeid().eq.0)
+     W            write(luout,*)
+     W            ' cphf_solve2: g_grad wrong col indices',
+     M            m2, ' gt ',a_ncol
+chack
+             shift=a_ncol-1
+             if(ga_nodeid().eq.0)
+     W            write(luout,*)  ' cph_solve2: reset shift=',shift
+             m1=1
+             m2=nvec
+!             call errquit(' cphf_solve2: wrong patch indices',1,0)
+          endif
           call ga_copy_patch('n',g_work,1,vlen,1 ,nvec,
      &                           g_grad,1,vlen,m1,m2)
 c == copy solution (g_work) --> g_grad 2nd subspace===END

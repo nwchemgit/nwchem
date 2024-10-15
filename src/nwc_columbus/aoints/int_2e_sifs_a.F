@@ -1,5 +1,5 @@
       subroutine int_2e_sifs_a( geom, basis, ablklen, tol2e, oskel,
-     $     tmp, blocks, nblock, aoint2, ninfo, info, ifmt, ibvtyp, 
+     $     tmp, blocks, nblock, aoint2, ninfo, info, ibvtyp, 
      &     ibitv, clabs)
       implicit none
 #include "errquit.fh"
@@ -52,7 +52,7 @@ c
       external nxtask
       integer l_sifval, l_sifbuf, l2rec, n2max
       integer k_sifval, k_sifbuf 
-      integer ninfo, ifmt, ibvtyp, ibitv, aoint2, nipv, itypea, 
+      integer ninfo, ibvtyp, ibitv, aoint2, nipv, itypea, 
      &          itypeb, wait, nrec, reqnum, ierr, iwait
       integer info(ninfo)
       integer clabs(4,*)
@@ -216,7 +216,7 @@ cgk end
      $                       geom, basis, oskel, iatlo, jatlo, katlo, 
      &                       latlo, iathi, jathi, kathi, lathi, 
      &                       ijk_prev, tmp, tol2e, aoint2, ninfo, info, 
-     &                       ifmt, ibvtyp, dbl_mb(k_sifval), ibitv, 
+     &                       ibvtyp, dbl_mb(k_sifval), ibitv, 
      &                       dbl_mb(k_sifbuf), clabs, int_mb(k_i),
      &                       int_mb(k_j), int_mb(k_k), int_mb(k_l),
      &                       dbl_mb(k_g))

@@ -177,7 +177,7 @@ c
       if (.not. inp_f(user_memory)) goto 1000
       if (.not.inp_a(ctest)) goto 1000
       if (inp_match(nunits, .false., ctest, units, ind)) then
-         memory_size  = int(user_memory)*conv_units(ind)
+         memory_size  = user_memory*dble(conv_units(ind))
          memory_units=.true.
       else
          call errquit('inp_match: units missing ',0,INPUT_ERR)

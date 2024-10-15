@@ -104,7 +104,11 @@ endif
 libraries:
 	@for dir in $(SUBDIRS); do \
 		echo Making $@ in $$dir; \
-		$(MAKE)	-C $$dir || exit 1 ;  \
+		if [ $@  == "include_stamp" ] || [ $@  == "dependencies"  ]; then \
+		$(MAKE)	SKIP_COMPILERS=1 -C $$dir || exit 1  ; \
+		else \
+		$(MAKE)	-C $$dir || exit 1 ; \
+		fi \
 	done
 
 showdir: 
@@ -129,6 +133,7 @@ realclean:
 	-$(RM) $(LIBDIR)/*.a $(BINDIR)/*
 	-$(RM) *.db movecs fort.41 fort.44
 	-$(RM) util/util_version.F
+	-$(RM) mpi_include.txt ga_cppflags.txt  ga_ldflags.txt  ga_use_scalapack.txt oblas_ompcheck_done.txt
 	@# -$(RM) 64_to_32 32_to_64 deps_stamp # This conversion is such a hassle that realclean should not force it.
 
 .PHONY:	cleanF
@@ -156,16 +161,16 @@ sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 	@$(MAKE) directories
 	@$(MAKE) clear_$@
 	for dir in $(SUBDIRS); do \
-		$(MAKE)	-C $$dir $@ || exit 1 ;  \
+		$(MAKE) SKIP_COMPILERS=1 QUICK_BUILD=1 -C $$dir $@ || exit 1 ;  \
 	done
 	touch $@
-ifndef QUICK_BUILD
 deps_stamp:
 	for dir in $(SUBDIRS); do \
-		$(MAKE)	-i -C $$dir dependencies include_stamp ;  \
+		if [ $@  == "include_stamp" ] || [ $@  == "dependencies"  ]; then \
+		$(MAKE)	-i SKIP_COMPILERS=1 -C $$dir dependencies include_stamp ;  \
+	 	fi \
 	done
 	touch $@
-endif
 clear_64_to_32:
 	-$(RM) 32_to_64
 
@@ -183,8 +188,8 @@ clear_dbl_to_sngl:
 
 directories:
 	test \! -f 64_to_32 -o \! -f 32_to_64 || rm -f 64_to_32 32_to_64
-	test -d $(LIBDIR) || $(MKDIR) -p $(LIBDIR)
-	test -d $(BINDIR) || $(MKDIR) -p $(BINDIR)
+	test -d $(LIBDIR) || mkdir -p $(LIBDIR)
+	test -d $(BINDIR) || mkdir -p $(BINDIR)
 	./util/util_nwchem_version.bash
 
 auxiliary:
@@ -245,7 +250,7 @@ source:
 	cat stubs.F nwchem.F > source
 ifdef SUBDIRS
 	for dir in $(SUBDIRS); do \
-		$(MAKE)	-C $$dir $@ || exit 1 ;  \
+		echo TARGET is $@ ; $(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
 endif
 

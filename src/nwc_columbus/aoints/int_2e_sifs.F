@@ -1,5 +1,5 @@
       subroutine int_2e_sifs( geom, basis, tol2e, oskel, aoint2, ninfo, 
-     &    info, ifmt, ibvtyp, ibitv, clabs)
+     &    info, ibvtyp, ibitv, clabs)
 c
       implicit none
 #include "errquit.fh"
@@ -19,7 +19,7 @@ c     arguments
 c     
       integer geom, basis            ! [input] parameter handles
       integer aoint2 
-      integer ninfo, ifmt, ibvtyp
+      integer ninfo, ibvtyp
       integer ibitv
       integer info(ninfo)
       double precision tol2e         ! [input] integral selection threshold
@@ -185,7 +185,7 @@ cgk end
 
          call int_2e_sifs_a( geom, basis, ablklen, tol2e, oskel,
      $        dbl_mb(k_atmp), int_mb(k_block), nblock,  aoint2, ninfo, 
-     &        info, ifmt, ibvtyp, ibitv, clabs)
+     &        info, ibvtyp, ibitv, clabs)
 
 cgk debug
 *     write(*,*)'gk: back from int_2e_sifs_a'

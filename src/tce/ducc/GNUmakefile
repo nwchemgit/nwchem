@@ -5,7 +5,7 @@ LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
-USES_BLAS = rot_vir.F
+USES_BLAS = rot_vir.F map_hcore.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 

@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include "typesf2c.h"
 
-#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__MINGW32__)
 #define hcurve_map_ HCURVE_MAP
 #endif
 

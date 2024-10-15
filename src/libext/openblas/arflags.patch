@@ -1,0 +1,46 @@
+--- Makefile.org	2024-01-31 14:05:20.446866601 -0800
++++ Makefile	2024-01-31 14:06:35.069578035 -0800
+@@ -315,7 +315,7 @@
+ 	-@echo "CC          = $(CC)" >> $(NETLIB_LAPACK_DIR)/make.inc
+ 	-@echo "override CFLAGS      = $(LAPACK_CFLAGS)" >> $(NETLIB_LAPACK_DIR)/make.inc
+ 	-@echo "AR          = $(AR)" >> $(NETLIB_LAPACK_DIR)/make.inc
+-	-@echo "ARFLAGS     = $(ARFLAGS) -ru" >> $(NETLIB_LAPACK_DIR)/make.inc
++	-@echo "ARFLAGS     = $(ARFLAGS) -rUv" >> $(NETLIB_LAPACK_DIR)/make.inc
+ 	-@echo "RANLIB      = $(RANLIB)" >> $(NETLIB_LAPACK_DIR)/make.inc
+ 	-@echo "LAPACKLIB   = ../../$(LIBNAME)" >> $(NETLIB_LAPACK_DIR)/make.inc
+ 	-@echo "TMGLIB      = ../../../$(LIBNAME)" >> $(NETLIB_LAPACK_DIR)/make.inc
+--- Makefile.tail.org	2024-01-31 19:11:26.807368798 -0800
++++ Makefile.tail	2024-01-31 19:14:08.650652779 -0800
+@@ -43,25 +43,25 @@
+ $(SBEXTOBJS_P) : override CFLAGS += -DPROFILE $(COMMON_PROF)
+ 
+ libs    :: $(BLASOBJS) $(COMMONOBJS)
+-	$(AR) $(ARFLAGS) -ru $(TOPDIR)/$(LIBNAME) $^
++	$(AR) $(ARFLAGS) -rUv $(TOPDIR)/$(LIBNAME) $^
+ 
+ prof    :: $(BLASOBJS_P) $(COMMONOBJS_P)
+-	$(AR) $(ARFLAGS) -ru $(TOPDIR)/$(LIBNAME_P) $^
++	$(AR) $(ARFLAGS) -rUv $(TOPDIR)/$(LIBNAME_P) $^
+ 
+ hpl	:: $(HPLOBJS) $(COMMONOBJS)
+-	$(AR) $(ARFLAGS) -ru $(TOPDIR)/$(LIBNAME) $^
++	$(AR) $(ARFLAGS) -rUv $(TOPDIR)/$(LIBNAME) $^
+ 
+ hpl_p	:: $(HPLOBJS_P) $(COMMONOBJS_P)
+-	$(AR) $(ARFLAGS) -ru $(TOPDIR)/$(LIBNAME_P) $^
++	$(AR) $(ARFLAGS) -rUv $(TOPDIR)/$(LIBNAME_P) $^
+ 
+ kernel :: $(BLASOBJS)
+-	$(AR) $(ARFLAGS) -ru $(TOPDIR)/$(LIBNAME) $^
++	$(AR) $(ARFLAGS) -rUv $(TOPDIR)/$(LIBNAME) $^
+ 
+ commonlibs :: $(COMMONOBJS)
+-	$(AR) $(ARFLAGS) -ru $(TOPDIR)/$(LIBNAME) $^
++	$(AR) $(ARFLAGS) -rUv $(TOPDIR)/$(LIBNAME) $^
+ 
+ commonprof :: $(COMMONOBJS_P)
+-	$(AR) $(ARFLAGS) -ru $(TOPDIR)/$(LIBNAME_P) $^
++	$(AR) $(ARFLAGS) -rUv $(TOPDIR)/$(LIBNAME_P) $^
+ 
+ quick :
+ 	  $(MAKE) -C $(TOPDIR) libs

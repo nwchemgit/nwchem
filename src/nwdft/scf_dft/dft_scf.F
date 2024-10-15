@@ -297,7 +297,6 @@ c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
       ocosmo_got_gasphase = .false.
-      lmaxov_sv = lmaxov
       oprint = util_print('information', print_low)
       oprint_info = util_print('common', print_debug)
       oprint_parm = util_print('parameters', print_default)
@@ -690,26 +689,13 @@ c     == get info for int2e_ and set sleazy tolerance ==
 c
 c     == force sleazy SCF into "direct" mode ==
       call fock_force_direct(rtdb)
-c
-c     -------------------------------------------
-c     calculate superposition of atomic densities
-c     if ZORA or X2C functionality is requested
-c     -------------------------------------------
 
-      if ((do_zora .or. do_x2c) .and. .not.x2c_noatm()) then
-        call ga_zero(g_dens_at(1))
-        if (ipol.gt.1) call ga_zero(g_dens_at(2))
-        call guess_dens(rtdb, geom, ao_bas_han, g_dens_at)
-        call dft_quickguess(ipol,nbf_ao,g_dens_at,oskel,
-     N     ntotel,nclosed,
-     D     .false.)
-      else if (do_x2c .and. x2c_noatm()) then
-        call ga_zero(g_dens_at(1))
-        if (ipol.gt.1) call ga_zero(g_dens_at(2)) 
-      end if                    ! do_zora .or. do_x2c
+      call x2czora_atguess(rtdb,geom,ao_bas_han,
+     i     ipol, nbf_ao, oskel, ntotel, nclosed,
+     d     do_zora, do_x2c,
+     g     g_dens_at)
 c
 c     == get atomic zora contributions ==
-      if (.not.rtdb_get(rtdb,'zora',mt_log,1,do_zora)) do_zora = .false.
 c
       if (do_zora) then
         if (me.eq.0) then
@@ -827,40 +813,15 @@ c       == -> g_zora_Kinetic is defined in zora.fh ==
         do i=1,ipol
           call ga_copy(g_rel(i),g_zora_Kinetic(i))
         enddo
-      end if  ! do_zora
-c
-c     -------------------------------------------------
-c     set up an exact decoupling Hamiltonian (optional)
-c     -------------------------------------------------
-
-      if (do_x2c) then
-        if (me.eq.0) write (luout,*) 'allocating g_x2c',nbf_ao
-
-        if(.not.ga_duplicate(g_vxc(1),g_rel(1),'x2c 1'))
-     &     call errquit('dft_scf: ga_duplicate failed',666, GA_ERR)
-        call ga_zero(g_rel(1))
-
-        if (me.eq.0) write (luout,*) 'calling calc_x2c_1e_scalar'
-
-c       note: g_vxc is used as temp array in the numerical
-c       integration routines.
-c       g_x2c_u2c is created in the x2c routine and survives
-c       if keepU=.T. Same for the transformation matrices g_xc_u(:).
-c       optionally, g_x2c_c2u is also allocated and kept.
-
-        call calc_x2c_1e_scalar_ga(rtdb, 
-     &    nexc, g_dens_at, g_vxc, g_rel(1), g_x2c_u,
-     &    g_x2c_u2c, g_x2c_c2u, toll_s)
-
-
-        if (ipol.gt.1) then
-          if(.not.ga_duplicate(g_vxc(2),g_rel(2),'x2c 2'))
-     &     call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-          call ga_copy(g_rel(1),g_rel(2))
-        end if
-        
-
-      end if                    ! do_x2c
+      end if                    ! do_zora
+      call x2c_guess(rtdb,nexc,ipol,
+     t     toll_s,
+     d     do_x2c,
+     g     g_vxc,g_rel,g_dens_at,
+     g     g_x2c_u,g_x2c_u2c,
+     N     nbf_ao)
+     
+c      
 c
 c     == determine guess ==
       if(.not.rtdb_get(rtdb,'back_to_atguess',mt_int,1,
@@ -893,7 +854,8 @@ c     == better have static ldb at high node counts ==
      &                       .true.) 
 c     check if movecs read has failed
       if(movecs_in_org.ne.movecs_in) then
-         if(ga_nodeid().eq.0) then
+         if(ga_nodeid().eq.0.and.
+     A        util_print('movecs_info', print_high)) then
             write(luout,*) ' WARNING: movecs_in_org=',
      c           movecs_in_org(1:inp_strlen(movecs_in_org)),
      c           ' not equal to movecs_in=',
@@ -904,6 +866,19 @@ c     no movecs available, use svecs
       endif
       if(staticguess) llldb_out=util_statldb(llldb,rtdb)
       call dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
+      if (.not.rtdb_get(rtdb, 'dft:imom', mt_log, 1,
+     &     lmaxov_imom)) lmaxov_imom=.false.
+      if (lmaxov_imom) then
+c     store g_movecs for max_ovl as g_movecs0
+         if(.not.ga_duplicate(g_movecs(1),g_movecs0(1),'movecs0'))
+     &        call errquit('dft_scf: ga_duplicate failed',0, GA_ERR)
+         call ga_copy(g_movecs(1),g_movecs0(1))
+         if(ipol.gt.1)  then
+            if(.not.ga_duplicate(g_movecs(2),g_movecs0(2),'movecs0'))
+     &           call errquit('dft_scf: ga_duplicate failed',2,GA_ERR)
+            call ga_copy(g_movecs(2),g_movecs0(2))
+         endif
+      endif
       if (me.eq.0.and.oprint)
      &     write(LuOut,'(2x," Time after variat. SCF: ",f8.1)')
      &     util_wallsec()
@@ -1500,9 +1475,13 @@ cc AJL/End
             endif
            enddo
          endif
+         if (.not.lmaxov_imom) then
+            g_movecs0(ispin)=g_movecs(ispin)
+         endif
          call dft_diagn(levelshifting,
      ,        nmo(ispin),ncanorg,
      .        g_focks(ispin),g_s,g_movecs(ispin),g_tmp,g_svecs,
+     .        g_movecs0(ispin),
      ,        dbl_mb(k_eval(ispin)),svals,noc(ispin),
      ,        homo,lumo,toll_s,
      ,        oprint_intermediate_fock,oprint_time,
@@ -2558,7 +2537,15 @@ C
      &        ('dft_scf: could not destroy g_focks1', 0, GA_ERR)
       if (ipol.gt.1) then
          if (.not. ga_destroy(g_focks(2))) call errquit
-     &           ('dft_scf: could not destroy g_focks2', 0, GA_ERR)
+     &        ('dft_scf: could not destroy g_focks2', 0, GA_ERR)
+      if (lmaxov_imom) then
+         if (.not. ga_destroy(g_movecs0(1))) call errquit
+     &        ('dft_scf: could not destroy g_movecs01', 0, GA_ERR)
+         if (ipol.gt.1) then
+            if (.not. ga_destroy(g_movecs0(2))) call errquit
+     &           ('dft_scf: could not destroy g_movecs02', 0, GA_ERR)
+         endif
+      endif
       end if
 c
 c     == if frozen embedding ==

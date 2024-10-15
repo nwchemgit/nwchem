@@ -6,7 +6,7 @@ OBJ = nwchem_libxc_read.o \
       nwchem_libxc_util.o
 OBJ_OPTIMIZE = nwchem_libxc_compute.o
 
-USES_BLAS = nwchem_libxc_compute.o
+USES_BLAS = nwchem_libxc_compute.F
 
 LIBRARY = libnwdft.a
 

@@ -1797,12 +1797,6 @@ struct module_state {
 static struct module_state _state;
 #endif
 
-static PyObject* error_out(PyObject *m) {
-  struct module_state *st = GETSTATE(m);
-  PyErr_SetString(st->error, "something bad happened");
-  return NULL;
-}
-
 #if PY_MAJOR_VERSION >= 3
 
 static int nwchem_traverse(PyObject *m, visitproc visit, void *arg) {

@@ -31,8 +31,24 @@ c
 c        code for both increments equal to 1
 c
 20    continue
-      do 50 i = 1, n
-         dy(i) = dx(i)
+      m=mod(n,7)
+      IF(m.eq.0) goto 40
+      DO 30 i=1,m
+        dy(i)=dx(i)
+30    CONTINUE
+      IF(n.lt.7) RETURN
+40    mp1 = m+1
+      !WRITE(6,*)"LB, in cdcopy, n=",n
+      !WRITE(6,*)"dy="
+      do 50 i = mp1, n,7
+         dy(i)   = dx(i)
+         dy(i+1) = dx(i+1)
+         dy(i+2) = dx(i+2)
+         dy(i+3) = dx(i+3)
+         dy(i+4) = dx(i+4)
+         dy(i+5) = dx(i+5)
+         dy(i+6) = dx(i+6)
+         !WRITE(6,*)i, dy(i:i+6)
 50    continue
       return
       end

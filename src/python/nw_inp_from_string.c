@@ -1,6 +1,3 @@
-/*
- $Id$
-*/
 #include "ga.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +13,7 @@
 #define util_sgroup_mygroup_ UTIL_SGROUP_MYGROUP
 #endif
 
-#if (defined(USE_FCD) || defined(WIN32)) && !defined(__MINGW32__)
+#if defined(WIN32) && !defined(__MINGW32__)
 extern Integer FATR nw_inp_from_file_(Integer *rtdb, _fcd filename);
 #else
 extern Integer FATR nw_inp_from_file_(Integer *rtdb, char *filename, int flen);
@@ -27,10 +24,8 @@ int nw_inp_from_string(Integer rtdb, const char *input)
 {
     char filename[30];
     FILE *file;
-#if (defined(USE_FCD) || defined(WIN32)) && !defined(__MINGW32__)
+#if defined(WIN32) && !defined(__MINGW32__)
     _fcd fstring;
-#else
-    char fstring[255];
 #endif
     int status;
     const char base[] = "temp";
@@ -61,8 +56,6 @@ int nw_inp_from_string(Integer rtdb, const char *input)
     fstring.string = filename;
     fstring.len = strlen(filename);
     status = nw_inp_from_file_(&rtdb, fstring);
-#elif defined(USE_FCD)
-#error Do something about _fcd
 #else
     status = nw_inp_from_file_(&rtdb, filename, strlen(filename));
 #endif

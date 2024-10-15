@@ -92,7 +92,7 @@ C
      $     mt_dbl, 1, exp_cutoff)) then
 
          if (exp_cutoff .lt. 0d0)
-     $        call errquit (pname//"invalid negative exp_cutoff")
+     $        call errquit (pname//"invalid negative exp_cutoff",0,0)
 
 
          if (.not. bas_numcont (ao_bas_han, ncont))

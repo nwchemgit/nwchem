@@ -1,7 +1,6 @@
       subroutine int_so_sifs(ibas, oskel, aoints, nbft, max1e, mem1,
      &  l1rec, n1max, 
-     &  sifbuf, sifval, ninfo, info, clab, fcore, ibvtyp, ibitv,
-     &  ifmt1)
+     &  sifbuf, sifval, ninfo, info, clab, fcore, ibvtyp, ibitv)
       implicit none
 #include "errquit.fh"
 #include "cint1cache.fh"
@@ -54,7 +53,7 @@ c
 c     sifs parameters
 c
       integer aoints, ierr
-      integer ifmt1, l1rec, n1max
+      integer l1rec, n1max
       integer ibvtyp
       integer ibitv
       integer mxbf
@@ -103,10 +102,11 @@ c
 c
 c     ----- save ocache logical variable -----
 c
-      if(type.eq.6 .or. type.eq.7 ) then
-         ocache_save=ocache
-         ocache     =.false.
-      endif
+c     LB type is never initialized, ocache never used
+      !if(type.eq.6 .or. type.eq.7 ) then
+      !   ocache_save=ocache
+      !   ocache     =.false.
+      !endif
 c     
 c     Get info about the basis sets
 c     
