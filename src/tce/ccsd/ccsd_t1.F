@@ -1032,6 +1032,7 @@ C     i1 ( h7 h1 )_vt + = -1/2 * Sum ( h5 p3 p4 ) * t ( p3 p4 h1 h5 )_t * v ( h5
       DOUBLE PRECISION FACTORIAL
       EXTERNAL NXTASK
       EXTERNAL FACTORIAL
+      integer :: i
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -1142,8 +1143,15 @@ C     i1 ( h7 h1 )_vt + = -1/2 * Sum ( h5 p3 p4 ) * t ( p3 p4 h1 h5 )_t * v ( h5
       END DO
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'noname',l_c,k_c)) CALL ERRQUIT('
      &ccsd_t1_2_4',9,MA_ERR)
-      CALL TCE_SORT_2(dbl_mb(k_cs),dbl_mb(k_c),int_mb(k_range+h7b-1)
-     &,int_mb(k_range+h1b-1),1,2,-1.0d0/2.0d0)
+#if 0
+      CALL TCE_SORT_2(dbl_mb(k_cs),dbl_mb(k_c),
+     &                int_mb(k_range+h7b-1),int_mb(k_range+h1b-1),
+     &                1,2,-1.0d0/2.0d0)
+#else
+      do i=0,int_mb(k_range+h7b-1)*int_mb(k_range+h1b-1)-1
+        dbl_mb(k_c+i) = dbl_mb(k_cs+i) * -0.5d0
+      end do
+#endif
       CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_c),dimc,int_mb(k_c_offset),(h1b -
      & 1 + noab * (h7b - 1)))
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t1_2_4',10,MA_ERR)
