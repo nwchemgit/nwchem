@@ -728,6 +728,8 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np p2ta-vem
 let "myexit+=$?"
+./runtests.mpi.unix procs $np tddftvem_n2_opt
+let "myexit+=$?"
 if [[ "$what" != "flaky" ]]; then
     echo
     echo  "the number of failed tests is" $myexit
