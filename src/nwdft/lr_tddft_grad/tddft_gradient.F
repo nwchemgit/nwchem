@@ -484,14 +484,7 @@ c cosmo-vem: Destroy global arrays
 c
         if (istep_cosmo_vem.eq.3) then
          if(rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem)) then
-          if (.not. ga_destroy(g_vem(1))) call errquit
-     $        ('hnd_coschg: could not destroy g_vem(1)', 0, ga_err)
-          if (.not. ga_destroy(g_vem(2))) call errquit
-     $         ('hnd_coschg: could not destroy g_vem(2)', 0, ga_err)
-          if (.not. ga_destroy(g_vem(3))) call errquit
-     $         ('hnd_coschg: could not destroy g_vem(3)', 0, ga_err)
-          if (.not. rtdb_delete(rtdb,'cosmo:g_vem')) call
-     C         errquit(' tddft_gradient: rtdb_del failed',0,rtdb_err)
+            call hnd_destroy_gvems(rtdb,g_vem)
           istep_cosmo_vem=0
           if (.not. rtdb_put
      $         (rtdb,'cosmo:istep_cosmo_vem',mt_int,1,istep_cosmo_vem))

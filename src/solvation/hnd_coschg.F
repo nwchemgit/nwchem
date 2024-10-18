@@ -1232,6 +1232,7 @@ c
       if(dim1.ne.nefc) then
          if(ga_nodeid().eq.0) write(luout,*)
      W        ' W: dims1.ne.nefc. creating g_vems'
+         call hnd_destroy_gvems(rtdb,g_vem)
          call hnd_create_gvems(rtdb,nefc,g_vem)
       endif
 
@@ -1547,3 +1548,22 @@ c
      c     call errquit('creategvems: failed rtdbput',0,rtdb_err)
         return
         end
+      subroutine hnd_destroy_gvems(rtdb,g_vem)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "errquit.fh"
+      integer rtdb
+      integer g_vem(*)
+c      
+          if (.not. ga_destroy(g_vem(1))) call errquit
+     $        ('hnd_destr: could not destroy g_vem(1)', 0, ga_err)
+          if (.not. ga_destroy(g_vem(2))) call errquit
+     $         ('hnd_destr: could not destroy g_vem(2)', 0, ga_err)
+          if (.not. ga_destroy(g_vem(3))) call errquit
+     $         ('hnd_destr: could not destroy g_vem(3)', 0, ga_err)
+          if (.not. rtdb_delete(rtdb,'cosmo:g_vem')) call
+     C         errquit(' hnd_destr: rtdb_del failed',0,rtdb_err)
+          return
+          end
