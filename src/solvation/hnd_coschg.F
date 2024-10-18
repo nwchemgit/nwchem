@@ -589,6 +589,8 @@ c
       integer l_efczfx, k_efczfx  ! memory handles for fixed cosmo-vem charges
       integer g_vem(3) ! ga handles for cosmo-vem GS potential, GS charges, and ES noneq charges
       integer nefc_rtdb
+      integer type1, ndim, dim1
+
       double precision, external :: ddot
 c
       oprint_energies = util_print("cosmo_energies",print_never)
@@ -637,12 +639,15 @@ c tesserae's geometries for later use in nwdft/scf_dft/dft_fockbld.F
 c
         call ga_sync()
 c
-       if(.not.rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem))
-     $  call errquit('hnd_coschg: cannot get g_vem from rtdb',
-     $  0,rtdb_err)
-        call nga_get(g_vem(3), 1, nefc, dbl_mb(k_efczfx), nefc)       
+        if(.not.rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem)) then
+           if(ga_nodeid().eq.0) write(luout,*)
+     W          ' W: failed to read g_vem3: resetting istep_cosmo_vem'
+           istep_cosmo_vem=0 
+        else
+           call nga_get(g_vem(3), 1, nefc, dbl_mb(k_efczfx), nefc)       
 c
-        call ga_sync()
+           call ga_sync()
+        endif
       endif
 c
 c <-- MN solvation models
@@ -1220,14 +1225,17 @@ c
       call ga_sync()
 c
       if (do_cosmo_vem.ne.0.and.istep_cosmo_vem.eq.0) then
-       if(.not.rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem)) then
-        status = nga_create(mt_dbl, 1, nefc, 'V_GS', nefc, g_vem(1))
-        status = nga_create(mt_dbl, 1, nefc, 'Q_GS', nefc, g_vem(2))
-        status = nga_create(mt_dbl, 1, nefc, 'Q_neq', nefc, g_vem(3))
-        if(.not.rtdb_put(rtdb,'cosmo:g_vem',mt_int,3,g_vem))
-     $  call errquit('hnd_coschg: cannot put g_vem in rtdb',
-     $  0,rtdb_err)
-       endif
+         if(.not.rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem)) 
+     c        call hnd_create_gvems(rtdb,nefc,g_vem)
+         call ga_check_handle(g_vem(1), 'gvem1')
+         call nga_inquire(g_vem(1), type1, ndim, dim1)
+      if(dim1.ne.nefc) then
+         if(ga_nodeid().eq.0) write(luout,*)
+     W        ' W: dims1.ne.nefc. creating g_vems'
+         call hnd_destroy_gvems(rtdb,g_vem)
+         call hnd_create_gvems(rtdb,nefc,g_vem)
+      endif
+
        call ga_zero(g_vem)
        call nga_put(g_vem(1), 1, nefc, dbl_mb(i10),nefc)
        call ga_sync()
@@ -1520,3 +1528,42 @@ c
 c <-- MN solvation models
 c
       end
+      subroutine hnd_create_gvems(rtdb,nefc,g_vem)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "errquit.fh"
+      integer rtdb
+      integer nefc
+      integer g_vem(*)
+c      
+      if(.not.nga_create(mt_dbl, 1, nefc, 'V_GS', nefc, g_vem(1)))
+     c     call errquit('creategvems: failed ga_create',0,ga_err)
+      if(.not.nga_create(mt_dbl, 1, nefc, 'Q_GS', nefc, g_vem(2)))
+     c     call errquit('creategvems: failed ga_create',0,ga_err)
+      if(.not.nga_create(mt_dbl, 1, nefc, 'Q_neq', nefc, g_vem(3)))
+     c     call errquit('creategvems: failed ga_create',0,ga_err)
+      if(.not.rtdb_put(rtdb,'cosmo:g_vem',mt_int,3,g_vem))
+     c     call errquit('creategvems: failed rtdbput',0,rtdb_err)
+        return
+        end
+      subroutine hnd_destroy_gvems(rtdb,g_vem)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "errquit.fh"
+      integer rtdb
+      integer g_vem(*)
+c      
+          if (.not. ga_destroy(g_vem(1))) call errquit
+     $        ('hnd_destr: could not destroy g_vem(1)', 0, ga_err)
+          if (.not. ga_destroy(g_vem(2))) call errquit
+     $         ('hnd_destr: could not destroy g_vem(2)', 0, ga_err)
+          if (.not. ga_destroy(g_vem(3))) call errquit
+     $         ('hnd_destr: could not destroy g_vem(3)', 0, ga_err)
+          if (.not. rtdb_delete(rtdb,'cosmo:g_vem')) call
+     C         errquit(' hnd_destr: rtdb_del failed',0,rtdb_err)
+          return
+          end
