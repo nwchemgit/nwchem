@@ -125,6 +125,7 @@ c
       external tddft_energy
       logical oroot
       logical odebug
+      logical oprint
 c
       character*32 pname
 c
@@ -368,12 +369,12 @@ c MN solvation models -->
 c
 c We don't need to print out the excited-state gradients in the case of VEM
 c
-      if (do_cosmo_vem.ne.0) goto 100
+cedo      if (do_cosmo_vem.ne.0) goto 100
 c
 c <-- MN solvation models
 c
 c     Print gradients of the excited states of interest
-      if (oroot.and.odebug) 
+      if (oroot.and.oprint) 
      &     write(luout,*) "call tddft_grad_print_result"
       if (ipol.eq.2) then
         call tddft_grad_print_result(ntotroots,int_mb(iptr_roots),
@@ -392,7 +393,7 @@ c     Print gradients of the excited states of interest
 c
 c MN solvation models -->
 c
- 100  continue
+cedo 100  continue
 c
 c <-- MN solvation models
 c
@@ -484,12 +485,12 @@ c cosmo-vem: Destroy global arrays
 c
         if (istep_cosmo_vem.eq.3) then
          if(rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem)) then
-          if (.not. ga_destroy(g_vem(1))) call errquit
-     $        ('hnd_coschg: could not destroy g_vem(1)', 0, ga_err)
-          if (.not. ga_destroy(g_vem(2))) call errquit
-     $        ('hnd_coschg: could not destroy g_vem(2)', 0, ga_err)
-          if (.not. ga_destroy(g_vem(3))) call errquit
-     $        ('hnd_coschg: could not destroy g_vem(3)', 0, ga_err)
+            call hnd_destroy_gvems(rtdb,g_vem)
+          istep_cosmo_vem=0
+          if (.not. rtdb_put
+     $         (rtdb,'cosmo:istep_cosmo_vem',mt_int,1,istep_cosmo_vem))
+     $  call errquit('tddft_grad: cannot put istep_cosmo_vem',
+     $         10,rtdb_err)
           call ga_sync()
          endif
         endif
