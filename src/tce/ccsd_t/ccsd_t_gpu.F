@@ -70,7 +70,12 @@ ckbn In a large cluster it is better to get and broadcast
      1      call errquit('t1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
 c    copy d_t1 ==> l_t1_local
+! copied pattern from cr-eomccsd_t/cr_eomccsd_t.F
+#if 1
+        call util_mygabcast(d_t1,size_t1,1,dbl_mb(k_t1_local),size_t1)
+#else
         call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),size_t1)
+#endif
 c -------------------------------
 c
       nprocs = GA_NNODES()
