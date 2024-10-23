@@ -1393,7 +1393,7 @@
       integer(kind=cuda_stream_kind) :: stream(2)
       type(cublasHandle) :: handle(2)
 
-      integer :: phase, oldphase
+      integer :: phase
       integer, parameter :: numphases = 2
 
       do shi=1,numphases
@@ -1420,7 +1420,6 @@
       if (e_a.ne.0) call errquit("MA Galloc",2*dimhhpp+1*dimpppp,MA_ERR)
 
       phase = 1
-      oldphase = 2
 
       DO p3b = noab+1,noab+nvab
        DO p4b = p3b,noab+nvab
@@ -1462,7 +1461,7 @@
                   dima = dim_common * dima_sort
                   dimb = dim_common * dimb_sort
                   IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
-                   err = cudaStreamSynchronize(stream(oldphase))
+                   err = cudaStreamSynchronize(stream(phase))
                    if (err.ne.0) then
                      call errquit('cudaStreamSync',err,UNKNOWN_ERR)
                    endif
@@ -1471,7 +1470,8 @@
      &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
                    !print*,'cudaMemcpyAsync A'
                    !x_a(1:dima) = f_a(1:dima)
-                   err = cudaMemcpyAsync(x_a(:,phase),f_a(:,phase),dima,stream(phase))
+                   err = cudaMemcpyAsync(x_a(:,phase),f_a(:,phase),dima,
+     &                                   stream(phase))
                    if (err.ne.0) then
                      call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
                    endif
@@ -1493,7 +1493,8 @@
                    end if
                    !print*,'cudaMemcpyAsync B'
                    !x_b(1:dimb) = f_b(1:dimb)
-                   err = cudaMemcpyAsync(x_b(:,phase),f_b(:,phase),dimb,stream(phase))
+                   err = cudaMemcpyAsync(x_b(:,phase),f_b(:,phase),dimb,
+     &                                   stream(phase))
                    if (err.ne.0) then
                      call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
                    endif
@@ -1519,10 +1520,8 @@
                      !endif
                    end block
                    if (phase.eq.1) then
-                     oldphase = 1
                      phase = 2
                    else if (phase.eq.2) then
-                     oldphase = 2
                      phase = 1
                    end if
                   END IF
@@ -1537,14 +1536,15 @@
                 if (err.ne.0) then
                   call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
                 endif
-                err = cudaStreamSynchronize(stream(shi))
-                if (err.ne.0) then
-                  call errquit('cudaStreamSync',err,UNKNOWN_ERR)
-                endif
-                CALL ADD_HASH_BLOCK(d_c,f_c(:,shi),dimc,
-     &               int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
-     &               (p4b-noab-1+nvab*(p3b-noab-1)))))
               end do
+              err = cudaDeviceSynchronize()
+              if (err.ne.0) then
+                call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+              endif
+              f_c(:,1) = f_c(:,1) + f_c(:,2)
+              CALL ADD_HASH_BLOCK(d_c,f_c(:,1),dimc,
+     &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
+     &             (p4b-noab-1+nvab*(p3b-noab-1)))))
               next = NXTASK(nprocs, 1)
              END IF
              count = count + 1
