@@ -119,7 +119,7 @@ Integer ci_entry (me, n, i, j, map)
   }
   
   if (map == NULL) {
-    printf(" Peigs: ci_entry_  node %d : Mapping problem\n", *me);
+    printf(" Peigs: ci_entry_  node %d : Mapping problem\n", (int)(*me));
     indx = -5;
     xerbla_("ci_entry\n", &indx);
   }
@@ -142,7 +142,7 @@ Integer ci_entry (me, n, i, j, map)
   }
   
   if ( *i < *j ) {
-    printf("PeIGS: ci_entry_ :node %d : i < j \n", *me);
+    printf("PeIGS: ci_entry_ :node %d : i < j \n", (int)(*me));
     indx = -4;
     xerbla_("ci_entry\n", &indx);
   }
@@ -228,7 +228,7 @@ Integer ci_entry_(me, n, i, j, map)
   }
 
   if (map == NULL) {
-    printf(" Peigs: ci_entry_  node %d : Mapping problem\n", *me);
+    printf(" Peigs: ci_entry_  node %d : Mapping problem\n", (int)(*me));
     indx = -5;
     xerbla_("ci_entry\n", &indx);
   }
@@ -251,7 +251,7 @@ Integer ci_entry_(me, n, i, j, map)
   }
   
   if ( *i < *j ) {
-    printf( "PeIGS: ci_entry_ :node %d : i < j \n", *me);
+    printf( "PeIGS: ci_entry_ :node %d : i < j \n", (int)(*me));
     indx = -4;
     xerbla_("ci_entry\n", &indx);
   }
@@ -318,7 +318,7 @@ Integer ci_size_(me, n, map)
   
   if ( *me > mxnprc_() || *me < 0 ) {
     indx = -1;
-    printf(" Node %d Error in ci_size arg 1 with me = %d mxnprc = %d \n", iam, *me, mxnprc_());
+    printf(" Node %d Error in ci_size arg 1 with me = %d mxnprc = %d \n", (int)iam, (int)(*me), (int)mxnprc_());
     xerbla_("ci_siz\n", &indx);
   }
   
@@ -332,7 +332,7 @@ Integer ci_size_(me, n, map)
   }
   
   if (map == NULL) {
-    printf(" Peigs: ci_size_  node %d : Mapping problem\n", *me);
+    printf(" Peigs: ci_size_  node %d : Mapping problem\n", (int)(*me));
     indx = -3;
     xerbla_("ci_siz\n", &indx);
   }
@@ -393,46 +393,46 @@ Integer fil_mapvec_( me, n, map, mapvec)
 
   if ( me == NULL ) {
     i = -1;
-    printf(" Peigs: fil_mapvec_  node %d : first argument is NULL \n", mxmynd_());
-    printf("me = %d fil_mapvec_  \n", *me);
+    printf(" Peigs: fil_mapvec_  node %d : first argument is NULL \n", (int)mxmynd_());
+    printf("me = %d fil_mapvec_  \n", (int)(*me));
   }
   
   if (( *me > mxnprc_() ) || ( *me < 0 )) {
     i = -1;
-    printf(" Peigs: fil_mapvec_  node %d : first argument %d out of bounds \n", mxmynd_(), *me);
-    printf("fil_mapvec_ %d \n", i);
+    printf(" Peigs: fil_mapvec_  node %d : first argument %d out of bounds \n", (int)mxmynd_(), (int)(*me));
+    printf("fil_mapvec_ %d \n", (int)i);
   }
   
   if ( n == NULL ) {
     i = -2;
-    printf(" Peigs: fil_mapvec_  node %d : 2nd argument is NULL i\n", *me);
-    printf("fil_mapvec_ %d \n", i);
+    printf(" Peigs: fil_mapvec_  node %d : 2nd argument is NULL i\n", (int)(*me));
+    printf("fil_mapvec_ %d \n", (int)i);
   }
   else if ( *n < 1 ) {
     i = -2;
-    printf(" Peigs: fil_mapvec_  node %d : Mapping problem second argument is invalid \n", *me);
-    printf("fil_mapvec_ %d \n", i);
+    printf(" Peigs: fil_mapvec_  node %d : Mapping problem second argument is invalid \n", (int)(*me));
+    printf("fil_mapvec_ %d \n", (int)i);
   }
   
   if (map == NULL) {
-    printf(" Peigs: fil_mapvec_  node %d : Mapping problem\n", *me);
+    printf(" Peigs: fil_mapvec_  node %d : Mapping problem\n", (int)(*me));
     i = -3;
-    printf("fil_mapvec_ %d \n", i);
+    printf("fil_mapvec_ %d \n", (int)i);
   }
   
   iptr = map;
   for ( i = 0 ; i < *n ; i++ )
     if ( (iptr++) == NULL ) {
       i = -3;
-      printf(" Peigs: fil_mapvec_  node %d : 3rd argument error. \n", *me);
-      printf("fil_mapvec_ %d \n", i);
+      printf(" Peigs: fil_mapvec_  node %d : 3rd argument error. \n", (int)(*me));
+      printf("fil_mapvec_ %d \n", (int)i);
     }
   
   if (mapvec == NULL) {
-    printf(" Peigs: fil_mapvec_  node %d : Mapping problem\n", *me);
-    printf(" Peigs: fil_mapvec_  node %d : 4th argument error. \n", *me);
+    printf(" Peigs: fil_mapvec_  node %d : Mapping problem\n", (int)(*me));
+    printf(" Peigs: fil_mapvec_  node %d : 4th argument error. \n", (int)(*me));
     i = -4;
-    printf("fil_mapvec_ %d \n", i);
+    printf("fil_mapvec_ %d \n", (int)i);
   }
   
   
@@ -443,8 +443,8 @@ Integer fil_mapvec_( me, n, map, mapvec)
     if ( *(iptr++) == idummy ) {
       if ( mapvec + k == NULL ) {
         i = -4;
-	printf(" Peigs: fil_mapvec_  node %d : 4th argument error. \n", *me);
-	printf("fil_mapvec_ %d \n", i);
+	printf(" Peigs: fil_mapvec_  node %d : 4th argument error. \n", (int)(*me));
+	printf("fil_mapvec_ %d \n", (int)i);
       }
       mapvec[k] = i;
       k++;

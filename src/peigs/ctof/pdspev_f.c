@@ -145,7 +145,7 @@ void pdspev_(n, matrixA, mapA, matZ, mapZ, eval, iscratch, iscsize,
       *info = linfo;
     
     fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
-             msg, me, -linfo );
+             msg, (int)me, (int)(-linfo) );
     l_exit_( &linfo, msg );
     return;
   }
@@ -156,7 +156,7 @@ void pdspev_(n, matrixA, mapA, matZ, mapZ, eval, iscratch, iscsize,
   if ( *ibuffsz < nvecsA + nvecsZ + 2 ) {
       *info = -10;
       
-      fprintf( stderr, " %s me = %d ibuffsz is too small. \n", msg, me );
+      fprintf( stderr, " %s me = %d ibuffsz is too small. \n", msg, (int)me );
       l_exit_( info, msg );
       return;
     }

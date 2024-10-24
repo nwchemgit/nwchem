@@ -30,11 +30,11 @@ void peigs_dlasq1( Integer n, DoublePrecision *dplus, DoublePrecision *lplus, Do
   dlasq1_( &n, &work[0], &work[n], &work[n+n], info );
   
   if ( *info != 0 ){
-    printf(" error in dlasq1 info = %d \n", *info );
-    sprintf( filename, "pdspevx.%d", me);
+    printf(" error in dlasq1 info = %d \n", (int)(*info) );
+    sprintf( filename, "pdspevx.%d", (int)me);
     file = fopen(filename, "w");
     for ( iii = 0; iii < n; iii++)
-      fprintf(file, " %d %20.16f %20.16f \n", iii, dplus[iii], lplus[iii]);
+      fprintf(file, " %d %20.16f %20.16f \n", (int)iii, dplus[iii], lplus[iii]);
     fclose(file);
     fflush(file);
     fflush(stdout);

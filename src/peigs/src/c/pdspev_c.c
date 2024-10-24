@@ -244,7 +244,7 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
   strcpy( msg,  "Error in pdspev." );
   
 #ifdef DEBUG
-   printf("me = %d In pdspev \n", me );
+   printf("me = %d In pdspev \n", (int)me );
 #endif
 
  /*
@@ -284,7 +284,7 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
     if ( info != NULL )
       *info = linfo;
     
-    fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n", msg, me, -linfo );
+    fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n", msg, (int)me, (int)(-linfo) );
     xstop_( &linfo );
     return;
   }
@@ -313,7 +313,7 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
   if ( *info != 0 ) {
       linfo = *info;
       fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
-               msg, me, -linfo);
+               msg, (int)me, (int)(-linfo));
       xstop_( info );
       return;
   }
@@ -339,7 +339,7 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
    if ( *info != 0 ) {
        linfo = *info;
        fprintf( stderr, " %s me = %d argument %d contains a pointer to NULL. \n",
-                msg, me, -linfo);
+                msg, (int)me, (int)(-linfo));
        xstop_( info );
        return;
    }
@@ -354,7 +354,7 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
      *info = -5;
     
    if ( *info != 0 ) {
-       fprintf( stderr, " %s me = %d mapA,Z differ \n", msg, me );
+       fprintf( stderr, " %s me = %d mapA,Z differ \n", msg, (int)me );
        xstop_( info );
        return;
    }
@@ -379,7 +379,7 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
    
    if ( linfo != 0 ) {
      *info = linfo;
-     fprintf( stderr, " %s me = %d Insufficient workspace provided. \n", msg, me );
+     fprintf( stderr, " %s me = %d Insufficient workspace provided. \n", msg, (int)me );
      xstop_( info );
      return;
    }
@@ -477,19 +477,19 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
 	   dblptr, ibuffsize, scratch, ssize, info);
   
 #ifdef DEBUG99
-  printf("me = %d Exiting pdspev \n", me );
+  printf("me = %d Exiting pdspev \n", (int)me );
 
   lll = 0;
   for ( k = 0; k < *n; k++ ) {
     if ( mapZ[k] == me ) {
       for ( jjj = 0; jjj < *n; jjj++ )
-	printf(" %d  %d %g \n", lll, jjj, vecZ[lll][jjj]);
+	printf(" %d  %d %g \n", (int)lll, (int)jjj, vecZ[lll][jjj]);
       lll++;
     }
   }
 
   for ( jjj = 0; jjj < *n; jjj++ )
-    printf(" eval %d %g \n", jjj, eval[jjj]);
+    printf(" eval %d %g \n", (int)jjj, eval[jjj]);
 
 #endif
   

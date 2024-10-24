@@ -325,7 +325,7 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
   for ( i = 0 ; i < nrowsA; i++ )
     if ( vecA[i] == NULL ){
       linfo = -2; 
-      fprintf(stderr, "node = %d NULL vector assignment in vecA \n", me);
+      fprintf(stderr, "node = %d NULL vector assignment in vecA \n", (int)me);
       xerbla_( "TRED2 \n", &linfo);
     }
     
@@ -351,7 +351,7 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
   if ( upperdiag == NULL )
     linfo = -7;
   
-  sprintf(msg, "TRED22:Error in argument %d \n", linfo);
+  sprintf(msg, "TRED22:Error in argument %d \n", (int)linfo);
 
   /*
   printf(" in tred22.c me = %d \n", me );

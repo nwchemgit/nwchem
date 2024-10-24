@@ -181,7 +181,7 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
   for ( i = 0 ; i < ncolumnsA; i++ )
     if ( vecA[i] == NULL ){
       linfo = -2; 
-      fprintf(stderr, "node = %d NULL vector assignment in vecA \n", me);
+      fprintf(stderr, "node = %d NULL vector assignment in vecA \n", (int)me);
       xerbla_( "MGSCS \n", &linfo);
     }
     

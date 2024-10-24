@@ -165,7 +165,7 @@ void fmemreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
     for ( indx = 0; indx < *n; indx++ ) {
       if ( (iptr++ ) == NULL ) {
 	linfo = -4;
-	fprintf(stderr, " me = %d error in mapB in fmemreq.c \n", me);
+	fprintf(stderr, " me = %d error in mapB in fmemreq.c \n", (int)me);
 	l_exit_(&linfo,msg);
 	return;
       }
@@ -181,7 +181,7 @@ void fmemreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   for ( indx = 0; indx < *n; indx++ ) {
     if ( (iptr++ ) == NULL ) {
       linfo = -5;
-      fprintf(stderr, " me = %d error in mapZ in fmemreq.c \n",me);
+      fprintf(stderr, " me = %d error in mapZ in fmemreq.c \n",(int)me);
       l_exit_(&linfo,msg);
       return;
     }

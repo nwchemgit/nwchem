@@ -350,7 +350,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     me    = mxmynd_();
     nproc = mxnprc_();
     strcpy( msg,  "Error in pdspevx." );
-    sprintf( filename, "pdspevx.%d", me);
+    sprintf( filename, "pdspevx.%d", (int)me);
     
     /*
       setdbg_(&peigs_DEBUG);
@@ -411,7 +411,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
         *info = linfo;
       
       fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
-	       msg, me, -linfo );
+	       msg, (int)me, (int)(-linfo) );
       xstop_( &linfo );
       return;
     }
@@ -453,7 +453,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    if ( *info != 0 ) {
        linfo = *info;
        fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
-                msg, me, -linfo);
+                msg, (int)me, (int)(-linfo));
        xstop_( info );
        return;
    }
@@ -480,7 +480,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    if ( *info != 0 ) {
        linfo = *info;
        fprintf( stderr, " %s me = %d argument %d contains a pointer to NULL. \n",
-                msg, me, -linfo);
+                msg, (int)me, (int)(-linfo));
        xstop_( info );
        return;
    }
@@ -495,7 +495,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      *info = -13;
     
    if ( *info != 0 ) {
-       fprintf( stderr, " %s me = %d mapA,Z differ \n", msg, me );
+       fprintf( stderr, " %s me = %d mapA,Z differ \n", msg, (int)me );
        xstop_( info );
        return;
    }
@@ -520,7 +520,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    
    if ( linfo != 0 ) {
      *info = linfo;
-     fprintf( stderr, " %s me = %d Insufficient workspace provided. \n", msg, me );
+     fprintf( stderr, " %s me = %d Insufficient workspace provided. \n", msg, (int)me );
      xstop_( info );
      return;
    }
@@ -791,7 +791,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    */
 
 #ifdef DEBUG7
-   printf(" in pdspevx out tred2 me = %d \n", mxmynd_());
+   printf(" in pdspevx out tred2 me = %d \n", (int)mxmynd_());
    fflush(stdout);
 #endif
    
@@ -819,7 +819,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       t1 = mxclock_();
 #endif
 #ifdef DEBUG7
-      printf(" in pdspevx pstebz11 me = %d \n", mxmynd_());
+      printf(" in pdspevx pstebz11 me = %d \n", (int)mxmynd_());
       fflush(stdout);
 #endif
       
@@ -913,7 +913,7 @@ for ( iii = 0; iii < msize; iii++)
      
    
 #ifdef DEBUG7
-   printf(" out pdspevx pstebz11 me = %d \n", mxmynd_());
+   printf(" out pdspevx pstebz11 me = %d \n", (int)mxmynd_());
 #endif
    
 #ifdef TIMING
@@ -934,7 +934,7 @@ for ( iii = 0; iii < msize; iii++)
    }
 
    if( *info != 0 ) {
-     fprintf(stderr, " %s me = %d pstebz_ returned info = %d \n", msg, me, *info );
+     fprintf(stderr, " %s me = %d pstebz_ returned info = %d \n", msg, (int)me, (int)(*info) );
      *info = 1;
    }
    
@@ -1026,7 +1026,7 @@ for ( iii = 0; iii < msize; iii++)
     
     
 #ifdef DEBUG7
-      printf(" me = %d just after pstein5 %d \n", me, *info );
+      printf(" me = %d just after pstein5 %d \n", (int)me, (int)(*info) );
       r_ritz_( &msize, dd, &ee[1], eval, mapZ, vecZ, d_scrat);
 #endif
     /*
@@ -1040,7 +1040,7 @@ for ( iii = 0; iii < msize; iii++)
 	 */
       
 #ifdef DEBUG7
-      printf(" me = %d just before pstein4 %d \n", me, *info );
+      printf(" me = %d just before pstein4 %d \n", (int)me, (int)(*info) );
       fflush(stdout);
 #endif
       
@@ -1059,13 +1059,13 @@ for ( iii = 0; iii < msize; iii++)
       
       
 #ifdef DEBUG7
-      printf(" me = %d just after pstein4 %d \n", me, *info );
+      printf(" me = %d just after pstein4 %d \n", (int)me, (int)(*info) );
       fflush(stderr);
 #endif
       
       
       if( *info != 0 ) {
-        fprintf(stderr, " %s me = %d pstein returned info = %d \n", msg, me, *info );
+        fprintf(stderr, " %s me = %d pstein returned info = %d \n", msg, (int)me, (int)(*info) );
         *info = 2;
       }
       

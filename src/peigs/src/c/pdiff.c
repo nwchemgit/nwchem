@@ -101,7 +101,7 @@ void pdiff( n, data, proclist, nprocs, iwork, msg1, msg2, info )
   indx = indxL ( me, *nprocs, proclist);
   
   if ( indx < 0 ) {
-    fprintf( stderr, " Error in pdiff.  me = %d not in proclist. \n", me );
+    fprintf( stderr, " Error in pdiff.  me = %d not in proclist. \n", (int)me );
     exit(-1);
   }
 
@@ -125,11 +125,11 @@ void pdiff( n, data, proclist, nprocs, iwork, msg1, msg2, info )
   }
     
   indx = memcmp( data, iwork, *n );
-  indx = abs(indx);
+  indx = labs(indx);
 
   if( indx != 0 ) {
     fprintf( stderr, " %s %s is different on processors %d and %d \n",
-             msg1, msg2, me, last_proc );
+             msg1, msg2, (int)me, (int)last_proc );
 
     *info = 1;
   }
