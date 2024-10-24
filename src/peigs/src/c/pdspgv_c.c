@@ -317,7 +317,7 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
 	*info = linfo;
       
       fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
-               msg, me, -linfo );
+               msg, (int)me, (int)(-linfo) );
       xstop_( &linfo );
       return;
     }
@@ -350,7 +350,7 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
     if ( *info != 0 ) {
         linfo = *info;
         fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
-                 msg, me, -linfo);
+                 msg, (int)me, (int)(-linfo));
         xstop_( info );
 	return;
     }
@@ -384,7 +384,7 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
     if ( *info != 0 ) {
         linfo = *info;
         fprintf( stderr, " %s me = %d argument %d contains a pointer to NULL. \n",
-                 msg, me, -linfo);
+                 msg, (int)me, (int)(-linfo));
         xstop_( info );
 	return;
     }
@@ -403,7 +403,7 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
       *info = -8;
     
     if ( *info != 0 ) {
-        fprintf( stderr, " %s me = %d mapA,B,Z differ \n", msg, me );
+        fprintf( stderr, " %s me = %d mapA,B,Z differ \n", msg, (int)me );
         xstop_( info );
 	return;
     }
@@ -429,7 +429,7 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
   
     if ( linfo != 0 ) {
       *info = linfo;
-      fprintf( stderr, " %s me = %d Insufficient workspace provided. \n", msg, me );
+      fprintf( stderr, " %s me = %d Insufficient workspace provided. \n", msg, (int)me );
       xstop_( info );
       return;
     }

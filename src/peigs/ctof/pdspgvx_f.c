@@ -177,7 +177,7 @@ void pdspgvx_( ifact, ivector, irange, n, matrixA, mapA, matrixB, mapB,
         *info = linfo;
 
      fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
-              msg, me, -linfo );
+              msg, (int)me, (int)(-linfo) );
      l_exit_( &linfo, msg );
      return;
    }
@@ -189,7 +189,7 @@ void pdspgvx_( ifact, ivector, irange, n, matrixA, mapA, matrixB, mapB,
    if ( *ibuffsz < nvecsA + nvecsB + nvecsZ + 3 ) {
       *info = -21;
 
-      fprintf( stderr, " %s me = %d ibuffsz is too small. \n", msg, me );
+      fprintf( stderr, " %s me = %d ibuffsz is too small. \n", msg, (int)me );
       l_exit_( info, msg );
       return;
    }

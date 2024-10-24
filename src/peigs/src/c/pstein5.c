@@ -230,7 +230,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
     if ( info != NULL )
         *info = linfo;
     printf( " %s me = %d argument %d is a pointer to NULL. \n",
-	    msg, me, -linfo );
+	    msg, (int)me, (int)(-linfo) );
     fflush(stdout);
     xstop_( &linfo );
     return;
@@ -298,7 +298,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   if( *info != 0 ) {
     linfo = *info;
     printf( " %s me = %d argument %d has an illegal value. \n",
-	    msg, me, -linfo);
+	    msg, (int)me, (int)(-linfo));
     xstop_( info );
     return;
   }
