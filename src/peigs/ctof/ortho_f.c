@@ -113,7 +113,7 @@ void ortho_( n, m, matZ, mapZ, iwork, work, ort, info)
   if( *n < *m ) {
       fprintf(stderr,
               "Error in routine ortho_. m (=%d) < n (=%d). me = %d \n",
-              *m, *n, me);
+              (int)(*m), (int)(*n), (int)me);
       exit(-1);
   }
   

@@ -75,8 +75,8 @@ void g_exit2_( n, array, procmap, len, iwork )
 
   me = mxmynd_ ();
   
-  fprintf(stderr, "G_EXIT2: Node %d Error.  A routine called g_exit2_, \n", me);
-  fprintf(stderr, "Message from calling routine: %s  node id = %d \n", array, me);
+  fprintf(stderr, "G_EXIT2: Node %d Error.  A routine called g_exit2_, \n", (int)me);
+  fprintf(stderr, "Message from calling routine: %s  node id = %d \n", array, (int)me);
 
   mxpend_ ();
 
@@ -148,7 +148,7 @@ void g_exit_( n, array, procmap, len, iwork, work )
   qqsort( proclist, 0, nprocs-1);
   
   if ( nprocs > maxprocs ) {
-    fprintf(stderr, "G_EXIT: Node %d Error: Number of processors in Proc List exceeds number allocated \n", me);
+    fprintf(stderr, "G_EXIT: Node %d Error: Number of processors in Proc List exceeds number allocated \n", (int)me);
     xerbl2_ ( );
     return;
   }
@@ -161,7 +161,7 @@ void g_exit_( n, array, procmap, len, iwork, work )
   
   if ( *n < 0 ) {
     *n = -51;
-    fprintf(stderr, " %s  My node id = %d info = %d (g_exit_) \n", array, me, *n);
+    fprintf(stderr, " %s  My node id = %d info = %d (g_exit_) \n", array, (int)me, (int)(*n));
     /*
       xerbl2_ ( );
       */

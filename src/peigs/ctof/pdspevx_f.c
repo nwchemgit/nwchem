@@ -168,7 +168,7 @@ void pdspevx_( ivector, irange, n, matrixA, mapA, lb, ub, ilb, iub, abstol,
 	  *info = linfo;
 	
         fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
-                 msg, me, -linfo );
+                 msg, (int)me, (int)(-linfo) );
 	l_exit_( &linfo, msg );
 	return;
    }
@@ -179,7 +179,7 @@ void pdspevx_( ivector, irange, n, matrixA, mapA, lb, ub, ilb, iub, abstol,
     if ( *ibuffsz < nvecsA + nvecsZ + 2 ) {
 	*info = -18;
 	
-        fprintf( stderr, " %s me = %d ibuffsz is too small. \n", msg, me );
+        fprintf( stderr, " %s me = %d ibuffsz is too small. \n", msg, (int)me );
 	l_exit_( info, msg );
 	return;
       }

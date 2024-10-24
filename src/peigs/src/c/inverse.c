@@ -280,7 +280,7 @@ void inverseL ( msize, col, map, iwork, buffer, info)
   
   pxerbla2_( &j, (char *) iscrat, map, msize, iwork + n + 1, &linfo );
   
-  linfo = -abs(linfo);
+  linfo = -labs(linfo);
   
   g_exit_( &linfo, "Mapping problem or memory assignment problem INVERSE \n", map, &n, iwork, buffer );
   

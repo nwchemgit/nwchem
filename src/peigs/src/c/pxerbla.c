@@ -125,7 +125,7 @@ void pxerbla2_( n, array, procmap, len, iwork, info )
   qqsort( proclist, 0, nprocs-1);
   
   if ( nprocs > maxprocs ) {
-    fprintf(stderr, "PXERBLA: Node %d Error: Number of processors in Proc List exceeds number allocated \n", me);
+    fprintf(stderr, "PXERBLA: Node %d Error: Number of processors in Proc List exceeds number allocated \n", (int)me);
     *info = -1;
     return;
   }
@@ -165,7 +165,7 @@ void pxerbla2_( n, array, procmap, len, iwork, info )
     
     isize = *n;
     indx = memcmp( array, map_in, isize );
-    indx = abs(indx);
+    indx = labs(indx);
     *info = indx;
     return;
   }

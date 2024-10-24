@@ -118,7 +118,7 @@ void bortho_( n, matB, mapB, m, matZ, mapZ, iwork, work, ort, info)
   if( *n < *m ) {
       fprintf(stderr,
               "Error in routine bortho_. m (=%d) < n (=%d). me = %d \n",
-              *m, *n, me);
+              (int)(*m), (int)(*n), (int)me);
       exit(-1);
   }
   

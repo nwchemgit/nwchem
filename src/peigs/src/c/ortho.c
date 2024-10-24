@@ -160,7 +160,7 @@ void ortho( n, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
   if( *n < *m ) {
       fprintf(stderr,
               "Error in routine ortho m (=%d) < n (=%d). me = %d \n",
-              *m, *n, me);
+              (int)(*m), (int)(*n), (int)me);
       exit(-1);
   }
   
