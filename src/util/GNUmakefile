@@ -315,7 +315,11 @@ ifdef TCE_HIP
 endif
 
 ifdef USE_OPENACC_TRPDRV
-  FOPTIONS += -cuda -DUSE_CUDA_AFFINITY
+  ifeq ($(_FC),pgf90)
+    LIB_DEFINES += -cuda -DUSE_CUDA_AFFINITY
+  else
+    LIB_DEFINES += $(CUDA_INCLUDE) -DUSE_CUDA_AFFINITY
+  endif
 endif
 
 ifdef TCE_OPENACC
