@@ -178,7 +178,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   
 #ifdef DEBUG1
-  fprintf(stderr, "me = %d In pstein \n", me );
+  fprintf(stderr, "me = %d In pstein \n", (int)me );
 #endif
   
   /*
@@ -442,7 +442,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   if ( isize < 0 ){
     *info = -99;
     fprintf(stderr, " Node %d: error in clustrf isize = %d neigval = %d \n", 
-	    me, isize, neigval );
+	    (int)me, (int)isize, (int)neigval );
     xstop_( info );
   }
   
