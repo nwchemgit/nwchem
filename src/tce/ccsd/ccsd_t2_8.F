@@ -1555,19 +1555,22 @@
         END DO
        END DO
       END DO
-      next = NXTASK(-nprocs, 1)
-      call GA_SYNC()
 
       deallocate(f_a,f_b,f_c,stat=e_a)
       if (e_a.ne.0) call errquit("MA Hfree",e_a,MA_ERR)
       deallocate(x_a,x_b,x_c,stat=e_a)
       if (e_a.ne.0) call errquit("MA Gfree",e_a,MA_ERR)
+
       do shi=1,numphases
         err = cublasDestroy(handle(shi))
         if (err.ne.0) call errquit('cublasDestroy',err,UNKNOWN_ERR)
         err = cudaStreamDestroy(stream(shi))
         if (err.ne.0) call errquit('cudaStreamDestroy',err,UNKNOWN_ERR)
       end do
+
+      next = NXTASK(-nprocs, 1)
+      call GA_SYNC()
+
       END
 
 #endif
