@@ -323,6 +323,11 @@ c -----------------------
      &                   d_i1,k_i1_offset,maxh,maxp)
         CALL ccsd_t2_7_3_y(d_t2,k_t2_offset,d_v2,k_v2_offset,
      &                   d_i1,k_i1_offset,maxh,maxp)
+      else if (ccsd_t2_7_alg.eq.5) then
+        CALL ccsd_t2_7_2_x(d_t1,k_t1_offset,d_v2,k_v2_offset,
+     &                   d_i1,k_i1_offset,maxh,maxp)
+        CALL ccsd_t2_7_3_cublas(d_t2,k_t2_offset,d_v2,k_v2_offset,
+     &                   d_i1,k_i1_offset,maxh,maxp)
       else
         CALL errquit('ccsd_t2_7_alg',ccsd_t2_7_alg,INPUT_ERR)
       endif
