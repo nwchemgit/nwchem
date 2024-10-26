@@ -88,7 +88,7 @@ jobs:
             mpi_impl: intel
             armci_network: MPI-TS
             nwchem_modules: "xtb driver solvation"
-            fc: ifort
+            fc: ifx
             blas: "build_openblas"
             blas_size: 4
             use_openmp: 2
@@ -98,7 +98,7 @@ jobs:
             mpi_impl: intel
             armci_network: MPI-TS
             nwchem_modules: "xtb driver solvation"
-            fc: ifort
+            fc: ifx
             use_openmp: 2
             use_tblite: 1
           - os: ubuntu-20.04
@@ -183,7 +183,7 @@ jobs:
             mpi_impl: intel
             armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
-            fc: ifort
+            fc: ifx
             use_openmp: 2
           - os: ubuntu-20.04
             experimental: true
@@ -197,7 +197,7 @@ jobs:
             mpi_impl: intel
             armci_network: SOCKETS
             nwchem_modules: "tce"
-            fc: ifort
+            fc: ifx
             use_openmp: 2
           - os: ubuntu-22.04
             experimental: true 
@@ -211,13 +211,13 @@ jobs:
             mpi_impl: intel
             armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
-            fc: ifort
+            fc: ifx
           - os: ubuntu-22.04
             experimental: true 
             mpi_impl: intel
             armci_network: SOCKETS
             nwchem_modules: "tce"
-            fc: ifort
+            fc: ifx
           - os: ubuntu-20.04
             experimental: true 
             mpi_impl: intel
@@ -245,7 +245,7 @@ jobs:
             mpi_impl: intel
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
-            fc: ifort
+            fc: ifx
             cc: icx
             use_libxc: 1
           - os: macos-latest
@@ -286,7 +286,7 @@ jobs:
             mpi_impl: intel
             armci_network: MPI-TS
             nwchem_modules: "nwdft solvation driver"
-            fc: ifort
+            fc: ifx
             cc: icx
             use_simint: 1
           - os: ubuntu-20.04
@@ -342,7 +342,7 @@ jobs:
             mpi_impl: intel
             armci_network: MPI-TS
             nwchem_modules: "qmandpw qmd"
-            fc: ifort
+            fc: ifx
             use_openmp: 2
           - os: ubuntu-20.04
             experimental: true
