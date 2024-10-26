@@ -166,7 +166,7 @@ if [[ "$os" == "Linux" ]]; then
 	    $MYSUDO apt-get update
 
 	    if [[ "$MPI_IMPL" == "intel" ]]; then
-		mpi_bin="  " ; mpi_libdev=" " scalapack_libdev=" "
+		mpi_bin="intel-oneapi-mpi" ; mpi_libdev="intel-oneapi-mpi-devel" scalapack_libdev=" "
 	    fi
 	fi
 	if [[ "$GITHUB_WORKFLOW" != "NWChem_CI_selfhosted" ]]; then
