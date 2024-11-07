@@ -4597,6 +4597,7 @@ c
             call errquit('bas_match_tags: fatal error ',911, BASIS_ERR)
           endif
         endif
+#if 0
         if (g_elem.eq.b_elem) then
           bas_match_tags = .true.
           btag = i
@@ -4608,6 +4609,7 @@ c
           bsmatch = bs_tags(i,basis)
           goto 00009
         endif
+#endif
       enddo
       if (debug)
      &    write(luout,*)'bas_match_tags:debug: no match for tag <',
