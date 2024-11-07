@@ -4481,6 +4481,7 @@ c::local
       integer g_atn           ! geometry tag -> atomic number
       character*2 b_sym       ! basis set tag -> symbol name
       character*16 b_elem     ! basis set tag -> element name
+      character*16 bs_tag_i
       integer b_atn           ! basis set tag -> atomic number
       logical debug           ! true for extra output
 c
@@ -4511,10 +4512,13 @@ c
 c
 c... first match full geometry tag to full basis tag list 
 c          did the user specifically assign a tag ?
-
+c     lowercase tags
+      call inp_lcase(gstring)
       nbtgs = infbs_head(HEAD_NTAGS,basis)
       do i = 1, nbtgs
-        if (gstring.eq.bs_tags(i,basis)) then
+        bs_tag_i=bs_tags(i,basis)
+        call inp_lcase(bs_tag_i)
+        if (gstring.eq.bs_tag_i) then
           bas_match_tags = .true.
           btag = i
           bsmatch = bs_tags(i,basis)
