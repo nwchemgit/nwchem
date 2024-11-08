@@ -20,6 +20,7 @@ c     $Id$
 #include "global.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "inp.fh"
       integer rtdb !< [Input] The RTDB handle
 c     
 c     Optimize a geometry using stepper and the generic 
@@ -78,7 +79,8 @@ c     Trust Region OPTimization
       logical tropt
       external tropt
 CJMC
-c     
+      integer do_cosmo_vem
+c
       call ecce_print_module_entry('task optimize')
 c     
 c     default optimizer
@@ -134,10 +136,17 @@ c
          write(6,*)
          write(6,*)
       endif
-c     
+c
+
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      +     call errquit('task_optimize: failed rtdb_cget task:theory',0,
-     &       RTDB_ERR)
+     &     RTDB_ERR)
+      if (.not.
+     $     rtdb_get(rtdb,'cosmo:do_cosmo_vem',mt_int,1,do_cosmo_vem))
+     $     do_cosmo_vem = 0
+      if(do_cosmo_vem.ne.0.and.theory(1:inp_strlen(theory)).eq.'tddft')
+     +     call errquit('task_optimize: VEM not compatible',0,
+     &       CAPMIS_ERR)
       if (theory.eq.'md') then
       status=nwmd(rtdb)
       else if (theory.eq.'qmmm') then
