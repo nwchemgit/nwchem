@@ -44,8 +44,7 @@ geometry zn_r5
 end
 
 basis "ao basis" spherical
- Zn1   library "ahlrichs vdz"
- Zn2   library "ahlrichs vdz"
+ zn   library "ahlrichs vdz"
 end
 
 charge 0
