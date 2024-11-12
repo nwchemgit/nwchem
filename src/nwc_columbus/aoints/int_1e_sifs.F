@@ -1,6 +1,7 @@
       subroutine int_1e_sifs(ibas, aoints, energy, nenrgy, nbft,
      &   nmap,map,imtype,ibvtyp,ibitv,l1rec,n1max,
-     &   clab, ninfo, info)
+     &   clab, ninfo, info, csolab)
+      USE nwc_sym, ONLY: mxsym,mxbf,zir,nir,nbpsy
       implicit none
 #include "errquit.fh"
 #include "cint1cache.fh"
@@ -14,8 +15,6 @@
 #include "cscfps.fh"
 #include "sym.fh"
 #include "cdft.fh"
-!#include "geomP.fh"
-#include "sym_adapt.fh"
 c     
 c     Compute the desired type of integrals (kinetic, potential, overlap)
 c     
@@ -34,14 +33,14 @@ c
       integer ishell, jshell, mem1, max1e, lrecal, n1mx
       integer ijshell, ilo, ihi, idim
       integer l_buf, l_scr, l_ilab, l_jlab, l_info, l_bfnlab, l_sifbuf,
-     &        l_sifval
+     &        l_sifval,l_SOval,l_SOlab
       integer k_buf, k_scr, k_ilab, k_jlab, k_info, k_bfnlab, k_sifbuf, 
-     &        k_sifval
+     &        k_sifval,k_SOval,k_SOlab
       integer type
       logical odoit
       double precision q2
       external block_int1e      ! For T3D
-      integer i, noffset,g_loc, j, ijmap
+      integer i, noffset,g_loc, j, ijmap, k
 c
       logical ocache_save
 c
@@ -54,10 +53,10 @@ c     sifs parameters
 c
       integer aoints
       integer n1max
-      INTEGER l1rec, ntitle, ibuf, nsym, ibvtyp, ierr!,mxsym
+      INTEGER l1rec, ntitle, ibuf, nsym, ibvtyp, ierr
       integer ibitv
-      !integer mxbf
-      !parameter (mxbf=1000)
+!      integer mxbf
+!      parameter (mxbf=1000)
 c     header 1
       integer nbas, mxenrgy, nenrgy, nmap
       INTEGER ninfo
@@ -69,15 +68,15 @@ c     header 2
       integer imtype(nmap) ! map will be taken from dynamic memory 
       integer map(nbft,nmap)
       integer clab(2,*)
+      integer cSOlab(2,*)
       real*8 energy(nenrgy)
       character*80 stitle(ntitle)
       character*4 slabel(mxsym)
-      !integer nbpsy(mxsym)
       character*1 shtypes(-1:7)
       data shtypes/'l','s', 'p', 'd', 'f', 'g', 'h', 'i', 'k'/
       integer shmap(-1:7)
       data shmap  /  0,  1,   2,   4,   6,   9,  12,  16,  0 /
-      integer otype, nprim, ngen, sphcart, iat, shdim, igen, ibf
+      integer otype, nprim, ngeno, sphcart, iat, shdim, igen, ibf
       integer numtot
       integer msame,nmsame,nomore
       parameter(msame=0, nmsame=1, nomore= 2)
@@ -87,30 +86,7 @@ c     header 2
       logical basok
       
 C LB
-      !logical status
-      !character*20 zname
-      !character*8  zir(mxsym), zclass(mxsym)
-      !integer      iclass(mxsym), nop, nir
-      !double precision chars(mxsym*mxsym)
-      !character*8 grp_name
-
-      !INTEGER, PARAMETER :: mxshel=120
-      !integer sh_op_map(8,mxshel), bf_op_map(8,mxbf)
-      !double precision bf_phase(8,mxbf) 
-      !integer sh_n_uq_op(mxshel), bf_n_uq_op(mxbf)
-      !integer sh_uq_op(8,mxshel), bf_uq_op(8,mxbf)
-      !integer sh_n_uq, bf_n_uq
-      !integer sh_uq(mxshel), bf_uq(mxbf)
-      !integer sh_nat(2,mxshel), bf_nat(2,mxbf), sh_uq_bf(4,mxshel)
-      !double precision char_tab(1:8,0:7)
-      !integer bf_per_ir(0:7)
-      !integer bf_per_ir_cum(0:7)
-      !integer bf_so_ir(0:7,mxbf)
-      !integer so_uq_to_lab(2,0:7,mxbf)
-      !integer so_lab1(3,mxbf)
-      !integer so_lab2(mxbf)
-      !logical oprint 
- 
+       INTEGER :: nsoints ! number of symmetry orbital integrals
 C LB
 
 cgk provisional
@@ -123,7 +99,6 @@ cgk end
 c
 cgk debug
       write(*,*)'gk: **** entered int_1e_sifs'
-!      WRITE(*,*)'LB: info=',info(1:5)
 cgk end
       basok=.false.
       odbug=.true.
@@ -201,7 +176,11 @@ c     get memory for sifs buffer space
      &     l_sifval, k_sifval))
      $     call errquit('int_1e_sifs: ma failed getting sifval', n1mx, 
      &        MA_ERR)
-
+c     get memory for SO buffer space
+      if (.not. MA_push_get(MT_DBL, n1mx,'int_1e_sifs:SOval',
+     &     l_SOval, k_SOval))
+     $     call errquit('int_1e_sifs: ma failed getting SOval', n1mx, 
+     &        MA_ERR)
 c
 
 c     Set up SIFS header iformation
@@ -243,12 +222,12 @@ cgk debug
 cgk end
       i=0
       do ishell=1,nshell
-         basok=bas_continfo(ibas, ishell, otype, nprim, ngen, sphcart)
+         basok=bas_continfo(ibas, ishell, otype, nprim, ngeno, sphcart)
 !        WRITE(*,*)"C LB, ibas=",ibas
 !        WRITE(*,*)"C LB, ishell=",ishell
 !        WRITE(*,*)"C LB, otype=",otype
 !        WRITE(*,*)"C LB, nprim=",nprim
-!        WRITE(*,*)"C LB, ngen=",ngen
+!        WRITE(*,*)"C LB, ngeno=",ngeno
 !        WRITE(*,*)"C LB, sphcart=",sphcart
          basok=bas_cn2bfr(ibas, ishell, ilo, ihi)
 !        WRITE(*,*)"C LB, ilo=",ilo
@@ -261,13 +240,13 @@ cgk end
 c
          shdim = (ihi-ilo+1)
          if (otype.ge.0) then
-            shdim = shdim / ngen
+            shdim = shdim / ngeno
          else     ! Fudge for SP shells
-            ngen = 1
+            ngeno = 1
          endif
          if (otype .le. 1) sphcart = 0
           
-         do igen = 1, ngen 
+         do igen = 1, ngeno 
             do ibf = 1, shdim
  
                i = i + 1 
@@ -291,19 +270,23 @@ cgk end
 
 c      slabel(1)='a1'
 C LB: Add symmetry labels to aoints files
-      !status = sym_char_table(grp_name,nop,nir,iclass,zir,zclass,chars)
+!      status = sym_char_table(grp_name,nop,nir,iclass,zir,zclass,chars)
+!      WRITE(*,*)"C LB, nir=",nir
+!      WRITE(*,*)"C LB, ibas=",ibas
+!      WRITE(*,*)"C LB, zir=",zir(1:nir)
       nsym=nir
+!      WRITE(*,*)"C LB, nsym=",nsym
       slabel(1:nsym)=zir(1:nsym)
-      !CALL sym_bas_irreps(ibas,.true.,nbpsy(1:nsym))
-      WRITE(*,*)"----Geometry and Symmetry Information----"
-      write(*,'(a,i3)')"geom= ",geom
-      write(*,'(a,a)')"sym group= ",grp_name
-      write(*,*)"slabel= ",slabel(1:nsym)
-      WRITE(*,'(a,i3)')"ibas= ",ibas
-      WRITE(*,'(a,i3)')"nbft= ",nbft
+!      CALL sym_bas_irreps(ibas,.true.,nbpsy(1:nsym))
+!      WRITE(*,*)"----Geometry and Symmetry Information----"
+!      write(*,'(a,i3)')"geom= ",geom
+!      write(*,'(a,a)')"sym group= ",grp_name
+!      write(*,*)"slabel= ",slabel(1:nsym)
+!      WRITE(*,'(a,i3)')"ibas= ",ibas
+!      WRITE(*,'(a,i3)')"nbft= ",nbft
       WRITE(*,'(a,8i3)')"nbpsy= ",nbpsy(1:nsym)
-      WRITE(*,'(a,i3)')"sym_num_ops= ",sym_num_ops(geom)
-      WRITE(*,'(a,i3)')"nop= ",nop
+!      WRITE(*,'(a,i3)')"sym_num_ops= ",sym_num_ops(geom)
+!      WRITE(*,'(a,i3)')"nop= ",nop
 C LB
       stitle(1)='AO integrals from NWChem'
       !nbpsy(1)=nbft
@@ -331,6 +314,7 @@ cgk end
      &               nbpsy,   slabel(1:nsym),  info, 
      &      byte_mb(k_bfnlab),  ietype,  energy,  imtype,  map, 
      &      ierr )
+      WRITE(*,*)"C LB, O"
 cgk debug
 !       write(*,*)'gk: back from sifwh with ierr=',ierr
 !        WRITE(*,*)"LB after sifwh, info=",info(1:5)
@@ -362,14 +346,14 @@ cgk debug
 cgk end
 
          do jshell = 1, nshell
-            do ishell = 1, nshell
+            do ishell =1, nshell
 cgk debug
       write(*,*)'gk: ishell=',ishell,' jshell=',jshell
 cgk end
  
                odoit = .true.
 !               if (oskel) 
-!     $            odoit = sym_shell_pair(ibas, ishell, jshell, q2)
+!    &           odoit = sym_shell_pair(ibas, ishell, jshell, q2)
 !               WRITE(*,*)"C LB, odoit= ", odoit
 !               WRITE(*,*)"C LB, q2= ", q2
  
@@ -382,71 +366,40 @@ cgk end
                   call ifill(max1e,0,int_mb(k_ilab),1)
                   call ifill(max1e,0,int_mb(k_jlab),1)
       
-                  if (type .eq. 1) then !Kinetic Energy
+                  if      (type .eq. 1) then !Kinetic Energy
                      call int_l1eke (ibas, jshell, ibas, ishell, 
      &                  thresh, int_mb(k_ilab),int_mb(k_jlab), max1e,
      $                  dbl_mb(k_buf), mem1, dbl_mb(k_scr), numints)
+
                   else if (type .eq. 2) then !Potential Energy
-cgk debug
-       write(*,*)'gk: calling int_l1epe'
-       write(*,*)'gk: ibas = ', ibas
-       write(*,*)'gk: ishell = ', ishell
-       write(*,*)'gk: jshell = ', jshell
-       write(*,*)'gk: thresh = ', thresh
-       write(*,*)'gk: k_ilab = ', k_ilab
-       write(*,*)'gk: k_jlab = ', k_jlab
-       write(*,*)'gk: max1e = ', max1e
-       write(*,*)'gk: k_buf = ', k_buf
-       write(*,*)'gk: mem1 = ', mem1
-       write(*,*)'gk: k_scr = ', k_scr
-cgk end
                      call int_l1epe (ibas, jshell, ibas, ishell, 
      &                  thresh, int_mb(k_ilab),int_mb(k_jlab), max1e,
      $                  dbl_mb(k_buf), mem1, dbl_mb(k_scr), numints)
-cgk debug
-!       write(*,*)'gk: numints = ', numints
-!       write(*,*)'gk: back from int_l1epe'
-cgk end
-                  else if (type .eq. 3) then !Overlap
-cgk debug
-!       write(*,*)'gk: calling int_l1epe'
-!       write(*,*)'gk: ibas = ', ibas
-!       write(*,*)'gk: ishell = ', ishell
-!       write(*,*)'gk: jshell = ', jshell
-!       write(*,*)'gk: thresh = ', thresh
-!       write(*,*)'gk: k_ilab = ', k_ilab
-!       write(*,*)'gk: k_jlab = ', k_jlab
-!       write(*,*)'gk: max1e = ', max1e
-!       write(*,*)'gk: k_buf = ', k_buf
-!       write(*,*)'gk: mem1 = ', mem1
-!       write(*,*)'gk: k_scr = ', k_scr
-cgk end
 
+                  else if (type .eq. 3) then !Overlap
 c                    ECP is summed here, but COLUMBUS should not care.
-                     call int_l1eov (ibas, ishell, ibas, jshell, thresh,
-     &                  int_mb(k_ilab),int_mb(k_jlab), max1e,
+                     call int_l1eov (ibas, ishell, ibas, jshell,
+     &                  thresh, int_mb(k_ilab),int_mb(k_jlab), max1e,
      &                  dbl_mb(k_buf), mem1, dbl_mb(k_scr), numints)
                   end if
 c     
-cgk debug
-       write(*,*)'gk: numints = ', numints
-*      write(*,*)'gk: this batch, numints = ', numints
-cgk end
-
                   do i=1,numints
 
                      if(ibuf.eq.n1max) then
                        numtot = numtot + ibuf
 C LB
-!                       WRITE(*,*)"int_1e_sifs calling sifew1 1,
-!     &last=",last,"ibvtyp=",ibvtyp
-!                   WRITE(*,*)"sizeof(dbl_mb)=",sizeof(dbl_mb(k_sifval)),
-!     &             "sizeof(buf)=",sizeof(dbl_mb(k_sifbuf))
-
+                       WRITE(*,*)"C LB, calling sym_1int 1"
+                       CALL sym_1int(ibuf,nsoints,
+     &                               dbl_mb(k_sifval), clab,
+     &                               dbl_mb(k_SOval), cSOlab)
+                       WRITE(*,'(a,1i4)')"C LB, nsoints =",nsoints
+                       WRITE(*,*)"C LB, cSOlab ="
+                       WRITE(*,'(2i4)') cSOlab(1:2,1:nsoints)
 C LB
-                       call sifew1(aoints, info, 2, ibuf, last, 
+                       WRITE(*,*)"C LB, calling sifew1"
+                       call sifew1(aoints, info, 2, nsoints, last, 
      &                   itypea, itypeb, ibvtyp, 
-     &                   dbl_mb(k_sifval), clab, fcore, ibitv, 
+     &                   dbl_mb(k_SOval), cSOlab, fcore, ibitv,
      &                   dbl_mb(k_sifbuf), nrec, ierr)
 c                      ibuf on return has the number of unwritten
 c                      integrals.  dbl_mb(k_sifval+0:(ibuf-1)) 
@@ -458,32 +411,23 @@ c                      contains the unwritten values, ditto for labels
                      clab(1,ibuf)=int_mb(k_ilab+i-1)
                      clab(2,ibuf)=int_mb(k_jlab+i-1)
                      dbl_mb(k_sifval+ibuf-1)=dbl_mb(k_buf+i-1)      
-cgk debug
-*                     write(*,*)'gk: ibuf=', ibuf
-*                     write(*,'(a,2i4,f20.12)') 
-*     &               'gk:  ilab,jlab,dbl_mb:',
-*     &               int_mb(k_ilab+i-1),int_mb(k_jlab+i-1),
-*     &               dbl_mb(k_buf+i-1)
-cgk end
 
-                  enddo
+                  enddo ! i
 
                end if
                ijshell = ijshell + 1
-            end do
-         end do
+            end do !i_shell
+         end do !j_shell
          last=nmsame
          numtot=numtot+ibuf
-cgk debug
-!       write(*,*)'gk: nrec=', nrec
-!       write(*,*)'gk:  ibuf=', ibuf
-!       write(*,*)'gk:  last=', last,"ibvtyp=",ibvtyp
-!       write(*,*)'gk:  numtot=', numtot
-!       WRITE(*,*)"int_1e_sifs calling sifew1 2"
-cgk end
-         call sifew1(aoints, info, 2, ibuf, last, 
+         WRITE(*,*)"C LB, calling sym_1int 2"
+         CALL sym_1int(ibuf,nsoints,
+     &     dbl_mb(k_sifval), clab,
+     &     dbl_mb(k_SOval), cSOlab)
+         WRITE(*,*)"C LB, calling sifew1"
+         call sifew1(aoints, info, 2, nsoints, last, 
      &     itypea, itypeb, ibvtyp, 
-     &     dbl_mb(k_sifval), clab, fcore, ibitv, 
+     &     dbl_mb(k_SOval), cSOlab, fcore, ibitv, 
      &     dbl_mb(k_sifbuf), nrec, ierr)
 
          write(6,'(a,i10,1x,a,a)') 'Wrote ',numtot, integ_type, 
@@ -500,7 +444,7 @@ cgk debug
 cgk end
       call int_so_sifs(ibas, oskel, aoints, nbft, max1e, mem1, l1rec,
      &  n1max, dbl_mb(k_sifbuf), dbl_mb(k_sifval), ninfo, info, clab,
-     &  fcore, ibvtyp, ibitv)
+     &  fcore, ibvtyp, ibitv,dbl_mb(k_SOval),cSOlab)
 
 cgk debug
 *      write(*,*)'gk: calling int_mom_sifs from int_1e_sifs'
@@ -508,13 +452,15 @@ cgk debug
 cgk end
       call int_mom_sifs(ibas, oskel, aoints, nbft, l1rec,
      &  n1max, dbl_mb(k_sifbuf), dbl_mb(k_sifval), ninfo, info, 
-     &  fcore, ibvtyp, ibitv)
+     &  fcore, ibvtyp, ibitv,dbl_mb(k_SOval),cSOlab)
 cgk debug
 *      write(*,*)'gk: back from int_so_sifs in int_1e_sifs'
 cgk end
 c     
 c     chop stack at first item allocated
 c     
+      if (.not. MA_pop_stack(l_SOval)) call errquit
+     $     ('int_1e_sifs: pop failed at l_SOval', 0, GA_ERR)
       if (.not. MA_pop_stack(l_sifval)) call errquit
      $     ('int_1e_sifs: pop failed at l_bfnlab', 0, GA_ERR)
       if (.not. MA_pop_stack(l_sifbuf)) call errquit

@@ -1,8 +1,10 @@
       SUBROUTINE sym_adapt(ibas)
         ! Routine to adapt the AOs to symmetrized orbitals
+      USE nwc_sym
       IMPLICIT NONE
 #include "errquit.fh"
-#include "sym_adapt.fh"
+!#include "nwc_const.fh"
+!#include "sym_adapt.fh"
 #include "sym.fh"
 #include "geom.fh"
 #include "bas.fh"
@@ -16,12 +18,13 @@
       INTEGER :: l(mxaqn),m(mxaqn),n(mxaqn)
       INTEGER :: Lvar, Mvar, Nvar
       INTEGER :: ang_max !maximum L for basis ibas
-      INTEGER :: nop, nir, iclass(mxsym),otype
+      INTEGER :: iclass(mxsym),otype
       INTEGER :: naorb, naorbd, nsorb, ivarb, norbpsh, ncent
       INTEGER :: jkb, cent
       INTEGER :: ireplm ! integer function
       INTEGER :: nprim, ngeno, spcrt ! dummies for bas_continfo
       INTEGER :: mult(0:7)
+      INTEGER :: lorb, lex_least
       DOUBLE PRECISION :: chars(mxsym*mxsym)
       CHARACTER*8 :: zclass(mxsym)
 
@@ -50,6 +53,7 @@
 
       ! Get group info A
       status = sym_char_table(grp_name,nop,nir,iclass,zir,zclass,chars)
+      WRITE(*,*)"C LB, nop =",nop
 
       ! Get group info B
       CALL sym_bas_irreps(ibas,.true.,nbpsy(1:nir))
@@ -70,92 +74,92 @@
      $     zir,
      $     so_uq_to_lab, so_lab1, so_lab2, oprint)
 
-      WRITE(*,'(a)')"C LB apply operator to shell"
-      WRITE(*,'(a)')"C LB sh_op_map ="
-      WRITE(*,'(8i4)')sh_op_map(:,1:6)
-      WRITE(*,'(a)')"C LB apply operator to basis function"
-      WRITE(*,'(a)')"C LB bf_op_map ="
-      WRITE(*,'(8i4)')bf_op_map(:,1:10)
-      WRITE(*,'(a)')"C LB apply operator to basis function (phase)"
-      WRITE(*,'(a)')"C LB bf_phase ="
-      WRITE(*,'(8f6.1)')bf_phase(:,1:10)
-      WRITE(*,'(a)')"C LB number of operations that produce unique
-     & shells"
-      WRITE(*,'(a)')"C LB sh_n_uq_op ="
-      WRITE(*,'(6i4)')sh_n_uq_op(1:6)
-      WRITE(*,'(a)')"C LB number of operations that produce unique
-     & basis functions"
-      WRITE(*,'(a)')"C LB bf_n_uq_op ="
-      WRITE(*,'(10i4)')bf_n_uq_op(1:10)
-      WRITE(*,'(a)')"C LB list of operations that produce unique
-     & shells"
-      WRITE(*,'(a)')"C LB sh_uq_op ="
-      WRITE(*,'(8i8)')sh_uq_op(:,1:6)
-      WRITE(*,'(a)')"C LB list of operations that produce unique
-     & bfns"
-      WRITE(*,'(a)')"C LB bf_uq_op ="
-      WRITE(*,'(8i4)')bf_uq_op(:,1:10)
-      WRITE(*,'(a)')"C LB number of unique shells"
-      WRITE(*,'(a)')"C LB sh_n_uq ="
-      WRITE(*,'(i4)')sh_n_uq
-      WRITE(*,'(a)')"C LB number of unique bfns"
-      WRITE(*,'(a)')"C LB bf_n_uq ="
-      WRITE(*,'(i4)')bf_n_uq
-      WRITE(*,'(a)')"C LB lexically highest sym-related shell"
-      WRITE(*,'(a)')"C LB sh_uq ="
-      WRITE(*,'(6i4)')sh_uq(1:6)
-      WRITE(*,'(a)')"C LB lexically highest sym-related bfn"
-      WRITE(*,'(a)')"C LB bf_uq ="
-      WRITE(*,'(10i4)')bf_uq(1:10)
-      WRITE(*,'(a)')"C LB map shells from nwchem to natural AO order"
-      WRITE(*,'(a)')"C LB sh_nat1 ="
-      WRITE(*,'(6i4)')sh_nat(1,1:6)
-      WRITE(*,'(a)')"C LB map shells from natural to nwchem AO order"
-      WRITE(*,'(a)')"C LB sh_nat2 ="
-      WRITE(*,'(6i4)')sh_nat(2,1:6)
-      WRITE(*,'(a)')"C LB map bfn from nwchem to natural AO order"
-      WRITE(*,'(a)')"C LB bf_nat ="
-      WRITE(*,'(10i4)')bf_nat(1,1:10)
-      WRITE(*,'(a)')"C LB map bfn from natural to nwchem AO order"
-      WRITE(*,'(a)')"C LB bf_nat ="
-      WRITE(*,'(10i4)')bf_nat(2,1:10)
-      WRITE(*,'(a)')"1st natural bfn from unique shell"
-      WRITE(*,'(a)')"C LB sh_uq_bf ="
-      WRITE(*,'(6i4)')sh_uq_bf(1,1:6)
-      WRITE(*,'(a)')"last natural bfn from unique shell"
-      WRITE(*,'(a)')"C LB sh_uq_bf ="
-      WRITE(*,'(6i4)')sh_uq_bf(2,1:6)
-      WRITE(*,'(a)')"1st unique bfn from unique shell"
-      WRITE(*,'(a)')"C LB sh_uq_bf ="
-      WRITE(*,'(6i4)')sh_uq_bf(3,1:6)
-      WRITE(*,'(a)')"last unique bfn from unique shell"
-      WRITE(*,'(a)')"C LB sh_uq_bf ="
-      WRITE(*,'(6i4)')sh_uq_bf(4,1:6)
-      WRITE(*,'(a)')"C LB bf_per_ir ="
-      WRITE(*,'(8i4)')bf_per_ir(:)
-      WRITE(*,'(a)')"list of irreps generated from unique bfn"
-      WRITE(*,'(a)')"C LB bf_so_ir ="
-      WRITE(*,'(8i4)')bf_so_ir(:,1:10)
-      WRITE(*,'(a)')"C LB so_uq_to_lab 1 ="
-      WRITE(*,'(8i12)')so_uq_to_lab(1,:,1:10)
-      WRITE(*,'(a)')"C LB so_uq_to_lab 2 ="
-      WRITE(*,'(8i12)')so_uq_to_lab(2,:,1:10)
-      WRITE(*,'(a)')"irrep of given SO"
-      WRITE(*,'(a)')"C LB so_lab1 ="
-      WRITE(*,'(10i4)')so_lab1(1,1:10)
-      WRITE(*,'(a)')"map twixt labelling schemes"
-      WRITE(*,'(a)')"C LB so_lab1 ="
-      WRITE(*,'(10i4)')so_lab1(2,1:10)
-      WRITE(*,'(a)')"unique bfn that is generator"
-      WRITE(*,'(a)')"C LB so_lab1 ="
-      WRITE(*,'(10i4)')so_lab1(3,1:10)
-      WRITE(*,'(a)')"map from sym-blocked SO order to natural SO order"
-      WRITE(*,'(a)')"C LB so_lab2 ="
-      WRITE(*,'(10i4)')so_lab2(1:10)
-      WRITE(*,*)"C LB, before isymax, grp_name=",grp_name
+!      WRITE(*,'(a)')"C LB apply operator to shell"
+!      WRITE(*,'(a)')"C LB sh_op_map ="
+!      WRITE(*,'(8i4)')sh_op_map(:,1:6)
+!      WRITE(*,'(a)')"C LB apply operator to basis function"
+!      WRITE(*,'(a)')"C LB bf_op_map ="
+!      WRITE(*,'(8i4)')bf_op_map(:,1:10)
+!      WRITE(*,'(a)')"C LB apply operator to basis function (phase)"
+!      WRITE(*,'(a)')"C LB bf_phase ="
+!      WRITE(*,'(8f6.1)')bf_phase(:,1:10)
+!      WRITE(*,'(a)')"C LB number of operations that produce unique
+!     & shells"
+!      WRITE(*,'(a)')"C LB sh_n_uq_op ="
+!      WRITE(*,'(6i4)')sh_n_uq_op(1:6)
+!      WRITE(*,'(a)')"C LB number of operations that produce unique
+!     & basis functions"
+!      WRITE(*,'(a)')"C LB bf_n_uq_op ="
+!      WRITE(*,'(10i4)')bf_n_uq_op(1:10)
+!      WRITE(*,'(a)')"C LB list of operations that produce unique
+!     & shells"
+!      WRITE(*,'(a)')"C LB sh_uq_op ="
+!      WRITE(*,'(8i8)')sh_uq_op(:,1:6)
+!      WRITE(*,'(a)')"C LB list of operations that produce unique
+!     & bfns"
+!      WRITE(*,'(a)')"C LB bf_uq_op ="
+!      WRITE(*,'(8i4)')bf_uq_op(:,1:10)
+!      WRITE(*,'(a)')"C LB number of unique shells"
+!      WRITE(*,'(a)')"C LB sh_n_uq ="
+!      WRITE(*,'(i4)')sh_n_uq
+!      WRITE(*,'(a)')"C LB number of unique bfns"
+!      WRITE(*,'(a)')"C LB bf_n_uq ="
+!      WRITE(*,'(i4)')bf_n_uq
+!      WRITE(*,'(a)')"C LB lexically highest sym-related shell"
+!      WRITE(*,'(a)')"C LB sh_uq ="
+!      WRITE(*,'(6i4)')sh_uq(1:6)
+!      WRITE(*,'(a)')"C LB lexically highest sym-related bfn"
+!      WRITE(*,'(a)')"C LB bf_uq ="
+!      WRITE(*,'(10i4)')bf_uq(1:10)
+!      WRITE(*,'(a)')"C LB map shells from nwchem to natural AO order"
+!      WRITE(*,'(a)')"C LB sh_nat1 ="
+!      WRITE(*,'(6i4)')sh_nat(1,1:6)
+!      WRITE(*,'(a)')"C LB map shells from natural to nwchem AO order"
+!      WRITE(*,'(a)')"C LB sh_nat2 ="
+!      WRITE(*,'(6i4)')sh_nat(2,1:6)
+!      WRITE(*,'(a)')"C LB map bfn from nwchem to natural AO order"
+!      WRITE(*,'(a)')"C LB bf_nat ="
+!      WRITE(*,'(10i4)')bf_nat(1,1:10)
+!      WRITE(*,'(a)')"C LB map bfn from natural to nwchem AO order"
+!      WRITE(*,'(a)')"C LB bf_nat ="
+!      WRITE(*,'(10i4)')bf_nat(2,1:10)
+!      WRITE(*,'(a)')"1st natural bfn from unique shell"
+!      WRITE(*,'(a)')"C LB sh_uq_bf ="
+!      WRITE(*,'(6i4)')sh_uq_bf(1,1:6)
+!      WRITE(*,'(a)')"last natural bfn from unique shell"
+!      WRITE(*,'(a)')"C LB sh_uq_bf ="
+!      WRITE(*,'(6i4)')sh_uq_bf(2,1:6)
+!      WRITE(*,'(a)')"1st unique bfn from unique shell"
+!      WRITE(*,'(a)')"C LB sh_uq_bf ="
+!      WRITE(*,'(6i4)')sh_uq_bf(3,1:6)
+!      WRITE(*,'(a)')"last unique bfn from unique shell"
+!      WRITE(*,'(a)')"C LB sh_uq_bf ="
+!      WRITE(*,'(6i4)')sh_uq_bf(4,1:6)
+!      WRITE(*,'(a)')"C LB bf_per_ir ="
+!      WRITE(*,'(8i4)')bf_per_ir(:)
+!      WRITE(*,'(a)')"list of irreps generated from unique bfn"
+!      WRITE(*,'(a)')"C LB bf_so_ir ="
+!      WRITE(*,'(8i4)')bf_so_ir(:,1:10)
+!      WRITE(*,'(a)')"C LB so_uq_to_lab 1 ="
+!      WRITE(*,'(8i12)')so_uq_to_lab(1,:,1:10)
+!      WRITE(*,'(a)')"C LB so_uq_to_lab 2 ="
+!      WRITE(*,'(8i12)')so_uq_to_lab(2,:,1:10)
+!      WRITE(*,'(a)')"irrep of given SO"
+!      WRITE(*,'(a)')"C LB so_lab1 ="
+!      WRITE(*,'(10i4)')so_lab1(1,1:10)
+!      WRITE(*,'(a)')"map twixt labelling schemes"
+!      WRITE(*,'(a)')"C LB so_lab1 ="
+!      WRITE(*,'(10i4)')so_lab1(2,1:10)
+!      WRITE(*,'(a)')"unique bfn that is generator"
+!      WRITE(*,'(a)')"C LB so_lab1 ="
+!      WRITE(*,'(10i4)')so_lab1(3,1:10)
+!      WRITE(*,'(a)')"map from sym-blocked SO order to natural SO order"
+!      WRITE(*,'(a)')"C LB so_lab2 ="
+!      WRITE(*,'(10i4)')so_lab2(1:10)
+!      WRITE(*,*)"C LB, before isymax, grp_name=",grp_name
 
       ! number of generating operators
-      ngen = INT(LOG(DBLE(nop+1))/LOG(2.0))
+      ngen = INT(LOG(DBLE(nop))/LOG(2.0))
 
       ! Initialize isymax, reinitialize irrep and operator maps 
       ! column 1 of isymax is irreps of  x, y, z
@@ -357,7 +361,7 @@
 !      WRITE(*,*)"        C LB, orbital contributes!"
               nsorb = nsorb + 1
 !      WRITE(*,'(a,1i4)')
-!     &"        C LB, this will be symmetrized orbital",nsorb
+!     &"         C LB, this will be symmetrized orbital",nsorb
               jkb = 0
 !      WRITE(*,'(a,1i4)')"C LB, naorbd=",naorbd
 
@@ -372,10 +376,16 @@
 !      WRITE(*,'(a,2i4)')"C LB, KK, IVARB =",kk,ivarb
 !      WRITE(*,'(a,2i4)')"C LB, IAND =",iand(kk,ivarb)
 !      WRITE(*,'(a,2i4)')"C LB, parbit =",parbit(iand(kk,ivarb))
+
+                lorb = lex_least(bf_uq(naorbd))
+!      WRITE(*,'(a,1i4)')"C LB, aorb =",bf_uq(naorbd)
+!      WRITE(*,'(a,1i4)')"C LB, lorb =",lorb
                 itran(nsorb,jkb)=
-     &              bf_op_map(mm,bf_uq(naorbd))*parbit(IAND(kk,ivarb))
+     &      bf_op_map(kk+1,lorb)*parbit(IAND(mm-1,ivarb))
+!     &      bf_op_map(mm,bf_uq(naorbd))*parbit(IAND(kk,ivarb))
+!     &      bf_op_map(mm,lorb)*bf_phase(mm,lorb)*parbit(IAND(kk,ivarb))
 !      WRITE(*,*)"C LB, itran =",itran(nsorb,jkb)
-             ENDDO !mm (operators)
+              ENDDO !mm (operators)
               wt(nsorb,1)=nsorb
               wt(nsorb,2)=jkb
 
@@ -407,14 +417,45 @@
 
 
 
+!-----------------------------------------------------------------      
+      INTEGER FUNCTION lex_least(orb)
+      ! Find the lexically lowest equivalent orbital
+
+      USE nwc_sym, ONLY : mxbf, mxshel, bf_uq, bf_op_map, nop
+      IMPLICIT NONE
+
+      ! IN
+      INTEGER, INTENT(IN) :: orb ! orbital in question
+
+      ! LOCAL
+      INTEGER :: k ! counter
+      INTEGER :: lorb !marks where lowest eq orb is in the map
+
+      lorb = 1
+      DO k = 1, nop
+        IF (bf_op_map(k,orb) .EQ. 0) EXIT
+        IF (bf_op_map(k,orb) .LT. bf_op_map(lorb,orb)) THEN
+          lorb = k
+        ENDIF
+      ENDDO ! k
+      
+      lex_least = bf_op_map(lorb,orb)
+
+      RETURN
+      END !FUNCTION lex_least
+
+
+
 
 !------------------------------------------------------------------
       INTEGER FUNCTION ireplm(L,M)
       ! Taken from DALTON (hersol.F)
       ! Symmetry of RLM integrals for spherical basis
 
+      USE nwc_sym, ONLY: isymax
       IMPLICIT NONE
-#include "sym_adapt.fh"
+!#include "nwc_const.fh"
+!#include "sym_adapt.fh"
 
       ! IN
       INTEGER, INTENT(IN) :: L, M
@@ -425,7 +466,7 @@
       IF (M.LT.0) ireplm=IEOR(ireplm,IEOR(isymax(1,1),isymax(2,1)))
 
       RETURN
-      END ! ireplm
+      END !FUNCTION ireplm
 
 
 
@@ -436,8 +477,10 @@
       ! Taken from DALTON (hergam.F and carpow.F)
       ! determine l, m, n for cartesian basis
 
+      USE nwc_sym, ONLY : mxaqnm, mxqnm
       IMPLICIT NONE
-#include "sym_adapt.fh"
+!#include "nwc_const.fh"
+!#include "sym_adapt.fh"
 
       ! IN
       INTEGER, INTENT(IN) :: nhkta, khkta
@@ -476,8 +519,10 @@
       ! Taken from DALTON (herrdn.F)
       ! Map stabilizers of each atom center
 
+      USE nwc_sym, ONLY: ngen, isymax, stabilizer, coords
       IMPLICIT NONE
-#include "sym_adapt.fh"
+!#include "nwc_const.fh"
+!#include "sym_adapt.fh"
 
       ! IN
       INTEGER, INTENT(IN) :: ncent  ! number of unique atom centers
@@ -516,3 +561,91 @@
 
       RETURN
       END ! stab_cent
+
+
+
+
+!-----------------------------------------------------------------      
+      SUBROUTINE sym_1int(num,numints,intbuf,labbuf,val,lab)
+      ! Calculate the SOs from the AOs
+
+      USE nwc_sym, ONLY: nir, bf_per_ir_cum, nbpsy, wt, itran
+      IMPLICIT NONE
+!#include "nwc_const.fh"
+!#include "sym_adapt.fh"
+
+      ! IN
+      INTEGER :: num  !# of values to place in packed buffer
+      DOUBLE PRECISION :: intbuf(1:num) ! AO integer buffer
+      INTEGER :: labbuf(1:2,1:num) ! AO label buffer
+
+      ! LOCAL
+      INTEGER :: i,j,k,l,m !counters
+      INTEGER :: offset
+      INTEGER :: i_lab,j_lab ! SO integral labels
+      INTEGER :: ao_i_lab,ao_j_lab ! AO integral labels
+      INTEGER :: sgni, sgnj ! sign of AO
+
+      ! OUT
+      INTEGER :: numints ! number of SO ints 
+      DOUBLE PRECISION :: val(1:num) ! SO integrals
+      INTEGER :: lab(1:2,1:num) ! SO labels
+
+      WRITE(*,*)"C LB, now in sym_1int"
+      numints = 0
+
+      ! irreps
+      DO i = 1, nir
+      WRITE(*,'(a,2i4)')"C LB, irrep =",i
+        offset = bf_per_ir_cum(i-1)
+      WRITE(*,'(a,2i4)')"C LB, offset =",offset
+
+        ! SO integral labels
+        DO i_lab = offset+1, offset+nbpsy(i)
+          DO j_lab = i_lab,offset+nbpsy(i)
+!      WRITE(*,'(a,2i4)')"  C LB, SO integral label = ",i_lab,j_lab
+            numints = numints + 1
+            val(numints) = 0.0D0
+            lab(1,numints) = i_lab
+            lab(2,numints) = j_lab
+
+            ! AO linear combination for i_lab
+            DO j = 1, wt(i_lab,2)
+              ao_i_lab = itran(i_lab,j)
+              sgni = SIGN(1,ao_i_lab)
+              ao_i_lab = ABS(ao_i_lab)
+
+              ! AO linear combination for j_lab
+              DO k = 1, wt(j_lab,2)
+                ao_j_lab = itran(j_lab,k)
+                sgnj = SIGN(1,ao_j_lab)
+                ao_j_lab = ABS(ao_j_lab)
+!      WRITE(*,'(a,2i4)')"     C LB, AO integral label = ",
+!     &                          ao_i_lab,ao_j_lab
+
+                ! Find the AO integral that corresponds to ao_i_lab
+                ! ao_j_lab, multiply by sgni*sgnj, and add to val
+                DO l = 1, num
+!      WRITE(*,'(a,2i4)')"       C LB, labbuf ="
+!     &                   ,labbuf(1:2,l)
+                  IF (((labbuf(1,l) .EQ. ao_i_lab) .AND.
+     &                 (labbuf(2,l) .EQ. ao_j_lab)) .OR.
+     &                ((labbuf(1,l) .EQ. ao_j_lab) .AND.
+     &                 (labbuf(2,l) .EQ. ao_i_lab))) THEN
+                    ! match found!
+      WRITE(*,'(a,1e15.3)')"     C LB, integral found:",
+     &                               intbuf(l)
+                    val(numints) = val(numints) + intbuf(l)*sgni*sgnj
+                  ENDIF
+
+
+                ENDDO ! l
+              ENDDO !k
+            ENDDO !j
+!      WRITE(*,'(a,3i4,1e15.3)')"  C LB, SO integral:",
+!     &                 numints,lab(1:2,numints),val(numints)
+          ENDDO !j_lab (SO lab j)
+        ENDDO !i_lab (SO lab i)
+      ENDDO !i (irreps)
+      RETURN
+      END ! sym_1int

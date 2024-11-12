@@ -1,6 +1,8 @@
       subroutine int_mom_sifs(ibas, oskel, aoints, nbft, 
      &  l1rec, n1max, 
-     &  sifbuf, sifval, ninfo, info, fcore, ibvtyp, ibitv)
+     &  sifbuf, sifval, ninfo, info, fcore, ibvtyp, ibitv,
+     &  SOval, cSOlab)
+      USE nwc_sym, ONLY: mxsym,mxbf
       implicit none
 #include "errquit.fh"
 #include "cint1cache.fh"
@@ -12,6 +14,7 @@
 #include "bas.fh"
 #include "cscfps.fh"
 #include "sym.fh"
+#include "geom.fh"
 c     
 c     Oskel indicates that the skeleton (petite-list symmetry) matrix should be
 c     built ... 
@@ -25,6 +28,7 @@ c
       integer ninfo
       integer info(ninfo)  ! not to be confused with NWChem info
       integer clab(2,n1max)
+      integer cSOlab(2,n1max)
       real*8 fcore
 
 c     
@@ -55,6 +59,7 @@ C LB
       integer lval                !Order  of dipole integrals
       double precision centerl(3) !Center of dipole integrals
       integer num_MPint           !Number of dipole integrals
+      integer geom
 C LB
 c  
 c     sifs parameters
@@ -63,12 +68,13 @@ c
       integer l1rec, n1max
       integer ibvtyp
       integer ibitv
-      integer mxbf
+!      integer mxbf
 c     make sure this is compatible with columbus
-      parameter (mxbf=1000)
+!      parameter (mxbf=1000)
 c     header 1
       integer ntitle, nsym, nbas, mxenrgy
-      parameter(ntitle=1,nsym=1,mxenrgy=1)
+!      parameter(ntitle=1,nsym=1,mxenrgy=1)
+      parameter(ntitle=1,mxenrgy=1)
 c     header 2
       integer otype, nprim, ngen, sphcart, iat, shdim, igen, ibf
       integer numtot
@@ -88,10 +94,14 @@ cgk provisional
       parameter (thresh=1d-12)
 cgk end
       integer numints, icart, kcart, int_type
+C LB
+      INTEGER :: nsoints ! number of symmetry orbital integrals
+      DOUBLE PRECISION :: SOval(n1max)
+C LB
       
 c
 cgk debug
-       !write(*,*)'gk: **** entered int_mom_sifs'
+       write(*,*)'gk: **** entered int_mom_sifs'
 cgk end
       basok=.false.
       odbug=.true.
@@ -194,12 +204,12 @@ c       int_type = 1, linear momentum
 c       int_type = 2, angular momentum
 c       int_type = 3, dipole moments
       do int_type=1,3
-        !WRITE(*,*)"LB, starting int_type loop",int_type
+        WRITE(*,*)"LB, starting int_type loop",int_type
 
         if(int_type.eq.1.or.int_type.eq.2) itypea=2 ! gonna do dipole
         if(int_type.eq.3) itypea=1
 
-        !WRITE(*,*)"LB, starting int_type loop, itypea=",itypea
+        WRITE(*,*)"  LB, starting int_type loop, itypea=",itypea
 
         if (0 .eq. ga_nodeid()) then
 cgk debug
@@ -211,7 +221,7 @@ c          start loop over integrals here.
            do jshell = 1, nshell
               do ishell = 1, nshell
 cgk debug
-*     write(*,*)'gk: ishell=',ishell,' jshell=',jshell
+      write(*,'(a,i4,a,i4)')'gk: ishell=',ishell,' jshell=',jshell
 cgk end
                  odoit = .true.
                  if (oskel) 
@@ -248,29 +258,53 @@ C LB
 C LB Dipoles
                     elseif(int_type.eq.3) then
        !write(*,*)'LB: calling int_mpolel'
-                      lval=1;
-                      centerl=0.0;!Should this be coordinate origin or
-                                  !atom center?
+                      lval=1;! 1 for dipoles
+                      IF (.NOT. bas_geom(ibas,geom)) CALL errquit
+     $                  ('int_mom_sifs: bas_geom failed for ibas', ibas,
+     &                  BASIS_ERR)
+                      IF (.NOT. geom_center_of_mass(geom, centerl)) CALL
+     &               errquit ('int_mom_sifs: geom_center_of_mass failed'
+     &               ,geom,GEOM_ERR)
+        WRITE(*,*)"LB, calling int_mpolel"                      
                       CALL int_mpolel (ibas, ishell, ibas, jshell,
      $                   lval, centerl, 
      $                   mem1mom, dbl_mb(k_scr), max1mom, dbl_mb(k_buf),
      $                   Num_MPint)
+       WRITE(*,'(a,2i5)')"LB, ishell, jshell =", ishell, jshell
+       WRITE(*,'(a,1i5)')"LB, Num_MPint =", Num_MPint
+       WRITE(*,*)"poles="
+       WRITE(*,*)dbl_mb(k_buf:k_buf+Num_MPint-1)
 C LB                      
                     endif
 
-                    noffsetz = 0
-                    noffsety = (ihi-ilo+1)*(jhi-jlo+1)
-                    noffsetx = (ihi-ilo+1)*(jhi-jlo+1)*2
+                    IF (int_type .lt. 3) THEN
+                      noffsetz = 0
+                      noffsety = (ihi-ilo+1)*(jhi-jlo+1)
+                      noffsetx = (ihi-ilo+1)*(jhi-jlo+1)*2
+                    ELSE ! dipoles
+                      noffsetz = 0
+                      noffsety = 1
+                      noffsetx = 2
+                    ENDIF
+
+       WRITE(*,'(a,3i4)')"LB, noffsetz,noffsety,noffsetx=",noffsetz,
+     &                  noffsety,noffsetx
                     do j=jlo,jhi
                       do i=ilo,ihi
 cgk debug
-*     write(*,'(a,i4,a,i4,a,i4,a,i4)')
-*    &  'gk: ilo=',ilo,' ihi=',ihi,' jlo=',jlo,' jhi=',jhi
-*     write(*,*)'gk: numints=',numints
+      write(*,'(a,i4,a,i4,a,i4,a,i4)')
+     &  'gk: ilo=',ilo,' ihi=',ihi,' jlo=',jlo,' jhi=',jhi
+      write(*,*)'gk: numints=',numints
 cgk end
                          ijmap=(j-jlo)*(ihi-ilo+1)+(i-ilo)
+                         IF (int_type .eq. 3) THEN! dipoles
+                           !ijmap=ijmap*(ihi-ilo+1)
+                           ijmap=(i-ilo)*(jhi-jlo+1)+(j-jlo)
+                           ijmap=ijmap*3
+                         ENDIF
                          if(i.ge.j) then
                            symmap=nbft*(j-1)-((j-1)*j)/2+i
+      WRITE(*,'(a,2i4)')"LB, ijmap, symmap=",ijmap,symmap
 *     write(*,*)'gk: symmap=',symmap
                            dbl_mb(k_momx+symmap-1)=
      &                       dbl_mb(k_buf+noffsetx+ijmap)
@@ -281,15 +315,15 @@ cgk end
                            int_mb(k_imom+symmap-1)=i
                            int_mb(k_jmom+symmap-1)=j
 cgk debug
-*                      write(*,'(a,3i3,f18.12)')
-*    &                   'gk:  i,j,ij,dbl_mb(mom_x):',
-*    &                    i,j,numints+ijmap,dbl_mb(k_momx+symmap-1)
-*                      write(*,'(a,3i3,f18.12)')
-*    &                   'gk:  i,j,ij,dbl_mb(mom_y):',
-*    &                    i,j,numints+ijmap,dbl_mb(k_momy+symmap-1)
-*                      write(*,'(a,3i3,f18.12)')
-*    &                   'gk:  i,j,ij,dbl_mb(mom_z):',
-*    &                    i,j,numints+ijmap,dbl_mb(k_momz+symmap-1)
+                       write(*,'(a,3i3,f18.12)')
+     &                   'gk:  i,j,ij,dbl_mb(mom_x):',
+     &                    i,j,numints+ijmap,dbl_mb(k_momx+symmap-1)
+                       write(*,'(a,3i3,f18.12)')
+     &                   'gk:  i,j,ij,dbl_mb(mom_y):',
+     &                    i,j,numints+ijmap,dbl_mb(k_momy+symmap-1)
+                       write(*,'(a,3i3,f18.12)')
+     &                   'gk:  i,j,ij,dbl_mb(mom_z):',
+     &                    i,j,numints+ijmap,dbl_mb(k_momz+symmap-1)
 cgk end
                          endif
                       enddo ! ilo
@@ -360,7 +394,8 @@ cgk debug
                 numtot = numtot + ibuf
 C LB
          !WRITE(*,*)"LB: in int_mom_sifs"
-         !WRITE(*,*)"LB: itypea,itypeb=",itypea,itypeb
+         WRITE(*,*)"LB: in int_mom_sifs, ibuf=",ibuf
+         WRITE(*,*)"LB: itypea,itypeb=",itypea,itypeb
          !WRITE(*,*)"LB: calling sifew1 1 last=",last,"ibvtyp=",ibvtyp
 C LB
                 call sifew1(aoints, info, 2, ibuf, msame, 
@@ -395,12 +430,17 @@ cgk debug
 cgk end
 C LB
          !WRITE(*,*)"LB: in int_mom_sifs"
-         !WRITE(*,*)"LB: itypea,itypeb=",itypea,itypeb
+         WRITE(*,*)"LB: in int_mom_sifs, ibuf=",ibuf
+         WRITE(*,*)"LB: itypea,itypeb=",itypea,itypeb
+         WRITE(*,*)"C LB, calling sym_1int 2"
+         CALL sym_1int(ibuf,nsoints,
+     &                 sifval, clab,
+     &                 SOval, cSOlab)
          !WRITE(*,*)"LB: calling sifew1 2 last=",last,"ibvtyp=",ibvtyp
 C LB
-          call sifew1(aoints, info, 2, ibuf, last, 
+          call sifew1(aoints, info, 2, nsoints, last, 
      &      itypea, itypeb, ibvtyp, 
-     &      sifval, clab, fcore, ibitv, 
+     &      SOval, cSOlab, fcore, ibitv, 
      &      sifbuf, nrec, ierr)
         write(6,'(a,i10,1x,a,a)') 'Wrote ',numtot, integ_type, 
      &     ' integrals to aoints'

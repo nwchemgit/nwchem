@@ -1,5 +1,11 @@
-#include "nwc_const.fh"
-#include "geomP.fh"
+      MODULE nwc_sym
+
+      IMPLICIT NONE
+      SAVE
+
+#include "nwc_const.fh" !nw_max_shells, nw_max_nbf
+#include "geomP.fh"     !max_cent, coords
+
       INTEGER, PARAMETER :: mxsym = 8 	!max number of symmetry groups
       INTEGER, PARAMETER :: mxshel=nw_max_shells!max number of shells
       INTEGER, PARAMETER :: mxbf=nw_max_nbf	!max number of basis functions
@@ -24,14 +30,13 @@
       INTEGER :: isymao(mxqn,mxaqn)
       INTEGER :: stabilizer(max_cent) !stabilizer for each center
       INTEGER :: ngen ! number of generating operators
-!      INTEGER :: IS(0:7)
-      INTEGER :: parbit(0:7)
+      INTEGER :: parbit(0:7) = (/1,-1,-1,1,-1,1,1,-1/) !parity of 3-bit integer 000-111
       INTEGER :: itran(mxbf,mxbf)
-      INTEGER :: irrepmap(0:mxsym-1) !map from Dalton to NWChem irrep order
-      INTEGER :: opmap(0:mxsym-1) !map from Dalton to NWChem operator order
+      INTEGER :: irrepmap(0:mxsym-1)=(/0,1,2,3,4,5,6,7/) !map from Dalton to NWChem irrep order
+      INTEGER :: opmap(0:mxsym-1)=(/0,1,2,3,4,5,6,7/) !map from Dalton to NWChem operator order
       INTEGER :: wt(mxbf,2) !How many AOs make up each SO
       INTEGER :: nbpsy(1:mxsym) ! number of basis functions per symmetry
-      INTEGER :: nop !number of operators other than E
+      INTEGER :: nop !number of symmetry operators
       INTEGER :: nir !number of irreps
   
       LOGICAL :: oprint 
@@ -43,17 +48,5 @@
       CHARACTER*8 :: zir(mxsym)		! irrep names
 
 
-!      DATA IS/0,1,1,2,1,2,2,3/
-      DATA parbit/1,-1,-1,1,-1,1,1,-1/
-      DATA irrepmap/0,1,2,3,4,5,6,7/ ! will be changed in sym_adapt depending on group
-      DATA opmap/0,1,2,3,4,5,6,7/ ! will be changed in sym_adapt depending on group
 
-      COMMON/sym_ad/ isymax,sh_op_map,bf_op_map,
-     &  sh_n_uq_op,bf_n_uq_op,sh_uq_op,
-     &  bf_uq_op,sh_n_uq,bf_n_uq,sh_uq,bf_uq,
-     &  sh_nat,bf_nat,sh_uq_bf,bf_per_ir,
-     &  bf_per_ir_cum,bf_so_ir,so_uq_to_lab,
-     &  so_lab1,so_lab2,bf_phase,char_tab,
-!     &  stabilizer, ngen,is,parbit,itran, irrepmap,
-     &  stabilizer, ngen,parbit,itran, irrepmap,
-     &  wt,nbpsy, nop, nir
+      END MODULE nwc_sym

@@ -415,7 +415,8 @@ C LB  calculate half-derivative overlap matrices
             !WRITE(*,*)"In egrad_trace, jstrt=",jstrt(1)
             CALL nga_copy_patch('N',hdol,jstrt,jend,g_hd,istrt,iend)
             CALL ga_print(g_hd)
-            nadxfl(i+1,j+1)=-2*ga_ddot(g_hd,g_ad1)
+            !nadxfl(i+1,j+1)=-2*ga_ddot(g_hd,g_ad1)
+            nadxfl(i+1,j+1)=2*ga_ddot(g_hd,g_ad1)
           ENDDO
         ENDDO
         !CALL ga_print(hdol)
