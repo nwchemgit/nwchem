@@ -125,7 +125,6 @@ c
       external tddft_energy
       logical oroot
       logical odebug
-      logical oprint
 c
       character*32 pname
 c
@@ -369,12 +368,12 @@ c MN solvation models -->
 c
 c We don't need to print out the excited-state gradients in the case of VEM
 c
-cedo      if (do_cosmo_vem.ne.0) goto 100
+      if (do_cosmo_vem.ne.0) goto 100
 c
 c <-- MN solvation models
 c
 c     Print gradients of the excited states of interest
-      if (oroot.and.oprint) 
+      if (oroot.and.odebug) 
      &     write(luout,*) "call tddft_grad_print_result"
       if (ipol.eq.2) then
         call tddft_grad_print_result(ntotroots,int_mb(iptr_roots),
@@ -393,7 +392,7 @@ c     Print gradients of the excited states of interest
 c
 c MN solvation models -->
 c
-cedo 100  continue
+ 100  continue
 c
 c <-- MN solvation models
 c
