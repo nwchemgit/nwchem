@@ -4481,9 +4481,10 @@ c::local
       integer g_atn           ! geometry tag -> atomic number
       character*2 b_sym       ! basis set tag -> symbol name
       character*16 b_elem     ! basis set tag -> element name
-      character*16 bs_tag_i,gstring_lcase
       integer b_atn           ! basis set tag -> atomic number
       logical debug           ! true for extra output
+      logical bas_cmplcase
+      external bas_cmplcase
 c
       integer na2z
       parameter (na2z = 26)
@@ -4513,16 +4514,9 @@ c
 c... first match full geometry tag to full basis tag list 
 c          did the user specifically assign a tag ?
 c     lowercase tags
-      gstring_lcase=gstring
-      call inp_lcase(gstring_lcase)
-c do not lowercase bqs
-      if (gstring_lcase(1:2).eq.'bq') gstring_lcase=gstring
       nbtgs = infbs_head(HEAD_NTAGS,basis)
       do i = 1, nbtgs
-        bs_tag_i=bs_tags(i,basis)
-        call inp_lcase(bs_tag_i)
-        if (bs_tag_i(1:2).eq.'bq') bs_tag_i=bs_tags(i,basis)
-        if (gstring_lcase.eq.bs_tag_i) then
+        if (bas_cmplcase(gstring,bs_tags(i,basis))) then
           bas_match_tags = .true.
           btag = i
           bsmatch = bs_tags(i,basis)
@@ -4572,7 +4566,7 @@ c... match user substring to basis set tags (only if it gstring has a different 
       lgstring = inp_strlen(gstring)
       if (lgstring_old.gt.lgstring) then
         do i = 1, nbtgs
-          if (gstring.eq.bs_tags(i,basis)) then
+          if (bas_cmplcase(gstring,bs_tags(i,basis))) then
             bas_match_tags = .true.
             btag = i
             bsmatch = bs_tags(i,basis)
@@ -5766,5 +5760,28 @@ c
       return
 10000 format('bas_do_tags_match:debug: tag ',a16,
      &    ' matched this tag ',a16)
+      end
+      logical function bas_cmplcase(a,b)
+      implicit none
+      character*(*) a,b
+#include "inp.fh"
+      character*256 a_lcase,b_lcase
+      integer ipos
+c     check for oniom sub string
+      if(inp_contains(.false.,'oniom',a,ipos)) then
+         a_lcase=a(1:ipos-1)
+      else
+         a_lcase=a
+      endif
+      call inp_lcase(a_lcase)
+c do not lowercase bqs
+      if (a_lcase(1:2).eq.'bq') a_lcase=a
+      b_lcase=b
+      call inp_lcase(b_lcase)
+      if (b_lcase(1:2).eq.'bq') b_lcase=b
+      bas_cmplcase=
+     A     a_lcase(1:inp_strlen(a)).eq.
+     B     b_lcase(1:inp_strlen(b))
+      return
       end
 C> @}
