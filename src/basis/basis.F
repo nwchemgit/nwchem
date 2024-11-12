@@ -4484,6 +4484,8 @@ c::local
       character*16 bs_tag_i,gstring_lcase
       integer b_atn           ! basis set tag -> atomic number
       logical debug           ! true for extra output
+      logical bas_cmplcase
+      external bas_cmplcase
 c
       integer na2z
       parameter (na2z = 26)
@@ -4572,7 +4574,7 @@ c... match user substring to basis set tags (only if it gstring has a different 
       lgstring = inp_strlen(gstring)
       if (lgstring_old.gt.lgstring) then
         do i = 1, nbtgs
-          if (gstring.eq.bs_tags(i,basis)) then
+          if (bas_cmplcase(gstring,bs_tags(i,basis))) then
             bas_match_tags = .true.
             btag = i
             bsmatch = bs_tags(i,basis)
@@ -5766,5 +5768,25 @@ c
       return
 10000 format('bas_do_tags_match:debug: tag ',a16,
      &    ' matched this tag ',a16)
+      end
+      logical function bas_cmplcase(a,b)
+      implicit none
+      character*(*) a,b
+#include "inp.fh"
+      character*256 a_lcase,b_lcase
+      integer ipos
+c     check for oniom sub string
+      if(inp_contains(.false.,'oniom',a,ipos)) then
+         a_lcase=a(1:ipos-1)
+      else
+         a_lcase=a
+      endif
+      call inp_lcase(a_lcase)
+      b_lcase=b
+      call inp_lcase(b_lcase)
+      bas_cmplcase=
+     A     a_lcase(1:inp_strlen(a)).eq.
+     B     b_lcase(1:inp_strlen(b))
+      return
       end
 C> @}
