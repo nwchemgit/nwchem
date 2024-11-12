@@ -79,6 +79,9 @@ c     sifs
 cgk debug
       integer mem1, max1e, mem2, max2e
 cgk end
+C LB
+      INTEGER :: k_SOlab, l_SOlab
+C LB      
       ierr=0 !initialize
       imtype=0
        
@@ -458,10 +461,16 @@ cgk end
      $     call errquit('wrt_dft_aoints: ma failed for map', 
      &        szintarr*nmap, MA_ERR)
 c     get memory for labels
+      write(*,*)'LB before MA_push_get, szlabs=', szlabs
       if (.not. MA_push_get(MT_Int,4*szlabs,'wrt_dft_aoints:ilab',l_lab,
      &        k_lab))
      $     call errquit('wrt_dft_aoints: ma failed for lab', 2*szlabs, 
      &        MA_ERR)
+c     get memory for Sym Orb labels
+      if (.not. MA_push_get(MT_int,4*szlabs,'int_1e_sifs:SOlab',
+     $        l_SOlab,k_SOlab))
+     $     call errquit('int_1e_sifs:  error getting SOlab', 
+     &        2*szlabs, MA_ERR)
 
       call schwarz_tidy()
       call int_terminate()
@@ -469,6 +478,10 @@ c     get memory for labels
 *     call schwarz_init(geom, AO_bas_han)
 *     call int_terminate()
 *     call intd_init(rtdb, 1, AO_bas_han)
+C LB
+      ! Calculate the symmetrized orbital transition matrix
+      CALL sym_adapt(AO_bas_han)
+C LB
 cgk debug
 *     write(*,*)'gk: calling int_init'
 cgk end
@@ -479,7 +492,7 @@ cgk end
       call int_mem_1e(max1e, mem1)
 *     call int_mem(max1e, max2e, mem1, mem2)
 cgk debug
-*      write(*,*)'gk:  before int_1e_sifs, mem1 = ', mem1
+*      write(*,*)'gk:  befor  int_1e_sifs, mem1 = ', mem1
 *      write(*,*)'gk:  mem2 = ', mem2
 *      write(*,*)'gk:  max1e = ', max1e
 *      write(*,*)'gk:  max2e = ', max2e
@@ -489,7 +502,7 @@ cgk end
 cgk debug
 !      write(*,*)'gk: calling int_1e_sifs'
 !      write(*,*)'gk:    mxengy=', mxengy
-!      write(*,*)'LB before int_1e_sifs, info=', info(1:5)
+      write(*,*)'LB before int_1e_sifs, szlabs=', szlabs
 !      WRITE(*,*)"k_map=",k_map,"szintarr=",szintarr,"nmap=",nmap
 cgk write
 
@@ -497,7 +510,7 @@ cgk write
       call int_1e_sifs(AO_bas_han, aoints, energy, mxengy, 
      &   nbf_ao, nmap, int_mb(k_map),imtype,
      &   ibvtyp, ibitv, l1rec, n1max, int_mb(k_lab),
-     &   ninfo, info)
+     &   ninfo, info, int_mb(k_SOlab))
 
 cgk debug
 !      write(*,*)'gk: back from int_1e_sifs'
@@ -531,6 +544,8 @@ cgk end
 c
 c     done with memory for sifs files
 c
+      if (.not. MA_pop_stack(l_SOlab)) call errquit
+     $     ('int_1e_sifs: pop failed at l_SOlab', 0, GA_ERR)
       if (.not. MA_pop_stack(l_lab)) call errquit
      $     ('wrt_dft_aoints: pop failed at l_lab', 0, GA_ERR)
       if (.not. MA_pop_stack(l_map)) call errquit

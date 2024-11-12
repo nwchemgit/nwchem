@@ -18,7 +18,7 @@
 *      call grid_cleanup(.true.)
 *c
 *      end
-      logical function sodft_aoints(rtdb)
+      logical function sodft_aoints(rtdb,theory)
 c     
 c>>>  driver 
 c     
@@ -50,6 +50,8 @@ c
 #include "util.fh"
 #include "cgridfile.fh"
 #include "cosmo.fh"
+
+#include "geomP.fh"
 c     
 c     local declarations
 c
@@ -67,7 +69,7 @@ c
       external dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
       logical grid_ok,l1ecache
       integer igok
-      character*80 theory
+      character*32 theory
       character*30 operation
 c     
 cgk debug
@@ -87,7 +89,7 @@ c
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = ' '
 
-      if(.not.rtdb_cput(rtdb,'dft:theory', 1, 'sodft')) 
+      if(.not.rtdb_cput(rtdb,'dft:theory', 1, theory))
      &  call errquit('dft_aoints:  can not put theory on rtdb',
      &   0,RTDB_ERR)
 c
@@ -110,7 +112,7 @@ cgk end
 cgk debug
       !write(6,*)'gk: back from dft_fdist_init from sodft_aoints'
 cgk end
-c
+c    
 c     Check for aoints...probably not neccessary now.
 c
 *     if (.not. rtdb_cget(rtdb, 'task:operation',1,operation))
@@ -140,6 +142,7 @@ c
 cgk debug
       !write(6,*)'gk: calling dft_rdinput from sodft_aoints'
 cgk end
+
       call dft_rdinput(rtdb)
 cgk debug
       !write(6,*)'gk: back from dft_rdinput from sodft_aoints'
