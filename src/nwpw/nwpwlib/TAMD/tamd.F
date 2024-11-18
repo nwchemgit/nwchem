@@ -638,11 +638,12 @@ c     >           'periodic=',int_mb(pmeta(1)+d-1)
      >           'nrange= ',int_mb(nxmeta(1)+d-1),
      >           'periodic=',int_mb(pmeta(1)+d-1) 
 
-             write(luout,'(A)')" coefficient index1 index2    :"
+             write(luout,'(6x,A)')"coefficient index1 index2    :"
              do j=1,n1
-               write(luout,'(F12.6,2I7)') dbl_mb(parammeta(1)+s2+5+j),
-     >                                 int_mb(indxmeta(1)+s1+2*j),
-     >                                 int_mb(indxmeta(1)+s1+2*j+1)
+               write(luout,'(5x,F12.6,2I7)') 
+     >                     dbl_mb(parammeta(1)+s2+5+j),
+     >                     int_mb(indxmeta(1)+s1+2*j),
+     >                     int_mb(indxmeta(1)+s1+2*j+1)
              end do
 
             end if

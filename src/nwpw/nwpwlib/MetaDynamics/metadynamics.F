@@ -21,7 +21,7 @@ c     **********************************************
       logical value,cnmeta_read
       integer d,i,j,n1,n2,s1,s2,yshift,ntype
       real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0,s0,v0,dv0
-      real*8 n12
+      real*8 n12,alpha
       real*8 boundary(2),temp,fac,sn2(12)
       character*80 rtdb_name,potential_filename
       character*60 gauss_filename
@@ -562,6 +562,26 @@ c     **********************************************
      >                                 int_mb(indxmeta(1)+s1+2*j+1)
              end do
 
+            else if (ntype.eq.15) then
+             n1 = int_mb(indxmeta(1)+s1+1)
+             n2 = int_mb(indxmeta(1)+s1+2)
+             alpha = dbl_mb(parammeta(1)+s2+2)
+             write(luout,1005) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
+             write(luout,1006) (int_mb(indxmeta(1)+s1+3+n1+j-1),j=1,n2)
+             write(luout,1007) (dbl_mb(parammeta(1)+s2+4+j),j=1,n2)
+
+             write(luout,'(A,/6x,A,F11.6,
+     >                /6x,A,F11.6,4x,A,F11.6,
+     >                /6x,A,F15.6,F15.6,
+     >                /6x,A,I5,
+     >                /6x,A,I2)')
+     >            '   - reactive_site Parameters =  ',
+     >           'alpha=',alpha,
+     >           'w= ',w,'sigma=   ',sigma,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1)
+
             end if
 
          end do
@@ -570,8 +590,9 @@ c     **********************************************
  1002 FORMAT(2x,"- Coorination Number (Index2) :",10I5)
  1003 FORMAT(2x,"- Bond Difference Indexes (Index1) :",10I5)
  1004 FORMAT(2x,"- Bath Indexes            (Index2) :",10I5)
- 1005 FORMAT(2x,"- Group_Distance Indexes (Index1) :",10I5)
- 1006 FORMAT(2x,"- Group_Distance Indexes (Index2) :",10I5)
+ 1005 FORMAT(3x,"- Group_Distance Indexes (Index1) :",10I8)
+ 1006 FORMAT(3x,"- Group_Distance Indexes (Index2) :",10I8)
+ 1007 FORMAT(3x,"- Group_Distance Weights (Index2) :",10F8.3)
 
       end if
       value = btdb_parallel(.true.)
@@ -689,7 +710,7 @@ c     **********************************************
       real*8 x1,y1,z1,x2,y2,z2,x3,y3,z3,dx,dy,dz,r,r1,r2,r3
       real*8 dx1,dy1,dz1,dx3,dy3,dz3,theta,n,m,r0,f,la,lb
       real*8 nx,ny,nz,x4,y4,z4,dx2,dy2,dz2,d1a,d2a,d1b,d2b
-      real*8 cf(100),v0,dv0,n12
+      real*8 cf(100),v0,dv0,n12,alpha
 
 *     **** external functions ****
       integer  ion_rion_ptr,ion_nion
@@ -994,6 +1015,28 @@ c     **** bondings ****
             f = f + param(i+2)*r1
          end do
 
+c     **** reactive_site ****
+      else if (ntype.eq.15) then
+         n1 = indx(2)
+         n2 = indx(3)
+         alpha = param(3)
+         f = 0.0d0
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx(3+i))
+               y1 = ion_rion(2,indx(3+i))
+               z1 = ion_rion(3,indx(3+i))
+               x2 = ion_rion(1,indx(3+n1+j))
+               y2 = ion_rion(2,indx(3+n1+j))
+               z2 = ion_rion(3,indx(3+n1+j))
+               dx1 = x1-x2
+               dy1 = y1-y2
+               dz1 = z1-z2
+               call lattice_min_difference(dx1,dy1,dz1)
+               r2 = (dx1**2 + dy1**2 + dz1**2)
+               f = f + param(5+j)*dexp(-alpha*r2)
+            end do
+         end do
 
       end if
 
@@ -1028,7 +1071,7 @@ c     **********************************************
       real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3,nx,ny,nz,la,lb
       real*8 x4,y4,z4,dx2,dy2,dz2,r2,df1,df2,d1a,d2a,d1b,d2b
       real*8 dfla,dflb,dlar1,dlar2,dlbr1,dlbr2
-      real*8 v0,dv0,n12
+      real*8 v0,dv0,n12,alpha
 
 *     **** external functions ****
       integer  ion_rion_ptr,ion_nion
@@ -1515,6 +1558,38 @@ c     **** bondings ****
      >                           + param(i+2)*dy1/r1*dv
             fmeta(3,indx(2*i+2)) = fmeta(3,indx(2*i+2))
      >                           + param(i+2)*dz1/r1*dv
+         end do
+
+c     **** reactive_site ****
+      else if (ntype.eq.15) then
+         n1 = indx(2)
+         n2 = indx(3)
+         alpha = param(3)
+         f = 0.0d0
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx(3+i))
+               y1 = ion_rion(2,indx(3+i))
+               z1 = ion_rion(3,indx(3+i))
+               x2 = ion_rion(1,indx(3+n1+j))
+               y2 = ion_rion(2,indx(3+n1+j))
+               z2 = ion_rion(3,indx(3+n1+j))
+               dx = x1-x2
+               dy = y1-y2
+               dz = z1-z2
+               call lattice_min_difference(dx,dy,dz)
+               r2 = (dx**2 + dy**2 + dz**2)
+               r1 = dsqrt(r2)
+               f = param(5+j)*dexp(-alpha*r2)
+               df = (-2.0d0*alpha*r1*f)
+
+               fmeta(1,indx(3+i))=fmeta(1,indx(3+i))-(dx/r1)*df*dv
+               fmeta(2,indx(3+i))=fmeta(2,indx(3+i))-(dy/r1)*df*dv
+               fmeta(3,indx(3+i))=fmeta(3,indx(3+i))-(dz/r1)*df*dv
+               fmeta(1,indx(3+n1+j))=fmeta(1,indx(3+n1+j))+(dx/r1)*df*dv
+               fmeta(2,indx(3+n1+j))=fmeta(2,indx(3+n1+j))+(dy/r1)*df*dv
+               fmeta(3,indx(3+n1+j))=fmeta(3,indx(3+n1+j))+(dz/r1)*df*dv
+            end do
          end do
 
       end if

@@ -964,6 +964,7 @@ c      call Pack_npack(1,npack1)
          else
 c         call Dneall_m_scatter(mpack(mb),int_mb(mindx(1,mb)),
 c     >                         hml,dbl_mb(mat_tmp(1)))
+
          do ms=ms1,ms2
             shift  = 1 + (ms-1)*neq(1)*npack1
 c            shift2 =     (ms-1)*ishift2

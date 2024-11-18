@@ -211,8 +211,6 @@ c     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*psi_r +Vsic*psi_r] **** 
 *     ************************************************************** 
 
-
-
       indx1 = 1
       indx2 = 1
       done  = .false.
