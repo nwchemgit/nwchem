@@ -382,24 +382,27 @@ c                    ECP is summed here, but COLUMBUS should not care.
      &                  thresh, int_mb(k_ilab),int_mb(k_jlab), max1e,
      &                  dbl_mb(k_buf), mem1, dbl_mb(k_scr), numints)
                   end if
+       WRITE(*,*)"LB, numints=",numints
 c     
                   do i=1,numints
 
-                     if(ibuf.eq.n1max) then
+                     if(ibuf.eq.n1max) then !dump full record to file
                        numtot = numtot + ibuf
 C LB
-                       WRITE(*,*)"C LB, calling sym_1int 1"
-                       CALL sym_1int(ibuf,nsoints,
-     &                               dbl_mb(k_sifval), clab,
-     &                               dbl_mb(k_SOval), cSOlab)
-                       WRITE(*,'(a,1i4)')"C LB, nsoints =",nsoints
-                       WRITE(*,*)"C LB, cSOlab ="
-                       WRITE(*,'(2i4)') cSOlab(1:2,1:nsoints)
+!                       WRITE(*,*)"C LB, calling sym_1int 1"
+!                       CALL sym_1int(ibuf,nsoints,
+!     &                               dbl_mb(k_sifval), clab,
+!     &                               dbl_mb(k_SOval), cSOlab)
+!                       WRITE(*,'(a,1i4)')"C LB, nsoints =",nsoints
+!                       WRITE(*,*)"C LB, cSOlab ="
+!                       WRITE(*,'(2i4)') cSOlab(1:2,1:nsoints)
 C LB
                        WRITE(*,*)"C LB, calling sifew1"
-                       call sifew1(aoints, info, 2, nsoints, last, 
+!                       call sifew1(aoints, info, 2, nsoints, last, 
+                       call sifew1(aoints, info, 2, ibuf, last, 
      &                   itypea, itypeb, ibvtyp, 
-     &                   dbl_mb(k_SOval), cSOlab, fcore, ibitv,
+!     &                   dbl_mb(k_SOval), cSOlab, fcore, ibitv,
+     &                   dbl_mb(k_sifval), clab, fcore, ibitv,
      &                   dbl_mb(k_sifbuf), nrec, ierr)
 c                      ibuf on return has the number of unwritten
 c                      integrals.  dbl_mb(k_sifval+0:(ibuf-1)) 
@@ -407,10 +410,12 @@ c                      contains the unwritten values, ditto for labels
                        numtot = numtot - ibuf
                      endif
                       
-                     ibuf=ibuf+1
-                     clab(1,ibuf)=int_mb(k_ilab+i-1)
-                     clab(2,ibuf)=int_mb(k_jlab+i-1)
-                     dbl_mb(k_sifval+ibuf-1)=dbl_mb(k_buf+i-1)      
+                     IF ( ABS(dbl_mb(k_buf+i-1)) .gt. thresh) THEN
+                       ibuf=ibuf+1
+                       clab(1,ibuf)=int_mb(k_ilab+i-1)
+                       clab(2,ibuf)=int_mb(k_jlab+i-1)
+                       dbl_mb(k_sifval+ibuf-1)=dbl_mb(k_buf+i-1)      
+                     ENDIF
 
                   enddo ! i
 
@@ -420,14 +425,16 @@ c                      contains the unwritten values, ditto for labels
          end do !j_shell
          last=nmsame
          numtot=numtot+ibuf
-         WRITE(*,*)"C LB, calling sym_1int 2"
-         CALL sym_1int(ibuf,nsoints,
-     &     dbl_mb(k_sifval), clab,
-     &     dbl_mb(k_SOval), cSOlab)
+!         WRITE(*,*)"C LB, calling sym_1int 2, ibuf=",ibuf
+!         CALL sym_1int(ibuf,nsoints,
+!     &     dbl_mb(k_sifval), clab,
+!     &     dbl_mb(k_SOval), cSOlab)
          WRITE(*,*)"C LB, calling sifew1"
-         call sifew1(aoints, info, 2, nsoints, last, 
+!         call sifew1(aoints, info, 2, nsoints, last, 
+         call sifew1(aoints, info, 2, ibuf, last, 
      &     itypea, itypeb, ibvtyp, 
-     &     dbl_mb(k_SOval), cSOlab, fcore, ibitv, 
+!     &     dbl_mb(k_SOval), cSOlab, fcore, ibitv, 
+     &     dbl_mb(k_sifval), clab, fcore, ibitv, 
      &     dbl_mb(k_sifbuf), nrec, ierr)
 
          write(6,'(a,i10,1x,a,a)') 'Wrote ',numtot, integ_type, 

@@ -318,18 +318,20 @@ cgk end
         numtot=numtot+ibuf
 cgk debug
          WRITE(*,*)"C LB, calling sym_1int 2"
-         CALL sym_1int(ibuf,nsoints,
-     &                 sifval, clab,
-     &                 SymOrbval, cSOlab)
+!         CALL sym_1int(ibuf,nsoints,
+!     &                 sifval, clab,
+!     &                 SymOrbval, cSOlab)
 *      WRITE(*,*)"int_so_sifs calling sifew1 2"
 *     write(*,*)'gk: nrec=', nrec
 *      write(*,*)'gk:  ibuf=', ibuf
 *     write(*,*)'gk:  numtot=', numtot
 *      WRITE(*,*)"last=",last,"ibvtyp=",ibvtyp
 cgk end
-        call sifew1(aoints, info, 2, nsoints, last, 
+!        call sifew1(aoints, info, 2, nsoints, last, 
+        call sifew1(aoints, info, 2, ibuf, last, 
      &    itypea, itypeb, ibvtyp, 
-     &    SymOrbval, cSOlab, fcore, ibitv, 
+!     &    SymOrbval, cSOlab, fcore, ibitv, 
+     &    sifval, clab, fcore, ibitv, 
      &    sifbuf, nrec, ierr)
         write(6,'(a,i10,1x,a,a)') 'Wrote ',numtot, integ_type, 
      &     ' integrals to aoints'
