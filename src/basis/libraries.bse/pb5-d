@@ -1,0 +1,75 @@
+# BSE Version 0.11.dev17+g4fabcd53
+# Data downloaded on 2024-11-21T16:45
+# PB5-D version number 1
+# Description: PB5-D protonic basis
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem. 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  H
+#      PB5-D protonic basis
+#          yu2020a
+# 
+# 
+# 
+# yu2020a
+#     Yu, Qi, Pavošević, Fabijan, Hammes-Schiffer, Sharon
+#     Development of nuclear basis sets for multicomponent quantum chemistry
+#             methods
+#     J. Chem. Phys. 152, 244123 (2020)
+#     10.1063/5.0009233
+# 
+# # 
+basis "H_PB5-D" SPHERICAL 
+#basis SET: (5s,4p,3d) -> [5s,4p,3d]
+H    S
+     40.135                  1.0
+H    S
+     29.766                  1.0
+H    S
+     15.051                  1.0
+H    S
+      9.051                  1.0
+H    S
+      1.908                  1.0
+H    P
+     25.774                  1.0
+H    P
+     15.893                  1.0
+H    P
+     10.088                  1.0
+H    P
+      4.907                  1.0
+H    D
+     36.366                  1.0
+H    D
+     18.358                  1.0
+H    D
+     10.352                  1.0
+end

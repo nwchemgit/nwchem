@@ -1,0 +1,101 @@
+# BSE Version 0.11.dev17+g4fabcd53
+# Data downloaded on 2024-11-21T16:45
+# epc-8s8p8d version number 1
+# Description: Even-tempered 8s8p8d protonic basis
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem. 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  H
+#      Even-tempered 8s8p8d protonic basis
+#          yang2017a
+# 
+# 
+# 
+# yang2017a
+#     Yang, Yang, Brorsen, Kurt R., Culpitt, Tanner, Pak, Michael V.,
+#             Hammes-Schiffer, Sharon
+#     Development of a practical multicomponent density functional for
+#             electron-proton correlation to produce accurate proton
+#             densities
+#     J. Chem. Phys. 147, 114113 (2017)
+#     10.1063/1.4996038
+# 
+# # 
+basis "H_epc-8s8p8d" SPHERICAL 
+#basis SET: (8s,8p,8d) -> [8s,8p,8d]
+H    S
+     32.0                    1.0
+H    S
+     22.62741699796952       1.0
+H    S
+     16.0                    1.0
+H    S
+     11.31370849898476       1.0
+H    S
+      8.0                    1.0
+H    S
+      5.65685424949238       1.0
+H    S
+      4.0                    1.0
+H    S
+      2.8284271247461903     1.0
+H    P
+     32.0                    1.0
+H    P
+     22.62741699796952       1.0
+H    P
+     16.0                    1.0
+H    P
+     11.31370849898476       1.0
+H    P
+      8.0                    1.0
+H    P
+      5.65685424949238       1.0
+H    P
+      4.0                    1.0
+H    P
+      2.8284271247461903     1.0
+H    D
+     32.0                    1.0
+H    D
+     22.62741699796952       1.0
+H    D
+     16.0                    1.0
+H    D
+     11.31370849898476       1.0
+H    D
+      8.0                    1.0
+H    D
+      5.65685424949238       1.0
+H    D
+      4.0                    1.0
+H    D
+      2.8284271247461903     1.0
+end
