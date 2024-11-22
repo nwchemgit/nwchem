@@ -1,0 +1,64 @@
+# BSE Version 0.11.dev17+g4fabcd53
+# Data downloaded on 2024-11-21T16:45
+# PB5-G version number 1 AutoAux 
+# Role: JK Fitting 
+# Stoychev GL, Auer AA, Neese F. 
+# Automatic Generation of Auxiliary Basis Sets.
+# J Chem Theory Comput. 2017 Feb 14;13(2):554-562.
+# doi: 10.1021/acs.jctc.6b01041.
+# 
+basis "H_PB5-G-autoaux" SPHERICAL 
+#basis SET: (6s,5p,5d,4f,3g,3h) -> [6s,5p,5d,4f,3g,3h]
+H    S
+      1.196852e+02           1.0
+H    S
+      6.649180e+01           1.0
+H    S
+      3.693989e+01           1.0
+H    S
+      2.052216e+01           1.0
+H    S
+      1.140120e+01           1.0
+H    S
+      6.334000e+00           1.0
+H    P
+      1.013440e+02           1.0
+H    P
+      5.067200e+01           1.0
+H    P
+      2.533600e+01           1.0
+H    P
+      1.266800e+01           1.0
+H    P
+      6.334000e+00           1.0
+H    D
+      1.483778e+02           1.0
+H    D
+      6.744443e+01           1.0
+H    D
+      3.065656e+01           1.0
+H    D
+      1.393480e+01           1.0
+H    D
+      6.334000e+00           1.0
+H    F
+      1.427471e+02           1.0
+H    F
+      6.488504e+01           1.0
+H    F
+      2.949320e+01           1.0
+H    F
+      1.340600e+01           1.0
+H    G
+      6.621120e+01           1.0
+H    G
+      3.009600e+01           1.0
+H    G
+      1.368000e+01           1.0
+H    H
+      7.236720e+01           1.0
+H    H
+      3.146400e+01           1.0
+H    H
+      1.368000e+01           1.0
+end
