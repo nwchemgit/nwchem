@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 # This script downloads the basis set library data from www.basissetexchange.org
 # into the directory $NWCHEM_TOP/src/basis/libraries.bse
 # To run, cd $NWCHEM_TOP/src/basis/libraries.bse/ && ../getlibr.py
@@ -48,7 +48,7 @@ def writebs(md, bas_name, summary_file, get_aux=0):
         file_name = file_name + "-autoaux"
     print(' file name is '+file_name+"\n")
     output_file = open(file_name,'w')
-    output_file.write('# BSE Version '+bse.version()+'\n')
+    output_file.write('# BSE Version '+bse.get_version()+'\n')
     output_file.write('# Data downloaded on '+today+'\n')
     
     if get_aux==0:
