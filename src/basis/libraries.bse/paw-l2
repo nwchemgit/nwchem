@@ -1,0 +1,301 @@
+# BSE Version 0.11.dev17+g4fabcd53
+# Data downloaded on 2024-11-21T16:45
+# PAW-L2 version number 1
+# Description: PAW-L2 basis set for use with PAW method
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem. 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  H,Li-F,Na-Cl
+#      PAW-L2 basis set for use with PAW method
+#          phung2020a
+# 
+# 
+# 
+# phung2020a
+#     Phung, Quan Manh, Hagai, Masaya, Xiong, Xiao-Gen, Yanai, Takeshi
+#     Polarization consistent basis sets using the projector augmented wave
+#             method: a renovation brought by PAW into Gaussian basis sets
+#     Phys. Chem. Chem. Phys. 22, 27037-27052 (2020)
+#     10.1039/D0CP05229A
+# 
+# # 
+basis "H_PAW-L2" SPHERICAL 
+#basis SET: (3s,1p) -> [3s,1p]
+H    S
+      2.425026804247         1.0
+H    S
+      0.548796556402         1.0
+H    S
+      0.124195600556         1.0
+H    P
+      1.294212702504         1.0
+end
+basis "Li_PAW-L2" SPHERICAL 
+#basis SET: (4s,2p) -> [4s,2p]
+Li    S
+      4.095348823728         1.0
+Li    S
+      0.926787725648         1.0
+Li    S
+      0.209734390251         1.0
+Li    S
+      0.047463419332         1.0
+Li    P
+      0.609572318398         1.0
+Li    P
+      0.115471234968         1.0
+end
+basis "Be_PAW-L2" SPHERICAL 
+#basis SET: (4s,2p) -> [4s,2p]
+Be    S
+      5.187818453636         1.0
+Be    S
+      1.299620922697         1.0
+Be    S
+      0.325573178361         1.0
+Be    S
+      0.081560624808         1.0
+Be    P
+      0.735608407691         1.0
+Be    P
+      0.175846529978         1.0
+end
+basis "B_PAW-L2" SPHERICAL 
+#basis SET: (3s,3p,1d) -> [3s,3p,1d]
+B    S
+      1.507114816290         1.0
+B    S
+      0.419416461307         1.0
+B    S
+      0.116719818632         1.0
+B    P
+      1.286190139559         1.0
+B    P
+      0.341950181948         1.0
+B    P
+      0.090911851473         1.0
+B    D
+      0.429126186446         1.0
+end
+basis "C_PAW-L2" SPHERICAL 
+#basis SET: (3s,3p,1d) -> [3s,3p,1d]
+C    S
+      2.258112092710         1.0
+C    S
+      0.619526123585         1.0
+C    S
+      0.169970578096         1.0
+C    P
+      1.903522865549         1.0
+C    P
+      0.512679732685         1.0
+C    P
+      0.138081087999         1.0
+C    D
+      0.810489468705         1.0
+end
+basis "N_PAW-L2" SPHERICAL 
+#basis SET: (3s,3p,1d) -> [3s,3p,1d]
+N    S
+      2.647710639043         1.0
+N    S
+      0.752719627437         1.0
+N    S
+      0.213991222898         1.0
+N    P
+      2.104006022967         1.0
+N    P
+      0.602737346627         1.0
+N    P
+      0.172666952971         1.0
+N    D
+      0.997823110936         1.0
+end
+basis "O_PAW-L2" SPHERICAL 
+#basis SET: (3s,3p,1d) -> [3s,3p,1d]
+O    S
+      3.175920267806         1.0
+O    S
+      0.933989881979         1.0
+O    S
+      0.274672229174         1.0
+O    P
+      2.253520276385         1.0
+O    P
+      0.656943313556         1.0
+O    P
+      0.191511264287         1.0
+O    D
+      0.957446389167         1.0
+end
+basis "F_PAW-L2" SPHERICAL 
+#basis SET: (3s,3p,1d) -> [3s,3p,1d]
+F    S
+      3.988510203327         1.0
+F    S
+      1.180557179987         1.0
+F    S
+      0.349432541016         1.0
+F    P
+      2.385866347238         1.0
+F    P
+      0.716140388110         1.0
+F    P
+      0.214956322292         1.0
+F    D
+      0.878277585905         1.0
+end
+basis "Na_PAW-L2" SPHERICAL 
+#basis SET: (5s,4p) -> [5s,4p]
+Na    S
+      2.151106021465         1.0
+Na    S
+      0.762713990109         1.0
+Na    S
+      0.270434197526         1.0
+Na    S
+      0.095887391787         1.0
+Na    S
+      0.033998628827         1.0
+Na    P
+      2.566614538335         1.0
+Na    P
+      0.871013568218         1.0
+Na    P
+      0.295589627772         1.0
+Na    P
+      0.075837001629         1.0
+end
+basis "Mg_PAW-L2" SPHERICAL 
+#basis SET: (5s,4p) -> [5s,4p]
+Mg    S
+      2.135169112384         1.0
+Mg    S
+      0.835081483117         1.0
+Mg    S
+      0.326606955580         1.0
+Mg    S
+      0.127738556763         1.0
+Mg    S
+      0.049959557214         1.0
+Mg    P
+      2.500139825913         1.0
+Mg    P
+      0.958290236436         1.0
+Mg    P
+      0.367307527255         1.0
+Mg    P
+      0.106272516233         1.0
+end
+basis "Al_PAW-L2" SPHERICAL 
+#basis SET: (3s,3p,1d) -> [3s,3p,1d]
+Al    S
+      0.674992442325         1.0
+Al    S
+      0.224245266044         1.0
+Al    S
+      0.074498522043         1.0
+Al    P
+      0.218853577446         1.0
+Al    P
+      0.078177208258         1.0
+Al    P
+      0.027925866976         1.0
+Al    D
+      0.244570012983         1.0
+end
+basis "Si_PAW-L2" SPHERICAL 
+#basis SET: (3s,3p,1d) -> [3s,3p,1d]
+Si    S
+      0.927079164990         1.0
+Si    S
+      0.307446821943         1.0
+Si    S
+      0.101958443132         1.0
+Si    P
+      0.302602942429         1.0
+Si    P
+      0.106944389047         1.0
+Si    P
+      0.037795740705         1.0
+Si    D
+      0.299949537829         1.0
+end
+basis "P_PAW-L2" SPHERICAL 
+#basis SET: (3s,3p,1d) -> [3s,3p,1d]
+P    S
+      1.040540661663         1.0
+P    S
+      0.356041605898         1.0
+P    S
+      0.121826690490         1.0
+P    P
+      0.444520221411         1.0
+P    P
+      0.166238177682         1.0
+P    P
+      0.062168446761         1.0
+P    D
+      0.479498947282         1.0
+end
+basis "S_PAW-L2" SPHERICAL 
+#basis SET: (3s,3p,1d) -> [3s,3p,1d]
+S    S
+      1.162251823524         1.0
+S    S
+      0.409941411436         1.0
+S    S
+      0.144591694682         1.0
+S    P
+      0.600373406610         1.0
+S    P
+      0.221561780591         1.0
+S    P
+      0.081765151618         1.0
+S    D
+      0.531690378634         1.0
+end
+basis "Cl_PAW-L2" SPHERICAL 
+#basis SET: (3s,3p,1d) -> [3s,3p,1d]
+Cl    S
+      1.319095837509         1.0
+Cl    S
+      0.473340011699         1.0
+Cl    S
+      0.169851772937         1.0
+Cl    P
+      0.731857256722         1.0
+Cl    P
+      0.268842372589         1.0
+Cl    P
+      0.098757265349         1.0
+Cl    D
+      0.534625754413         1.0
+end

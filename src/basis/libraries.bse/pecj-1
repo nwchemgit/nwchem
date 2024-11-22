@@ -1,0 +1,168 @@
+# BSE Version 0.11.dev17+g4fabcd53
+# Data downloaded on 2024-11-21T16:45
+# pecJ-1 version number 1
+# Description: pecJ-1
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem. 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  H,C,N,F
+#      pecJ-1
+#          rusakov2021a
+# 
+# 
+# 
+# rusakov2021a
+#     Rusakov, Yury Yu., Rusakova, Irina L.
+#     An efficient method for generating property-energy consistent basis
+#             sets. New {pecJ}-$n$ ($n = 1, 2$) basis sets for high-quality
+#             calculations of indirect nuclear spin-spin coupling constants
+#             involving $^{1}$H, $^{13}$C, $^{15}$N, and $^{19}$F nuclei
+#     Phys. Chem. Chem. Phys. 23, 14925-14939 (2021)
+#     10.1039/d1cp01984h
+# 
+# # 
+basis "H_pecJ-1" SPHERICAL 
+#basis SET: (7s,2p) -> [5s,2p]
+H    S
+      5.07308E+03            1.6152E-05
+      2.16644E+02            5.6257E-04
+      2.50008E+01            6.0071E-03
+H    S
+      5.00205E+00            1.00000000
+H    S
+      1.29556E+00            1.00000000
+H    S
+      4.00307E-01            1.00000000
+H    S
+      1.33227E-01            1.00000000
+H    P
+      1.48544E+0             1.00000000
+H    P
+      4.06750E-01            1.00000000
+end
+basis "C_pecJ-1" SPHERICAL 
+#basis SET: (10s,5p,2d) -> [8s,3p,2d]
+C    S
+      3.551632E+04           7.5298E-05
+      5.744652E+03           6.8542E-04
+      9.954157E+02           5.2333E-03
+C    S
+      2.315943E+02           1.00000000
+C    S
+      6.620654E+01           1.00000000
+C    S
+      2.157261E+01           1.00000000
+C    S
+      7.648720E+00           1.00000000
+C    S
+      2.844272E+00           1.00000000
+C    S
+      6.482868E-01           1.00000000
+C    S
+      2.179306E-01           1.00000000
+C    P
+      3.053233E+01           4.2186E-03
+      6.903835E+00           3.2808E-02
+      1.882246E+00           1.1902E-01
+C    P
+      5.969291E-01           1.00000000
+C    P
+      1.734469E-01           1.00000000
+C    D
+      1.234913E+00           1.00000000
+C    D
+      3.853405E-01           1.00000000
+end
+basis "N_pecJ-1" SPHERICAL 
+#basis SET: (10s,5p,2d) -> [8s,3p,2d]
+N    S
+      1.649023E+05           2.8965E-05
+      9.215658E+03           6.4303E-04
+      1.455967E+03           4.9523E-03
+N    S
+      3.238329E+02           1.00000000
+N    S
+      8.920075E+01           1.00000000
+N    S
+      2.841262E+01           1.00000000
+N    S
+      1.001470E+01           1.00000000
+N    S
+      3.764414E+00           1.00000000
+N    S
+      7.224090E-01           1.00000000
+N    S
+      2.026552E-01           1.00000000
+N    P
+      3.123160E+01           7.8950E-03
+      6.893201E+00           5.5666E-02
+      1.978571E+00           1.6792E-01
+N    P
+      6.571405E-01           1.00000000
+N    P
+      1.946419E-01           1.00000000
+N    D
+      1.411561E+00           1.00000000
+N    D
+      3.724804E-01           1.00000000
+end
+basis "F_pecJ-1" SPHERICAL 
+#basis SET: (10s,5p,2d) -> [8s,3p,2d]
+F    S
+      2.282510E+05           3.5113E-05
+      1.395200E+04           7.1935E-04
+      2.238199E+03           5.3999E-03
+F    S
+      5.097673E+02           1.00000000
+F    S
+      1.430299E+02           1.00000000
+F    S
+      4.604822E+01           1.00000000
+F    S
+      1.633767E+01           1.00000000
+F    S
+      6.221429E+00           1.00000000
+F    S
+      1.267895E+00           1.00000000
+F    S
+      3.612004E-01           1.00000000
+F    P
+      9.142507E+01           5.5622E-03
+      1.727983E+01           5.4380E-02
+      4.618007E+00           2.1629E-01
+F    P
+      1.355099E+00           1.00000000
+F    P
+      3.034276E-01           1.00000000
+F    D
+      2.207200E+00           1.00000000
+F    D
+      4.610628E-01           1.00000000
+end

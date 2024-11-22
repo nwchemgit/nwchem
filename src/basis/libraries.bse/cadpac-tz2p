@@ -1,0 +1,475 @@
+# BSE Version 0.11.dev17+g4fabcd53
+# Data downloaded on 2024-11-21T16:45
+# CADPAC-TZ2P version number 1
+# Description: TZ2P orbital basis from CADPAC
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem. 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  H,Li,B-Ne,Si-Cl
+#      TZ2P orbital basis from CADPAC
+#          huzinaga1965a dunning1971a tozer1998a
+# 
+# 
+# 
+# dunning1971a
+#     Dunning, Thom H.
+#     Gaussian Basis Functions for Use in Molecular Calculations. III.
+#             Contraction of (10s6p) Atomic Basis Sets for the First-Row
+#             Atoms
+#     J. Chem. Phys. 55, 716-723 (1971)
+#     10.1063/1.1676139
+# 
+# huzinaga1965a
+#     Huzinaga, S.
+#     Gaussian‐Type Functions for Polyatomic Systems. I
+#     J. Chem. Phys. 42, 1293-1302 (1965)
+#     10.1063/1.1696113
+# 
+# tozer1998a
+#     Tozer, David J., Handy, Nicholas C.
+#     The development of new exchange-correlation functionals
+#     J. Chem. Phys. 108, 2545-2555 (1998)
+#     10.1063/1.475638
+# 
+# # 
+basis "H_CADPAC-TZ2P" SPHERICAL 
+#basis SET: (5s,2p) -> [3s,2p]
+H    S
+     52.56                   0.025374
+      7.903                  0.189684
+      1.792                  0.852933
+H    S
+      0.502                  1.0
+H    S
+      0.158                  1.0
+H    P
+      1.5                    1.0
+H    P
+      0.5                    1.0
+end
+basis "Li_CADPAC-TZ2P" SPHERICAL 
+#basis SET: (10s,2p) -> [4s,2p]
+Li    S
+   1783.0                    0.000824
+    267.1                    0.006403
+     60.07                   0.033239
+     16.78                   0.126621
+      5.403                  0.337749
+      1.906                  0.575669
+      0.2634                 0.062311
+Li    S
+      0.7179                 1.0
+Li    S
+      0.07716                1.0
+Li    S
+      0.02854                1.0
+Li    P
+      0.4                    1.0
+Li    P
+      0.1                    1.0
+end
+basis "B_CADPAC-TZ2P" CARTESIAN 
+#basis SET: (11s,6p,2d) -> [5s,4p,2d]
+B    S
+   6250.0                    0.000798
+    916.1                    0.006410
+    202.2                    0.034299
+     55.83                   0.135487
+     17.86                   0.388532
+      6.253                  0.547758
+B    S
+      6.253                  0.232643
+      2.312                  0.797219
+B    S
+      0.6824                 1.0
+B    S
+      0.2604                 1.0
+B    S
+      0.0894                 1.0
+B    P
+     15.46                   0.040494
+      3.483                  0.242838
+      1.066                  0.810897
+B    P
+      0.3928                 1.0
+B    P
+      0.1503                 1.0
+B    P
+      0.05722                1.0
+B    D
+      1.05                   1.0
+B    D
+      0.35                   1.0
+end
+basis "C_CADPAC-TZ2P" CARTESIAN 
+#basis SET: (11s,6p,2d) -> [5s,4p,2d]
+C    S
+   9471.000                  0.000776
+   1398.000                  0.006218
+    307.500                  0.033575
+     84.540                  0.134278
+     26.910                  0.393668
+      9.409                  0.544169
+C    S
+      9.409                  0.248075
+      3.5                    0.782844
+C    S
+      1.068                  1.0
+C    S
+      0.4002                 1.0
+C    S
+      0.1351                 1.0
+C    P
+     25.370                  0.038802
+      5.776                  0.243118
+      1.787                  0.810162
+C    P
+      0.6577                 1.0
+C    P
+      0.2486                 1.0
+C    P
+      0.09106                1.0
+C    D
+      1.2                    1.0
+C    D
+      0.4                    1.0
+end
+basis "N_CADPAC-TZ2P" CARTESIAN 
+#basis SET: (11s,6p,2d) -> [5s,4p,2d]
+N    S
+  13520.0                    0.00076
+   1999.0                    0.00607
+    440.0                    0.032847
+    120.9                    0.132396
+     38.47                   0.393261
+     13.46                   0.546339
+N    S
+     13.46                   0.252036
+      4.993                  0.779385
+N    S
+      1.569                  1.000
+N    S
+      0.58                   1.000
+N    S
+      0.1923                 1.000
+N    P
+     35.91                   0.040319
+      8.48                   0.243602
+      2.706                  0.805968
+N    P
+      0.9921                 1.0
+N    P
+      0.3727                 1.000
+N    P
+      0.1346                 1.000
+N    D
+      1.35                   1.0
+N    D
+      0.45                   1.0
+end
+basis "O_CADPAC-TZ2P" CARTESIAN 
+#basis SET: (11s,6p,2d) -> [5s,4p,2d]
+O    S
+  18050.000                  0.000757
+   2660.000                  0.006066
+    585.700                  0.032782
+    160.900                  0.132609
+     51.160                  0.396839
+     17.900                  0.542572
+O    S
+     17.900                  0.262490
+      6.639                  0.769828
+O    S
+      2.077                  1.0
+O    S
+      0.7736                 1.0
+O    S
+      0.2558                 1.0
+O    P
+     49.830                  0.037778
+     11.490                  0.245844
+      3.609                  0.806685
+O    P
+      1.321                  1.0
+O    P
+      0.4821                 1.0
+O    P
+      0.1651                 1.0
+O    D
+      1.35                   1.0
+O    D
+      0.45                   1.0
+end
+basis "F_CADPAC-TZ2P" CARTESIAN 
+#basis SET: (11s,6p,2d) -> [5s,4p,2d]
+F    S
+  23340.0                    0.000757
+   3431.0                    0.006081
+    757.7                    0.032636
+    209.2                    0.131704
+     66.73                   0.396240
+     23.37                   0.543672
+F    S
+     23.37                   0.264893
+      8.624                  0.767925
+F    S
+      2.692                  1.0
+F    S
+      1.009                  1.0
+F    S
+      0.3312                 1.0
+F    P
+     65.66                   0.037012
+     15.22                   0.243943
+      4.788                  0.808302
+F    P
+      1.732                  1.0
+F    P
+      0.6206                 1.0
+F    P
+      0.2070                 1.0
+F    D
+      2.0                    1.0
+F    D
+      0.6667                 1.0
+end
+basis "Ne_CADPAC-TZ2P" CARTESIAN 
+#basis SET: (11s,6p,2d) -> [5s,4p,2d]
+Ne    S
+  28660.0                    0.000767
+   4263.0                    0.006068
+    946.8                    0.032474
+    261.5                    0.121468
+     83.34                   0.397723
+     29.17                   0.542491
+Ne    S
+     29.17                   0.269065
+     10.76                   0.764121
+Ne    S
+      3.343                  1.0
+Ne    S
+      1.241                  1.0
+Ne    S
+      0.4063                 1.0
+Ne    P
+     84.84                   0.036154
+     19.71                   0.239503
+      6.219                  0.811934
+Ne    P
+      2.211                  1.0
+Ne    P
+      0.7853                 1.0
+Ne    P
+      0.2566                 1.0
+Ne    D
+      2.4                    1.0
+Ne    D
+      0.8                    1.0
+end
+basis "Si_CADPAC-TZ2P" CARTESIAN 
+#basis SET: (12s,9p,3d) -> [9s,6p,3d]
+Si    S
+  69379.23                   0.00031745878
+  10354.94                   0.0024856925
+   2333.8796                 0.013030250
+    657.14295                0.052260491
+Si    S
+    214.30113                1.0
+Si    S
+     77.629168               1.0
+Si    S
+     30.630807               1.0
+Si    S
+     12.801295               1.0
+Si    S
+      3.9268663              1.0
+Si    S
+      1.4523433              1.0
+Si    S
+      0.25623427             1.0
+Si    S
+      0.094279218            1.0
+Si    P
+    335.48319                0.0035511893
+     78.900366               0.027356818
+     24.988150               0.11649209
+      9.2197114              0.29304509
+Si    P
+      3.6211402              1.0
+Si    P
+      1.4513101              1.0
+Si    P
+      0.50497692             1.0
+Si    P
+      0.18631667             1.0
+Si    P
+      0.06543200             1.0
+Si    D
+      1.86                   1.0
+Si    D
+      0.59                   1.0
+Si    D
+      0.20                   1.0
+end
+basis "P_CADPAC-TZ2P" CARTESIAN 
+#basis SET: (12s,9p,3d) -> [9s,6p,3d]
+P    S
+  77492.429                  0.00032906498
+  11605.789                  0.0025517411
+   2645.9649                 0.013130174
+    754.97623                0.051896915
+P    S
+    248.75468                1.0
+P    S
+     91.156530               1.0
+P    S
+     36.225668               1.0
+P    S
+     15.211316               1.0
+P    S
+      4.7138230              1.0
+P    S
+      1.7826948              1.0
+P    S
+      0.34252100             1.0
+P    S
+      0.12463132             1.0
+P    P
+    384.84336                0.0037125225
+     90.552096               0.028587931
+     28.805685               0.12113631
+     10.688374               0.30147790
+P    P
+      4.2520977              1.0
+P    P
+      1.7405277              1.0
+P    P
+      0.59789296             1.0
+P    P
+      0.22921800             1.0
+P    P
+      0.083827970            1.0
+P    D
+      1.99                   1.0
+P    D
+      0.63                   1.0
+P    D
+      0.22                   1.0
+end
+basis "S_CADPAC-TZ2P" CARTESIAN 
+#basis SET: (12s,9p,3d) -> [9s,6p,3d]
+S    S
+  93413.396                  0.00030654032
+  13961.657                  0.0023915122
+   3169.9098                 0.012358114
+    902.45634                0.049039750
+S    S
+    297.15842                1.0
+S    S
+    108.70201                1.0
+S    S
+     43.155299               1.0
+S    S
+     18.107948               1.0
+S    S
+      5.5704717              1.0
+S    S
+      2.1427164              1.0
+S    S
+      0.43399430             1.0
+S    S
+      0.15701692             1.0
+S    P
+    495.03999                0.0031182213
+    117.22119                0.024213249
+     37.506558               0.10593219
+     13.909968               0.28269850
+S    P
+      5.5045015              1.0
+S    P
+      2.2432812              1.0
+S    P
+      0.77617992             1.0
+S    P
+      0.29187047             1.0
+S    P
+      0.10286700             1.0
+S    D
+      2.12                   1.0
+S    D
+      0.67                   1.0
+S    D
+      0.23                   1.0
+end
+basis "Cl_CADPAC-TZ2P" CARTESIAN 
+#basis SET: (12s,9p,3d) -> [9s,6p,3d]
+Cl    S
+ 105818.82                   0.00030547509
+  15872.006                  0.0023651510
+   3619.6548                 0.012189277
+   1030.8038                 0.048413396
+Cl    S
+    339.90788                1.0
+Cl    S
+    124.53810                1.0
+Cl    S
+     49.513502               1.0
+Cl    S
+     20.805604               1.0
+Cl    S
+      6.4648238              1.0
+Cl    S
+      2.5254537              1.0
+Cl    S
+      0.53783215             1.0
+Cl    S
+      0.19349716             1.0
+Cl    P
+    589.77639                0.0029332779
+    139.84860                0.022934282
+     44.794920               0.10198374
+     16.612069               0.27845962
+Cl    P
+      6.5994980              1.0
+Cl    P
+      2.7141323              1.0
+Cl    P
+      0.95279614             1.0
+Cl    P
+      0.35804401             1.0
+Cl    P
+      0.12498600             1.0
+Cl    D
+      2.25                   1.0
+Cl    D
+      0.71                   1.0
+Cl    D
+      0.24                   1.0
+end

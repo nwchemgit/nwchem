@@ -1,0 +1,79 @@
+# BSE Version 0.11.dev17+g4fabcd53
+# Data downloaded on 2024-11-21T16:45
+# PB5-F version number 1
+# Description: PB5-F protonic basis
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem. 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  H
+#      PB5-F protonic basis
+#          yu2020a
+# 
+# 
+# 
+# yu2020a
+#     Yu, Qi, Pavošević, Fabijan, Hammes-Schiffer, Sharon
+#     Development of nuclear basis sets for multicomponent quantum chemistry
+#             methods
+#     J. Chem. Phys. 152, 244123 (2020)
+#     10.1063/5.0009233
+# 
+# # 
+basis "H_PB5-F" SPHERICAL 
+#basis SET: (5s,4p,3d,2f) -> [5s,4p,3d,2f]
+H    S
+     48.509                  1.0
+H    S
+     20.481                  1.0
+H    S
+     14.624                  1.0
+H    S
+      6.231                  1.0
+H    S
+      4.189                  1.0
+H    P
+     30.596                  1.0
+H    P
+     18.521                  1.0
+H    P
+      7.597                  1.0
+H    P
+      2.349                  1.0
+H    D
+     21.299                  1.0
+H    D
+     17.956                  1.0
+H    D
+      8.971                  1.0
+H    F
+     26.910                  1.0
+H    F
+     10.321                  1.0
+end
