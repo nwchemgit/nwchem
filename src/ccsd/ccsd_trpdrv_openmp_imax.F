@@ -394,7 +394,8 @@
      &  map(to:dintc1,dintx1,t1v1,dintc2,dintx2,t1v2)
      &  map(to:Jia,Tkj,Tia,Kkj,Kia,Tka,Kij)
      &  map(to:Xka,Jij,Xia,Jkj,Jka,Tij,Kka)
-      
+     &  map(to:a_array1, b_array1, c_array1)
+     &  map(to:a_array2, b_array2, c_array2)
       do klo = 1, nocc, kchunk
          akold=0
          khi = min(nocc, klo+kchunk-1)
