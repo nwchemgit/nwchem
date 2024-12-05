@@ -185,29 +185,6 @@
       double precision :: t_dgemm0, t_dgemm1, t_dgemm_total
       double precision :: t_red0, t_red1, t_red_total
 
-#if 0
-      !$omp interop init(targetsync:obj0)
-      !$omp interop init(targetsync:obj1)
-      !$omp interop init(targetsync:obj2)
-      !$omp interop init(targetsync:obj3)
-      !$omp interop init(targetsync:obj4)
-      !$omp interop init(targetsync:obj5)
-      !$omp interop init(targetsync:obj6)
-      !$omp interop init(targetsync:obj7)
-#endif
-
-#if 0
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj0)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj1)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj2)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj3)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj4)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj5)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj6)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj7)
-#endif       
-
-#if 1
       !$omp interop init(prefer_type("sycl"),targetsync: obj0)
       !$omp interop init(prefer_type("sycl"),targetsync: obj1)
       !$omp interop init(prefer_type("sycl"),targetsync: obj2)
@@ -218,7 +195,6 @@
       !$omp interop init(prefer_type("sycl"),targetsync: obj7)
       
       !$omp interop init(prefer_type("level_zero"),targetsync: obj_lev0)
-#endif
 
       t_dgemm_total = 0.0
       t_red_total = 0.0
@@ -255,7 +231,6 @@
 !     &          stat=alloc_error)
 !      if (alloc_error.ne.0) call errquit('f[1234][tn]',8,MA_ERR)
 
-#if 1
       !$omp allocate allocator(omp_target_device_mem_alloc)
       allocate( f1n(1:nvir,1:nvir) )
       !$omp allocate allocator(omp_target_device_mem_alloc)
@@ -272,25 +247,6 @@
       allocate( f4n(1:nvir,1:nvir) )
       !$omp allocate allocator(omp_target_device_mem_alloc)
       allocate( f4t(1:nvir,1:nvir) )
-#else
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f1n(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f1t(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f2n(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f2t(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f3n(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f3t(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f4n(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f4t(1:nvir,1:nvir) )
-#endif
-
 !
 ! device-only copy of input eorb
 !
@@ -928,11 +884,7 @@
               !$omp end parallel sections
 #endif
 
-#if 0
-              !$omp interop use(obj0)
-#endif
 
-#if 1
               ! "omp interop use(obj_lev0)" generates a device barrier
               ! on level0 queue. This behavior is specific to Intel and
               ! works because of the mapping of level0 queues to
@@ -944,7 +896,6 @@
               ! interop use(obj)        == device barrier + EventHostSynchronize on host
                
               !$omp interop use(obj_lev0) nowait
-#endif
 
               t_dgemm1 = util_wallsec()
               t_dgemm_total = t_dgemm_total + (t_dgemm1 - t_dgemm0)
@@ -1044,35 +995,6 @@
                emp5 = emp5 + emp5k
 #else
 
-#if 0
-!use two separate calls to C implementation
-!$omp target update to(emp4i,emp5i)
-           call ccsd_trpdrv_omp_reduce_01(f1n, f1t, f2n, f2t,
-     &                                 f3n, f3t, f4n, f4t,
-     &                                 eorb,
-     &                                 ncor, nocc, nvir,
-!     &                                 emp4i, emp5i,
-     &                                 eaijk,
-     &                                 dintc1, dintx1, t1v1)
-!$omp target update from(emp4i,emp5i)
-
-           if (i.ne.k) then
-!$omp target update to(emp4k,emp5k)
-           call ccsd_trpdrv_omp_reduce_02(f1n, f1t, f2n, f2t,
-     &                                 f3n, f3t, f4n, f4t,
-     &                                 eorb,
-     &                                 ncor, nocc, nvir,
-!     &                                 emp4k, emp5k, 
-     &                                 eaijk,
-     &                                 dintc2, dintx2, t1v2)
-!$omp target update from(emp4k,emp5k)
-               end if ! (i.ne.k)
-
-           emp4 = emp4 + emp4i
-           emp5 = emp5 + emp5i
-           emp4 = emp4 + emp4k
-           emp5 = emp5 + emp5k
-#endif
            
           call ccsd_trpdrv_omp_fbody_reduce_new (f1n, f1t, f2n, f2t,
      &                                 f3n, f3t, f4n, f4t,
