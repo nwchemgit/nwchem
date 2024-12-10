@@ -969,9 +969,11 @@ c        print *,'call trpdrv ',nvpass
       !$omp target
       !$omp end target
 
+#ifndef USE_BATCHDGEMM_TRPDRV
 !     Dummy interop object
       !$omp interop init(prefer_type("sycl"),targetsync: dummy_obj)
       !$omp interop destroy(dummy_obj)
+#endif
 #endif
 
          tx(2)=tcgtime()

@@ -169,6 +169,12 @@
       logical got_ak
       integer thread_num
 
+!     timers
+      double precision :: tt0, tt1, tc0, tc1
+      double precision :: t_dgemm0, t_dgemm1, t_dgemm_total
+      double precision :: t_red0, t_red1, t_red_total
+
+#ifndef USE_BATCHDGEMM_TRPDRV
 !     OpenMP interop objects
       integer(kind = omp_interop_kind) :: obj0 = omp_interop_none
       integer(kind = omp_interop_kind) :: obj1 = omp_interop_none
@@ -180,11 +186,6 @@
       integer(kind = omp_interop_kind) :: obj7 = omp_interop_none
       integer(kind = omp_interop_kind) :: obj_lev0 = omp_interop_none
 
-!     timers
-      double precision :: tt0, tt1, tc0, tc1
-      double precision :: t_dgemm0, t_dgemm1, t_dgemm_total
-      double precision :: t_red0, t_red1, t_red_total
-
       !$omp interop init(prefer_type("sycl"),targetsync: obj0)
       !$omp interop init(prefer_type("sycl"),targetsync: obj1)
       !$omp interop init(prefer_type("sycl"),targetsync: obj2)
@@ -193,8 +194,9 @@
       !$omp interop init(prefer_type("sycl"),targetsync: obj5)
       !$omp interop init(prefer_type("sycl"),targetsync: obj6)
       !$omp interop init(prefer_type("sycl"),targetsync: obj7)
-      
+
       !$omp interop init(prefer_type("level_zero"),targetsync: obj_lev0)
+#endif
 
       t_dgemm_total = 0.0
       t_red_total = 0.0
@@ -350,8 +352,10 @@
      &  map(to:dintc1,dintx1,t1v1,dintc2,dintx2,t1v2)
      &  map(to:Jia,Tkj,Tia,Kkj,Kia,Tka,Kij)
      &  map(to:Xka,Jij,Xia,Jkj,Jka,Tij,Kka)
+#ifdef USE_BATCHDGEMM_TRPDRV
      &  map(to:a_array1, b_array1, c_array1)
      &  map(to:a_array2, b_array2, c_array2)
+#endif
       do klo = 1, nocc, kchunk
          akold=0
          khi = min(nocc, klo+kchunk-1)
@@ -882,8 +886,6 @@
      1                      Xka(1+(k-klo)*lnov),nvir,Jij,nocc,1.0d0,
      2                      f4t,nvir)
               !$omp end parallel sections
-#endif
-
 
               ! "omp interop use(obj_lev0)" generates a device barrier
               ! on level0 queue. This behavior is specific to Intel and
@@ -896,7 +898,7 @@
               ! interop use(obj)        == device barrier + EventHostSynchronize on host
                
               !$omp interop use(obj_lev0) nowait
-
+#endif
               t_dgemm1 = util_wallsec()
               t_dgemm_total = t_dgemm_total + (t_dgemm1 - t_dgemm0)
                         
@@ -1086,6 +1088,7 @@
 ! end mapping of all data below
 !$omp end target data
 
+#ifndef USE_BATCHDGEMM_TRPDRV
       !$omp interop destroy(obj0)
       !$omp interop destroy(obj1)
       !$omp interop destroy(obj2)
@@ -1095,6 +1098,7 @@
       !$omp interop destroy(obj6)
       !$omp interop destroy(obj7)
       !$omp interop destroy(obj_lev0)
+#endif
       
       call ga_sync()
       next=nxtask(-nodes, 1)
