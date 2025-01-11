@@ -150,7 +150,11 @@ fi
 if [[ $(echo "$LAPACK_LIB" |awk '/lapack/ {print "Y"; exit}' ) == "Y" ]]; then
     export USE_DCOMBSSQ=1
 fi
-if [[ $(echo ""$LAPACK_LIB |awk '/lfjlapack/ {print "Y"; exit}'  ) == "Y" ]]; then
+if [[ $(echo "$LAPACK_LIB" |awk '/lfjlapack/ {print "Y"; exit}'  ) == "Y" ]]; then
+    export USE_DCOMBSSQ=1
+fi
+# ubuntu 24.04 openblas pkg does not contain dcombossq
+if [[ $(echo "$LAPACK_LIB" |awk '/openblas/ {print "Y"; exit}'  ) == "Y" ]]; then
     export USE_DCOMBSSQ=1
 fi
 if [[  -z "$USE_DCOMBSSQ" ]]; then
