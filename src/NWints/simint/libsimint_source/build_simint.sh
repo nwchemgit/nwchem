@@ -66,11 +66,11 @@ else
     VEC=scalar
 fi
 echo VEC $VEC
-if [[ "${VEC}" == "avx512" ]]; then
 if [[   -z "${CC}" ]]; then
     CC=cc
 fi
 echo CC is $CC
+if [[ "${VEC}" == "avx512" ]]; then
 GCC_EXTRA=$(echo $CC | cut -c 1-3)
 if [ "$GCC_EXTRA" == gcc ]; then
 let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
