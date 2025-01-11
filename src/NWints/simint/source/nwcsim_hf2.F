@@ -43,14 +43,14 @@ c
       if(i_sh.ne.cache1.or.j_sh.ne.cache2) then
          call simint_create_multi_shellpair(1, smnt_sh(i_sh,ij_basis),1, 
      S        smnt_sh(j_sh,ij_basis), bra_msh, smnt_screen_method)
-         cache1=i_sh
-         cache2=j_sh
+         cache1=i_sh+10000000*ij_basis
+         cache2=j_sh+10000000*ij_basis
       endif
       if(k_sh.ne.cache3.or.l_sh.ne.cache4) then
          call simint_create_multi_shellpair(1,smnt_sh(k_sh,kl_basis),
      S        1,smnt_sh(l_sh,kl_basis), ket_msh, smnt_screen_method)
-         cache3=k_sh
-         cache4=l_sh
+         cache3=k_sh+10000000*kl_basis
+         cache4=l_sh+10000000*kl_basis
       endif
 #ifdef DEBUG
       write(6,'(a,2i10)') ' basis tags ',ij_basis,kl_basis
@@ -114,14 +114,14 @@ c
       if(i_sh.ne.cache1.or.cache2.ne.0) then
          call simint_create_multi_shellpair(1,smnt_sh(i_sh,i_basis),
      S        1,zero_sh(j_sh,i_basis), bra_msh, smnt_screen_method)
-         cache1=i_sh
+         cache1=i_sh+10000000*i_basis
          cache2=0
       endif
       if(j_sh.ne.cache3.or.k_sh.ne.cache4) then
       call simint_create_multi_shellpair(1, smnt_sh(j_sh,jk_basis), 1, 
      S     smnt_sh(k_sh,jk_basis), ket_msh, smnt_screen_method)
-         cache3=j_sh
-         cache4=k_sh
+         cache3=j_sh+10000000*jk_basis
+         cache4=k_sh+10000000*jk_basis
       endif
       ncomputed = simint_compute_eri(bra_msh, ket_msh, smnt_screen_tol, 
      C     scr, eri)
@@ -162,12 +162,12 @@ c
       if(i_sh.ne.cache1) then
          call simint_create_multi_shellpair(1,smnt_sh(i_sh,i_basis),
      S        1,zero_sh(i_sh,i_basis), bra_msh, smnt_screen_method)
-         cache1=i_sh
+         cache1=i_sh+10000000*i_basis
       endif
       if(j_sh.ne.cache3) then
          call simint_create_multi_shellpair(1, smnt_sh(j_sh,j_basis), 1, 
      S        zero_sh(j_sh,j_basis), ket_msh, smnt_screen_method)
-         cache3=j_sh
+         cache3=j_sh+10000000*j_basis
       endif
       ncomputed = simint_compute_eri(bra_msh, ket_msh,
      S     smnt_screen_tol,
@@ -213,14 +213,14 @@ c      call simint_initialize_multi_shellpair(ket_msh)
       if(i_sh.ne.cache1.or.j_sh.ne.cache2) then
          call simint_create_multi_shellpair(1, smnt_sh(i_sh,ij_basis),1, 
      S        smnt_sh(j_sh,ij_basis), bra_msh, smnt_screen_method)
-         cache1=i_sh
-         cache2=j_sh
+         cache1=i_sh+10000000*ij_basis
+         cache2=j_sh+10000000*ij_basis
       endif
       if(k_sh.ne.cache3.or.l_sh.ne.cache4) then
          call simint_create_multi_shellpair(1,smnt_sh(k_sh,kl_basis),
      S     1,smnt_sh(l_sh,kl_basis), ket_msh, smnt_screen_method)
-         cache3=k_sh
-         cache4=l_sh
+         cache3=k_sh+10000000*kl_basis
+         cache4=l_sh+10000000*kl_basis
       endif
 
       ncomputed = simint_compute_eri_deriv(smnt_deriv,bra_msh, ket_msh,
@@ -266,12 +266,12 @@ c      call simint_initialize_multi_shellpair(ket_msh)
       if(i_sh.ne.cache1) then
          call simint_create_multi_shellpair(1, smnt_sh(i_sh,i_basis), 1, 
      S        zero_sh(i_sh,i_basis), bra_msh, smnt_screen_method)
-         cache1=i_sh
+         cache1=i_sh+10000000*i_basis
       endif
       if(j_sh.ne.cache3) then
          call simint_create_multi_shellpair(1, smnt_sh(j_sh,j_basis), 1,
      S        zero_sh(j_sh,j_basis), ket_msh, smnt_screen_method)
-         cache3=j_sh
+         cache3=j_sh+10000000*j_basis
       endif
 
       ncomputed = simint_compute_eri_deriv(smnt_deriv,bra_msh, ket_msh,
@@ -313,18 +313,17 @@ c      match  ijkl shell to simint shell
 c
 c      call simint_initialize_multi_shellpair(bra_msh)
 c      call simint_initialize_multi_shellpair(ket_msh)
-
       if(i_sh.ne.cache1.or.cache2.ne.0) then
          call simint_create_multi_shellpair(1, smnt_sh(i_sh,i_basis), 1, 
      S        zero_sh(i_sh,i_basis), bra_msh, smnt_screen_method)
-         cache1=i_sh
+         cache1=i_sh+10000000*i_basis
          cache2=0
       endif
       if(j_sh.ne.cache3.or.k_sh.ne.cache4) then
          call simint_create_multi_shellpair(1,smnt_sh(j_sh,jk_basis), 1,
      S        smnt_sh(k_sh,jk_basis), ket_msh, smnt_screen_method)
-         cache3=j_sh
-         cache4=k_sh
+         cache3=j_sh+10000000*jk_basis
+         cache4=k_sh+10000000*jk_basis
       endif
 
       ncomputed = simint_compute_eri_deriv(smnt_deriv,bra_msh, ket_msh,
