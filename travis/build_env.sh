@@ -296,8 +296,8 @@ if [[ "$os" == "Linux" ]]; then
 # try to use ubuntu flaky GA pkg 
     if [[ "$ARMCI_NETWORK" == "GA_DEBIAN" ]]; then
 	$MYSUDO apt-get install -y libglobalarrays-dev libarmci-mpi-dev
-	# hack
-	$MYSUDO ln -sf /usr/lib/x86_64-linux-gnu/libarmci.a /usr/lib/x86_64-linux-gnu/libarmci-openmpi.a
+#	# hack
+#	$MYSUDO ln -sf /usr/lib/x86_64-linux-gnu/libarmci.a /usr/lib/x86_64-linux-gnu/libarmci-openmpi.a
 #    export EXTERNAL_GA_PATH=/usr/lib/x86_64-linux-gnu/ga/openmpi
 #	export EXTERNAL_GA_PATH=/usr
 #	export EXTERNAL_ARMCI_PATH=/usr
