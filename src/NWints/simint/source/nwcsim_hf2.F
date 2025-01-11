@@ -1,3 +1,13 @@
+      block data nwcsim_shpair
+*
+* $Id$
+*
+      implicit none
+      integer cache1,cache2,cache3,cache4
+      common/nwcsim_shpair_cache/cache1,cache2,cache3,cache4
+      data  cache1,cache2,cache3,cache4/-1,-1,-1,-1/
+      end
+
 #ifdef USE_SIMINT
       subroutine nwcsim_hf2(ij_basis,i_sh,j_sh,
      J     kl_basis,k_sh,l_sh,
@@ -23,15 +33,25 @@ c      use SimintFortran
       character*10 pname
       integer*4 zerod
       parameter(zerod=0)
+      integer cache1,cache2,cache3,cache4
+      common/nwcsim_shpair_cache/cache1,cache2,cache3,cache4
       pname="nwcsim_hf2"
 c
 c      match  ijkl shell to simint shell
 
 c
-      call simint_create_multi_shellpair(1, smnt_sh(i_sh,ij_basis), 1, 
-     S     smnt_sh(j_sh,ij_basis), bra_msh, smnt_screen_method)
-      call simint_create_multi_shellpair(1,smnt_sh(k_sh,kl_basis),
-     S     1,smnt_sh(l_sh,kl_basis), ket_msh, smnt_screen_method)
+      if(i_sh.ne.cache1.or.j_sh.ne.cache2) then
+         call simint_create_multi_shellpair(1, smnt_sh(i_sh,ij_basis),1, 
+     S        smnt_sh(j_sh,ij_basis), bra_msh, smnt_screen_method)
+         cache1=i_sh
+         cache2=j_sh
+      endif
+      if(k_sh.ne.cache3.or.l_sh.ne.cache4) then
+         call simint_create_multi_shellpair(1,smnt_sh(k_sh,kl_basis),
+     S        1,smnt_sh(l_sh,kl_basis), ket_msh, smnt_screen_method)
+         cache3=k_sh
+         cache4=l_sh
+      endif
 #ifdef DEBUG
       write(6,'(a,2i10)') ' basis tags ',ij_basis,kl_basis
       write(6,'(4i10)') i_sh,j_sh,k_sh,l_sh
@@ -84,15 +104,25 @@ c      use SimintFortran
 #include "mafdecls.fh"
       integer i
        character*10 pname
+      integer cache1,cache2,cache3,cache4
+      common/nwcsim_shpair_cache/ cache1,cache2,cache3,cache4
       pname="nwcsim_hf2_3c"
 c
 c      match  ijkl shell to simint shell
 
 c
-      call simint_create_multi_shellpair(1,smnt_sh(i_sh,i_basis),
-     S     1,zero_sh(j_sh,i_basis), bra_msh, smnt_screen_method)
+      if(i_sh.ne.cache1.or.j_sh.ne.cache2) then
+         call simint_create_multi_shellpair(1,smnt_sh(i_sh,i_basis),
+     S        1,zero_sh(j_sh,i_basis), bra_msh, smnt_screen_method)
+         cache1=i_sh
+         cache2=j_sh
+      endif
+      if(j_sh.ne.cache3.or.k_sh.ne.cache4) then
       call simint_create_multi_shellpair(1, smnt_sh(j_sh,jk_basis), 1, 
      S     smnt_sh(k_sh,jk_basis), ket_msh, smnt_screen_method)
+         cache3=j_sh
+         cache4=k_sh
+      endif
       ncomputed = simint_compute_eri(bra_msh, ket_msh, smnt_screen_tol, 
      C     scr, eri)
 #ifdef DEBUG
@@ -127,8 +157,8 @@ c
 c      match  ijkl shell to simint shell
 
 c
-      call simint_create_multi_shellpair(1,smnt_sh(i_sh,i_basis),
-     S     1,zero_sh(i_sh,i_basis), bra_msh, smnt_screen_method)
+         call simint_create_multi_shellpair(1,smnt_sh(i_sh,i_basis),
+     S        1,zero_sh(i_sh,i_basis), bra_msh, smnt_screen_method)
       call simint_create_multi_shellpair(1, smnt_sh(j_sh,j_basis), 1, 
      S     zero_sh(j_sh,j_basis), ket_msh, smnt_screen_method)
       ncomputed = simint_compute_eri(bra_msh, ket_msh,
