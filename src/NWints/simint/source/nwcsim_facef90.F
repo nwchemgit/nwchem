@@ -121,8 +121,8 @@ c     dummy shell for 3c-
      C              coord(1), coord(2), coord(3),
      &              dbl_mb(k_exp), dbl_mb(k_coef), 
      L              zero_sh(nwcsim_noshell(bas),bas))
-            enddo
-         enddo
+            enddo ! contractions
+         enddo ! atoms
          if(.not.ma_chop_stack(l_exp)) call errquit(
      E        ' pop stack failed ',l_exp,0)
 c
@@ -179,11 +179,12 @@ c
       call simint_free_multi_shellpair(ket_msh)
       do ibasis=1,nwcsim_nbas
          bas=nwcsim_bas(ibasis)
-            do icsh=1,nwcsim_noshell(bas)
-               call simint_free_shell(smnt_sh(icsh,bas))
-               call simint_free_shell(zero_sh(icsh,bas))
-            enddo
+         do icsh=1,nwcsim_noshell(bas)
+            call simint_free_shell(smnt_sh(icsh,bas))
+            call simint_free_shell(zero_sh(icsh,bas))
+         enddo
       enddo
+      call nwcsim_clearcache()
       endif
       call simint_finalize()
       nwcsim_initialized=.false.
