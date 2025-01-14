@@ -1,0 +1,4 @@
+      integer cache1,cache2,cache3,cache4
+      common/nwcsim_shpair_cache/ cache1,cache2,cache3,cache4
+      integer nwcsim_cache
+      external nwcsim_cache
