@@ -350,6 +350,8 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np localize-pm-allyl
 let "myexit+=$?"
+./runtests.mpi.unix procs $np localize-pm-aa
+let "myexit+=$?"
 #
 #--- range-separated functionals tests
 ./runtests.mpi.unix procs $np acr-camb3lyp-cdfit
