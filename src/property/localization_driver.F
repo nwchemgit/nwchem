@@ -304,7 +304,7 @@ c          save g_sc in g_sc0 to calculate the loc. transform later
 
            call ga_copy(g_sc, g_sc0)
 
-           if (loc_opt.eq.0) then
+           if (loc_opt.eq.0 .or. loc_opt.eq.2) then
 
              ltyp = 'occ'
              call pm_localization(rtdb, geom, ltyp, basis,
@@ -315,7 +315,9 @@ c          save g_sc in g_sc0 to calculate the loc. transform later
      &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
      &         dbl_mb(k_pop), int_mb(k_list))
 
-           else if (loc_opt.eq.1) then
+           end if
+
+           if (loc_opt.eq.1 .or. loc_opt.eq.2) then
 
              ltyp = 'vir'
              call pm_localization(rtdb, geom, ltyp, basis,
@@ -325,30 +327,6 @@ c          save g_sc in g_sc0 to calculate the loc. transform later
      &         dbl_mb(k_occ+(ispin-1)*nbf),
      &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
      &         dbl_mb(k_pop), int_mb(k_list))
-
-           else if (loc_opt.eq.2) then
-
-             ltyp = 'occ'
-             call pm_localization(rtdb, geom, ltyp, basis,
-     &         g_movecs(ispin), g_sc, g_sc0,
-     &         nocc, nvir, nmo, nbf, natoms,
-     &         dbl_mb(k_eval+(ispin-1)*nbf),
-     &         dbl_mb(k_occ+(ispin-1)*nbf),
-     &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
-     &         dbl_mb(k_pop), int_mb(k_list))
-
-             ltyp = 'vir'
-             call pm_localization(rtdb, geom, ltyp, basis,
-     &         g_movecs(ispin), g_sc, g_sc0,
-     &         nocc, nvir, nmo, nbf, natoms,
-     &         dbl_mb(k_eval+(ispin-1)*nbf),
-     &         dbl_mb(k_occ+(ispin-1)*nbf),
-     &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
-     &         dbl_mb(k_pop), int_mb(k_list))
-
-           else
-             call errquit(pname//': loc_opt out of range',loc_opt,
-     &         UNKNOWN_ERR)
 
            end if
 
@@ -415,6 +393,8 @@ c       =================
      &    errquit(pname//': Boys loc. not supported for open shell',
      &    nspin, INPUT_ERR)
 
+        ispin = 1
+
         if (loc_opt.gt.0) call
      &    errquit(pname//': Boys loc. not supported for virtuals',
      &    loc_opt, INPUT_ERR)
@@ -438,7 +418,7 @@ c        calculate dipole-AO times C (mo-coeffs), store in uc(i)
      $        nbf, 0, g_sc)) call errquit(pname//': sc',0, GA_ERR)
          do i = 1, 3
             call ga_dgemm('n', 'n', nbf, nmo, nbf, 
-     $           1.0d0, g_uc(i), g_movecs, 0.0d0, g_sc)
+     $           1.0d0, g_uc(i), g_movecs(ispin), 0.0d0, g_sc)
             call ga_copy_patch('n',g_sc,1,nbf,1,nmo,g_uc(i),1,nbf,1,nmo)
          end do
 
@@ -454,7 +434,7 @@ c       AO Overlap Matrix S:
 
 c       store S C in array uc(4)
         call ga_dgemm('n', 'n', nbf, nmo, nbf, 
-     $     1.0d0, g_smat, g_movecs(1), 0.0d0, g_uc(4))
+     $     1.0d0, g_smat, g_movecs(ispin), 0.0d0, g_uc(4))
 
         if (debug) write(luout,*) 'g_uc(4) done'
 c     
@@ -493,8 +473,8 @@ c        we can use g_sc as a temp array as it is not further used
 
          do i = 1,3
            call ga_zero(g_sc)
-           call ga_dgemm('t','n',nmo,nmo,nbf, 1.0d0, g_movecs, g_uc(i),
-     &        0.0d0, g_sc)
+           call ga_dgemm('t','n',nmo,nmo,nbf, 1.0d0, g_movecs(ispin),
+     &       g_uc(i), 0.0d0, g_sc)
            call ga_get_diagonal(g_sc, dbl_mb(k_dip(i)))
          end do
 
@@ -528,7 +508,7 @@ c        jochen: comment:
 c        the Boys localization routine was already available
 c        in nwchem
          call localizeFB(basis, dbl_mb(k_c), dbl_mb(k_sc), 
-     $        nloc, int_mb(k_iloc), nbf, nmo, g_movecs, g_uc)
+     $        nloc, int_mb(k_iloc), nbf, nmo, g_movecs(ispin), g_uc)
 
 c        calculate orbital centroids again and print information
 
@@ -539,8 +519,8 @@ c        calculate orbital centroids again and print information
 
          do i = 1,3
            call ga_zero(g_sc)
-           call ga_dgemm('t','n',nmo,nmo,nbf, 1.0d0, g_movecs,g_uc(i),
-     &        0.0d0, g_sc)
+           call ga_dgemm('t','n',nmo,nmo,nbf, 1.0d0, g_movecs(ispin),
+     &       g_uc(i), 0.0d0, g_sc)
            call ga_get_diagonal(g_sc, dbl_mb(k_dip(i)))
          end do
 
