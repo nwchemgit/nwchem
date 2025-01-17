@@ -1,6 +1,8 @@
 
-      subroutine ibo_localization(rtdb, geom, ltyp, basis, g_movecs,
-     &  nocc, nvir, nmo, nbf, natoms, eval, occ, c, pop, list)
+      subroutine ibo_localization(rtdb, geom, ltyp, basis,
+     &  g_smat, g_movecs,
+     &  nocc, nvir, nmo, nbf, natoms, eval, occ, c, pop, cpop, list,
+     &  have_iao, g_iao, have_mbs, minbas)
 
 c     =================================================================
 c     IAO construction and generation of occupied or virtual IBOs.
@@ -43,18 +45,19 @@ c     subroutine arguments:
 
       integer rtdb, geom, basis
       character*(3) ltyp
-      integer g_movecs
+      integer g_smat, g_movecs, g_iao
       integer nocc, nvir, nmo, nbf, natoms
       double precision eval(nbf), occ(nbf), c(nbf,2)
-      double precision pop(natoms)
+      double precision pop(natoms), cpop(natoms)
       integer list(natoms)
+      logical have_iao, have_mbs
+      integer minbas
 
 c     local GA handles:
 
       integer g_s2, g_s12, g_p12, g_p21
-      integer g_ctilde, g_iao, g_mo
+      integer g_ctilde, g_mo
       integer g_temp, g_tmp1, g_tmp2, g_cib, g_u, g_vt
-      integer g_smat
 
 c     local variables:
 
@@ -74,8 +77,7 @@ c     local variables:
 
       integer
      &  mnbf, iao_mxprim, iao_mxang, iao_mxcont,
-     &  iao_mxnbf_cn, iao_mxnbf_ce, iao_nshells,
-     &  minbas
+     &  iao_mxnbf_cn, iao_mxnbf_ce, iao_nshells
 
       double precision minval, swap
       integer l_val, k_val
@@ -86,53 +88,69 @@ c     local variables:
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 
-      character*(16) pname
+      character*(16) pname, st1, st2
 
 c     =================================================================
 
       pname = 'ibo_localization'
 
-      dbg = 0
-      master =  ga_nodeid().eq.0
+      dbg = 0 ! set >0 for code development
+      master =  ga_nodeid().eq.0 ! running on master node?
       debug = (dbg>0) .and. master ! .true. during development
 
       if (ltyp.ne.'occ' .and. ltyp.ne.'vir')  call errquit
      &     (pname//': loc. type unknown', 0, BASIS_ERR)
 
       if(debug) then
-        if (ltyp.eq.'occ') write (luout,*)
-     &       'entering occupied IBO localization'
-        if (ltyp.eq.'vir') write (luout,*)
-     &    'entering virtual IBO localization'
-      end if
+        write(luout,*) 'entering IBO localization '//ltyp          
+        if (have_iao) then
+          write(luout,*) 'IAOs already available. skipping...'
+        else
+          write(luout,*) 'IAOs need to be generated.'
+        end if
+        if (have_mbs) then
+          write(luout,*) 'minbas already available. skipping...'
+        else
+          write(luout,*) 'minbas needs to be generated.'
+        end if
+      end if                    ! debug
 
       if (.not. geom_num_core(rtdb, geom, 'ddscf', ncore)) ncore = 0
 
       if (debug) write (luout,*) 'ncore = ',ncore
 
+c     copy the occupied CMOs to g_mo. Maybe needed later
 
+      if (.not. ga_create(MT_DBL, nbf, nocc, 'loc:g_mo',
+     &  nbf, 0, g_mo)) call errquit(pname//': g_mo',0, GA_ERR)
+      
+      call ga_copy_patch('n',
+     &  g_movecs, 1, nbf, 1, nocc,
+     &  g_mo,     1, nbf, 1, nocc)
+      
+      if (debug) write (luout,*) 'movecs(occ) -> mo'
 
-c     ------------------------------
-c     construct IAOs in the AO basis
-c     ------------------------------
+c     ------------------------------------------
+c     create or query the minimal basis (minbas)
+c     ------------------------------------------
 
 c     Note:
 c     Basis 1 is the AO basis used in the SCF calculation
-c     Basis 2 is the minimal auxiliary basis
+c     Basis 2 is minbas
 
-c     AO Overlap Matrix S1 -> g_smat:
+c     minbas overlap S2 -> g_s2 basis needs to defined in
+c     the input as "iao basis"
 
-      g_smat  = ga_create_atom_blocked(geom, basis, 'loc:smat')
-      call ga_zero(g_smat)
-      call int_1e_ga(basis, basis, g_smat, 'overlap', .false.)
+      if (.not.have_mbs) then
+        if (.not. bas_create(minbas, 'iao basis'))
+     &    call errquit(pname//': cannot create iao bas', 86, BASIS_ERR)
+       have_mbs = .true.
+        if (debug) write(luout,*) 'minbas created: ',minbas
+      else
+        if (debug) write(luout,*) 'minbas used is: ',minbas
+      end if
 
-c     auxiliary basis overlap S2 -> g_s2 basis needs to defined in
-c     the input as "iao basis". we will now create the basis here and
-c     then calculate the overlap and the mixed ao-iao basis overlap
-c     S12
-
-      if (.not. bas_create(minbas, 'iao basis'))
-     &  call errquit(pname//': cannot create iao bas', 86, BASIS_ERR)
+c     load information about minbas
 
       if (.not. bas_rtdb_load(rtdb, geom, minbas, 'iao basis'))
      &  call errquit(pname//': iao basis not present', 86, BASIS_ERR)
@@ -167,6 +185,12 @@ c     here and exit with an error if nbf < mnbf
 
       if (nbf.lt.mnbf) call errquit
      &  (pname//': nbf < mnbf. cannot handle!', 66, UNKNOWN_ERR)
+
+c     --------------------------------------------------------
+c     construct IAOs in the AO basis if we don't have them yet
+c     --------------------------------------------------------
+
+      if (have_iao) goto 1000
 
 c     create overlap for minbas, and the mixed basis-minbas
 c     overlap S12.
@@ -242,25 +266,14 @@ c     P21 is no longer needed
       if (.not. ga_destroy(g_p21))
      &  call errquit(pname//': ga_destroy failed g_p21',61, GA_ERR)
 
-c     construct IAOS from occ. MOs:
-
-c     copy the relevant CMOs to g_mo
-
-      if (.not. ga_create(MT_DBL, nbf, nocc, 'loc:g_mo',
-     &  nbf, 0, g_mo)) call errquit(pname//': g_mo',0, GA_ERR)
-
-      call ga_copy_patch('n',
-     &  g_movecs, 1, nbf, 1, nocc,
-     &  g_mo,     1, nbf, 1, nocc)
-
-      if (debug) write (luout,*) 'movecs(occ) -> mo'
+c     construct IAOS from occ. MOs stored in g_mo:
 
 c     create C-tilde from Appendix C of Knizia's IBO paper.  g_temp
 c     holds P12 * P21; we won't need it after the next matrix
 c     multiplication
 
       if (.not. ga_create(MT_DBL, nbf, nocc, 'loc:ctilde',
-     &  nbf, 0, g_ctilde)) call errquit('loc_driver: sc',0, GA_ERR)
+     &  nbf, 0, g_ctilde)) call errquit(pname//': sc',0, GA_ERR)
 
       call ga_dgemm('n', 'n', nbf, nocc, nbf,
      &  1.0d0, g_temp, g_mo, 0.0d0, g_ctilde)
@@ -391,6 +404,11 @@ c     g_p12 no longer needed
       if (.not. ga_destroy(g_p12))
      &  call errquit(pname//': ga_destroy failed g_p12',61, GA_ERR)
 
+      have_iao = .true.
+
+c     we jump here in case IAOs were already created
+ 1000 continue
+
 c     ---------------------------------------------------------------
 c     IAOs are now in array g_iao. Next, generate occupied or virtual
 c     IBOs, depending on the input settings (ltyp)
@@ -403,10 +421,6 @@ c       generate occupied IBOs:
 c       -----------------------
 
 c       note: g_mo already holds the occupied MOs
-
-        if (debug) then
-          write(luout,*) 'movecs(occ) -> mo'
-        end if
 
 c       few more sanity check, just in case
         if (nocc.gt.mnbf) call errquit
@@ -446,6 +460,8 @@ c       save a copy of the starting MOs for later
 
 c       perform localization of the MOs in IAO basis:
 
+        if (debug) write(luout,*) 'calling loc. with parameters ',
+     &    minbas, nocc, nbf, mnbf, natoms
         call localizeIBO(minbas, c, g_cib, nocc, nbf, mnbf,
      &    natoms)
 
@@ -493,9 +509,11 @@ c       via C(iao,T) S C(MO), store in g_tmp2 (and keep the array)
 
         call ga_dgemm('n', 'n', nbf, nvir, nbf,
      &    1.0d0, g_smat, g_mo, 0.0d0, g_tmp1)
+        if(debug) write (luout,*) 'smat*mo -> tmp1'
 
         call ga_dgemm('t', 'n', mnbf, nvir, nbf,
      &    1.0d0, g_iao, g_tmp1, 0.0d0, g_tmp2)
+         if(debug) write (luout,*) 'iao*tmp1 -> tmp2'
 
         if (.not. ga_destroy(g_tmp1))
      &    call errquit(pname//': ga_destroy failed g_tmp1',0, GA_ERR)
@@ -591,6 +609,8 @@ c       dellocate memory used for SVD
 
 c       perform localization of the MOs in IAO basis:
 
+        if (debug) write(luout,*) 'calling loc. with parameters ',
+     &    minbas, nsing, nbf, mnbf, natoms
         call localizeIBO(minbas, c, g_cib, nsing, nbf, mnbf,
      &    natoms)
 
@@ -601,6 +621,10 @@ c     localization interations done
 c     calculate the localization transform. The starting MOs were
 c     saved in g_tmp2 in the IAO basis
 c     CMOs(iao,T) * LMOs(iao) = localization transform -> g_tmp1
+
+      noff = 0 ! initialize so some compilers stay happy
+      n1 = 0
+      n2 = 0
 
       if (ltyp.eq.'occ') then
 
@@ -628,6 +652,8 @@ c     CMOs(iao,T) * LMOs(iao) = localization transform -> g_tmp1
         call ga_dgemm('t', 'n', nvir, nsing, mnbf,
      &    1.0d0, g_tmp2, g_cib, 0.0d0, g_tmp1)
 
+      else
+        call errquit(pname//': ltyp wrong',0, GA_ERR)
       end if ! ltyp
 
       if(noff+n1 > nbf) call errquit (pname//
@@ -726,11 +752,13 @@ c     copy the IBOs into the relevant part of movecs
 
 c     Analyze localization of each MO: per LMO, a list of atomic
 c     populations is printed in decreasing magnitude, with the
-c     polulations in parentheses.  This code is equivalent to the on
+c     populations in parentheses.  This code is equivalent to the one
 c     found in the Pipek-Mezey localization routine
 
       if (master) then
-        write(luout,'(/1x,a/)') 'IAO-IBO localized orbitals'
+        write(luout,'(/1x,a/)') 'IBOs ('//ltyp//') :'
+        write(luout,*)
+     &    'orbital         e(au) occ      atom(weight) ...'
         do s = 1, n2
           call ga_get(g_cib,  1, mnbf, s, s, c(1,1), 1)
           nlist = 0
@@ -742,6 +770,12 @@ c     found in the Pipek-Mezey localization routine
             do u = bflo, bfhi
               qas  = qas  + c(u,1)*c(u,1)
             end do
+
+c           save cumulative IAO populations for later use:
+            if(ltyp.eq.'occ') then
+              cpop(a) = cpop(a) + qas
+            end if
+
             if (abs(qas) .gt. 0.01d0) then
               nlist = nlist + 1
               list(nlist) = a
@@ -762,30 +796,23 @@ c     found in the Pipek-Mezey localization routine
           end do
           write(luout,9002) s, eval(s+noff),
      &      occ(s+noff),(list(a), pop(a), a=1,nlist)
- 9002     format(i5, 1x, f14.6,1x, f5.3, 1x,100(2x,i4,'(',f5.2,')'))
-        end do
+ 9002     format(i8, 1x, f13.5,1x, f5.3,1x,100(2x,i5,'(',f5.2,')'))
+        end do                  ! loop s
         write(luout,*)
         call util_flush(luout)
-      end if
+
+      end if                    ! master
 
       if (.not. ga_destroy(g_cib))
      &  call errquit(pname//': ga_destroy failed g_cib',0, GA_ERR)
 
-c     deallocate remaining arrays that are no longer needed
+      call ga_brdcst(MT_DBL,cpop,natoms,0)
 
-      if (.not. ga_destroy(g_iao)) call errquit(
-     &  pname//': error destroying g_iao',0, GA_ERR)
+c     deallocate remaining arrays that are no longer needed,
+c     write a summary about the IBOs stored on file, and return
 
       if (.not. ga_destroy(g_mo)) call errquit(
      &  pname//': error destroying g_mo',0, GA_ERR)
-
-c     smat not needed anymore
-      if (.not. ga_destroy(g_smat)) call errquit(
-     &  pname//': error destroying g_smat',0, GA_ERR)
-
-c     destroy minimal basis (iao basis)
-      if (.not.bas_destroy(minbas))
-     &  call errquit(pname//'iao bas_destroy failed',0,BASIS_ERR)
 
       if (ltyp.eq.'occ') then
         n1 = 1
@@ -795,11 +822,17 @@ c     destroy minimal basis (iao basis)
         n2 = nocc + nsing
       end if
 
-      if (master) write(luout,
-     &  '(/1x,a,a,a/1x,a/1x,i10,2x,a,1x,i10/)')
-     &  'IBO localization (',ltyp,'): IBOs will be stored',
-     &  'in file locorb.movecs, number ',n1, 'to', n2
+      write(st1,'(i0)') n1
+      write(st2,'(i0)') n2
 
+      if (master) write(luout,
+     &  '(/1x,a,a,a/1x,a,1x,a,1x,a,1x,a/)')
+     &  'IBO localization (',ltyp,'): IBOs will be stored',
+     &  'in file locorb.movecs, number',
+     &   trim(st1), 'to', trim(st2)
+
+      call ga_sync()
+      
       return
 
       end
@@ -946,8 +979,8 @@ c     -----------------------------------------------------------------
          
       end if
       
-      call ga_sync()
-      call ga_brdcst(1,values,nsing*8,0)
+c      call ga_sync()
+      call ga_brdcst(MT_DBL,values,nsing*8,0)
       call ga_sync()
 
       end      
