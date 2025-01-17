@@ -48,7 +48,17 @@ c Define the angular momentum indices for the given shell component.
       if( lambda.le.linit )then
 #endif
 
-       nc =  (lambda*(lambda+1)*(lambda+2))/6 + ic
+         if(lambda.eq.0) then
+            nc=ic
+         elseif(lambda.eq.1) then
+            nc=ic+1
+         elseif(lambda.eq.2) then
+            nc=ic+4
+         elseif(lambda.eq.3) then
+            nc=ic+10
+         else
+            nc =  (lambda*(lambda+1)*(lambda+2))/6 + ic
+         endif
        Nxyz(1) = Ixyz(1,nc)
        Nxyz(2) = Ixyz(2,nc)
        Nxyz(3) = Ixyz(3,nc)
