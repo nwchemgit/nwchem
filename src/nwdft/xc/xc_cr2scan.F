@@ -387,6 +387,8 @@ c
            ddsdzeta = 0.5d0*F53*(opz23 - omz23)
 
 c          need dgcdzeta here  H Tang
+           ddxdzeta = 0.5d0*F43*(opz**F13 - omz**F13)
+
            dgcdzeta = -dxc*ddxdzeta*(1d0 - zeta**12) -
      &                12d0*zeta**11*(1d0 - dxc*(dx - 1d0))
            ddeltaYpdz = -deltaYp/w1*dw1dzeta - deltaYp/ds*ddsdzeta -
@@ -406,8 +408,6 @@ c     &                     45d0*eta*declda1dz)*p*exp1
            darg1dzeta = dw1dzeta*(1d0-GAt2y) - w1*dGAt2ydz
            dH1dzeta = 3d0*H1*dphidzeta/phi + GAMMA*phi3*darg1dzeta/arg1
            dEc1dzeta = declda1dz + dH1dzeta
-
-           ddxdzeta = 0.5d0*F43*(opz**F13 - omz**F13)
 
 c           dgcdzeta = -dxc*ddxdzeta*(1d0 - zeta**12) -
 c     &                12d0*zeta**11*(1d0 - dxc*(dx - 1d0))
