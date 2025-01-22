@@ -304,9 +304,11 @@ if [[ "$os" == "Linux" ]]; then
 	fi
     fi
     # check for mpif90 command and exit if not present
+    if [[ "$MPI_IMPL" != "build_mpich" ]]; then
     if [[ ! $(command -v mpif90) ]]; then echo "mpif90 not present"; exit 1; fi
     echo "mpif90 -show output is " `mpif90 -show` || true
     echo "which mpif90 output is " `which mpif90` ||  true
+    fi
 # try to use ubuntu flaky GA pkg 
     if [[ "$ARMCI_NETWORK" == "GA_DEBIAN" ]]; then
 	$MYSUDO apt-get install -y libglobalarrays-dev libarmci-mpi-dev

@@ -90,6 +90,9 @@ if [[ -f "$IONEAPI_ROOT"/mpi/latest/env/vars.sh ]]; then
 	source /opt/intel/oneapi/mkl/latest/env/vars.sh
     fi
 fi
+if [[ "$MPI_IMPL" == "build_mpich" ]]; then 
+  export BUILD_MPICH=1
+fi
 if [[ "$os" == "Darwin" ]]; then 
   export NWCHEM_TARGET=MACX64 
   export DYLD_FALLBACK_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$DYLD_FALLBACK_LIBRARY_PATH 
@@ -98,9 +101,6 @@ if [[ "$os" == "Darwin" ]]; then
   fi
   if [[ "$MPI_IMPL" == "mpich" ]]; then 
     export PATH=/usr/local/opt/mpich/bin/:$PATH 
-  fi
-  if [[ "$MPI_IMPL" == "build_mpich" ]]; then 
-    export BUILD_MPICH=1
   fi
 
 fi
