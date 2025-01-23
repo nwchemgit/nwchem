@@ -8,7 +8,7 @@ check_tgz() {
     echo $myexit
 }
 if [ $# -eq 0 ];  then
-    VERSION=6.1.0
+    VERSION=7.0.0
 else
     VERSION=$1
 fi

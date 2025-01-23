@@ -61,7 +61,7 @@
       double precision :: fac 
 
       double precision, external :: ddot
-      logical gga,mgga,dolap
+      logical gga,mgga,dolap,dotau
       logical,external :: nwchem_libxc_family
 
 #if LIBXC_NP_SIZE == 4
@@ -76,6 +76,7 @@
       gga = .false.
       mgga = .false.
       dolap = .false.
+      dotau = .false.
 
       nqs = nq
       size1 = nq*ipol
@@ -297,6 +298,12 @@
           mgga = .true.
           dolap = iand(libxc_flags(ifunc),xc_flags_needs_laplacian).eq.
      $            xc_flags_needs_laplacian
+#if XC_MAJOR_VERSION > 6
+          dotau = iand(libxc_flags(ifunc),xc_flags_needs_tau).eq.
+     $            xc_flags_needs_tau
+#else
+          dotau = .true.
+#endif
           
           if (iand(libxc_flags(ifunc),xc_flags_have_exc).eq.
      $                                xc_flags_have_exc) then
@@ -326,7 +333,8 @@
         endif
 
         call daxpy(nq,fac,dbl_mb(kvrho),ipol,Amat,1)
-        if (mgga) call daxpy(nq,0.5d0*fac,dbl_mb(kvtau),ipol,Mmat,1)
+        if (mgga.and.dotau) 
+     $             call daxpy(nq,0.5d0*fac,dbl_mb(kvtau),ipol,Mmat,1)
         if (dolap) call daxpy(nq,fac,dbl_mb(kvlapl),ipol,Lmat,1)
         
         if ((polarized.eq.xc_unpolarized) .and. (gga)) then
@@ -334,8 +342,8 @@
           call daxpy(nq,2d0*fac,dbl_mb(kvsigma),1,Cmat(1,D1_GAB),1)
         elseif (polarized.eq.xc_polarized) then
           call daxpy(nq,fac,dbl_mb(kvrho+1),2,Amat(1,2),1)
-          if (mgga) call daxpy(nq,0.5d0*fac,dbl_mb(kvtau+1),2,
-     $                         Mmat(1,2),1)
+          if (mgga.and.dotau) 
+     $        call daxpy(nq,0.5d0*fac,dbl_mb(kvtau+1),2,Mmat(1,2),1)
           if (dolap) call daxpy(nq,fac,dbl_mb(kvlapl+1),2,Lmat(1,2),1)
           if (gga) then
             call daxpy(nq,fac,dbl_mb(kvsigma),3,Cmat(1,D1_GAA),1)
