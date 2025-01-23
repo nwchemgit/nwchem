@@ -5,6 +5,11 @@ echo "BLASOPT is " $BLASOPT
 echo "BUILD_OPENBLAS is " $BUILD_OPENBLAS
 os=`uname`
 arch=`uname -m`
+if [[ -z "$APPTAINER_NAME" ]] || [[ -z "$SINGULARITY_NAME" ]] ; then
+    MYSUDO=sudo
+else
+    MYSUDO=" "
+fi
 if test -f "/usr/lib/os-release"; then
     dist=$(grep ID= /etc/os-release |head -1 |cut -c4-| sed 's/\"//g')
 fi
@@ -44,12 +49,11 @@ if [[ "$FC" == 'flang-new-'* ]]; then
 fi
 
 if [[ "$FC" == "nvfortran" ]]; then
-     nv_major=23
-     nv_minor=7
-     nverdot="$nv_major"."$nv_minor"
-     export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
-     export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
-     sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
+     export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/latest/compilers/bin:$PATH
+     echo "**** before hpc_sdk makelocalrc"
+     $MYSUDO /opt/nvidia/hpc_sdk/Linux_"$arch"/latest/compilers/bin/makelocalrc -x
+     echo "**** done hpc_sdk makelocalrc"
+     export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/latest/compilers/lib:$LD_LIBRARY_PATH
      export FC=nvfortran
      export MPICH_FC=nvfortran
 fi
@@ -103,6 +107,9 @@ if [[ -f "$IONEAPI_ROOT"/mpi/latest/env/vars.sh ]]; then
 	source /opt/intel/oneapi/mkl/latest/env/vars.sh
     fi
 fi
+if [[ "$MPI_IMPL" == "build_mpich" ]]; then 
+  export BUILD_MPICH=1
+fi
 if [[ "$os" == "Darwin" ]]; then 
   export NWCHEM_TARGET=MACX64 
   export DYLD_FALLBACK_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$DYLD_FALLBACK_LIBRARY_PATH 
@@ -111,9 +118,6 @@ if [[ "$os" == "Darwin" ]]; then
   fi
   if [[ "$MPI_IMPL" == "mpich" ]]; then 
     export PATH=/usr/local/opt/mpich/bin/:$PATH 
-  fi
-  if [[ "$MPI_IMPL" == "build_mpich" ]]; then 
-    export BUILD_MPICH=1
   fi
 
 fi

@@ -227,7 +227,7 @@ if [[ "$os" == "Linux" ]]; then
 	    export I_MPI_F90="$FC"
 	    "$FC" -V ; if [[ $? != 0 ]]; then echo "Intel SW install failed"; exit 1; fi
 	    icx -V
-	    sudo rm -rf $MKLROOT/lib/*sycl* || true
+	    $MYSUDO rm -rf $MKLROOT/lib/*sycl* || true
 	fi
 	if [[ "$FC" == 'flang-new-'* ]]; then
 	    wget https://apt.llvm.org/llvm.sh
@@ -284,13 +284,13 @@ if [[ "$os" == "Linux" ]]; then
 	fi
 	if [[ "$FC" == "nvfortran" ]]; then
 	    $MYSUDO apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
-	    nv_major=23
-	    nv_minor=7
+	    nv_major=24
+	    nv_minor=11
 	    nverdot="$nv_major"."$nv_minor"
 	    nverdash="$nv_major"-"$nv_minor"
 	    arch_dpkg=`dpkg --print-architecture`
-	    curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --yes --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
-            echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+	    curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | $MYSUDO gpg --yes --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
+            echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | $MYSUDO tee /etc/apt/sources.list.d/nvhpc.list
 	    echo '*** added hpc-sdk source to /etc/aps ***'
 	    ls -lrt /etc/apt/sources.list.d/ || true
 	    ls -lrt	/etc/apt/sources.list.d/nvhpc.list || true
@@ -308,6 +308,8 @@ if [[ "$os" == "Linux" ]]; then
 	    $MYSUDO rm -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/profilers
 	    $MYSUDO rm -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs
 	    $MYSUDO rm -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/math_libs
+	    $MYSUDO ln -sf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot" /opt/nvidia/hpc_sdk/Linux_"$arch"/latest
+	    ls -lrt /opt/nvidia/hpc_sdk/Linux_"$arch"/latest/
 	    export FC=nvfortran
 	    export CC=gcc
 	    nvfortran -V ;if [[ $? != 0 ]]; then echo "nvfortran install failed"; exit 1; fi
@@ -315,9 +317,11 @@ if [[ "$os" == "Linux" ]]; then
 	fi
     fi
     # check for mpif90 command and exit if not present
+    if [[ "$MPI_IMPL" != "build_mpich" ]]; then
     if [[ ! $(command -v mpif90) ]]; then echo "mpif90 not present"; exit 1; fi
     echo "mpif90 -show output is " `mpif90 -show` || true
     echo "which mpif90 output is " `which mpif90` ||  true
+    fi
 # try to use ubuntu flaky GA pkg 
     if [[ "$ARMCI_NETWORK" == "GA_DEBIAN" ]]; then
 	$MYSUDO apt-get install -y libglobalarrays-dev libarmci-mpi-dev
