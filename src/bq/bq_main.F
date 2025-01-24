@@ -18,6 +18,7 @@ C>
 #include "bq.fh"
 #include "errquit.fh"
 #include "global.fh"
+#include "stdio.fh"
 
       integer rtdb    !< [Input] The RTDB handle
       logical bq_init
@@ -29,12 +30,12 @@ c
       pname = "bq_init"
       
 c
-c      write(*,*) "in "//pname
+c      write(luout,*) "in "//pname
 c
       bq_init = .true.
       if(.not. rtdb_cget(rtdb,"bq" , 1,namespace)) then
         bq_init = .false. 
-        write(*,*) "no namespace"
+        write(luout,*) "no namespace"
         return
       end if
  
@@ -67,7 +68,7 @@ C>
       
       character*30 pname
       pname ="bq_end"
-c      write(*,*) "in "//pname
+c      write(luout,*) "in "//pname
       bq_end = bq_destroy_all()
 
       end
