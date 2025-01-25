@@ -272,14 +272,28 @@ c
          At2 = A*t2
          exp1 = dexp(-p**2/rDp2**4)
          deltaY = rfc2/(27d0*gamma*phi3*w1*ds) *
-     &              (20d0*rs*(declda0drs-declda1drs) - 
-     &               45d0*eta*(eclda0-eclda1))
+     &              (20d0*rs*(gc*declda0drs-declda1drs) -
+     &               45d0*eta*(gc*eclda0-eclda1))      ! Hong Tang
+
+c         deltaY = rfc2/(27d0*gamma*phi3*w1*ds) *
+c     &              (20d0*rs*(declda0drs-declda1drs) -
+c     &               45d0*eta*(eclda0-eclda1))
+
          deltaYp = deltaY*p*exp1
          ddeltaYpdrs = -deltaYp/w1*dw1drs + 
      &                rfc2/(27d0*gamma*phi3*w1*ds)*
-     &                  (20d0*(declda0drs-declda1drs) +
-     &                   20d0*rs*(d2eclda0drs2-d2eclda1drs2) - 
-     &                   45d0*eta*(declda0drs-declda1drs))*p*exp1
+     &                  (20d0*(gc*declda0drs-declda1drs) +
+     &                   20d0*rs*(gc*d2eclda0drs2-d2eclda1drs2) -
+     &                   45d0*eta*(gc*declda0drs-declda1drs))*p*exp1  ! Hong Tang
+
+
+c         ddeltaYpdrs = -deltaYp/w1*dw1drs +
+c     &                rfc2/(27d0*gamma*phi3*w1*ds)*
+c     &                  (20d0*(declda0drs-declda1drs) +
+c     &                   20d0*rs*(d2eclda0drs2-d2eclda1drs2) -
+c     &                   45d0*eta*(declda0drs-declda1drs))*p*exp1
+
+
          ddeltaYpdp = deltaY*exp1 - 2d0*p*deltaYp/rDp2**4
 
          Gaux = 1d0 + 4d0*(At2-deltaYp)
@@ -371,20 +385,33 @@ c
            dAdzeta = -A*dw1dzeta/w1
 
            ddsdzeta = 0.5d0*F53*(opz23 - omz23)
+
+c          need dgcdzeta here  H Tang
+           ddxdzeta = 0.5d0*F43*(opz**F13 - omz**F13)
+
+           dgcdzeta = -dxc*ddxdzeta*(1d0 - zeta**12) -
+     &                12d0*zeta**11*(1d0 - dxc*(dx - 1d0))
            ddeltaYpdz = -deltaYp/w1*dw1dzeta - deltaYp/ds*ddsdzeta -
      &                  3d0*deltaYp*dphidzeta/phi +
      &                  rfc2/(27d0*gamma*phi3*w1*ds)*(
-     &                     -20d0*rs*d2eclda1drsdz +
-     &                     45d0*eta*declda1dz)*p*exp1
+     &                  +20d0*rs*(-d2eclda1drsdz + declda0drs*dgcdzeta)+ 
+     &                  45d0*eta*(declda1dz-eclda0*dgcdzeta ) )*p*exp1  ! Hong Tang
+
+
+c           ddeltaYpdz = -deltaYp/w1*dw1dzeta - deltaYp/ds*ddsdzeta -
+c     &                  3d0*deltaYp*dphidzeta/phi +
+c     &                  rfc2/(27d0*gamma*phi3*w1*ds)*(
+c     &                     -20d0*rs*d2eclda1drsdz +
+c     &                     45d0*eta*declda1dz)*p*exp1
 
            dGAt2ydz = -GAt2y*(dAdzeta*t2 + A*dt2dzeta - ddeltaYpdz)/Gaux
            darg1dzeta = dw1dzeta*(1d0-GAt2y) - w1*dGAt2ydz
            dH1dzeta = 3d0*H1*dphidzeta/phi + GAMMA*phi3*darg1dzeta/arg1
            dEc1dzeta = declda1dz + dH1dzeta
 
-           ddxdzeta = 0.5d0*F43*(opz**F13 - omz**F13)
-           dgcdzeta = -dxc*ddxdzeta*(1d0 - zeta**12) -
-     &                12d0*zeta**11*(1d0 - dxc*(dx - 1d0))
+c           dgcdzeta = -dxc*ddxdzeta*(1d0 - zeta**12) -
+c     &                12d0*zeta**11*(1d0 - dxc*(dx - 1d0))
+
            dEc0dzeta = dgcdzeta*(eclda0 + H0)
 
 

@@ -44,12 +44,15 @@ fi
 	    fi
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 	    #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
-	    if [[ "$MPI_IMPL" == "build_mpich" ]]; then
-		MPI_FORMULA=" "
-	    else
-		MPI_FORMULA="$MPI_IMPL"
+	    HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc hwloc  gsed grep automake autoconf  ||true
+	    if [[ "$MPI_IMPL" != "build_mpich" ]]; then
+		brew list open-mpi >&  /dev/null ; myexit=$?
+		if [[ $myexit == 0 ]]; then HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew unlink -q open-mpi ||true ; fi
+                brew list mpich >&  /dev/null ; myexit=$?
+		if [[ $myexit == 0 ]]; then HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew unlink -q mpich ||true ; fi
+		HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall  $MPI_IMPL  ||true
+#		HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew link --overwrite $MPI_IMPL ||true
 	    fi
-     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc $MPI_FORMULA gsed grep automake autoconf ||true
      if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
 	 #install non default gfortran, ie gfortran-9
 	 #get version
@@ -108,19 +111,28 @@ fi
 	"$FC" -V
 	icc -V
      fi
-     if [[ "$MPI_IMPL" == "mpich" ]]; then
-	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
-	 brew update || true
-	 brew list open-mpi >&  /dev/null ; myexit=$?
-	 if [[ $myexit == 0 ]]; then brew unlink open-mpi || true ; fi
-	 brew reinstall --quiet mpich  && brew unlink mpich && brew link mpich || true
-##	 brew reinstall --quiet mpich || true
+#     if [[ "$MPI_IMPL" == "mpich" ]]; then
+#	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
+#	 brew update || true
+#	 brew list open-mpi >&  /dev/null ; myexit=$?
+#	 if [[ $myexit == 0 ]]; then brew unlink open-mpi || true ; fi
+#	 brew reinstall --quiet mpich  && brew unlink mpich && brew link mpich || true
+###	 brew reinstall --quiet mpich || true
+#     fi
+     if [ -z "$HOMEBREW_PREFIX" ] ; then
+	 HOMEBREW_PREFIX=/usr/local
+     fi
+     if [[ "$MPI_IMPL" != "build_mpich" ]]; then
+	 #check mpi install
+	 if [[ "$MPI_IMPL" == "mpich" ]]; then
+	     echo 'mpicc -show' $("$HOMEBREW_PREFIX"/opt/mpich/bin/mpif90 -show)
+	 fi
+	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
+	     echo 'mpicc -show' $("$HOMEBREW_PREFIX"/opt/open-mpi/bin/mpif90 -show)
+	 fi
      fi
      if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
 	 brew install openblas
-	 if [ -z "$HOMEBREW_PREFIX" ] ; then
-	     HOMEBREW_PREFIX=/usr/local
-	 fi
 	 PKG_CONFIG_PATH=$HOMEBREW_PREFIX/opt/openblas/lib/pkgconfig pkg-config --libs openblas
      fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
@@ -296,8 +308,8 @@ if [[ "$os" == "Linux" ]]; then
 # try to use ubuntu flaky GA pkg 
     if [[ "$ARMCI_NETWORK" == "GA_DEBIAN" ]]; then
 	$MYSUDO apt-get install -y libglobalarrays-dev libarmci-mpi-dev
-	# hack
-	$MYSUDO ln -sf /usr/lib/x86_64-linux-gnu/libarmci.a /usr/lib/x86_64-linux-gnu/libarmci-openmpi.a
+#	# hack
+#	$MYSUDO ln -sf /usr/lib/x86_64-linux-gnu/libarmci.a /usr/lib/x86_64-linux-gnu/libarmci-openmpi.a
 #    export EXTERNAL_GA_PATH=/usr/lib/x86_64-linux-gnu/ga/openmpi
 #	export EXTERNAL_GA_PATH=/usr
 #	export EXTERNAL_ARMCI_PATH=/usr
