@@ -83,7 +83,7 @@ c        Check density
          if (.not. chk_dens(rtdb, g_dens)) goto 1000
 c
 c        Calculate 2e contribution
-         call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+         call fock_2e(rtdb, geom, AO_bas_han, 2, jfac, kfac,
      &              tol2e, oskel, g_dens, g_tmp, .false.)  ! symmetrize
 c
 c        Accumulate contribution 
@@ -115,7 +115,7 @@ c        Check density
          if (.not. chk_dens(rtdb, g_dens)) goto 1000
 c
 c        Calculate 2e contribution
-         call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+         call fock_2e(rtdb, geom, AO_bas_han, 2, jfac, kfac,
      &             tol2e, oskel, g_dens, g_tmp, .true.)  ! true implies no symmetrization
          call asym_fock2e(g_tmp(1))  ! asymmetrize outside
          call asym_fock2e(g_tmp(2))  ! asymmetrize outside
