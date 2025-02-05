@@ -85,6 +85,7 @@ c      local variables
 #include "bq_data.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
        integer handle
        logical bq_activate
 c      local variables
@@ -96,12 +97,12 @@ c      local variables
        bq_activate = .true.
        if(.not.bq_check_handle(handle)) then
          bq_activate = .false.
-         write(*,*) "bq handle is out of bounds"
+         write(luout,*) "bq handle is out of bounds"
          return
        end if
        if(bq_ncent(handle).eq.0) then
          bq_activate = .false.
-         write(*,*) "bq ncent is zero"
+         write(luout,*) "bq ncent is zero"
          return
        end if
 
@@ -619,6 +620,7 @@ c      local variables
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
 
        integer handle
 c      local variables
@@ -645,7 +647,7 @@ c      local variables
        end if
 
        if(bq_ncent(handle).eq.0) then
-          write(*,*) "No charges are found"
+          write(luout,*) "No charges are found"
           return
        end if
 
@@ -666,8 +668,8 @@ c      local variables
      >      "Bq Structure Information (Angstroms)",
      >              36, .true.)
       
-         write(*,*) "Name: ", bq_name(handle)
-         write(*,*) "Number of centers: ",bq_ncent(handle)
+         write(luout,*) "Name: ", bq_name(handle)
+         write(luout,*) "Number of centers: ",bq_ncent(handle)
 
 c        == tally up bq charges ==
          bq_charge_total = 0.d0
@@ -678,9 +680,9 @@ c     >           i,(dbl_mb(i_c+3*(i-1)+k-1),k=1,3),
      >           dbl_mb(i_q+i-1)
            bq_charge_total = bq_charge_total + dbl_mb(i_q+i-1)
          end do
-         write(*,*) "Total Bq charge: ",bq_charge_total
-         write(*,*)
-         write(*,*)
+         write(luout,*) "Total Bq charge: ",bq_charge_total
+         write(luout,*)
+         write(luout,*)
 c
        end if
 9000   format(i5,2x,"Bq",4x,3f15.8,3x,"charge",3x,f15.8)
@@ -912,6 +914,7 @@ c      local variables
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
 
        integer handle
        integer un
@@ -938,7 +941,7 @@ c      local variables
        end if
 
        if(bq_ncent(handle).eq.0) then
-          write(*,*) "No charges are found"
+          write(luout,*) "No charges are found"
           return
        end if
 
@@ -962,8 +965,8 @@ c      local variables
      >              dbl_mb(i_q+i-1)
 
          end do
-         write(*,*)
-         write(*,*)
+         write(luout,*)
+         write(luout,*)
 
 9000   format(i5,2x,"Bq",4x,4f15.8)
 
@@ -978,6 +981,7 @@ c      local variables
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
 
        integer handle
        integer un
@@ -1004,7 +1008,7 @@ c      local variables
        end if
 
        if(bq_ncent(handle).eq.0) then
-          write(*,*) "No charges are found"
+          write(luout,*) "No charges are found"
           return
        end if
 
@@ -1028,8 +1032,8 @@ c      local variables
      >             dbl_mb(i_q+i-1)
 
          end do
-         write(*,*)
-         write(*,*)
+         write(luout,*)
+         write(luout,*)
 
 9000   format(i5,2x,"Bq",4x,4f15.8)
 

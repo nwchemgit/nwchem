@@ -135,7 +135,7 @@ c     ------------------
            status = status .and. inp_f(y)         
            status = status .and. inp_f(z)         
            status = status .and. inp_f(q)
-           if (hprint) write(*,*) q,x,y,z
+           if (hprint) write(luout,*) q,x,y,z
             if (.not. status) 
      &         call errquit('bq_input: inp_read failed',0,0)
            dbl_mb(i_qbq+ncenter) = q
@@ -282,13 +282,13 @@ c     scale and convert as needed
       end if
 
 c      do i=1,n
-c       write(*,*) c(1,i),c(2,i),c(3,i),q(i)
+c       write(luout,*) c(1,i),c(2,i),c(3,i),q(i)
 c      end do
-c      write(*,*) "oscale ",oscale
-c      write(*,*) "scale ",charge_scale
-c      write(*,*) "afile ",afile
-c      write(*,*) "afile_coords ",afile_coords
-c      write(*,*) "afile_charges ",afile_charges
+c      write(luout,*) "oscale ",oscale
+c      write(luout,*) "scale ",charge_scale
+c      write(luout,*) "afile ",afile
+c      write(luout,*) "afile_coords ",afile_coords
+c      write(luout,*) "afile_charges ",afile_charges
 
       return
 
