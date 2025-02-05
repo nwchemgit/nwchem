@@ -47,14 +47,13 @@ C
       
 C
 C     Hardcoded limits to the number of geometries, fields, and
-C     excitation rules.  I think 100 is a sane choice (that is the
-C     default max number of geoms in nwchem).  I chose hardcoded max
+C     excitation rules.  I chose hardcoded max
 C     numbers since each of these are derived data types, and therefore
 C     there is no MA routine for allocating them.
 C
-      integer, parameter          :: rt_max_geoms = 100
-      integer, parameter          :: rt_max_fields = 100
-      integer, parameter          :: rt_max_excites = 100
+      integer, parameter          :: rt_max_geoms = 200
+      integer, parameter          :: rt_max_fields = 200
+      integer, parameter          :: rt_max_excites = 200
 
       
 

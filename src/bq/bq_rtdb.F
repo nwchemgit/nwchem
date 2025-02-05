@@ -168,6 +168,7 @@ C>
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
        integer irtdb  !< [Input] The RTDB handle
        integer handle !< [Input] The Bq instance handle
        logical bq_rtdb_load
@@ -205,7 +206,7 @@ c      local variables
      &       call errquit('bq_ncenter failed',0,0)
        if(ncent.ne.0) then
          bq_rtdb_load = .false.
-         write(*,*) pname//"empty bq set first"
+         write(luout,*) pname//"empty bq set first"
          return
        end if
         if(.not.bq_namespace(handle,namespace))
