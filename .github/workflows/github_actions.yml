@@ -478,7 +478,7 @@ jobs:
           sudo apt-get purge -y microsoft-edge-stable dotnet-sdk-* google-chrome-stable firefox || true
           sudo apt-get purge -y azure-cli || tru
           sudo apt-get purge -y google-cloud-cli|| true
-          sudo apt-get purge -y temurin-*
+          sudo apt-get purge -y temurin-*jdk openjdk-*
           sudo apt-get purge -y llvm-*-dev
           sudo apt-get -y clean
           sudo apt-get autoremove -y 
