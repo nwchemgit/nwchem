@@ -618,7 +618,7 @@ ifdef USE_GAGITHUB
 	GET_TOOLS=./get-tools-github
   ifdef USE_GA_RELEASE
     ifndef GA_RELEASE_NO
-      GA_RELEASE_NO=5.8.2
+      GA_RELEASE_NO=5.9
     endif
     GA_DIR=ga-$(GA_RELEASE_NO)
   else
