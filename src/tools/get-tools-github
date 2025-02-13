@@ -76,8 +76,8 @@ TOOLGIT=`which git`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
 if test "x$DEV_GA" != x
 then
-    GA_DIR=ga-5.8.2
-    GA_BRANCH=hotfix/5.8.2
+    GA_DIR=ga-5.9
+    GA_BRANCH=5.9
 fi
 if test "x$GA_BRANCH" = x 
 then
@@ -87,7 +87,7 @@ if test "x$USE_GA_RELEASE" != x
 then
     if test "x$GA_RELEASE_NO" = x
     then
-	GA_RELEASE_NO=5.8.2
+	GA_RELEASE_NO=5.9
     fi
     GA_DIR=ga-"$GA_RELEASE_NO"
     if [ ! -f ga-"$GA_RELEASE_NO".tar.gz ]; then
@@ -147,8 +147,8 @@ else
 	    GA_DIR=`echo $GA_DIR0 | sed -e 's/\//_/g'`
 	fi
     else
-	GA_DIR=ga-5.8.2
-	GA_BRANCH=hotfix/5.8.2
+	GA_DIR=ga-5.9
+	GA_BRANCH=5.9
     fi
 fi
 if test "x$GA_URL" != x
@@ -200,19 +200,11 @@ if [[  -z "${CC}" ]]; then
     CC=cc
 fi
 GOTMINGW64=` $CC -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21 `
-if [[ -d "ga-5.8.2" ]]; then
-    if [[ ! -f "ga-5.8.2/patched581" ]]; then
-	./gamalloc_patch.sh $GA_DIR
-	./peigstubs_patch.sh $GA_DIR
-	./mpipr-too-many_patch.sh $GA_DIR
-	./ga_ma_align_patch.sh $GA_DIR
-	./scalapacki4_patch.sh $GA_DIR
-	./ga_diag_seg_i4_patch.sh $GA_DIR
-	if [ $(uname -s) != "Darwin" ]; then
-	    ./autoconf_patch.sh $GA_DIR
-	fi
+if [[ -d "ga-5.9" ]]; then
+    if [[ ! -f "ga-5.9/patched59" ]]; then
+	./gasparse_patch.sh $GA_DIR
 	echo patched
-	touch ga-5.8.2/patched581
+	touch ga-59/patched59
     fi
 fi
 #if [ ! -z "$GOTMINGW64" ]
