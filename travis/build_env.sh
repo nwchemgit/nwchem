@@ -267,7 +267,7 @@ if [[ "$os" == "Linux" ]]; then
 	fi
 	if [[ "$FC" == "amdflang" ]]; then
 	    $MYSUDO apt-get install -y wget gnupg2 coreutils dialog tzdata
-	    rocm_version=5.6.1
+	    rocm_version=6.2.4
 	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  $MYSUDO apt-key add - \
 		&& break ; \
