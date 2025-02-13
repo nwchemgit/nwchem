@@ -200,21 +200,13 @@ if [[  -z "${CC}" ]]; then
     CC=cc
 fi
 GOTMINGW64=` $CC -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21 `
-#if [[ -d "ga-5.9" ]]; then
-#    if [[ ! -f "ga-5.9/patched59" ]]; then
-#	./gamalloc_patch.sh $GA_DIR
-#	./peigstubs_patch.sh $GA_DIR
-#	./mpipr-too-many_patch.sh $GA_DIR
-#	./ga_ma_align_patch.sh $GA_DIR
-#	./scalapacki4_patch.sh $GA_DIR
-#	./ga_diag_seg_i4_patch.sh $GA_DIR
-#	if [ $(uname -s) != "Darwin" ]; then
-#	    ./autoconf_patch.sh $GA_DIR
-#	fi
-#	echo patched
-#	touch ga-59/patched59
-#    fi
-#fi
+if [[ -d "ga-5.9" ]]; then
+    if [[ ! -f "ga-5.9/patched59" ]]; then
+	./gasparse_patch.sh $GA_DIR
+	echo patched
+	touch ga-59/patched59
+    fi
+fi
 #if [ ! -z "$GOTMINGW64" ]
 #then
 #echo "CC" $CC
