@@ -4,7 +4,7 @@ C
 C     Computes the imaginary part of the exchange for a complex Fock
 C     matrix.
 C
-      subroutine zfock_cs_exchim (params, g_densim, Excim, g_fxim)
+      subroutine zfock_cs_exchim (rtdb, params, g_densim, Excim, g_fxim)
       implicit none
 
 #include "bas.fh"
@@ -19,6 +19,7 @@ C
 
 
 C     == Inputs ==
+      integer, intent(in)           :: rtdb
       type(rt_params_t), intent(in) :: params
       integer, intent(in)           :: g_densim
 
@@ -58,7 +59,7 @@ C
       jfac = 0.0d0
       kfac = -0.5d0*xfac(1)
 
-      call fock_2e(geom, ao_bas_han, 1, jfac, kfac,
+      call fock_2e(rtdb, geom, ao_bas_han, 1, jfac, kfac,
      $     params%tol2e_im, oskel, g_densim, g_fxim, .true.)
 
 C      call asym_fock2e (g_fxim)  !xxx 

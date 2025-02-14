@@ -1,4 +1,4 @@
-      subroutine dft_roks_hessv_xx( basis, geom, nbf, 
+      subroutine dft_roks_hessv_xx( rtdb, basis, geom, nbf, 
      $     nmo, nclosed, nopen, 
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
@@ -9,9 +9,9 @@ C     $Id$
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-#include "bgj.fh"
+!#include "bgj.fh"
 c     
-      integer basis, geom
+      integer rtdb, basis, geom
       integer nbf, nmo, nclosed, nopen
       integer pflg
       integer g_movecs
@@ -33,7 +33,8 @@ c
      $        g_x, g_ax )
       endif
       if (pflg .gt. 1) then
-         call dft_roks_hessv_2e( basis, geom, nbf, nmo, nclosed, nopen,
+         call dft_roks_hessv_2e( rtdb, basis, geom, 
+     $        nbf, nmo, nclosed, nopen,
      $        g_movecs, oskel, g_x, acc, ! was min(1d-6,acc)
      $        g_ax )
       endif
