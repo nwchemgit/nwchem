@@ -1836,8 +1836,8 @@ void initnwchem()
   if (module == NULL)
     INITERROR;
 
-  NwchemError = PyErr_NewException("nwchem.NwchemError", NULL, NULL);
-  PyModule_AddObject(module, "NwchemError", NwchemError);
+  NwchemError = PyErr_NewException("nwchem.NWChemError", NULL, NULL);
+  PyModule_AddObject(module, "NWChemError", NwchemError);
 
   struct module_state *st = GETSTATE(module);
   st->error = PyErr_NewException("nwchem.error", NULL, NULL);
