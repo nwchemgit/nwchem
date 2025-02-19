@@ -92,8 +92,6 @@ void tresid_( n, m, d, e, matrixZ, mapZ, eval, iwork, work, res, info)
   
   
   extern Integer  mxmynd_();
-  extern Integer  count_list();
-  extern void     resid();
   
   /*
     usual story about error handling

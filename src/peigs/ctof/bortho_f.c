@@ -110,7 +110,6 @@ void bortho_( n, matB, mapB, m, matZ, mapZ, iwork, work, ort, info)
   DoublePrecision **colZ, **colB, **ibuffptr;
   
   extern Integer mxmynd_();
-  extern void    b_ortho();
 
 
   me = mxmynd_();

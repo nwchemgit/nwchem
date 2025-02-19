@@ -89,17 +89,6 @@ void residual_( n, matrixA, mapA, matrixB, mapB, m, matrixZ, mapZ, eval, iwork, 
   
   
   /*
-    blas call
-    */
-  
-  extern Integer mxwrit_(), mxread_();
-  extern Integer menode_(), mxmynd_();
-  
-  extern Integer fil_mapvec_();
-  extern Integer count_list();
-  extern void residual();
-  
-  /*
     usual story about error handling
     */
 

@@ -84,7 +84,7 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   DoublePrecision eps;
   DoublePrecision *dscrat;
   
-  extern Integer idamax_(), mclock_(), succ_(), mxmynd_(), mxnprc_();
+  extern Integer mclock_(), succ_(), mxmynd_(), mxnprc_();
   extern void printff_();
   extern void mgspnl_();
   

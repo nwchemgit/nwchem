@@ -174,7 +174,7 @@ void residual2( n, colA, mapA, colB, mapB, m, colZ, mapZ, eval,
   DoublePrecision **dbuffptr, **vecZ1, **vecZ2;
   
   
-  extern Integer menode_(), mxmynd_();
+  extern Integer mxmynd_();
   
 
   /*

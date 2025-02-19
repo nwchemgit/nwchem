@@ -96,7 +96,6 @@ void pxerbla2_( n, array, procmap, len, iwork, info )
   Integer *iscrat, *proclist, *map_in;
   
   extern Integer mxcmp();
-  extern Integer      menode_();
   extern Integer mxmynd_();
   extern Integer mxnprc_();
   

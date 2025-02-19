@@ -145,7 +145,7 @@ void b_ortho ( n, colB, mapB, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
   DoublePrecision *ptr, *scrat;
   DoublePrecision **vecZ1, **vecZ2; /* copies of the vecZ matrix */
   
-  extern Integer menode_(), mxmynd_();
+  extern Integer mxmynd_();
 
   /*
     usual story about error handling

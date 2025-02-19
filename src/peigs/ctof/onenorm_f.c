@@ -49,7 +49,6 @@ void one_nrm_( n, m, matA,  mapA, norm, iwork, work)
   DoublePrecision **colA;
   
   extern Integer mxmynd_();
-  extern void    one_nrm();
 
 
 

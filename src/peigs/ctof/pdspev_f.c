@@ -86,12 +86,6 @@ void pdspev_(n, matrixA, mapA, matZ, mapZ, eval, iscratch, iscsize,
   
   extern Integer      mxmynd_();
   
-  extern Integer      ci_entry();
-  extern Integer      count_list();
-  extern Integer fil_mapvec_();
-  extern void     l_exit_();
-  
-  extern void     pdspev();
   extern void     mxinit_();
 
   /*

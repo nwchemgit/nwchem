@@ -88,11 +88,6 @@ void pdspgv_(ifact, n, matrixA, mapA, matrixB, mapB, matZ, mapZ, eval,
 
     extern Integer      mxmynd_();
 
-    extern Integer      ci_entry();
-    extern Integer      count_list();
-    extern void     l_exit_();
-
-    extern void     pdspgv();
     extern void     mxinit_();
 
 
