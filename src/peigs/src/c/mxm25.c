@@ -141,32 +141,16 @@ void mxm25 ( n1, n2, rowQ, mapQ, m, colW, mapW, colZ, iwork, work)
   DoublePrecision *buffer, *in_buffer, *out_buffer;
   DoublePrecision *dd_ptr, *dd_ptr2;
   
-  extern Integer count_list();
-  extern Integer fil_mapvec_();
-  
-  extern Integer mxwrit_(), mxread_();
   extern Integer menode_(), mxmynd_();
   
-  extern Integer fil_mapvec_();
-  extern Integer count_list();
-  extern Integer indxL ();
-  extern Integer mxwrit_(), mxread_();
   extern Integer mxmynd_();
   
   /*
     blas call
     */
 
-  extern DoublePrecision ddot_();
-  extern Integer reduce_list2();
-  extern Integer peigs_cmod_();
-  
   extern void mxsync_();
-  extern void gshellsort_();
-  extern void fil_dbl_lst();
-  extern void daxpy_();
-  extern void dcopy_();
-  
+   
   l1 = *n1;
   l2 = *n2;
   

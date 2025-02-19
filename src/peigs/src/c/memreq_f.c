@@ -95,10 +95,7 @@ void fmemreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   char            msg[ 25 ];
   Integer nvecsA, nvecsB, nvecsZ;
   
-  extern Integer count_list();
   extern Integer mxmynd_(), mxnprc_();
-  extern void   l_exit_();
-  extern void   memreq_(); 
   extern void     mxinit_();
   
    mxinit_();

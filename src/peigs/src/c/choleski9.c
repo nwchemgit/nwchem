@@ -35,6 +35,7 @@
 #include <math.h>
 
 #include "globalp.c.h"
+#include <string.h>
 
 void choleski( n, vecA, mapA, iscratch, scratch, info )
      
@@ -134,11 +135,7 @@ void choleski( n, vecA, mapA, iscratch, scratch, info )
    */
   
   extern Integer      mxmynd_(), mxnprc_();
-  extern Integer      count_list(), fil_mapvec_(), reduce_list(), reduce_list2();
-  extern void bbcast00();
   
-  void     sub_chol0() ;
-  extern char    *strcpy();
   
   /*
    *  ---------------------------------------------------------------
@@ -291,14 +288,6 @@ void sub_chol0( me, n, col, map, ncols, mycols, i_scratch, scratch, info )
    DoublePrecision          t, *q;
    long length, root;
 
-   /*
-    *  External Procedures
-    */
-
-   extern void     dscal_(), daxpy_(), dcopy_();
-   extern void     chol_pipe_bcast();
-   extern Integer  reduce_list2();
-   extern void bbcast00();
 
 /*
    extern void iCC_bcast(), iCC_work_init();

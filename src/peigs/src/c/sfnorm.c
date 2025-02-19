@@ -78,13 +78,6 @@ void sfnorm( n, colA, mapA, norm, iwork, work, info)
   
   DoublePrecision root2, normvec[1], dummy_vec;
   DoublePrecision s, t, y, f, c; 
-  extern DoublePrecision ddot_();
-  
-  extern void gsum00();
-  extern Integer mxmynd_();
-  extern Integer fil_mapvec_();
-  extern Integer reduce_list2();
-  extern void fil_dbl_lst();
 
   me = mxmynd_ ();
   ll = *n;

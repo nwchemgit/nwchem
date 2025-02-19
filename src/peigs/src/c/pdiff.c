@@ -90,8 +90,7 @@ void pdiff( n, data, proclist, nprocs, iwork, msg1, msg2, info )
 
   Integer isize, me, last_proc, next_proc, indx;
   
-  extern Integer indxL ();
-  extern Integer mxwrit_(), mxread_(), mxmynd_();
+  extern Integer mxmynd_();
   
 
   *info = 0;
@@ -116,12 +115,12 @@ void pdiff( n, data, proclist, nprocs, iwork, msg1, msg2, info )
   isize = *n;
 
   if ( ( (indx + 2) % 2) == 0 ) {
-    mxwrit_( (Integer *)data,  &isize, &next_proc, &TYPE );
-    mxread_( iwork, &isize, &last_proc, &TYPE );
+    mxwrit_( (DoublePrecision *)data,  &isize, &next_proc, &TYPE );
+    mxread_( (DoublePrecision *)iwork, &isize, &last_proc, &TYPE );
   }
   else {
-    mxread_( iwork, &isize, &last_proc, &TYPE );
-    mxwrit_( (Integer *)data,  &isize, &next_proc, &TYPE );
+    mxread_( (DoublePrecision *)iwork, &isize, &last_proc, &TYPE );
+    mxwrit_( (DoublePrecision *)data,  &isize, &next_proc, &TYPE );
   }
     
   indx = memcmp( data, iwork, *n );

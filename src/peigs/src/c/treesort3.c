@@ -65,7 +65,6 @@ Integer gtree(p, w, count, iscrat)
      Integer w, *count, *iscrat;
 {
   extern Integer mxmynd_ ();
-  Integer gtree();
 
 if ( p == -1 ) {
 	p = peigs_malloc_adr;
@@ -107,7 +106,7 @@ Integer reduce_list3( num_list, list, scratch )
     */
   
   Integer *junk, k, num_indx;
-  Integer root, gtree(), *iscrat;
+  Integer root, *iscrat;
 
   peigs_malloc_adr = 0;
   if ( num_list == 0 )
@@ -164,7 +163,7 @@ Integer reduce_list33( num_list, list, scratch, node )
     */
 
   Integer *junk, k, num_indx;
-  Integer root, gtree();
+  Integer root;
 
   if ( num_list == 0 )
     return(0);
@@ -222,7 +221,6 @@ Integer reduce_list2( num_list, list, scratch )
     */
   
   Integer k, i, last_num;
-  Integer gtree();
 
   if ( num_list == 0 )
     return(0);
@@ -303,7 +301,6 @@ Integer reduce_list22( num_list, list, scratch, node )
      */
 
   Integer k, i, last_num;
-  Integer gtree();
   
   if ( num_list == 0 )
     return(0);

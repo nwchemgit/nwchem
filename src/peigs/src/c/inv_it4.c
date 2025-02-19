@@ -83,12 +83,7 @@ Integer inv_it4(iii,  n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, 
   DoublePrecision ztz, *wwork1;
   Integer zbegin1, kk, zend, bb1 = *b1+1, bbn = *bn+1, *iwork1;
   
-  extern void dscal_(), dlagtf_(), dlagts_(), dcopy_(), dscal_();
-  extern Integer idamax_();
-  extern DoublePrecision dnrm2_(), dasum_(), ddot_();
   extern Integer mxmynd_();
-  extern void dgetavec2_();
-  extern void dgetavec3_();
   
   extern void mgs_prev ();
   

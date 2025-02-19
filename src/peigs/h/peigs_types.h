@@ -379,11 +379,86 @@ void tresidf_ (Integer *n, Integer *m, DoublePrecision *d, DoublePrecision *e, D
 
 void dcopy_(Integer *, DoublePrecision *, Integer *, DoublePrecision *, Integer *);
 void daxpy_(Integer *, DoublePrecision *, DoublePrecision *, Integer *, DoublePrecision *, Integer *);
+void dscal_(Integer *, DoublePrecision *, DoublePrecision *, Integer *);
+DoublePrecision ddot_(Integer *, DoublePrecision *, Integer *, DoublePrecision *, Integer *);
+DoublePrecision dnrm2_(Integer *, DoublePrecision *, Integer *);
+void dlarnv_(Integer *, Integer *, Integer *, DoublePrecision *);
+void dlasq1_(Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer *);
+DoublePrecision dasum_(Integer *, DoublePrecision *, Integer *);
+void dsterf_(Integer *, DoublePrecision *, DoublePrecision *,  Integer *);
+void dlagts_(Integer *, Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *,
+	    Integer *, DoublePrecision *, DoublePrecision *, Integer *);
+void dlagtf_(Integer *,
+	     DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *,
+	     Integer *, Integer *);
+Integer idamax_(Integer *, DoublePrecision *, Integer *);
 
 void xerbla_ (char *ptr, Integer *m);
 void mxpend_();
 Integer mxmynd_();
 Integer mxnprc_();
+Integer mxread_(DoublePrecision *, Integer *,Integer *, Integer *);
+Integer mxwrit_(DoublePrecision *, Integer *,Integer *, Integer *);
+void mgs_3(Integer *n, DoublePrecision **, Integer *, Integer *, Integer *, Integer *, Integer *, DoublePrecision *, Integer *, DoublePrecision *);
+Integer inv_it3( Integer *, Integer *, Integer *, Integer *, Integer *, Integer *, Integer *, Integer *, DoublePrecision **, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer *, DoublePrecision *);
+Integer mgscs(Integer *, DoublePrecision **, Integer *, Integer, Integer, Integer, Integer, Integer *, DoublePrecision *);
+void xstop_(Integer *);
+Integer clustrfix_(Integer, DoublePrecision *, DoublePrecision *, Integer, DoublePrecision *, Integer *, Integer, Integer *, Integer *, Integer *);
+Integer clustrinv4_(Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer *, Integer *, Integer *, Integer *, DoublePrecision **, Integer *, Integer *, Integer *, Integer *, DoublePrecision *);
+Integer clustrf5_(Integer *, DoublePrecision *, DoublePrecision *, Integer *, DoublePrecision *, Integer *, DoublePrecision **, Integer *, Integer *, Integer *, DoublePrecision *, Integer *, Integer *, Integer *, Integer *, Integer *, Integer *, Integer *);
+Integer clustrinv5_(Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *,
+		    DoublePrecision *, DoublePrecision *, Integer *, Integer *, Integer *,
+		    Integer *, DoublePrecision **, Integer *, Integer *,
+		    Integer *, Integer *, DoublePrecision *);
+void mat_max ( Integer *, Integer *, DoublePrecision **, Integer *, DoublePrecision *, Integer *, DoublePrecision *);
+Integer indxL(Integer, Integer, Integer *);
+void pairup_(Integer *, Integer *, Integer *, Integer *);
+Integer mxcombv1_ (Integer *, Integer (*callback)(Integer *, Integer *, Integer *, Integer *) , Integer *,
+		   Integer *, Integer *, Integer *,
+		   Integer *,  Integer *);
+DoublePrecision damax_(Integer *, DoublePrecision *, Integer *);
+Integer reduce_list4(Integer, Integer *,Integer *,Integer *);
+Integer peigs_cmod_(Integer *,Integer *);
+Integer mapchk_(Integer *,Integer *);
+void dshellsort_(Integer *, DoublePrecision *);
+void dshellsort2_(Integer *, DoublePrecision *, Integer *);
+void sorteig(Integer *, Integer *, DoublePrecision  **, Integer *, DoublePrecision *, Integer *, DoublePrecision *);
+void pstebz10_(Integer *, Integer *, DoublePrecision *, DoublePrecision *, Integer *, Integer *, DoublePrecision *,  DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer *, Integer *,
+	       Integer *, DoublePrecision *, Integer *, Integer *, DoublePrecision *, Integer *, Integer *);
+void pstein5(Integer *, DoublePrecision *,DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer *, DoublePrecision *,  Integer *,  Integer *,  Integer *,
+	     Integer *, DoublePrecision **, Integer *, DoublePrecision *, Integer *, Integer **, Integer *);
+void pstein4(Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer *, DoublePrecision *,  Integer *,  Integer *,  Integer *,
+	     Integer *, DoublePrecision **, Integer *, DoublePrecision *, Integer *, Integer **, Integer *);
+void pstebz_(Integer *, Integer *, DoublePrecision *, DoublePrecision *, Integer *, Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *,
+	     DoublePrecision *, DoublePrecision *,
+	     Integer *, Integer *, Integer *, DoublePrecision *, Integer *, Integer *,
+	     DoublePrecision *, Integer *, Integer *);
+void heapsort_(Integer *, DoublePrecision *);
+Integer neblw2_(Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer * );
+Integer mxbrod_(int *, Integer *, Integer *, Integer *, Integer *, Integer *);
+Integer menode_(Integer *, Integer * );
+void peigs_tldlfact(Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *);
+void peigs_dlasq1(Integer , DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer *);
+void dstebz3_(Integer *, Integer *, Integer *, DoublePrecision *, DoublePrecision *, Integer *, Integer *,
+	      DoublePrecision *, DoublePrecision *, DoublePrecision *,
+	      Integer *, Integer *, DoublePrecision *, Integer *, Integer *,
+	      DoublePrecision *, Integer *, Integer *);
+void dgetavec_(Integer *, DoublePrecision *, DoublePrecision *, Integer *,
+	       Integer *, Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *,
+	       DoublePrecision *, DoublePrecision *,
+	       DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer *,
+	       DoublePrecision *, Integer *, Integer *, Integer *, Integer *);
+void dgetavec2_(Integer *, DoublePrecision *, DoublePrecision *, Integer *,
+	       Integer *, Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *,
+	       DoublePrecision *, DoublePrecision *,
+	       DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer *,
+	       DoublePrecision *, Integer *, Integer *, Integer *, Integer *);
+void dgetavec3_(DoublePrecision *, DoublePrecision *, Integer *,
+	       Integer *, Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *,
+	       DoublePrecision *, DoublePrecision *,
+	       DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer *,
+	       DoublePrecision *, Integer *, Integer *, Integer *, Integer *);
+void peigs_tri_mult(Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *, DoublePrecision *);
 
 /*
 void mxcombv1_(char *buf, Integer *sum(), Integer *isize, Integer *items, Integer *n, Integer *list, Integer *msgtype, char *work);

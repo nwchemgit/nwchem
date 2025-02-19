@@ -244,12 +244,7 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
 
     extern Integer      mxmynd_(), mxnprc_();
 
-    extern Integer  mapchk_(), count_list();
-    extern void     pdiff(), pgexit();
-    extern void     mapdif_();
-    extern void     memreq_();
-    extern void     pdspgvx();
-    extern void     mxinit_(), xstop_();
+    extern void     mxinit_();
 
 
 /*

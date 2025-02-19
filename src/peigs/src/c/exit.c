@@ -127,11 +127,6 @@ void g_exit_( n, array, procmap, len, iwork, work )
   Integer nprocs, me, maxprocs;
   Integer *iscrat, *proclist;
   
-  extern Integer reduce_list2();
-  extern Integer indxL ();
-  extern Integer mxwrit_ (), mxread_ ();
-  extern Integer qqsort();
-  extern void gi_sum();
   extern void xerbl2_ ();
   extern Integer mxcmp();
   extern void mxpend_ ();
@@ -184,12 +179,11 @@ void gi_sum(buf, items, msgtype, root, snumprocs, plist, work)
      DoublePrecision *work;  /* workspace containing at least bufsiz bytes (see cmbbrf.h) */
 {
   Integer isize;
-  extern Integer sumiv_();
-  extern Integer mxcombv1_();
+  extern Integer sumiv_(Integer *, Integer *, Integer *, Integer *);
   
   isize = sizeof(Integer);
 
-  mxcombv1_ ( (char *) buf, sumiv_ , &isize, &items, &snumprocs, plist, &msgtype, (char *)work);
+  mxcombv1_ ( (Integer *) buf, sumiv_ , &isize, &items, &snumprocs, plist, &msgtype, (Integer *)work);
 
   return;
 }

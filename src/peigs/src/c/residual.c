@@ -173,30 +173,9 @@ void residual2( n, colA, mapA, colB, mapB, m, colZ, mapZ, eval,
   
   DoublePrecision **dbuffptr, **vecZ1, **vecZ2;
   
-  extern void gmax00();
   
-  
-  /*
-    blas call
-    */
-  
-  extern DoublePrecision dnrm2_();
-  extern DoublePrecision ddot_();
-  extern void dcopy_();
-  extern void daxpy_();
-  extern DoublePrecision damax_();
-  
-  extern Integer mxwrit_(), mxread_();
   extern Integer menode_(), mxmynd_();
   
-  extern void chol_pipe_bcast();
-  extern Integer fil_mapvec_();
-  extern Integer count_list();
-  extern void mxm88();
-  extern void sonenrm ();
-  extern Integer reduce_list2();
-  extern void    mdiff1_(), mdiff2_(), bbcast00();
-
 
   /*
     usual story about error handling

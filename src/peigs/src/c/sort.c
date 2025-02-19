@@ -78,7 +78,6 @@ void sort_(m, n, nsplit, isplit, iblock, iwork, eval, work)
   Integer i, indx, indx2, indx3, indx4;
   DoublePrecision *dummy;
   Integer *endptr, indx5;
-  extern void heapsort_ ();
   
   /*
     special case: all the blocks are of size 1 and *n = *m.

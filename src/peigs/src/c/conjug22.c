@@ -95,10 +95,7 @@ void lsl_conjugation2 ( n, vecA, mapA, vecB, mapB, iwork, work, buff_ptr )
   Integer *iscrat, *mapvecA, *mapvecB, *iptr;
   DoublePrecision *dscrat, **bufptr;
   extern Integer mxmynd_();
-  extern Integer fil_mapvec_ ();
 
-  extern void pmmlsl2();
-  extern void lu_mxm();
 
 /*
 	extern void pmmLUL();

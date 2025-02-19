@@ -287,7 +287,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     DoublePrecision **buff_ptr, **vecQ, syncco[1], *perturbeval;
     DoublePrecision smlnum, bignum, eps, rmin, rmax, anrm;
     Integer iscale;
-    extern void dscal_();
 
 #ifdef TIMING
     extern DoublePrecision mxclock_();
@@ -303,18 +302,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
  */
     extern Integer  mxmynd_(), mxnprc_();
 
-    extern Integer  mapchk_(), count_list();
-    extern void     memreq_();
-    extern void     pdiff(), xstop_(), pgexit(), mapdif_();
-    extern void     mdiff1_(), mdiff2_(), bbcast00();
-    extern void     mem_cpy();
-    extern void     dshellsort_(), sorteig();
-
-    extern DoublePrecision dnrm2_();
-
-    extern Integer  tred2();
-    extern void     pstebz10_(), pstebz11_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_();
-    extern void mxsync_(), gmax00();
+    extern void     pstebz11_(), sfnorm(), pscale_();
+    extern void mxsync_();
     extern void r_ritz_(), tresidd();
     
 /*
