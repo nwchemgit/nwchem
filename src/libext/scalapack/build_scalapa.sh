@@ -119,6 +119,7 @@ VERSION=2.1.0
 #COMMIT=ea5d20668a6b8bbee645b7ffe44623c623969d33
 COMMIT=5bad7487f496c811192334640ce4d3fc5f88144b
 COMMIT=782e739f8eb0e7f4d51ad7dd23fc1d03dc99d240
+COMMIT=a23c2cdc6586c427686f6097ae66bb54ef693571
 rm -rf scalapack 
 if [[ -f "scalapack-$COMMIT.tar.gz" ]]; then
     echo "using existing"  "scalapack-$COMMIT.tar.gz"
@@ -134,7 +135,7 @@ else
 		  tries=$((tries+1)) ;  done
 fi
 tar xzf scalapack-$COMMIT.tar.gz
-ln -sf scalapack-$COMMIT scalapack
+ln -sf scalapack-*$COMMIT scalapack
 #ln -sf scalapack-${VERSION} scalapack
 #curl -L http://www.netlib.org/scalapack/scalapack-${VERSION}.tgz -o scalapack.tgz
 #tar xzf scalapack.tgz
@@ -239,10 +240,14 @@ fi
 GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
 if [[ `${MPICC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
     let GCCVERSIONGT12=$(expr `${MPICC} -dumpversion | cut -f1 -d.` \> 12)
+    let GCCVERSIONGT13=$(expr `${MPICC} -dumpversion | cut -f1 -d.` \> 13)
 fi
 
 if [[ ${GOTCLANG} == "1" ]] || [[ ${GCCVERSIONGT12} == "1" ]]  ; then
     C_FLAGS=" -Wno-error=implicit-function-declaration "
+fi
+if [[ ${GCCVERSIONGT13} == "1" ]]  ; then
+    C_FLAGS+=" -std=gnu17 "
 fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     if  [[ ${FC} == f95 ]] || [[ ${FC_EXTRA} == gfortran ]] ; then
