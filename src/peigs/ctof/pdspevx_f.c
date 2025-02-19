@@ -91,11 +91,6 @@ void pdspevx_( ivector, irange, n, matrixA, mapA, lb, ub, ilb, iub, abstol,
 
     extern Integer      mxmynd_();
 
-    extern Integer      ci_entry();
-    extern Integer      count_list();
-    extern void     l_exit_();
-
-    extern void     pdspevx();
     extern void     mxinit_();
 
 

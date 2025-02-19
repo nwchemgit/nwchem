@@ -139,7 +139,6 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_in
   DoublePrecision eps, xj1, xj2;
   DoublePrecision xj, relgap(DoublePrecision, DoublePrecision), delta1, delta2;
 
-  extern Integer menode_ ();  
   extern Integer mxmynd_ (), mypid();
   
   me = mxmynd_ ();

@@ -49,9 +49,6 @@ void inversel_( msize, map, matrix, iwork, work, info )
   DoublePrecision *dscrat;
   
   extern Integer mxmynd_();
-  extern Integer fil_mapvec_();
-  extern void xerbla_();
-  extern void inverseL();
   
   me = mxmynd_();
   

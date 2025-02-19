@@ -187,7 +187,6 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   DoublePrecision xjm, eps1;
   DoublePrecision ortol, xj, sepfine;
   
-  extern Integer menode_ ();  
   extern Integer mxmynd_ (), mypid();
   
   

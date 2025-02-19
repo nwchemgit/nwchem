@@ -141,7 +141,7 @@ void mxm25 ( n1, n2, rowQ, mapQ, m, colW, mapW, colZ, iwork, work)
   DoublePrecision *buffer, *in_buffer, *out_buffer;
   DoublePrecision *dd_ptr, *dd_ptr2;
   
-  extern Integer menode_(), mxmynd_();
+  extern Integer  mxmynd_();
   
   extern Integer mxmynd_();
   

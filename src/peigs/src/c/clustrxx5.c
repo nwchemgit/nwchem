@@ -132,7 +132,6 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
   
   
   extern Integer mclock_(), succ_(), mxmynd_(), mxnprc_();
-  extern DoublePrecision dasum_();
   extern void printff_();
   extern void mgspnl_();
   extern Integer inverm_();

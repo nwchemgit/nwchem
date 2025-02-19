@@ -94,11 +94,6 @@ void pdspgvx_( ifact, ivector, irange, n, matrixA, mapA, matrixB, mapB,
 
     extern Integer      mxmynd_();
 
-    extern Integer      ci_entry();
-    extern Integer      count_list();
-    extern void     l_exit_();
-
-    extern void     pdspgvx();
     extern void     mxinit_();
 
 /*

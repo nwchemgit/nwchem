@@ -105,7 +105,6 @@ void ortho_( n, m, matZ, mapZ, iwork, work, ort, info)
   DoublePrecision **colZ, **ibuffptr;
   
   extern Integer mxmynd_();
-  extern void    ortho();
 
 
   me = mxmynd_();

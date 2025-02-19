@@ -128,7 +128,7 @@ void mxm88 ( n, colQ, mapQ, m, colW, mapW, iwork, work, iptr)
   DoublePrecision *ptr, *ptr1;
   DoublePrecision  **Wptr;
   
-  extern Integer menode_(), mxmynd_(), mxnprc_();
+  extern Integer mxmynd_(), mxnprc_();
   
   i = 0;
   me = mxmynd_();
