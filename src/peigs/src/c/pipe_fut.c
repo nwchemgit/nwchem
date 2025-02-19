@@ -84,9 +84,6 @@ void pipe_bcst_fut_col(n, buf, len, type, root, c_indx, map, scratch)
   Integer num_indx, me;
   Integer *junk, *ptr, k, isize;
   extern Integer mxmynd_();
-  extern Integer mxwrit_();
-  extern Integer mxread_();
-  extern Integer in_list();
 
 /*
   reduce the list of processors to a minimum list holding previous column numbers
@@ -129,14 +126,14 @@ void pipe_bcst_fut_col(n, buf, len, type, root, c_indx, map, scratch)
   ptr = &junk[1];
 
   if ( me == root ) {
-    isize = mxwrit_( buf, &len, ptr, &type);
+    isize = mxwrit_( (DoublePrecision *)buf, &len, ptr, &type);
   }
   
   for ( k = 1; k < num_indx; k++ ){
     if ( me == *ptr ){
-      isize = mxread_ ( buf, &len, ptr-1 , &type);
+      isize = mxread_ ( (DoublePrecision *)buf, &len, ptr-1 , &type);
       if ( k < ( num_indx - 1 ) )
-	isize = mxwrit_( buf, &len, ptr+1 , &type);
+	isize = mxwrit_( (DoublePrecision *)buf, &len, ptr+1 , &type);
     }
     ptr++;
   }

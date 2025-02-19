@@ -128,38 +128,8 @@ void mxm5x( n, rowU, mapU, m, colF, mapF, iscratch, scratch)
   DoublePrecision *buffer, *d_ptr, *in_buffer, *out_buffer;
   DoublePrecision *F_ptr, *U_ptr, t;
 
-  
-  
-  /*
-    blas calls
-    */
-  
-  extern void dcopy_(), daxpy_();
-  extern DoublePrecision ddot_();
-
   extern Integer mxmynd_();
-  extern void xerbla_();
-  extern void mapdif1_();
-  extern void g_exit_();
-  extern void pxerbla2_();
-  extern Integer fil_mapvec_();
-  extern void chol_pipe_bcast();
-  extern void gshellsort_();
-  extern Integer indxL();
-  extern void fil_dbl_lst();
-
-  
-  /* 
-    mxsubs calls
-    */
-  
-  extern Integer mxwrit_(),  mxread_();
-  extern Integer count_list();
-  extern Integer fil_mapvec_();
-  extern Integer ci_size_();
-  extern Integer reduce_list2();
-  extern Integer peigs_cmod_();
-  
+ 
   i = 0;
   me = mxmynd_();
 

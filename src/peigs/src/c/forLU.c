@@ -81,8 +81,6 @@ void forwardLU_ ( n, mapL, mapvecL, colL, mapU, mapvecU, rowU, buffer, nprocs, p
   Integer i_L, i_U, nvecsU;
   
   DoublePrecision t, *d_ptr;
-  extern Integer count_list();
-  extern void pipe_bcst_fut_col();
   
   /*
     mxsubs calls
@@ -90,19 +88,6 @@ void forwardLU_ ( n, mapL, mapvecL, colL, mapU, mapvecU, rowU, buffer, nprocs, p
   
   extern Integer mxmynd_ ();
   
-  /*
-    blas calls
-    */
-  
-  extern void dcopy_ ();          
-  
-  /* 
-    mxsubs calls
-    */
-  
-  extern Integer mxwrit_ (),  mxread_ ();
-  extern void dscal_();
-  extern void daxpy_();
   
   me = mxmynd_ ();
   

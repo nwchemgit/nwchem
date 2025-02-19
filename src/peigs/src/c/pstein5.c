@@ -150,16 +150,6 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 
 
    extern Integer      mxnprc_(), mxmynd_();
-   extern Integer clustrf5_();
-   
-   extern Integer      reduce_list2(), count_list(), clustrinv5_();
-   extern Integer      indxL ();
-   extern void     xstop_();
-   extern void     pgexit();
-   extern void     pdiff();
-   extern void gsum01(), gmax00();
-   extern void bbcast00(), tresid();
-   extern Integer       fil_mapvec_();
    
 
 /*

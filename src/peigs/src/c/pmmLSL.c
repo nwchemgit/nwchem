@@ -100,13 +100,7 @@ void pmmLSL(n, mapA, mapvecA, vecA, mapB, mapvecB, vecB,
    * -------------------
    */
   
-  extern void     dcopy_();
-  extern Integer      mxmynd_(), mxwrit_(), mxread_();
-  extern Integer      count_list();
-  extern void         chol_pipe_bcast();
-  extern Integer reduce_list2();
-  extern void daxpy_();
-  extern void     zero_out();
+  extern Integer      mxmynd_();
   
   /*
    * Executable code

@@ -137,13 +137,7 @@ void resid( n, colA, mapA, m, colZ, mapZ, eval, ibuffptr, iwork, work, res, info
   DoublePrecision  *ptr, *scrat;
   DoublePrecision **dbuffptr, **vecZ1;
   
-  extern void             dcopy_(), daxpy_();
-  extern DoublePrecision  damax_();
   extern Integer          mxmynd_();
-  extern Integer          count_list(), reduce_list2();
-  extern void             gmax00();
-  extern void             mxm88(), sonenrm ();
-  extern void             mdiff1_(), bbcast00();
 
   /*
     usual story about error handling

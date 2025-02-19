@@ -59,11 +59,10 @@ void gmax00(buf, items, datatype, msgtype, root, snumprocs, plist, work)
      DoublePrecision *work;  /* workspace containing at least bufsiz bytes (see cmbbrf.h) */
 {
   Integer isize;
-  extern Integer maxdv_();
-  extern void mxcombv1_();
+  extern Integer maxdv_(Integer *, Integer *, Integer *, Integer *);
   
   isize = sizeof(DoublePrecision);
-  mxcombv1_ ( buf, maxdv_, &isize, &items, &snumprocs, plist, &msgtype, (char *)work);
+  mxcombv1_ ( (Integer *)buf, maxdv_, &isize, &items, &snumprocs, plist, &msgtype, (Integer *)work);
   
   return;
 }

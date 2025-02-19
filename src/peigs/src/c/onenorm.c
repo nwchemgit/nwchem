@@ -101,15 +101,6 @@ void one_nrm ( n, m, colA,  mapA, norm, iwork, work)
   Integer *iscrat;
   DoublePrecision t, anorm;
   
-  extern DoublePrecision dasum_();
-
-  extern void gmax00();
-  extern void xerbla_();
-  extern Integer mxmynd_();
-  extern Integer reduce_list2();
-  extern Integer fil_mapvec_();
-  extern Integer reduce_list22();
-  
   me       = mxmynd_();
   
 #ifdef DEBUG1

@@ -187,30 +187,10 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   DoublePrecision xjm, eps1;
   DoublePrecision ortol, xj, sepfine;
   
-  Integer clustr_check();
-  extern Integer count_list();
-  extern Integer reduce_list2();
   extern Integer menode_ ();  
-  extern Integer idamax_(), mxmynd_ (), mypid();
-  extern void fil_int_lst();
-  extern void fil_dbl_lst();
+  extern Integer mxmynd_ (), mypid();
   
-  /*
-    intrinsic DoublePrecision precision
-    */
   
-  /*
-    blas calls
-    */
-  
-  extern void dcopy_(), dscal_(), daxpy_();
-  extern DoublePrecision ddot_(), dasum_(), dnrm2_();
-  
-  /*
-    lapack calls
-    */
-  
-  extern void xerbla_(), dlagts_(), dlagtf_(), dlarnv_();
   
   me = mxmynd_ ();
   num_eig = *m;

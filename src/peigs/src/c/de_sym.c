@@ -91,19 +91,10 @@ void de_sym(n, msgtype, buffer, matrix, map, matrix2, iwork, buf_ptr )
   Integer nvecs, *iscrat, ip, ig, lenb, i, me_indx, idest;
   Integer me, nprocs, ngroup, nvecs_out;
   Integer *mapvec, *map_out, *proclist;
-  Integer load_up(), un_load(), un_load_size();
   DoublePrecision *read_buffer, *write_buffer;
   
   extern Integer mxnprc_ (), mxmynd_ ();
-  extern void mxread_ (), mxwrit_();
   
-  extern void pairup_ ();
-  extern Integer fil_mapvec_ ();
-  extern Integer reduce_list2();
-  extern Integer indxL();
-  extern void pairup_ ();
-  extern Integer ci_size_ ();
-
   me = mxmynd_();
 
   iscrat = iwork;
