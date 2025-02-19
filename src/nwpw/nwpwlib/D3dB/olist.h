@@ -10,11 +10,11 @@ typedef struct {
         int	*list;
 } OList_Type;
 
-extern	void	create_olist();
-extern	void	insert_olist();
-extern	int	index_olist();
-extern	void	destroy_olist();
-extern	void	print_olist();
+extern	void	create_olist(OList_Type*, int);
+extern	void	insert_olist(OList_Type*, int);
+extern	int	index_olist(OList_Type*, int);
+extern	void	destroy_olist(OList_Type*);
+extern	void	print_olist(OList_Type*);
 
 #endif
 /* $Id$ */

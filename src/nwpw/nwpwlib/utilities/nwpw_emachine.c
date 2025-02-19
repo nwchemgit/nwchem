@@ -19,7 +19,7 @@
 
 
 
-extern void lattice_min_difference_();
+extern void lattice_min_difference_(double *, double *, double *);
 
 
 
