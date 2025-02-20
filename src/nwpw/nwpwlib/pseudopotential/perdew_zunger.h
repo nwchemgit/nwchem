@@ -4,5 +4,5 @@
 #ifndef _PERDEW_ZUNGER_H_
 #define _PERDEW_ZUNGER_H_
 
-extern void   R_Perdew_Zunger();
+extern void   R_Perdew_Zunger(double *,double *, double *, double *);
 #endif

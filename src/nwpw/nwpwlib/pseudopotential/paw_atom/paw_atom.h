@@ -11,7 +11,7 @@ extern void   paw_init_atom(char *aname, char *infile);
 extern void   paw_solve_atom();
 extern void   paw_print_atom();
 
-extern double paw_get_ion_energy();
+//extern double paw_get_ion_energy();
 
 extern void paw_save_atom();
 extern void paw_plot_orbitals();
@@ -24,7 +24,7 @@ extern double paw_get_atom_total_energy();
 
 
 extern void   paw_init_paw_atom(char *aname);
-extern void   paw_solve_paw_atom();
+extern void   paw_solve_paw_atom(char *);
 extern void   paw_print_paw_atom();
 
 

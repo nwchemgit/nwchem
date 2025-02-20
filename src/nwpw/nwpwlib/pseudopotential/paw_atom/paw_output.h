@@ -6,7 +6,7 @@
 */
 
 
-extern void paw_generate_basis_file();
+extern void paw_generate_basis_file(char *);
 
 #endif
 

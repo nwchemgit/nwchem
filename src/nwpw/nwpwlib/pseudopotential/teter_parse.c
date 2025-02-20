@@ -5,9 +5,9 @@
 #include "typesf2c.h"
 #include "get_word.h"
 
-extern double tetercc();
-extern double cpi_Splint();
-extern void   cpi_Spline();
+extern double tetercc(double );
+extern double cpi_Splint(double *, double *, double *, int, int, double);
+extern void   cpi_Spline(double *, double *, int, double , double , double *, double *);
 
 #if (defined(WIN32)) && !defined(__MINGW32__)
 #define teter_parse_ TETER_PARSE
