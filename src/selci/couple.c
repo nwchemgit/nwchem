@@ -10,7 +10,8 @@
 #include <stdlib.h>
 #include "ga.h"
 
-extern int fortchar_to_string();
+extern int fortchar_to_string(const char *, int, char *, const int);
+
 
 /* Maximum number of open shells and corresponding maximum number 
    of spin functions for any possible multiplicity */
