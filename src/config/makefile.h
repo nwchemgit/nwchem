@@ -194,7 +194,7 @@ else
         endif
 
         ifeq ($(GA_LDFLAGS),)
- 	  GA_LDFLAGS :=  $(shell ${GA_PATH}/bin/ga-config --ldflags  )
+          GA_LDFLAGS :=  $(shell ${GA_PATH}/bin/ga-config --ldflags  )
         endif
 
       #extract GA libs location from last word in GA_LDLFLAGS
@@ -1332,6 +1332,7 @@ ifeq ($(TARGET),MACX64)
 	    GNU_GE_4_8 := $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
 	    GNU_GE_6 := $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
 	    GNU_GE_8 := $(shell [ $(GNUMAJOR) -ge 8  ] && echo true)
+	    GNU_GE_14 := $(shell [ $(GNUMAJOR) -ge 14  ] && echo true)
 
             ifeq ($(GNU_GE_4_6),true)
                 DEFINES  += -DGCC46
@@ -1552,6 +1553,12 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
         endif
 
         DEFINES  += -DGFORTRAN
+	GCCMAJOR := $(shell $(CC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+        ifdef GCCMAJOR
+	    GCCMINOR := $(shell $(CC) -dM -E - < /dev/null 2> /dev/null | grep __VERS | cut -c24)
+	    GCC_GE_14 := $(shell [ $(GCCMAJOR) -ge 14  ] && echo true)
+	endif
+
 	GNUMAJOR := $(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 
         ifdef GNUMAJOR
@@ -2180,6 +2187,11 @@ ifneq ($(TARGET),LINUX)
                     FFLAGS_FORGA = -mcmodel=medium
 		endif
             else
+                GCCMAJOR := $(shell $(CC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+                ifdef GCCMAJOR
+                    GCCMINOR := $(shell $(CC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24-)
+                    GCC_GE_14 := $(shell [ $(GCCMAJOR) -ge 14  ] && echo true)
+                endif
 	        GNUMAJOR := $(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
                 ifdef GNUMAJOR
 		    GNUMINOR := $(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
