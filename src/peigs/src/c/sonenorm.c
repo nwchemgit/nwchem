@@ -99,15 +99,7 @@ void sonenrm ( n, colA, mapA, norm, iwork, work, info)
   DoublePrecision scl;
   DoublePrecision *normvec, *workMX;
   
-  extern DoublePrecision dasum_ ();
-
-
-  extern void gsum00();
-  extern void fil_dbl_list ();
   extern Integer mxmynd_();
-  extern Integer fil_mapvec_();
-  extern Integer reduce_list2();
-  extern void fil_dbl_lst();
 
   me = mxmynd_ ();
 

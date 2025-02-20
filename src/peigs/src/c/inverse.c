@@ -92,13 +92,6 @@ void pipe_bcst_prev_col(buf, len, type, root, c_indx, map, scratch)
   extern Integer mxmync_();
   extern Integer mxmynd_();
   extern Integer mxnprc_();
-  extern Integer mxwrit_();
-  extern Integer mxread_();
-  
-
-  extern Integer in_list();
-  
-  Integer prev_column();
   
   /*
     reduce the list of processors to a minimum list holding previous column numbers
@@ -142,13 +135,13 @@ void pipe_bcst_prev_col(buf, len, type, root, c_indx, map, scratch)
   
   ptr = junk + 1;
   if ( me == root )
-    isize = mxwrit_( buf, &len, ptr, &type);
+    isize = mxwrit_( (DoublePrecision *)buf, &len, ptr, &type);
   
   for ( k = 1; k < num_indx; k++ ){
     if ( me == junk[k] )	{
-      isize = mxread_( buf, &len, &junk[k-1] , &type);
+      isize = mxread_( (DoublePrecision *)buf, &len, &junk[k-1] , &type);
       if ( k < ( num_indx - 1 ) ) {
-	isize = mxwrit_( buf, &len, &junk[k+1] , &type);
+	isize = mxwrit_( (DoublePrecision *)buf, &len, &junk[k+1] , &type);
       }
     }
   }
@@ -207,21 +200,8 @@ void inverseL ( msize, col, map, iwork, buffer, info)
   
   DoublePrecision temp, *q, safeulp;
   extern Integer mxmynd_();
-  extern void pipe_bcst_prev_col();
-  extern void xerbla_();
-  extern void bbcast00();
-  extern Integer count_list();
-  extern void pxerbla2_();
-  extern void g_exit_();
-  extern Integer fil_mapvec_();
-  extern void dcopy_();
-  extern void dscal_();
-  extern void daxpy_();
 
-
-  Integer prev_column();
   Integer num_procs;
-  extern Integer reduce_list(), reduce_list2();
   Integer length;
 
 /*

@@ -58,11 +58,6 @@ void choleski_( n, colQ, mapQ, iwork, work, info)
   DoublePrecision *dscrat;
   
   extern Integer mxmynd_();
-  extern Integer fil_mapvec_();
-  extern void choleski();
-  extern Integer count_list();
-  extern void xerbla_(), pxerbla2_();
-  extern void g_exit_();
   
    i = 0;
   me = mxmynd_();

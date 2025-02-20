@@ -11,8 +11,8 @@
 
 */
 
-extern void   R_Schrodinger();
-extern void   R_Schrodinger_Fixed_E();
-extern void   R_Schrodinger_Fixed_Logderiv();
+extern void   R_Schrodinger(int, int, double *, int *, double *, double *, double *);
+extern void   R_Schrodinger_Fixed_E(int, int, double *, int , double , double *, double *);
+extern void   R_Schrodinger_Fixed_Logderiv(int, int, double *, int , double, double *, double *, double *);
 
 #endif

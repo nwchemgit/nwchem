@@ -12,6 +12,6 @@
 
 */
 
-extern double R_Hartree();
+extern double R_Hartree(double*, double, double *);
 
 #endif

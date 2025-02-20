@@ -5,8 +5,8 @@
 
 */
 
-void	Suggested_Param_Vanderbilt();
-void	solve_Vanderbilt();
-
+void	Suggested_Param_Vanderbilt(int *, int *, int *, double *, double *, double *, double *, double *);
+void	solve_Vanderbilt(int , int *, int *, double *, double *, double *, double , double ,  int *, int indx[4][10], int indy[4][4][10],
+			 double  **, double  **, double  **, double  *, double *, double  **, double  *, double  *, double  *, double  *, double  *, double  *, double  *, double  *, double  *, double  *);
 #endif
 /* $Id$ */

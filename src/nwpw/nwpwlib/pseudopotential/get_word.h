@@ -11,13 +11,13 @@
 #define	NIL	((char *) EOF)
 
 extern char	*get_word(FILE *stream);
-extern int 	get_line();
-extern int 	to_eoln();
-extern int 	get_int();
-extern int 	get_string();
-extern int 	get_float();
-extern int 	get_end();
-extern int 	remove_blanks();
+extern int 	get_line(FILE *, char *, int);
+extern int 	to_eoln(FILE *);
+extern int 	get_int(FILE *, int *);
+extern int 	get_string(FILE *, char *);
+extern int 	get_float(FILE *, double *);
+extern int 	get_end(FILE *);
+extern int 	remove_blanks(FILE *);
 
 
 #endif

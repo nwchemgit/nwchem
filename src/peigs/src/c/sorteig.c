@@ -62,8 +62,6 @@ void sorteig( n, neigval, vecZ, mapZ, eval, iwork, work )
                       next, ileft, iright, meval, k;
     Integer           *iorder, *i_work;
 
-    extern void      dshellsort2_(), dcopy_();
-    extern Integer   qqsort();
     extern Integer   mxmynd_(), mxnprc_();
 
 

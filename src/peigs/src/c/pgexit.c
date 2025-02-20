@@ -69,8 +69,6 @@ void pgexit( info, msg, proclist, nprocs, work )
 
   Integer m;
   
-  extern void    gi_sum();
-  extern void    xstop_();
   extern Integer mxmynd_();
 
   m = ffabs( *info );

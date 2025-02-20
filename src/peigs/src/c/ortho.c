@@ -130,19 +130,8 @@ void ortho( n, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
   DoublePrecision *ptr, *scrat;
   DoublePrecision **vecZ1; /* copies of the vecZ matrix */
   
-  /*
-    blas call
-    */
-  
-  extern void dcopy_();
-  extern void mxm25();
-  
   extern Integer mxmynd_();
 
-  extern Integer fil_mapvec_();
-  extern Integer reduce_list2();
-  extern void mat_max();
-  
   /*
     usual story about error handling
     */

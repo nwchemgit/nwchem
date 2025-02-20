@@ -67,7 +67,6 @@ Integer ci_entry (me, n, i, j, map)
 {
   Integer indx, jndx, label;
   Integer *iptr;
-  extern void xerbla_();
   
   /*
     PeIGS utility routine
@@ -175,7 +174,6 @@ Integer ci_entry_(me, n, i, j, map)
 {
   Integer indx, jndx, label, idummy, idummy2;
   Integer *iptr;
-  extern void xerbla_();
   extern Integer mxmynd_();
   
   /*
@@ -305,7 +303,6 @@ Integer ci_size_(me, n, map)
   Integer indx, jndx, kndx;
   Integer *ptr, iam;
   
-  extern void xerbla_();
   extern Integer mxnprc_();
   extern Integer mxmynd_();
   
@@ -389,7 +386,6 @@ Integer fil_mapvec_( me, n, map, mapvec)
   extern Integer mxnprc_();
   extern Integer mxmynd_();
   
-  extern void xerbla_();
 
   if ( me == NULL ) {
     i = -1;

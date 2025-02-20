@@ -190,8 +190,7 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
   Integer clustr_check();
   extern Integer count_list();
   extern Integer reduce_list2();
-  extern Integer menode_ ();  
-  extern Integer idamax_(), mxmynd_ (), mypid();
+  extern Integer mxmynd_ (), mypid();
   extern void fil_int_lst();
   extern void fil_dbl_lst();
   

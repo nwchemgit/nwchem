@@ -231,7 +231,7 @@ void pstebz9_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e,
     *  External Procedures
     */
 
-   extern Integer      mxmynd_(), mxnprc_(), mxwrit_(), mxread_(), mxbrod_();
+   extern Integer      mxmynd_(), mxnprc_();
 
    extern void     sort_();
    extern void     dstebz3_();
@@ -469,7 +469,7 @@ void pstebz9_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e,
       if ( nn_procs > 1) {
          isize = 2 * sizeof( Integer );
          itype = 15;
-         mxbrod_( i_work, proclist, &isize, &nn_procs, proclist, &itype );
+         mxbrod_((int *) i_work, proclist, &isize, &nn_procs, proclist, &itype );
 
          nlow  = i_work[ 0 ];
          nhigh = i_work[ 1 ];

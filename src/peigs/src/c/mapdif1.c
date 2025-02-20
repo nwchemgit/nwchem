@@ -80,8 +80,6 @@ void mapdif1_ ( n, mapA, m, mapB, iscratch, ndiff )
   
   extern Integer      mxnprc_();
   extern Integer      mxmynd_();
-  extern Integer      reduce_list2();
-  extern Integer      qqsort();
   
   nproc = mxnprc_();
   me = mxmynd_ ();

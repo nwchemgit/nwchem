@@ -105,16 +105,6 @@ void pmmLUL(n, mapA, mapvecA, vecA, mapB, mapvecB, vecB,
  * -------------------
  */
 
-   extern void     dcopy_();
-
-   extern Integer      mxmynd_(), mxwrit_(), mxread_();
-   extern Integer count_list();
-   extern Integer reduce_list2();
-   extern void chol_pipe_bcast();
-   extern void     zero_out();
-
-   extern void daxpy_();
-
 /*
  * Executable code
  * ---------------

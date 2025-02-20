@@ -442,13 +442,13 @@ jobs:
             xcode_version: 15.0.1
           - os: macos-latest
             experimental: true
-            mpi_impl: build_mpich
+            mpi_impl: mpich
             armci_network: MPI-TS
-            nwchem_modules: "nwdft driver solvation"
+            nwchem_modules: "all"
             fc: gfortran-14
             cc: gcc-14
-            blas: "brew_openblas"
-            blas_size: 4
+            blas: "build_openblas"
+            blas_size: 8
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}

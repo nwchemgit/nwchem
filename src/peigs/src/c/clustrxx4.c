@@ -84,16 +84,9 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   DoublePrecision eps;
   DoublePrecision *dscrat;
   
-  extern void xerbla_();
-  extern Integer idamax_(), mclock_(), succ_(), mxmynd_(), mxnprc_();
-  extern DoublePrecision dasum_(), dnrm2_(), ddot_(), dlarnd_();
-  extern void dlagtf_(), dlarnv_();
-  extern void printff_(), mgs_3();
-  extern void mgspnl_(), dscal_(), dlagts_();
-  extern void dcopy_(), daxpy_();
-  extern Integer count_list ();
-  extern void mgs (), mgscs();
-  extern void fil_dbl_lst ();
+  extern Integer mclock_(), succ_(), mxmynd_(), mxnprc_();
+  extern void printff_();
+  extern void mgspnl_();
   
   /*
     Function Body

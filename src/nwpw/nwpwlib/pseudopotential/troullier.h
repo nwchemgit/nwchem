@@ -8,7 +8,10 @@
 
 */
 
-void	Suggested_Param_Troullier();
-void	solve_Troullier();
+void	Suggested_Param_Troullier(int *, int *, int *, double *, double *, double *);
+void	solve_Troullier(int , int *, int *, double *, double *, double *,
+		     double  **, double  **, double  *, double  *, double  **,
+		     double  *, double  *, double  *, double  *, double  *, double  *, double  *,
+		     int *, double **, double **);
 
 #endif

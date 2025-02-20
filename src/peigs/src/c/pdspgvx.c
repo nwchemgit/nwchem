@@ -317,18 +317,8 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
    */
   
   extern Integer  mxmynd_(), mxnprc_();
-  extern Integer  mapchk_(), count_list(), fil_mapvec_(), reduce_list2();
 
-  extern void     xstop_(), pdiff();
-  extern void     pgexit();
-  extern void     mapdif_();
-  extern void     choleski(), mxm5x(), inverseL();
-  extern void     forwardLU_(), forwardLL_(), pdspevx(), upperUF_(),
-                  lsl_conjugation2(), mxinit_();
-  extern void     mdiff2_(), mdif2b_();
-  extern void     memreq_();
-  extern void     bbcast00();
-  extern void     gi_sum();
+  extern void    mxinit_();
   
 #ifdef TIMING
   extern TIMINGG test_timing;

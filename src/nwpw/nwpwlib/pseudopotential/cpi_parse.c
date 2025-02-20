@@ -5,8 +5,8 @@
 #include "typesf2c.h"
 #include "get_word.h"
 
-extern double cpi_Splint();
-extern void   cpi_Spline();
+extern double cpi_Splint(double *, double *, double *, int, int, double);
+extern void   cpi_Spline(double *, double *, int, double , double , double *, double *);
 
 
 #if (defined(WIN32)) && !defined(__MINGW32__)

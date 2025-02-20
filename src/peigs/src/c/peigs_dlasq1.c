@@ -11,10 +11,8 @@ void peigs_dlasq1( Integer n, DoublePrecision *dplus, DoublePrecision *lplus, Do
 {   
   Integer i, j, iii, me, nproc;
   DoublePrecision *dptr;
-  extern void dlasq1_();
   FILE *file;
   char filename[40];
-  extern int close();
   
   me    = mxmynd_();
   nproc = mxnprc_();

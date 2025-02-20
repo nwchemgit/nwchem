@@ -109,9 +109,7 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   Integer nvecsA, nvecsQ, nvecsQ_max, nvecsZ, nvecsZ_max, nvecsB;
   
 
-  extern Integer count_list(), ci_size_();
   extern Integer mxmynd_(), mxnprc_();
-  extern void   memreq2(), l_exit_();
   extern void     mxinit_();
   
    mxinit_();

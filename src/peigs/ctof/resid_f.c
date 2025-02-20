@@ -81,8 +81,6 @@ void resid_( n, matrixA, mapA, m, matrixZ, mapZ, eval, iwork, work, res, info)
   
   
   extern Integer  mxmynd_();
-  extern Integer  fil_mapvec_();
-  extern void     resid();
   
   /*
     usual story about error handling
