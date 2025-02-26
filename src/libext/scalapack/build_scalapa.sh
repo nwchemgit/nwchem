@@ -241,6 +241,7 @@ GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cu
 if [[ `${MPICC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
     let GCCVERSIONGT12=$(expr `${MPICC} -dumpversion | cut -f1 -d.` \> 12)
     let GCCVERSIONGT13=$(expr `${MPICC} -dumpversion | cut -f1 -d.` \> 13)
+    let GCCVERSIONGT14=$(expr `${MPICC} -dumpversion | cut -f1 -d.` \> 14)
 fi
 
 if [[ ${GOTCLANG} == "1" ]] || [[ ${GCCVERSIONGT12} == "1" ]]  ; then
@@ -248,6 +249,10 @@ if [[ ${GOTCLANG} == "1" ]] || [[ ${GCCVERSIONGT12} == "1" ]]  ; then
 fi
 if [[ ${GCCVERSIONGT13} == "1" ]]  ; then
     C_FLAGS+=" -std=gnu17 "
+fi
+if [[ ${GCCVERSIONGT14} == "1" ]]  ; then
+    C_FLAGS+=" -fPIE "
+    Fortran_FLAGS+=" -fPIE "
 fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     if  [[ ${FC} == f95 ]] || [[ ${FC_EXTRA} == gfortran ]] ; then
