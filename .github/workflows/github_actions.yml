@@ -505,6 +505,7 @@ jobs:
         run: |
           ./travis/compile_check.sh
       - name: store cache
+        if: ${{ (steps.setup-cache.outputs.cache-hit != 'true')
         run: |
           ./travis/cache_store.sh
       - name: qa_test
