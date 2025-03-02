@@ -63,8 +63,7 @@
 #include <stdlib.h>
 
 #include "globalp.c.h"
-
-extern DoublePrecision ddot_(), dnrm2_(), dasum_();
+#include <string.h>
 
 #define MSG_START 25000
 
@@ -95,9 +94,7 @@ void bbcast00(buf, len, type, root, snumprocs, plist)
     mkplist ();  assume that plist has the list of all the processors
     */
 
-  extern Integer mxbrod_();
-  
-  mxbrod_(buf,&root,&len,&snumprocs,plist,&type);
+  mxbrod_((int *)buf,&root,&len,&snumprocs,plist,&type);
 }
 
 void ibcast00(buf, len, type, root, snumprocs, plist)
@@ -111,9 +108,8 @@ void ibcast00(buf, len, type, root, snumprocs, plist)
     mkplist ();  assume that plist has the list of all the processors
     */
   
-  extern Integer mxbrod_();
   
-  mxbrod_(buf,&root,&len,&snumprocs,plist,&type);
+  mxbrod_((int *)buf,&root,&len,&snumprocs,plist,&type);
 }
 
 void peigs_gmax00(buf, items, datatype, msgtype, root, snumprocs, plist, work)
@@ -126,10 +122,9 @@ void peigs_gmax00(buf, items, datatype, msgtype, root, snumprocs, plist, work)
      DoublePrecision *work;  /* workspace containing at least bufsiz bytes (see cmbbrf.h) */
 {
   Integer eight = sizeof(DoublePrecision);
-  extern Integer maxd_();
-  extern Integer mxcombv1_();
+  extern Integer maxd_(Integer *, Integer *, Integer *, Integer *);
   
-  mxcombv1_( buf, maxd_, &eight, &items, &snumprocs, plist, &msgtype, (char *)work);
+  mxcombv1_( (Integer *)buf, maxd_, &eight, &items, &snumprocs, plist, &msgtype, (Integer *)work);
 }
 
 
@@ -151,10 +146,9 @@ void gsum00(buf, items, datatype, msgtype, root, snumprocs, plist, work)
      DoublePrecision *work;  /* workspace containing at least bufsiz bytes (see cmbbrf.h) */
 {
   Integer eight = sizeof(DoublePrecision);
-  extern Integer sumdv_();
-  extern Integer mxcombv1_();
+  extern Integer sumdv_(Integer *, Integer *, Integer *, Integer *);
   
-  mxcombv1_( buf, sumdv_, &eight, &items, &snumprocs, plist, &msgtype, (char *)work);
+  mxcombv1_( (Integer *)buf, sumdv_, &eight, &items, &snumprocs, plist, &msgtype, (Integer *)work);
 }
 
 void gsum01(buf, items, datatype, msgtype, root, snumprocs, plist, work)
@@ -170,10 +164,9 @@ void gsum01(buf, items, datatype, msgtype, root, snumprocs, plist, work)
      DoublePrecision *work;  /* workspace containing at least bufsiz bytes (see cmbbrf.h) */
 {
   Integer data_len = sizeof(Integer);
-  extern Integer sumiv_();
-  extern Integer mxcombv1_();
+  extern Integer sumiv_(Integer *, Integer *, Integer *, Integer *);
   
-  mxcombv1_( buf, sumiv_, &data_len, &items, &snumprocs, plist, &msgtype, (char *)work);
+  mxcombv1_( (Integer *)buf, sumiv_, &data_len, &items, &snumprocs, plist, &msgtype, (Integer *)work);
 }
 
 /* ----- FORTRAN interface ---------- */
@@ -249,27 +242,9 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
   Integer me;                    /* my node number */
   
   
-  char *strcpy();
-  
   extern Integer mxmynd_();
   extern Integer mxmync_();
-  extern Integer reduce_list2();
-  extern Integer count_list();
-  extern Integer indxL();
   extern Integer mxnprc_();
-  extern Integer fil_mapvec_();
-
-  extern void xerbla_();
-  extern void mapdif1_();
-
-  extern void g_exit_();
-  extern void pxerbla2_();
-
-  extern void dscal_();
-  extern void dcopy_();
-  extern void daxpy_();
-  extern DoublePrecision dasum_();
-
   
   Integer size, nrowsA, nrowsQ;
   
@@ -325,7 +300,7 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
   for ( i = 0 ; i < nrowsA; i++ )
     if ( vecA[i] == NULL ){
       linfo = -2; 
-      fprintf(stderr, "node = %d NULL vector assignment in vecA \n", me);
+      fprintf(stderr, "node = %d NULL vector assignment in vecA \n", (int)me);
       xerbla_( "TRED2 \n", &linfo);
     }
     
@@ -351,7 +326,7 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
   if ( upperdiag == NULL )
     linfo = -7;
   
-  sprintf(msg, "TRED22:Error in argument %d \n", linfo);
+  sprintf(msg, "TRED22:Error in argument %d \n", (int)linfo);
 
   /*
   printf(" in tred22.c me = %d \n", me );

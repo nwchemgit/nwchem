@@ -90,8 +90,7 @@ void pdiff( n, data, proclist, nprocs, iwork, msg1, msg2, info )
 
   Integer isize, me, last_proc, next_proc, indx;
   
-  extern Integer indxL ();
-  extern Integer mxwrit_(), mxread_(), mxmynd_();
+  extern Integer mxmynd_();
   
 
   *info = 0;
@@ -101,7 +100,7 @@ void pdiff( n, data, proclist, nprocs, iwork, msg1, msg2, info )
   indx = indxL ( me, *nprocs, proclist);
   
   if ( indx < 0 ) {
-    fprintf( stderr, " Error in pdiff.  me = %d not in proclist. \n", me );
+    fprintf( stderr, " Error in pdiff.  me = %d not in proclist. \n", (int)me );
     exit(-1);
   }
 
@@ -116,20 +115,20 @@ void pdiff( n, data, proclist, nprocs, iwork, msg1, msg2, info )
   isize = *n;
 
   if ( ( (indx + 2) % 2) == 0 ) {
-    mxwrit_( (Integer *)data,  &isize, &next_proc, &TYPE );
-    mxread_( iwork, &isize, &last_proc, &TYPE );
+    mxwrit_( (DoublePrecision *)data,  &isize, &next_proc, &TYPE );
+    mxread_( (DoublePrecision *)iwork, &isize, &last_proc, &TYPE );
   }
   else {
-    mxread_( iwork, &isize, &last_proc, &TYPE );
-    mxwrit_( (Integer *)data,  &isize, &next_proc, &TYPE );
+    mxread_( (DoublePrecision *)iwork, &isize, &last_proc, &TYPE );
+    mxwrit_( (DoublePrecision *)data,  &isize, &next_proc, &TYPE );
   }
     
   indx = memcmp( data, iwork, *n );
-  indx = abs(indx);
+  indx = labs(indx);
 
   if( indx != 0 ) {
     fprintf( stderr, " %s %s is different on processors %d and %d \n",
-             msg1, msg2, me, last_proc );
+             msg1, msg2, (int)me, (int)last_proc );
 
     *info = 1;
   }

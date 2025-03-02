@@ -88,11 +88,6 @@ void pdspgv_(ifact, n, matrixA, mapA, matrixB, mapB, matZ, mapZ, eval,
 
     extern Integer      mxmynd_();
 
-    extern Integer      ci_entry();
-    extern Integer      count_list();
-    extern void     l_exit_();
-
-    extern void     pdspgv();
     extern void     mxinit_();
 
 
@@ -157,7 +152,7 @@ void pdspgv_(ifact, n, matrixA, mapA, matrixB, mapB, matZ, mapZ, eval,
        *info = linfo;
      
      fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
-              msg, me, -linfo );
+              msg, (int)me, (int)(-linfo) );
      l_exit_( &linfo, msg );
      return;
    }
@@ -169,7 +164,7 @@ void pdspgv_(ifact, n, matrixA, mapA, matrixB, mapB, matZ, mapZ, eval,
     if ( *ibuffsz < (nvecsA + nvecsB + nvecsZ + 3 )) {
 	*info = -10;
 	
-        fprintf( stderr, " %s me = %d ibuffsz is too small. \n", msg, me );
+        fprintf( stderr, " %s me = %d ibuffsz is too small. \n", msg, (int)me );
 	l_exit_( info, msg );
 	return;
       }

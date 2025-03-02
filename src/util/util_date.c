@@ -5,7 +5,7 @@
 #include <sys/time.h>
 #endif
 
-#if defined(CRAY) && !defined(__crayx1)
+#if defined(CRAY)
 #define util_date_ UTIL_DATE
 #include <fortran.h>
 #define FATR

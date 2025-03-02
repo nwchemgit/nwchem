@@ -96,15 +96,10 @@ scratch   = (integer scratch array) length(k_indx + 1)
   Integer num_indx, me;
   Integer *junk, k, isize;
   
-  extern Integer in_list();
-  extern Integer qqsort();
   extern void qshellsort_ ();
   
   extern Integer mxmync_ ();
   extern Integer mxmynd_ ();
-  extern Integer mxwrit_ ();
-  extern Integer mxread_ ();
-  extern Integer reduce_list22();
   
   /*
     reduce the list of processors to the minimum list holding 
@@ -158,14 +153,14 @@ scratch   = (integer scratch array) length(k_indx + 1)
 #endif
   
   if ( me == root ) {
-    isize = mxwrit_ ( buf, &len, &junk[1], &type);
+    isize = mxwrit_ ( (DoublePrecision *) buf, &len, &junk[1], &type);
   }
   
   for ( k = 1; k < num_indx; k++ ){
     if ( me == junk[k] ) {
-      isize = mxread_ ( buf, &len, &junk[k-1] , &type);
+      isize = mxread_ ( (DoublePrecision *) buf, &len, &junk[k-1] , &type);
       if ( k < ( num_indx - 1 ) ){
-	isize = mxwrit_ ( buf, &len, &junk[k+1] , &type);
+	isize = mxwrit_ ( (DoublePrecision *) buf, &len, &junk[k+1] , &type);
       }
     }
   }

@@ -1,9 +1,9 @@
 #include "ga.h"
-#if (defined(CRAY) || defined(WIN32) || defined(CATAMOUNT))&& !defined(__crayx1) 
+#if (defined(CRAY) || defined(WIN32) || defined(CATAMOUNT))
 
 #include "typesf2c.h"
 
-#if defined(CRAY) && !defined(__crayx1)
+#if defined(CRAY)
 #define util_debug_ UTIL_DEBUG
 #include <fortran.h>
 #endif

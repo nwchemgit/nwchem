@@ -32,14 +32,12 @@
 #include <string.h>
 #include "typesf2c.h"
 
-#if !defined(__crayx1)
-
 #if defined(CRAY) || defined(CRAY_T3D) 
 #include <fortran.h>
 #define USE_FCD
 #endif
 
-#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__MINGW32__)
 #define cwrite_ CWRITE
 #define cread_  CREAD
 #define iwrite_ IWRITE
@@ -51,8 +49,6 @@
 #define flush_fileptr_  FLUSH_FILEPTR
 #define openfile_  OPENFILE
 #define closefile_ CLOSEFILE
-#endif
-
 #endif
 
 

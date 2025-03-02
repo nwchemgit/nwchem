@@ -79,11 +79,7 @@ extern int ARMCI_AccS(                /* strided accumulate */
                 );
 
 
-#ifdef __crayx1__
-#define ARMCI_Get(_s,_d,_b,_p) memcpy(_d,_s,_b), 0
-#else
 extern int ARMCI_Get(void *src, void* dst, int bytes, int proc);
-#endif
 
 extern int ARMCI_GetS(          /* strided get */
                 void *src_ptr,        /* pointer to 1st segment at source*/ 

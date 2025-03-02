@@ -39,8 +39,6 @@
 
 #include "globalp.c.h"
 
-extern DoublePrecision ddot_(), dnrm2_(), dasum_();
-extern void daxpy_(), dscal_();
 
 #define MSG_START 25000
 
@@ -104,29 +102,10 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
   Integer me;                    /* my node number */
   
   
-  char *strcpy();
-  
   extern Integer mxmynd_();
   extern Integer mxmync_();
-  extern Integer reduce_list2();
-  extern Integer count_list();
-  extern Integer indxL();
   extern Integer mxnprc_();
-  extern Integer fil_mapvec_();
 
-  extern void xerbla_();
-  extern void mapdif1_();
-
-  extern void g_exit_();
-  extern void pxerbla2_();
-
-  extern void dscal_();
-  extern void dcopy_();
-  extern void daxpy_();
-  extern DoublePrecision dasum_();
-  extern void bbcast00();
-
-  
   Integer csize, ncolumnsA;
   
   Integer iii;
@@ -181,7 +160,7 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
   for ( i = 0 ; i < ncolumnsA; i++ )
     if ( vecA[i] == NULL ){
       linfo = -2; 
-      fprintf(stderr, "node = %d NULL vector assignment in vecA \n", me);
+      fprintf(stderr, "node = %d NULL vector assignment in vecA \n", (int)me);
       xerbla_( "MGSCS \n", &linfo);
     }
     

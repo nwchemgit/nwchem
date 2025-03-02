@@ -53,19 +53,32 @@ fi
 		HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall  $MPI_IMPL  ||true
 #		HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew link --overwrite $MPI_IMPL ||true
 	    fi
+     if [ -z "$HOMEBREW_CELLAR" ] ; then
+	 HOMEBREW_CELLAR=/usr/local/Cellar
+     fi
      if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
 	 #install non default gfortran, ie gfortran-9
 	 #get version
 	 mygccver=$(echo "$FC"|cut -d - -f 2)
 	 echo mygccver is "$mygccver"
 	 HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc@"$mygccver" || true
+	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
+	 echo gfortran is $(gfortran -v)
+	 echo gfortran-"$mygccver" is $(gfortran-"$mygccver" -v)
+     fi
+     if [[ "$CC" != gcc ]] && [[ "$CC" == gcc* ]]; then
+	 #install non default gfortran, ie gcc-9
+	 #get version
+	 mygccver=$(echo "$CC"|cut -d - -f 2)
+	 echo mygccver is "$mygccver"
+	 HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall gcc@"$mygccver" || true
+	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
+	 echo gcc is $(gcc -v)
+	 echo gcc-"$mygccver" is $(gcc-"$mygccver" -v)
      fi
      #hack to fix Github actions mpif90
      gccver=`brew list --versions gcc| head -1 |cut -c 5-`
      echo brew gccver is $gccver
-     if [ -z "$HOMEBREW_CELLAR" ] ; then
-	 HOMEBREW_CELLAR=/usr/local/Cellar
-     fi
      ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran || true
      ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
      #	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
@@ -125,10 +138,10 @@ fi
      if [[ "$MPI_IMPL" != "build_mpich" ]]; then
 	 #check mpi install
 	 if [[ "$MPI_IMPL" == "mpich" ]]; then
-	     echo 'mpicc -show' $("$HOMEBREW_PREFIX"/opt/mpich/bin/mpif90 -show)
+	     echo 'mpi90 -show' $("$HOMEBREW_PREFIX"/opt/mpich/bin/mpif90 -show)
 	 fi
 	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
-	     echo 'mpicc -show' $("$HOMEBREW_PREFIX"/opt/open-mpi/bin/mpif90 -show)
+	     echo 'mpif90 -show' $("$HOMEBREW_PREFIX"/opt/open-mpi/bin/mpif90 -show)
 	 fi
      fi
      if [[ "$BLAS_ENV" == "brew_openblas" ]]; then
@@ -204,7 +217,7 @@ if [[ "$os" == "Linux" ]]; then
 
 	fi
 	if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
-	    $MYSUDO apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-mkl intel-oneapi-compiler-dpcpp-cpp
+	    $MYSUDO apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-mkl intel-oneapi-compiler-dpcpp-cpp  libfabric-bin libnuma1
 	    if [[ "$?" != 0 ]]; then
 		df -h
 		echo "intel-oneapi-compiler-fortran install failed: exit code " "${?}"
@@ -214,7 +227,7 @@ if [[ "$os" == "Linux" ]]; then
 	    export I_MPI_F90="$FC"
 	    "$FC" -V ; if [[ $? != 0 ]]; then echo "Intel SW install failed"; exit 1; fi
 	    icx -V
-	    sudo rm -rf $MKLROOT/lib/*sycl* || true
+	    $MYSUDO rm -rf $MKLROOT/lib/*sycl* || true
 	fi
 	if [[ "$FC" == 'flang-new-'* ]]; then
 	    wget https://apt.llvm.org/llvm.sh
@@ -254,7 +267,7 @@ if [[ "$os" == "Linux" ]]; then
 	fi
 	if [[ "$FC" == "amdflang" ]]; then
 	    $MYSUDO apt-get install -y wget gnupg2 coreutils dialog tzdata
-	    rocm_version=5.6.1
+	    rocm_version=6.2.4
 	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  $MYSUDO apt-key add - \
 		&& break ; \
@@ -271,13 +284,13 @@ if [[ "$os" == "Linux" ]]; then
 	fi
 	if [[ "$FC" == "nvfortran" ]]; then
 	    $MYSUDO apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
-	    nv_major=23
-	    nv_minor=7
+	    nv_major=24
+	    nv_minor=11
 	    nverdot="$nv_major"."$nv_minor"
 	    nverdash="$nv_major"-"$nv_minor"
 	    arch_dpkg=`dpkg --print-architecture`
-	    curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --yes --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
-            echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+	    curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | $MYSUDO gpg --yes --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
+            echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | $MYSUDO tee /etc/apt/sources.list.d/nvhpc.list
 	    echo '*** added hpc-sdk source to /etc/aps ***'
 	    ls -lrt /etc/apt/sources.list.d/ || true
 	    ls -lrt	/etc/apt/sources.list.d/nvhpc.list || true
@@ -295,6 +308,8 @@ if [[ "$os" == "Linux" ]]; then
 	    $MYSUDO rm -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/profilers
 	    $MYSUDO rm -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs
 	    $MYSUDO rm -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/math_libs
+	    $MYSUDO ln -sf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot" /opt/nvidia/hpc_sdk/Linux_"$arch"/latest
+	    ls -lrt /opt/nvidia/hpc_sdk/Linux_"$arch"/latest/
 	    export FC=nvfortran
 	    export CC=gcc
 	    nvfortran -V ;if [[ $? != 0 ]]; then echo "nvfortran install failed"; exit 1; fi
@@ -302,9 +317,11 @@ if [[ "$os" == "Linux" ]]; then
 	fi
     fi
     # check for mpif90 command and exit if not present
+    if [[ "$MPI_IMPL" != "build_mpich" ]]; then
     if [[ ! $(command -v mpif90) ]]; then echo "mpif90 not present"; exit 1; fi
     echo "mpif90 -show output is " `mpif90 -show` || true
     echo "which mpif90 output is " `which mpif90` ||  true
+    fi
 # try to use ubuntu flaky GA pkg 
     if [[ "$ARMCI_NETWORK" == "GA_DEBIAN" ]]; then
 	$MYSUDO apt-get install -y libglobalarrays-dev libarmci-mpi-dev

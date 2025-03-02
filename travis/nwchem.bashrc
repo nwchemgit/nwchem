@@ -5,6 +5,11 @@ echo "BLASOPT is " $BLASOPT
 echo "BUILD_OPENBLAS is " $BUILD_OPENBLAS
 os=`uname`
 arch=`uname -m`
+if [[ -z "$APPTAINER_NAME" ]] || [[ -z "$SINGULARITY_NAME" ]] ; then
+    MYSUDO=sudo
+else
+    MYSUDO=" "
+fi
 if test -f "/usr/lib/os-release"; then
     dist=$(grep ID= /etc/os-release |head -1 |cut -c4-| sed 's/\"//g')
 fi
@@ -44,12 +49,11 @@ if [[ "$FC" == 'flang-new-'* ]]; then
 fi
 
 if [[ "$FC" == "nvfortran" ]]; then
-     nv_major=23
-     nv_minor=7
-     nverdot="$nv_major"."$nv_minor"
-     export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
-     export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
-     sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
+     export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/latest/compilers/bin:$PATH
+     echo "**** before hpc_sdk makelocalrc"
+     $MYSUDO /opt/nvidia/hpc_sdk/Linux_"$arch"/latest/compilers/bin/makelocalrc -x
+     echo "**** done hpc_sdk makelocalrc"
+     export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/latest/compilers/lib:$LD_LIBRARY_PATH
      export FC=nvfortran
      export MPICH_FC=nvfortran
 fi
@@ -58,6 +62,11 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 	IONEAPI_ROOT=~/apps/oneapi
     else
 	IONEAPI_ROOT=/opt/intel/oneapi
+# fix runtime mpi_init error
+#	export FI_LOG_LEVEL=TRACE
+	export FI_PROVIDER=shm
+	echo "*** output of fi_info ***"
+	echo $(fi_info -l) || true
     fi
 #    source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
     source "$IONEAPI_ROOT"/setvars.sh --force
@@ -65,6 +74,18 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 #force icc on macos to cross-compile x86 on arm64
 # icx not available on macos
     if [[ "$os" == "Darwin" ]]; then
+     if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
+	 mygccver=$(echo "$FC"|cut -d - -f 2)
+	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
+	 echo gfortran is $(gfortran -v)
+	 echo gfortran-"$mygccver" is $(gfortran-"$mygccver" -v)
+     fi
+     if [[ "$CC" != gcc ]] && [[ "$CC" == gcc* ]]; then
+	 mygccver=$(echo "$CC"|cut -d - -f 2)
+	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
+	 echo gcc is $(gcc -v)
+	 echo gcc-"$mygccver" is $(gcc-"$mygccver" -v)
+     fi
 #	CC=icc
 #	CXX=icc
 # Intel MPI not available on macos       
@@ -86,6 +107,9 @@ if [[ -f "$IONEAPI_ROOT"/mpi/latest/env/vars.sh ]]; then
 	source /opt/intel/oneapi/mkl/latest/env/vars.sh
     fi
 fi
+if [[ "$MPI_IMPL" == "build_mpich" ]]; then 
+  export BUILD_MPICH=1
+fi
 if [[ "$os" == "Darwin" ]]; then 
   export NWCHEM_TARGET=MACX64 
   export DYLD_FALLBACK_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$DYLD_FALLBACK_LIBRARY_PATH 
@@ -94,9 +118,6 @@ if [[ "$os" == "Darwin" ]]; then
   fi
   if [[ "$MPI_IMPL" == "mpich" ]]; then 
     export PATH=/usr/local/opt/mpich/bin/:$PATH 
-  fi
-  if [[ "$MPI_IMPL" == "build_mpich" ]]; then 
-    export BUILD_MPICH=1
   fi
 
 fi

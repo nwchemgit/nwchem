@@ -163,18 +163,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 
   extern Integer      mxnprc_(), mxmynd_();
 
-  extern Integer clustrf4_();
-  
-  extern Integer      reduce_list2(), count_list(), clustrinv4_();
-  extern Integer      indxL ();
-
   //  extern void reduce_maps();
-  extern void     xstop_();
-  extern void     pgexit();
-  extern void     pdiff();
-  extern void gsum01(), gmax00();
-  extern void bbcast00(), tresid();
-  extern Integer       fil_mapvec_(), clustrfix_();
   
 /*
  *  ---------------------------------------------------------------

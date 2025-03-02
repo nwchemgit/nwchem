@@ -395,10 +395,13 @@ C>
       logical dipole_okay  !< [Input] Should the dipole derivative be
                            !< stored?
       logical lopen        !< Is the file open?
+      logical does_it_exist !< Does the file exist
 c
       integer iatom_start, ixyz_start
       integer iflag_grad0
       integer dipole_there
+      integer iostat
+      character*256 io_errmsg
 c
       if (ga_nodeid().ne.0) then
         write(luout,*)' non-master node called me ',ga_nodeid()
@@ -432,6 +435,18 @@ c     is a bug somewhere else.
       inquire(unit=69,opened=lopen)
       if (lopen) call errquit("stpr_put_genat_restart: unit 69 should "
      &                      //"be closed at this point",0,UERR)
+      inquire(file=FILEATR,exist=does_it_exist)
+      if(.not.does_it_exist) then
+         open(unit=69, file=FILEATR,
+     I        iostat=iostat,
+     &     iomsg=io_errmsg)
+      if(iostat.ne.0)
+     W     write(6,*) ga_nodeid(),' open iomsg WARNING: ',io_errmsg
+         close(unit=69,iostat=iostat,
+     &     iomsg=io_errmsg)
+      if(iostat.ne.0)
+     W     write(6,*) ga_nodeid(),' close iomsg WARNING: ',io_errmsg
+      endif
       open(unit=69,file=FILEATR,
      &    form='unformatted',
      &    access='sequential',

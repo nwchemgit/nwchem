@@ -69,8 +69,6 @@ void pgexit( info, msg, proclist, nprocs, work )
 
   Integer m;
   
-  extern void    gi_sum();
-  extern void    xstop_();
   extern Integer mxmynd_();
 
   m = ffabs( *info );
@@ -82,7 +80,7 @@ void pgexit( info, msg, proclist, nprocs, work )
   
   if ( m != 0 ) {
     *info = -51;
-    fprintf( stderr, " %s  me = %d exiting via pgexit. \n", msg, mxmynd_() );
+    fprintf( stderr, " %s  me = %d exiting via pgexit. \n", msg, (int)mxmynd_() );
     xstop_( info );
   }
 

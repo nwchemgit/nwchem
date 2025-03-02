@@ -119,10 +119,6 @@ void tresid( n, m, d, e, colZ, mapZ, eval, iwork, work, res, info)
   DoublePrecision  *ptr, *scrat;
   
   extern Integer          mxmynd_();
-  extern Integer          count_list(), reduce_list2();
-  extern void             gmax00();
-
-  
   /*
     usual story about error handling
     should perform global sync to check for errors

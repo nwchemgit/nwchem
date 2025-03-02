@@ -24,9 +24,7 @@
 
 #if defined(CRAY)
 #include <fortran.h>
-#if !defined(__crayx1)
 #define USE_FCD
-#endif
 #endif
 
 extern void lattice_min_difference_();
@@ -941,7 +939,7 @@ double nwpw_fmachine(Integer i0, Integer ii0, Integer ln, Integer code[], double
  *                                                      *
  ********************************************************/
 
-#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__MINGW32__)
 #define nwpw_emachine_parse_ nwpw_emachine_parse
 #endif
 
@@ -994,7 +992,7 @@ double fconst0[];
  *                                                      *
  ********************************************************/
 
-#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__MINGW32__)
 #define nwpw_emachine_f_ nwpw_emachine_f
 #endif
 
@@ -1036,7 +1034,7 @@ double rion0[];
  *                                                      *
  ********************************************************/
 
-#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__MINGW32__)
 #define nwpw_emachine_df_ nwpw_emachine_df
 #endif
 

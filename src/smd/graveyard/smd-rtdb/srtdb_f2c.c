@@ -11,7 +11,7 @@
 #define FORTRAN_FALSE ((Logical) 0)
 
 
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+#if (defined(CRAY) || defined(USE_FCD))
 Logical FATR srtdb_open_(_fcd filename, _fcd mode, Integer *handle)
 {
   int flen = _fcdlen(filename);
@@ -46,7 +46,7 @@ Logical FATR srtdb_open_(const char *filename, const char *mode, Integer *handle
 }
 
 
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+#if (defined(CRAY) || defined(USE_FCD))
 Logical FATR srtdb_close_(const Integer *handle, _fcd mode)
 {
   int mlen = _fcdlen(mode);
@@ -66,7 +66,7 @@ Logical FATR srtdb_close_(const Integer *handle, const char *mode, const int mle
  else
     return FORTRAN_FALSE;
 }
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+#if (defined(CRAY) || defined(USE_FCD))
 Logical FATR srtdb_get_info_(const Integer *handle, _fcd name, 
 		       Integer *ma_type, Integer *nelem, _fcd date)
 {
@@ -113,7 +113,7 @@ Logical FATR srtdb_get_info_(const Integer *handle, const char *name,
     return FORTRAN_FALSE;
   }
 }
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+#if (defined(CRAY) || defined(USE_FCD))
 Logical FATR srtdb_put_(const Integer *handle, _fcd name, const Integer *ma_type,
 		  const Integer *nelem, const void *array)
 {
@@ -147,7 +147,7 @@ Logical FATR srtdb_put_(const Integer *handle, const char *name, const Integer *
   else
     return FORTRAN_FALSE;
 }
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+#if (defined(CRAY) || defined(USE_FCD))
 Logical FATR srtdb_get_(const Integer *handle, _fcd name, 
 		  const Integer *ma_type, const Integer *nelem, 
 		  void *array)
@@ -197,7 +197,7 @@ Logical FATR srtdb_print_(const Integer *handle, const Logical *print_values)
     return FORTRAN_FALSE;
 }
 
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+#if (defined(CRAY) || defined(USE_FCD))
 Logical FATR srtdb_cput_(const Integer *handle, _fcd name,
 		   const Integer *nelem,
 		   _fcd farray)
@@ -227,7 +227,7 @@ Logical FATR srtdb_cput_(const Integer *handle, const char *name,
   for (i=0, left=sizeof(abuf), next=abuf;
        i<*nelem;
        i++, array+=alen) {
-#if defined(CRAY) && !defined(__crayx1)
+#if defined(CRAY)
       _fcd element = _cptofcd(array, alen);
 #elif defined(WIN32)
       _fcd element;
@@ -271,7 +271,7 @@ Logical FATR srtdb_cput_(const Integer *handle, const char *name,
 }
 
 
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+#if (defined(CRAY) || defined(USE_FCD))
 Logical FATR srtdb_cget_(const Integer *handle, _fcd name,
 		   const Integer *nelem,
 		   _fcd farray)
@@ -322,7 +322,7 @@ Logical FATR srtdb_cget_(const Integer *handle, const char *name,
   for (i=0, next=strtok(abuf, "\n");
        next;
        i++, array+=alen, next=strtok((char *) 0, "\n")) {
-#if defined(CRAY) && !defined(__crayx1)
+#if defined(CRAY)
       _fcd element = _cptofcd(array, alen);
 #elif defined(WIN32)
       _fcd element;
@@ -350,13 +350,13 @@ Logical FATR srtdb_cget_(const Integer *handle, const char *name,
 }
 
 
-#if (defined(_CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+#if (defined(_CRAY) || defined(USE_FCD))
 Logical FATR srtdb_first_(const Integer *handle, _fcd name)
 #else
 Logical FATR srtdb_first_(const Integer *handle, char *name, int nlen)
 #endif
 {
-#if (defined(_CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+#if (defined(_CRAY) || defined(USE_FCD))
   // dummy arg, value reassigned by string_to_fortchar in this case
   int nlen = _fcdlen(name);
 #endif
@@ -369,13 +369,13 @@ Logical FATR srtdb_first_(const Integer *handle, char *name, int nlen)
     return FORTRAN_FALSE;
 }
 
-#if (defined(_CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+#if (defined(_CRAY) || defined(USE_FCD))
 Logical FATR srtdb_next_(const Integer *handle, _fcd name)
 #else
 Logical FATR srtdb_next_(const Integer *handle, char *name, int nlen)
 #endif
 {
-#if (defined(_CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+#if (defined(_CRAY) || defined(USE_FCD))
   // dummy arg, value reassigned by string_to_fortchar in this case
   int nlen = _fcdlen(name);
 #endif
@@ -387,7 +387,7 @@ Logical FATR srtdb_next_(const Integer *handle, char *name, int nlen)
   else
     return FORTRAN_FALSE;
 }
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+#if (defined(CRAY) || defined(USE_FCD))
 Logical FATR srtdb_delete_(const Integer *handle, _fcd name)
 {
   int nlen = _fcdlen(name);

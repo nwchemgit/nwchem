@@ -58,7 +58,7 @@ void l_exit_ ( info, array )
   
   me = mxmynd_ ();
   
-  fprintf(stderr, " %s  My node id = %d info = %d (l_exit_) \n", array, me, *info);
+  fprintf(stderr, " %s  My node id = %d info = %d (l_exit_) \n", array, (int)me, (int)(*info));
   xerbl2_ ();
   return;
 }

@@ -558,6 +558,9 @@ endif
 ifeq ($(GNU_GE_8),true)
   FFLAGS_FORGA += -std=legacy
 endif
+ifeq ($(GCC_GE_14),true)
+  CFLAGS_FORGA += -std=gnu17
+endif
 #detect clang
 GOTCLANG := $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
 GOTFREEBSD := $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
@@ -618,7 +621,7 @@ ifdef USE_GAGITHUB
 	GET_TOOLS=./get-tools-github
   ifdef USE_GA_RELEASE
     ifndef GA_RELEASE_NO
-      GA_RELEASE_NO=5.8.2
+      GA_RELEASE_NO=5.9
     endif
     GA_DIR=ga-$(GA_RELEASE_NO)
   else

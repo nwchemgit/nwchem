@@ -145,28 +145,8 @@ void b_ortho ( n, colB, mapB, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
   DoublePrecision *ptr, *scrat;
   DoublePrecision **vecZ1, **vecZ2; /* copies of the vecZ matrix */
   
-  /*
-    blas call
-    */
-  
-  extern DoublePrecision dnrm2_();
-  extern void mxm88();
-  extern void mxm25();
-  extern DoublePrecision ddot_();
-  extern void dcopy_();
-  extern void daxpy_();
-  
-  extern Integer mxwrit_(), mxread_();
-  extern Integer menode_(), mxmynd_();
-  extern void    mdiff1_(), bbcast00();
+  extern Integer mxmynd_();
 
-  extern void chol_pipe_bcast();
-  extern Integer fil_mapvec_();
-  extern Integer reduce_list2();
-  extern Integer count_list();
-  extern void fil_dbl_lst();
-  extern void mat_max();
-  
   /*
     usual story about error handling
     */
@@ -188,7 +168,7 @@ void b_ortho ( n, colB, mapB, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
   if( *n < *m ) {
       fprintf(stderr,
               "Error in routine b_ortho. m (=%d) < n (=%d). me = %d \n",
-              *m, *n, me);
+              (int)(*m), (int)(*n), (int)me);
       exit(-1);
   }
   

@@ -50,7 +50,6 @@ Integer qqsort(v,left,right)
 {
   
   Integer i,last,tmp;
-  Integer qqsort();
   
   if (left >= right)
     return(0);

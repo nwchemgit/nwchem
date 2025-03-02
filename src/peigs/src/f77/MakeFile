@@ -36,7 +36,6 @@ include ../../DEFS
 
 all:		$(FOBJ) $(EOBJ)
 
-.EXPORT_ALL_VARIABLES:
 
 .PHONY :	clean
 

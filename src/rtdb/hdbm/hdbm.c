@@ -607,7 +607,7 @@ static int delete_file_entry(hdbm db, entry *e)
     file_entry fe;
     long act_ptr = e->rec_ptr + 
 	(long) (((char *) &fe.active) - ((char *) &fe));
-    int false = 0;
+    int false_value = 0;
     int ind;
 
     if (hdbm_fseek(file, act_ptr, SEEK_SET)) {
@@ -616,7 +616,7 @@ static int delete_file_entry(hdbm db, entry *e)
 	return 0;
     }
     
-    if (hdbm_fwrite((char *) &false, sizeof(false), (size_t) 1, file) != 1) {
+    if (hdbm_fwrite((char *) &false_value, sizeof(false_value), (size_t) 1, file) != 1) {
 	fprintf(stderr, "delete_file_entry: failed to inactivate header\n");
 	return 0;
     }

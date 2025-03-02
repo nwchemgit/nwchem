@@ -317,18 +317,8 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
    */
   
   extern Integer  mxmynd_(), mxnprc_();
-  extern Integer  mapchk_(), count_list(), fil_mapvec_(), reduce_list2();
 
-  extern void     xstop_(), pdiff();
-  extern void     pgexit();
-  extern void     mapdif_();
-  extern void     choleski(), mxm5x(), inverseL();
-  extern void     forwardLU_(), forwardLL_(), pdspevx(), upperUF_(),
-                  lsl_conjugation2(), mxinit_();
-  extern void     mdiff2_(), mdif2b_();
-  extern void     memreq_();
-  extern void     bbcast00();
-  extern void     gi_sum();
+  extern void    mxinit_();
   
 #ifdef TIMING
   extern TIMINGG test_timing;
@@ -420,7 +410,7 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
       *info = linfo;
       
     fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
-             msg, me, -linfo );
+             msg, (int)me, (int)(-linfo) );
     xstop_( &linfo );
     return;
   }
@@ -464,7 +454,7 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
   if ( *info != 0 ) {
       linfo = *info;
       fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
-               msg, me, -linfo);
+               msg, (int)me, (int)(-linfo));
       xstop_( info );
       return;
   }
@@ -510,7 +500,7 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
   if ( *info != 0 ) {
       linfo = *info;
       fprintf( stderr, " %s me = %d argument %d contains a pointer to NULL. \n",
-               msg, me, -linfo);
+               msg, (int)me, (int)(-linfo));
       xstop_( info );
       return;
   }
@@ -529,7 +519,7 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
     *info = -8;
 
   if ( *info != 0 ) {
-      fprintf( stderr, " %s me = %d mapA,B,Z differ \n", msg, me );
+      fprintf( stderr, " %s me = %d mapA,B,Z differ \n", msg, (int)me );
       xstop_( info );
       return;
   }
@@ -554,7 +544,7 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
   
   if ( linfo != 0 ) {
     *info = linfo;
-    fprintf( stderr, " %s me = %d Insufficient workspace provided. \n", msg, me );
+    fprintf( stderr, " %s me = %d Insufficient workspace provided. \n", msg, (int)me );
     xstop_( info );
     return;
   }
@@ -707,7 +697,7 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
       choleski( &msize, vecB, mapB, i_scrat, d_scrat, info );
       
       if( *info != 0 ) {
-        fprintf(stderr, " %s me = %d choleski returned info = %d \n", msg, me, *info );
+        fprintf(stderr, " %s me = %d choleski returned info = %d \n", msg, (int)me, (int)(*info) );
         *info = 1;
       }
       
@@ -737,7 +727,7 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
 #endif
 
         if( *info != 0 ) {
-          fprintf(stderr, " %s me = %d inverseL returned info = %d \n", msg, me, *info );
+          fprintf(stderr, " %s me = %d inverseL returned info = %d \n", msg, (int)me, (int)(*info) );
           *info = 2;
         }
       
@@ -825,7 +815,7 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
 #endif
 
     if( *info != 0 ) {
-      fprintf(stderr, " %s me = %d pdspevx returned info = %d \n", msg, me, *info );
+      fprintf(stderr, " %s me = %d pdspevx returned info = %d \n", msg, (int)me, (int)(*info) );
       *info = 3;
 	exit(-1);
     }

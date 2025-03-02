@@ -128,27 +128,7 @@ void mxm88 ( n, colQ, mapQ, m, colW, mapW, iwork, work, iptr)
   DoublePrecision *ptr, *ptr1;
   DoublePrecision  **Wptr;
   
-  /*
-    blas call
-    */
-  
-  extern DoublePrecision ddot_();
-  extern void pxerbla2_();
-  extern void daxpy_();
-  extern void dcopy_();
-  extern void zero_out();
-  
-  extern void chol_pipe_bcast();
-  extern Integer fil_mapvec_();
-  extern Integer count_list();
-  extern Integer reduce_list2();
-  
-  extern Integer mxwrit_(), mxread_();
-  extern Integer menode_(), mxmynd_(), mxnprc_();
-  
-  extern void xerbla_();
-  extern void g_exit_();
-  extern void bbcast00();
+  extern Integer mxmynd_(), mxnprc_();
   
   i = 0;
   me = mxmynd_();
