@@ -73,7 +73,7 @@ jobs:
         run: |
           cd src
           make USE_INTERNALBLAS=y nwchem_config NWCHEM_MODULES="nwdft driver solvation"
-      - uses: uraimo/run-on-arch-action@v2
+      - uses: uraimo/run-on-arch-action@v3
         name: Build and Test NWChem
         id: build
         with:
