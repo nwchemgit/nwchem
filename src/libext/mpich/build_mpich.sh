@@ -3,7 +3,7 @@ source ../libext_utils/get_tgz.sh
 rm -rf mpich  mpich-?.?.?
 #VERSION=3.4.2
 #VERSION=4.0.2
-VERSION=4.2.2
+VERSION=4.3.0
 #curl -L http://www.mpich.org/static/downloads/${VERSION}/mpich-${VERSION}.tar.gz -o mpich.tgz
 #curl -L https://github.com/pmodels/mpich/releases/download/v${VERSION}/mpich-${VERSION}.tar.gz -o mpich.tgz
 get_tgz https://github.com/pmodels/mpich/releases/download/v${VERSION}/mpich-${VERSION}.tar.gz  mpich.tgz
@@ -58,7 +58,9 @@ if [ $(uname -s) == "Darwin" ]; then
     fi
 fi
 echo HWLOC_FLAGS is $HWLOC_FLAGS
-./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --enable-romio  --enable-silent-rules  --enable-fortran=all $HWLOC_FLAGS
+./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --enable-romio  --enable-silent-rules  --enable-fortran=all \
+	    --disable-opencl --without-cuda --without-ze --without-hip \
+	    $HWLOC_FLAGS
 #./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --enable-romio --with-pm=gforker --with-device=ch3:nemesis --disable-cuda --disable-opencl --enable-silent-rules  --enable-fortran=all
 if [[ "$?" != "0" ]]; then
     cat config.log
