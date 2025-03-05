@@ -58,8 +58,9 @@ if [ $(uname -s) == "Darwin" ]; then
     fi
 fi
 echo HWLOC_FLAGS is $HWLOC_FLAGS
-./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --enable-romio  --enable-silent-rules  --enable-fortran=all \
-	    --disable-opencl --without-cuda --without-ze --without-hip \
+./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --disable-romio  --enable-silent-rules  --enable-fortran=all \
+	    --without-slurm  --with-pm=hydra \
+	    --without-cuda --without-ze --without-hip --without-hcoll \
 	    $HWLOC_FLAGS
 #./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --enable-romio --with-pm=gforker --with-device=ch3:nemesis --disable-cuda --disable-opencl --enable-silent-rules  --enable-fortran=all
 if [[ "$?" != "0" ]]; then
