@@ -204,6 +204,7 @@ if [[ -d "ga-5.9" ]]; then
     if [[ ! -f "ga-5.9/patched59" ]]; then
 	./gasparse_patch.sh $GA_DIR
         ./eaf32bit_patch.sh $GA_DIR
+        ./grouphostname_patch.sh $GA_DIR
 	echo patched
 	touch ga-5.9/patched59
     fi
