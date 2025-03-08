@@ -107,6 +107,11 @@ if [[ ${FC_EXTRA} == gfortran ]] || [[ ${PE_ENV} == GNU ]] || [[ ${FC} == flang 
     if [[ ${GFOVERSIONGT7} == 1 ]]; then
 	MYFCFLAGS+=' -std=legacy '
     fi
+    let GCCVERSIONGT14=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 14)
+    if [[ ${GCCVERSIONGT14} == 1 ]]; then
+	MYCFLAGS+=' -fPIE '
+	MYFCFLAGS+=' -fPIE '
+    fi
   sixty4_int+=" --disable-mpi-module "
 fi
 if [[ ${FC} == nvfortran ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
