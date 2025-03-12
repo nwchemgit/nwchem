@@ -1238,11 +1238,6 @@ c
         write(fn,*) " area= ", srfmol/(cau2ang**2)
         write(fn,*) " volume= ", volmol/(cau2ang**3)
 c
-        write(fn,"(a)") "$cosmo_energy"
-        write(fn,*) " ecos= ", ecos
-        write(fn,*) " sol phase= ", esol
-        write(fn,*) " solvation= ", esol-egas
-c
         write(fn,"(a)") "$coord_rad"
         write(fn,"(a)") "#atom x y z [a.u.] element radius [A]"
         do i = 1,nat
