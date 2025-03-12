@@ -1214,6 +1214,58 @@ c
         close(fn)
       end if
 c
+c     ----- printing cosmo file for COSMO-RS/SAC codes -----
+c
+      cosmo_file_in = "cosmo"
+      call util_file_name(cosmo_file_in,.false.,.false.,cosmo_file) 
+      call util_file_name_resolve(cosmo_file,.false.)
+      if(ga_nodeid().eq.0) then
+        if(.not.util_io_unit(80,90,fn))
+     +     call errquit('cannot get free unit', 0,
+     +       0)
+c
+        open(unit=fn,form="formatted",file=cosmo_file)
+        if (dbug) then
+          write(*,*) "printing cosmo file for COSMO-RS/SAC",
+     +     cosmo_file
+        end if
+        write(fn,"(a)") "$cosmo"
+        write(fn,*) " epsilon= ", dielec
+        write(fn,*) " rsolv= ", rsolv
+c
+        write(fn,"(a)") "$cosmo_data"
+        write(fn,*) " nps= ", nefc
+        write(fn,*) " area= ", srfmol/(cau2ang**2)
+        write(fn,*) " volume= ", volmol/(cau2ang**3)
+c
+        write(fn,"(a)") "$cosmo_energy"
+        write(fn,*) " ecos= ", ecos
+        write(fn,*) " sol phase= ", esol
+        write(fn,*) " solvation= ", esol-egas
+c
+        write(fn,"(a)") "$coord_rad"
+        write(fn,"(a)") "#atom x y z [a.u.] element radius [A]"
+        do i = 1,nat
+          write(fn,*) i,
+     +     dbl_mb(k_xyzpt  +3*(i-1)),
+     +     dbl_mb(k_xyzpt+1+3*(i-1)),
+     +     dbl_mb(k_xyzpt+2+3*(i-1)),
+     +     int(dbl_mb(k_zanpt+i-1)),
+     +     ratm(i)*cau2ang
+        enddo ! i
+c        
+        write(fn,"(a)") "$segment_information"
+        write(fn,"(a)") "# n atom x y z charge area charge/area"
+        write(fn,"(a)") "# coordinates [a.u.], area [A2]"
+        do ief=1,nefc
+           write(fn,*) ief, efciat(ief),
+     +      efcc(1,ief), efcc(2,ief), efcc(3,ief),
+     +      efcz(ief), efcs(ief)*(cau2ang**2),
+     +      efcz(ief)/(efcs(ief)*(cau2ang**2))
+        end do
+        close(fn)
+      end if
+c
 c MN solvation models -->
 c
       if (do_cosmo_vem.ne.0.or.do_cosmo_smd) then
