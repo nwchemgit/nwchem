@@ -716,7 +716,7 @@ c
       if(.not.ma_push_get(mt_byte,nefc*8,'cosmo tags',l_efclb,k_efclb))
      &     call errquit('cosmo_cossas malloc k_tag failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nefc,'molsurf',l_msrf,k_msrf))
-     &     call errquit('cosmo_cossas malloc k_tag failed',1,MA_ERR)
+     &     call errquit('cosmo_cossas malloc k_msrf failed',1,MA_ERR)
       call dfill(nefc,0.0d0,dbl_mb(k_msrf),1)
 
       if(oprint_debug) then
@@ -894,15 +894,12 @@ c
       if(.not.rtdb_put(rtdb,'cosmo:efcz',mt_dbl,  nefc,dbl_mb(k_efcz)))
      $   call errquit('hnd_cossas: rtdb put failed for efcz  ',913,
      &       rtdb_err)
-      if (do_cosmo_model.eq.DO_COSMO_YK) then
-      if(.not.rtdb_put(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_msrf)))
-     $   call errquit('hnd_cossas: rtdb put failed for efcs  ',914,
-     &       rtdb_err)
-      else
       if(.not.rtdb_put(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
      $   call errquit('hnd_cossas: rtdb put failed for efcs  ',914,
      &       rtdb_err)
-      endif
+      if(.not.rtdb_put(rtdb,'cosmo:msrf',mt_dbl,  nefc,dbl_mb(k_msrf)))
+     $   call errquit('hnd_cossas: rtdb put failed for msrf  ',914,
+     &       rtdb_err)
       if(.not.rtdb_put(rtdb,'cosmo:efczz',mt_dbl,nefc,dbl_mb(k_efczz)))
      &   call errquit('hnd_cossas: rtdb put failed for efczz ',914,
      &       rtdb_err) 
