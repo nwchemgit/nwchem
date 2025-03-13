@@ -79,6 +79,7 @@ c
       double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
       character*255 field
       logical do_cosmo
+      logical do_cosmo_file
       logical do_gasphase
       logical status
       character*30 tag
@@ -325,6 +326,15 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
      $                      do_cosmo_model))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- do_cosmo_file flag
+c
+      else if(inp_compare(.false.,'do_cosmo_file',field)) then
+        do_cosmo_file=.true.
+        if (.not. 
+     $    rtdb_put(rtdb,'cosmo:do_cosmo_file',mt_log,1,do_cosmo_file))
+     $    call errquit('cosmo_input: cannot put do_cosmo_file in rtdb',
+     $    0,rtdb_err)
 c
 c   --- rsolv: Used in Klamt-Schuurmann, but not in York-Karplus
 c   ---        approach
