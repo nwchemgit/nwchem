@@ -715,11 +715,9 @@ c
      & call errquit('cosmo_cossas malloc k_efczz failed',911,MA_ERR) 
       if(.not.ma_push_get(mt_byte,nefc*8,'cosmo tags',l_efclb,k_efclb))
      &     call errquit('cosmo_cossas malloc k_tag failed',911,MA_ERR)
-      if(oprint_molsurf)  then
-         if(.not.ma_push_get(mt_dbl,nefc,'molsurf',l_msrf,k_msrf))
-     &        call errquit('cosmo_cossas malloc k_tag failed',1,MA_ERR)
-         call dfill(nefc,0.0d0,dbl_mb(k_msrf),1)
-      endif
+      if(.not.ma_push_get(mt_dbl,nefc,'molsurf',l_msrf,k_msrf))
+     &     call errquit('cosmo_cossas malloc k_msrf failed',1,MA_ERR)
+      call dfill(nefc,0.0d0,dbl_mb(k_msrf),1)
 
       if(oprint_debug) then
         if(.not.ma_push_get(mt_dbl,nat*3,'coord',l_dum1,k_dum1))
@@ -784,10 +782,8 @@ c
                       zetaii=zetai*sqrt(2d0/pi)
                       dbl_mb(k_efcs+ief-1) = (zetaii/xyzff(iseg,iat))
 c     769
-                      if(oprint_molsurf)  then
-                         dbl_mb(k_msrf+ief-1)=
+                      dbl_mb(k_msrf+ief-1)=
      x                        xyzff(iseg,iat)*dsurf*ratm_real**2
-                      endif
                       srfmol = srfmol+xyzff(iseg,iat)*dsurf*ratm_real**2
                       volmol = volmol+xyzff(iseg,iat)*dvol *ratm_real**3
                     else
@@ -795,10 +791,8 @@ c     769
                       zetaii=zetai*sqrt(2d0/pi)
                       dbl_mb(k_efcs+ief-1) = zetaii/xyzff(iseg,iat)
 c 775
-                      if(oprint_molsurf)  then
-                         dbl_mb(k_msrf+ief-1)=
+                      dbl_mb(k_msrf+ief-1)=
      x                        xyzff(iseg,iat)*wleb(iseg)*ratm_real**2
-                      endif
                       srfmol = srfmol + xyzff(iseg,iat)*
      $                                  wleb(iseg)*ratm_real**2
                       volmol = volmol + xyzff(iseg,iat)*
@@ -902,6 +896,9 @@ c
      &       rtdb_err)
       if(.not.rtdb_put(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
      $   call errquit('hnd_cossas: rtdb put failed for efcs  ',914,
+     &       rtdb_err)
+      if(.not.rtdb_put(rtdb,'cosmo:msrf',mt_dbl,  nefc,dbl_mb(k_msrf)))
+     $   call errquit('hnd_cossas: rtdb put failed for msrf  ',914,
      &       rtdb_err)
       if(.not.rtdb_put(rtdb,'cosmo:efczz',mt_dbl,nefc,dbl_mb(k_efczz)))
      &   call errquit('hnd_cossas: rtdb put failed for efczz ',914,
