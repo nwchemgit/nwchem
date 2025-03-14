@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+declare -a LIST_MPIFWRAP
+LIST_MPIFWRAP=( 'mpif90' 'mpifort' 'mpiifort' 'mpifc' 'mpixlf_r' 'mpixlf' 'mpif77' 'mpifrt' 'mpifrtpx' 'mpif90-mpich-mp' 'mpifort-mpich-mp' 'mpif90-openmpi-mp' 'mpifort-openmpi-mp')
+export LIST_MPIFWRAP
+declare -a LIST_MPICWRAP
+LIST_MPICWRAP=( 'mpicc' 'mpicc'    'mpiicc'  'mpiicc' 'mpixlc_r' 'mpixlc' 'mpicc' 'mpifcc' 'mpifccpx' 'mpicc-mpich-mp' 'mpicc-mpich-mp' 'mpicc-openmpi-mp' 'mpicc-openmpi-mp')
+export LIST_MPICWRAP
 myscalapwd=`pwd`
 source ../libext_utils/cmake.sh
 cd $myscalapwd
@@ -9,11 +15,25 @@ if [[ "$FC" = "ftn"  ]] ; then
     MPICC="cc"
 else
     if ! [ -x "$(command -v mpif90)" ]; then
-	echo
-	echo mpif90 not installed
-	echo mpif90 is required for building Scalapack
-	echo
-	exit 1
+	length=${#LIST_MPIFWRAP[*]}
+	indx=0
+	while [ "${indx}" -lt "${length}" ] ; do
+	    candidate="${LIST_MPIFWRAP[${indx}]}"
+	    CMDGUESS="$(command -v $candidate)"
+	    if [ $? -eq 0 ] ; then
+		MPIF90="${LIST_MPIFWRAP[${indx}]}"
+		MPICC="${LIST_MPICWRAP[${indx}]}"
+		echo found mpi wrappers $MPIF90 $MPICC
+		break
+	    else   ((indx++)); fi
+	done
+	if [ -z ${MPIF90} ] ; then
+	    echo
+	    echo mpif90 not installed
+	    echo mpif90 is required for building Scalapack
+	    echo
+	    exit 1
+	fi
     else
 	MPIF90="mpif90"
 	if [[ -z "${MPICC}" ]]; then
@@ -24,6 +44,9 @@ fi
 fi
 if [[  -z "${FC}" ]]; then
     FC=$($MPIF90 -show|cut -d " " -f 1)
+fi
+if [[  -z "${CC}" ]]; then
+    CC=$($MPICC -show|cut -d " " -f 1)
 fi
 if [[  -z "${NWCHEM_TOP}" ]]; then
     dir3=$(dirname `pwd`)
@@ -214,7 +237,7 @@ if [[  -z "$MPICH_CC"   ]] ; then
     export MPICH_CC="$CC"
 fi
 echo MPICH_CC is "$MPICH_CC"
-echo $(mpicc -show)
+echo $(${MPICC} -show)
 #Intel MPI
 if [[  -z "$I_MPI_F90"   ]] ; then
     export I_MPI_F90="$FC"
