@@ -498,6 +498,9 @@ jobs:
       - name: Get Instruction
         id: get-simd
         run: |
+          if [[ $(uname -s) == Linux ]]; then
+             echo "SIMD " $(lscpu | grep -i flags | sort | uniq)
+          fi
           echo "simd=$(./travis/guess_simd.sh)" >> $GITHUB_ENV
         shell: bash
       - name: Setup cache
