@@ -190,6 +190,7 @@ c
       double precision  wleb(mxfac)
       double precision  energy
 c
+      logical    do_gepol
       logical    oprint_out
       logical    oprint_more
       logical    oprint_debug
@@ -204,6 +205,9 @@ c
      D     (ga_nodeid().eq.0)
       oprint_more = util_print("cosmo_cossrf_more",print_never).and.
      D     (ga_nodeid().eq.0)
+c
+      if (.not. rtdb_get(rtdb,'cosmo:do_gepol',mt_log,1,
+     $     do_gepol)) do_gepol=.false.
 c
 c     ----- approximate sphere with segments and points -----
 c
@@ -267,7 +271,7 @@ c
          if(radius(iat).eq.0.0d0) then
             ratm(iat)=0.0d0
          else
-            if (do_cosmo_model.eq.DO_COSMO_KS) then
+            if (do_cosmo_model.eq.DO_COSMO_KS.and..not.do_gepol) then
               ratm(iat)=(radius(iat)+rsolv)/cau2ang
             else
               ratm(iat)=radius(iat)/cau2ang
@@ -281,7 +285,7 @@ c
       call hnd_cossas(nat,xyzatm,ratm,mxatm,
      1                nspa,nppa,xyzspa,ijkspa,
      2                nseg,nfac,xyzseg,ijkseg,insseg,
-     3                numpps,xyzff,wleb,mxfac,geom,rtdb)
+     3                numpps,xyzff,wleb,mxfac,geom,do_gepol,rtdb)
 c
       return
  9999 format(' nseg,nfac,ndiv=nfac/nseg,dsurf,dvol = ',3i7,2f10.6)
@@ -374,7 +378,7 @@ C>
       subroutine hnd_cossas(nat,xyzatm,ratm,mxatom,
      1                      nspa,nppa,xyzspa,ijkspa,
      2                      nseg,nfac,xyzseg,ijkseg,insseg,
-     3                      numpps,xyzff,wleb,mxface,geom,
+     3                      numpps,xyzff,wleb,mxface,geom,do_gepol,
      4                      rtdb)
       implicit none
 #include "cosmo_params.fh"
@@ -430,6 +434,13 @@ c
       integer l_efclb, k_efclb, k_efciat, l_efciat
       integer l_efczz, k_efczz
       integer l_msrf,k_msrf
+c     GEPOL variables
+      logical do_gepol
+      real*4 ofac,rd,dvec,rmim
+      INTEGER*4 ndiv
+      double precision segarea(mxface)
+      integer          segatom(mxface)
+c
       double precision ratm_real,dij,dum,cavdsp,pi,zetai,zetaii
       integer m,mfac,mseg
       integer nefc,iat,jat,npp,i,iseg,ifac,ief,ipp
@@ -470,6 +481,7 @@ c
 c
       oprint_debug = util_print("cosmo_cossas_debug",print_debug).and.
      D     (ga_nodeid().eq.0)
+      dbug=oprint_debug
       oprint_molsurf = util_print("cosmo_mol_surface",print_never).and.
      D     (ga_nodeid().eq.0)
       pi = acos(-1.0d0)
@@ -483,11 +495,11 @@ c
       if(ga_nodeid().eq.0) then
         write(luout,9998)
         do iat=1,nat
-          if (do_cosmo_model.eq.DO_COSMO_KS) then
+          if (do_cosmo_model.eq.DO_COSMO_KS.and..not.do_gepol) then
             write(luout,9997) iat,xyzatm(1,iat),xyzatm(2,iat),
      1                                       xyzatm(3,iat),
      2                    (ratm(iat)*cau2ang-rsolv)
-          else if (do_cosmo_model.eq.DO_COSMO_YK) then
+          else
             write(luout,9997) iat,xyzatm(1,iat),xyzatm(2,iat),
      1                                       xyzatm(3,iat),
      2                    (ratm(iat)*cau2ang)
@@ -701,6 +713,22 @@ c
          endif
       enddo
 c
+c     Use the GEPOL93 algorithm to obtain a precise SES surface.
+c
+      if (do_cosmo_model.eq.DO_COSMO_KS.and.do_gepol) then
+        rd = rsolv/cau2ang
+        rmim = 0.5
+        ofac = 0.8
+        ndiv = 3
+        call gepol('ESURF',.false.,.false.,.false.,.false.,'TIT',0,
+     &                  rmim,'','','',ofac,rd,ndiv,1,
+     &                  .false.,.false.,
+     &                  nat,ratm,xyzatm,mxface,
+     &                  nefc,xyzseg,segarea,segatom,srfmol,volmol)
+        nseg = nefc
+      end if
+c
+c
 c     Allocate memory for point charges
 c
       if(.not.ma_push_get(mt_dbl,nefc*3,'cosmo efcc',l_efcc,k_efcc))
@@ -736,6 +764,16 @@ c     ----- save coordinates of surface points -----
 c           save segment surfaces
 c           save segment to atom mapping
 c
+      if(do_cosmo_model.eq.DO_COSMO_KS.and.do_gepol) then
+        do iseg=1,nseg
+          dbl_mb(k_efcc+3*(iseg-1))  =xyzseg(1,iseg)
+          dbl_mb(k_efcc+3*(iseg-1)+1)=xyzseg(2,iseg)
+          dbl_mb(k_efcc+3*(iseg-1)+2)=xyzseg(3,iseg)
+
+          dbl_mb(k_efcs+iseg-1) = segarea(iseg)
+          int_mb(k_efciat+iseg-1) = segatom(iseg)
+        enddo
+      else
       srfmol=0d0
       volmol=0d0
       ief   =0
@@ -805,6 +843,7 @@ c 775
             enddo
          endif
       enddo
+      endif
       srfmol=srfmol*(cau2ang**2)
       volmol=volmol*(cau2ang**3)
 c

@@ -1236,7 +1236,11 @@ c
      +     cosmo_file
          end if
          write(fn,"(a)") "$cosmo"
-         write(fn,*) " epsilon= ", dielec
+         if(screen.eq.1d0) then
+            write(fn,*) " epsilon= infinity"
+         else
+            write(fn,*) " epsilon= ", dielec
+         endif
          write(fn,*) " rsolv= ", rsolv
 c
          write(fn,"(a)") "$cosmo_data"

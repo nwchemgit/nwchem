@@ -79,6 +79,7 @@ c
       double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
       character*255 field
       logical do_cosmo
+      logical do_gepol
       logical do_cosmo_file
       logical do_gasphase
       logical status
@@ -344,6 +345,16 @@ c
      $        call errquit('cosmo_input: rsolv',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- do_gepol flag: use GEPOL93 code for cavity calculation in KS,
+c   ---         not relevant in YK
+c
+      else if(inp_compare(.false.,'do_gepol',field)) then
+        do_gepol=.true.
+        if (.not. 
+     $    rtdb_put(rtdb,'cosmo:do_gepol',mt_log,1,do_gepol))
+     $    call errquit('cosmo_input: cannot put do_gepol in rtdb',
+     $    0,rtdb_err)
 c
 c   --- parameter file
 c
