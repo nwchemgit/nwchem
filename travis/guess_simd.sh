@@ -25,8 +25,19 @@ elif [[ $(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /sse2/   {print "Y"}') ==
     echo "sse2"
     exit 0
 elif [[ $arch == "arm64" || $arch == "aarch64" ]]; then
-    echo "arm64"
-    exit 0
+    if [[ $(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /sve2/   {print "Y"}') == "Y" ]]; then
+	echo "sve2"
+	exit 0
+    elif [[ $(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /sve/   {print "Y"}') == "Y" ]]; then
+	echo "sve"
+	exit 0
+    elif [[ $(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /asimddp/   {print "Y"}') == "Y" ]]; then
+	echo "asimddp"
+	exit 0
+    else
+	echo "arm64"
+	exit 0
+    fi
 else
     echo "unknown"
 fi
