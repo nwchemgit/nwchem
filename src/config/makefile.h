@@ -367,7 +367,7 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
 #  MAKEFLAGS = options to GNU make ... -j controls no. of threads used
 #              for parallel builds. --no-print-directory says be quiet about
 #              changing directory.
-#    INSTALL = command to install an executable when it is built
+#    INSTALL_MSG = command to install an executable when it is built
 #    
 # C/FOPTIONS = essential compiler options independent of optimization level
 #              C/FOPTIONS should not usually be overridden on the command line
@@ -480,7 +480,7 @@ ifeq ($(TARGET),SOLARIS)
     SHELL := $(NICE) /bin/sh
     RANLIB = echo
     MAKEFLAGS = -j 2 --no-print-directory
-    INSTALL = echo $@ is built
+    INSTALL_MSG = echo $@ is built
     #
     # You can use either the f77 or f90 compiler BUT if using f90
     # you\'ll need to specify -DINTEGER_1='integer*1' in the selci
@@ -568,7 +568,7 @@ ifeq ($(TARGET),SOLARIS64)
     COPTIMIZE = -O
     RANLIB = echo
     MAKEFLAGS = -j 2 --no-print-directory
-    INSTALL = echo $@ is built
+    INSTALL_MSG = echo $@ is built
 
     ifeq ($(CC),fcc)
         # Fujitsu SPARC systems (thanks to Herbert Fruchtl)
@@ -726,7 +726,7 @@ ifeq ($(TARGET),IBM)
     ARFLAGS = urs
     RANLIB = echo
     MAKEFLAGS = -j 5 --no-print-directory
-    INSTALL = @echo $@ is built
+    INSTALL_MSG = @echo $@ is built
     CPP = /usr/lib/cpp -P
 
     FOPTIONS = -qEXTNAME -qnosave -qalign=4k -qxlf77=leadzero
@@ -843,7 +843,7 @@ ifeq ($(TARGET),IBM64)
     AR = ar -X 64
     RANLIB = echo
     MAKEFLAGS = -j 11 --no-print-directory
-    INSTALL = @echo $@ is built
+    INSTALL_MSG = @echo $@ is built
     CPP = /usr/lib/cpp -P
 
     FOPTIONS = -qEXTNAME -qnosave -qalign=4k -q64 -qxlf77=leadzero
@@ -913,7 +913,7 @@ ifeq ($(TARGET),LAPI)
     ARFLAGS = urs
     RANLIB = echo
     MAKEFLAGS = -j 1 --no-print-directory
-    INSTALL = @echo $@ is built
+    INSTALL_MSG = @echo $@ is built
     CPP = /usr/lib/cpp -P
     MPILIB = 
     LARGE_FILES = YES
@@ -972,7 +972,7 @@ ifeq ($(TARGET),LAPI64)
     ARFLAGS = urs
     RANLIB = echo
     MAKEFLAGS = -j 3 --no-print-directory
-    INSTALL = @echo $@ is built
+    INSTALL_MSG = @echo $@ is built
     CPP = /usr/lib/cpp -P
     MPILIB = 
     LARGE_FILES = YES
@@ -1032,7 +1032,7 @@ ifeq ($(TARGET),MACX)
 
     _CPU := $(shell machine  )
     FC = gfortran
-    INSTALL = @echo nwchem is built
+    INSTALL_MSG = @echo nwchem is built
     RANLIB = ranlib
     MAKEFLAGS = -j 1 --no-print-directory
     DEFINES =-DMACX
@@ -1261,7 +1261,7 @@ ifeq ($(TARGET),MACX64)
         endif
     endif
 
-    INSTALL = @echo nwchem is built
+    INSTALL_MSG = @echo nwchem is built
     RANLIB = ranlib
 #   MAKEFLAGS = -j 1 --no-print-directory
     DEFINES   = -DMACX
@@ -1489,7 +1489,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
     CC = gcc
     RANLIB = ranlib
     MAKEFLAGS = -j 1 --no-print-directory
-    INSTALL = @echo $@ is built
+    INSTALL_MSG = @echo $@ is built
     CPP = gcc -E -nostdinc -undef -P
     FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
                $(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
@@ -3094,7 +3094,7 @@ endif
 ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 #
     ARFLAGS = urs
-    INSTALL = @echo $@ is built
+    INSTALL_MSG = @echo $@ is built
     CPP=/usr/bin/cpp  -P -C -traditional
     LDOPTIONS =  -Wl,--relax
 
