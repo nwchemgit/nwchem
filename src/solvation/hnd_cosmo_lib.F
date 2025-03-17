@@ -719,7 +719,7 @@ c
 c       We are sending all arguments in A.U.
         rd = rsolv/cau2ang
         rmim = 0.5/cau2ang
-        ofac = 0.8
+        ofac = 0.9 ! to reduce the concave regions
         dvec = 1.0
         if(.not.rtdb_get(rtdb,'cosmo:ndiv',mt_int,1,ndiv)) ndiv=2
         call gepol('ESURF',.false.,.false.,.false.,.false.,'TIT',0,
