@@ -121,6 +121,7 @@ c
       mypnum = env(1)
       if (nprocs.ne.ialnod) then
          mylpos = -1
+         srcpos=0
          do 10 i = 1,nprocs
             if (mypnum .eq. nodel(i)) mylpos = i-1
             if (isrc .eq. nodel(i)) srcpos = i-1
