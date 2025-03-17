@@ -1,18 +1,23 @@
 c       =============================================================
-c       GEPOL library version
+c       GEPOL Library - Modified Version
 c       Rafael de P. Soares - https://ufrgs.br/lvpp
 c       March 2025
 c
-c       All modifications are in **lowercase**, while original code
-c       remains in UPPERCASE.
-c       The same convention applies to comment lines: original
-c       comments start with "C", while modified ones start with "c".
+c       Modification Guidelines:
+c       - All modifications are in **lowercase**, while original code
+c         remains in UPPERCASE.
+c       - The same convention applies to comments: original comments 
+c         start with "C", while modified ones start with "c".
 c
-c       The present modification provides a subroutine to compute
-c       the cavity and return the results via arguments, avoiding
-c       file I/O.
+c       Summary of Modifications:
+c       - Added a subroutine to compute the cavity and return results 
+c         via arguments, eliminating the need for file I/O.
+c       - Added a flag to disable the regrouping of secondary 
+c         triangles, allowing for finer tesserae output.
 c
-c       Further cleanup and improvements are likely possible.
+c       Further cleanup and improvements may be possible.
+c       Original source available at:
+c       https://ftp.uv.es/pub/src/gepol/gepol93/
 c
 c       =============================================================
 C       =============================================================
@@ -392,7 +397,7 @@ C***************************************************************************
 c additional inputs here
      &                  natom,ratm,xyzatm,mxseg,
 c outputs from here on
-     &                  np,xyzseg,areaseg,atomseg,stot,vol)
+     &                  np,xyzseg,areaseg,atomseg,stot,vol,rgrp)
       IMPLICIT NONE
       
       LOGICAL ASS1
@@ -418,6 +423,7 @@ c outputs from here on
       double precision dx,dy,dz
       double precision dseg, dsegmin
       integer i,j
+      logical rgrp
        
       REAL*4 AP
       REAL*4 DVEC
@@ -430,24 +436,21 @@ c outputs from here on
       REAL*8 CV
       REAL*8 STOT,VOL
 
-      CHARACTER*5000 DISF,COOF,SPHF,TIT,VECF
+      CHARACTER*80 DISF,COOF,SPHF,TIT,VECF
       CHARACTER*33 LABEL
       CHARACTER*5  KSURF
-      CHARACTER*5000 OUTF_LOG
-
+      
       PARAMETER (MC=100000,MV=100000)
       
       COMMON/POLI/CV(32,3),XC1(15360),YC1(15360),ZC1(15360)
       COMMON/CSFE/XE(MC),YE(MC),ZE(MC),RE(MC),IUSE(MC)
       COMMON/PUN/ITO(MV),ISO(MV),ISA(MV),XP(MV),YP(MV),ZP(MV),AP(MV)
-
+    
       DIMENSION LABEL(MC),TIT(20)
-c      CALL getarg(18, OUTF_LOG)
 
-c      OPEN(UNIT=15,FILE=OUTF_LOG,FORM='FORMATTED',STATUS='UNKNOWN')
-c      WRITE(15,'(A )') ' ============================='
-c      WRITE(15,'(A )') ' ====  GEPOL93 Version 8  ===='
-c      WRITE(15,'(A/)') ' ============================='
+c      WRITE(6,'(A )') ' ============================='
+c      WRITE(6,'(A )') ' ====  GEPOL93 Version 8  ===='
+c      WRITE(6,'(A/)') ' ============================='
 
 C*****Read input****
 
@@ -455,8 +458,6 @@ C Set defaults and Read General Input
 c      CALL READIN (KSURF,REDU,PVEC,PSPH,PDIS,TIT,COOF,LT
 c     &            ,RMIN,VECF,SPHF,DISF,OFAC,RD,NDIV,DVEC
 c     &            ,ASS1,LPR)
-
-
 
 C Write general output
 c      CALL GWRITE(KSURF,REDU,PVEC,PSPH,PDIS,TIT,COOF,LT
@@ -521,7 +522,7 @@ C  Compute the surface
 
       IF(KSURF.EQ.'ASURF')CALL SUM(NCOR,RD,'SUMA',LPR)
 
-      CALL GEOCAV(NCOR,NP,NDIV,GHOST,LPR)
+      CALL GEOCAV(NCOR,NP,NDIV,GHOST,LPR,rgrp)
 
       IF(KSURF.EQ.'ESURF')THEN
 
@@ -537,9 +538,10 @@ C
 C Print several files
       IF(PSPH)CALL PRISPH(NATOM,NCOR,NP,REDU,SPHF,LABEL,TIT,LT,LPR)
 
-      IF(PVEC)CALL PRIVEC(NATOM,NP,DVEC,TIT,LT,VECF,LABEL,LPR,STOT,VOL)
+      IF(PVEC)CALL PRIVEC(NP,DVEC,TIT,LT,VECF,LPR)
 
       IF(PDIS)CALL PRIDIS(NP,DISF,TIT,LT,LPR)
+     
 
 c Copy back segment information
       do i=1,np
@@ -549,20 +551,6 @@ c Copy back segment information
 
         areaseg(i) = ap(i)
         atomseg(i) = isa(i)
-        if(atomseg(i).gt.natom) then
-c         No original atom assigned, get the closest we find
-          dsegmin=1.d30
-          do j=1,natom
-            dx=(xp(i)-xe(j))
-            dy=(yp(i)-ye(j))
-            dz=(zp(i)-ze(j))
-            dseg=SQRT(dx*dx+dy*dy+dz*dz)
-            if(dseg.lt.dsegmin) then
-              dsegmin=dseg
-              atomseg(i) = j
-            endif
-          enddo
-        endif
       end do
 
 c      STOP
@@ -600,17 +588,17 @@ C     -------------------------------------------------------------------
 
       DIMENSION IUC(MI)
 
-c      IF(LPR)WRITE(15,'(/A)')' ===> Start Subroutine Pcount '
+      IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine Pcount '
 
       NEWS=NCOR-NATOM
 
 c      IF(KSURF.EQ.'ESURF')THEN
-c         WRITE(15,'(3(A,I7/))')
+c         WRITE(6,'(3(A,I7/))')
 c     & ' Number of INITIAL coordinates          ',NATOM,
 c     & ' Number of NEW     coordinates          ',NEWS,
 c     & ' Number of TOTAL   coordinates          ',NCOR
 c      ELSE
-c         WRITE(15,'(A,I7/)')
+c         WRITE(6,'(A,I7/)')
 c     & ' Number of TOTAL coordinates            ',NCOR
 c      END IF      
 
@@ -631,12 +619,12 @@ c      END IF
 
           IF(FIRST)THEN
           FIRST=.FALSE.
-c          WRITE(15,'(A)')
-c     &          ' MORE INFORMATION ABOUT INITIAL SET OF COORDINATES'
+          WRITE(6,'(A)')
+     &          ' MORE INFORMATION ABOUT INITIAL SET OF COORDINATES'
           END IF
 
-c          WRITE(15,'(A,I2,A,I7)')
-c     &    ' Number of coordinates with IUSE ',J,'=',IUC(J)
+          WRITE(6,'(A,I2,A,I7)')
+     &    ' Number of coordinates with IUSE ',J,'=',IUC(J)
         END IF
         END DO
 
@@ -657,18 +645,18 @@ c     &    ' Number of coordinates with IUSE ',J,'=',IUC(J)
 
               IF(FIRST)THEN
                 FIRST=.FALSE.
-c                WRITE(15,'(A)')
-c     &        ' MORE INFORMATION ABOUT NEW SET OF COORDINATES'
+                WRITE(6,'(A)')
+     &        ' MORE INFORMATION ABOUT NEW SET OF COORDINATES'
               END IF
 
-c            WRITE(15,'(A,I2,A,I7)')
-c     &    ' Number of coordinates with IUSE ',J,'=',IUC(J)
+            WRITE(6,'(A,I2,A,I7)')
+     &    ' Number of coordinates with IUSE ',J,'=',IUC(J)
           END IF
           END DO
 
         END IF
 
-      IF(LPR)CALL mySTAT(NCOR)
+      IF(LPR)CALL GSTAT(NCOR)
 
       END IF
      
@@ -739,7 +727,7 @@ C     --------------------------------------------------------------------
      $         0.6283185307179586D0,0.0 D0              /
       DATA FIR/1.2566370614359173 D0/
 
-c      IF(LPR)WRITE(15,'(/A)')' ===> Start Subroutine TES '
+      IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine TES '
 
       CV(1,1)=0.D0
       CV(1,2)=0.D0
@@ -796,7 +784,7 @@ C     ---------------------------------------------------------------
       DATA ZERO/0.0D0/
       DATA PI/3.1415926535897932D0/
       
-      IF(LPR)WRITE(15,'(/A)')' ===> Start Subroutine DIVIDE '
+      IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine DIVIDE '
 
       IJ=0
 C*****Level 1****************************
@@ -997,7 +985,7 @@ C     ---------------------------------------------------------------------
       END
 
 C
-      SUBROUTINE GEOCAV(NCOR,NP,NDIV,GHOST,LPR)
+      SUBROUTINE GEOCAV(NCOR,NP,NDIV,GHOST,LPR,rgrp)
 C     ------------------------------------------------------------------
 C     This computes the surface.
 C     ------------------------------------------------------------------
@@ -1005,6 +993,7 @@ C     ------------------------------------------------------------------
 
       LOGICAL GHOST
       LOGICAL LPR
+      logical rgrp
 
       INTEGER*2 IUSE
 
@@ -1038,7 +1027,7 @@ C     ------------------------------------------------------------------
 
       DATA PI/3.141593E0/
 
-      IF(LPR)WRITE(15,'(/A)')' ===> Start Subroutine GEOCAV '
+      IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine GEOCAV '
 
       NP=0
 
@@ -1128,26 +1117,42 @@ C It prepares the coordinates for the main triangle
       YPL=YPL+YSL
       ZPL=ZPL+ZSL
       NTS=NTS+1
+c
+c In case we want all secondary triangles
+      if(.not.rgrp) then
+        NP=NP+1
+        XP(NP)=XSL+XEI
+        YP(NP)=YSL+YEI
+        ZP(NP)=ZSL+ZEI
+        AP(NP)=ATS
+        ITO(NP)=J 
+        ISO(NP)=I
+        ISA(NP)=I
+      end if
+c
     3 CONTINUE
 C
 C It reduces the secondary triangles to the main triangle.
       IF(NTS.EQ.0)GO TO 2
 
-      ATP=ATS*NTS
-      XPL=XPL/NTS
-      YPL=YPL/NTS
-      ZPL=ZPL/NTS
-      RRR=SQRT(XPL*XPL+YPL*YPL+ZPL*ZPL)
-      FC=REI/RRR
+c If the regroup of secondary triangles is on
+      if(rgrp) then
+        ATP=ATS*NTS
+        XPL=XPL/NTS
+        YPL=YPL/NTS
+        ZPL=ZPL/NTS
+        RRR=SQRT(XPL*XPL+YPL*YPL+ZPL*ZPL)
+        FC=REI/RRR
 
-      NP=NP+1
-      XP(NP)=XPL*FC+XEI
-      YP(NP)=YPL*FC+YEI
-      ZP(NP)=ZPL*FC+ZEI
-      AP(NP)=ATP
-      ITO(NP)=J 
-      ISO(NP)=I
-      ISA(NP)=I
+        NP=NP+1
+        XP(NP)=XPL*FC+XEI
+        YP(NP)=YPL*FC+YEI
+        ZP(NP)=ZPL*FC+ZEI
+        AP(NP)=ATP
+        ITO(NP)=J 
+        ISO(NP)=I
+        ISA(NP)=I
+      end if
 
       
     2 CONTINUE
@@ -1161,7 +1166,7 @@ C It reduces the secondary triangles to the main triangle.
 C
       
 C 
-      SUBROUTINE PRIVEC(NATOM,NP,DVEC,TIT,LT,VECF,LABEL,LPR,STOT,VOL)
+      SUBROUTINE PRIVEC(NP,DVEC,TIT,LT,VECF,LPR)
 C     --------------------------------------------------------------
 C     This computes the vectors over the surface with module DVEC. 
 C     Prints the coordinates of the centers of the tesserae, the 
@@ -1178,7 +1183,7 @@ C     --------------------------------------------------------------
       INTEGER*4 J
       INTEGER*4 LT
       INTEGER*4 MC,MV
-      INTEGER*4 NATOM,NP
+      INTEGER*4 NP
 
       REAL*4 AP
       REAL*4 DVEC
@@ -1187,11 +1192,8 @@ C     --------------------------------------------------------------
       REAL*4 XE,XP,XVEC
       REAL*4 YE,YP,YVEC
       REAL*4 ZE,ZP,ZVEC
-      
-      REAL*8 STOT,VOL
 
       CHARACTER*80 TIT,VECF
-      CHARACTER*33 LABEL
 
       PARAMETER (MC=100000,MV=100000)
 
@@ -1199,29 +1201,18 @@ C     --------------------------------------------------------------
       COMMON/PUN/ITO(MV),ISO(MV),ISA(MV),XP(MV),YP(MV),ZP(MV),AP(MV)
      
       DIMENSION TIT(20)
-      DIMENSION LABEL(MC)
 
-      IF(LPR)WRITE(15,'(/A)')' ===> Start Subroutine PRIVEC '
-      WRITE(15,'(A/1X,A)')' Printing vectors in file:',VECF
+      IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine PRIVEC '
+      WRITE(6,'(A/1X,A)')' Printing vectors in file:',VECF
 
-      OPEN(UNIT=8,FILE=VECF,FORM='FORMATTED',STATUS='UNKNOWN')
-      
-C      DO I=1,LT
-C      WRITE(8,'(2A)')'*',TIT(I)
-C      END DO
+      OPEN(UNIT=8,FILE=VECF,FORM='UNFORMATTED',STATUS='UNKNOWN')
 
-C     TOTAL AREA AND VOLUME
-      WRITE(8,'(F10.5)') STOT
-      WRITE(8,'(F10.5)') VOL
+      WRITE(8)LT
+      DO I=1,LT
+      WRITE(8)TIT(I)
+      END DO
 
-C     ATOM INFORMATION
-      WRITE(8,'(I8)') NATOM
-      DO  I = 1,NATOM
-      WRITE(8,'(4F10.5,A)') XE(I),YE(I),ZE(I),RE(I),LABEL(I)
-      ENDDO
-      
-C     SEGMENTS INFORMATION
-      WRITE(8,'(I8)') NP
+      WRITE(8)NP
 
 C   
       ISCH=0
@@ -1240,9 +1231,7 @@ C
       YVEC=(YP(I)-YE(J))*FDR
       ZVEC=(ZP(I)-ZE(J))*FDR
 
-C      WRITE(8)ITO(I),J,ISA(I),XP(I),YP(I),ZP(I),AP(I),XVEC,YVEC,ZVEC
-      WRITE(8,'(3I8,7F10.5)') 
-     & ITO(I),J,ISA(I),XP(I),YP(I),ZP(I),AP(I),XVEC,YVEC,ZVEC
+      WRITE(8)ITO(I),J,ISA(I),XP(I),YP(I),ZP(I),AP(I),XVEC,YVEC,ZVEC
      
       END DO
 
@@ -1286,8 +1275,8 @@ C     ---------------------------------------------------------------
 
       DIMENSION AE(MC),LABEL(MC),TIT(20)
 
-      IF(LPR)WRITE(15,'(/A)')' ===> Start Subroutine PRISPH '
-      WRITE(15,'(A/1X,A)')' Printing Information of Spheres in file:',
+      IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine PRISPH '
+      WRITE(6,'(A/1X,A)')' Printing Information of Spheres in file:',
      &                     SPHF
 
       DO J=1,NCOR
@@ -1371,8 +1360,8 @@ C     -------------------------------------------------------------
 
       DIMENSION VERTEX(6,3),PLUS1(6,3),TIT(20)
       
-      IF(LPR)WRITE(15,'(/A)')' ==> Start Subroutine PRIDIS '
-      WRITE(15,'(A/1x,A)')' Printing Display information in file:',DISF
+      IF(LPR)WRITE(6,'(/A)')' ==> Start Subroutine PRIDIS '
+      WRITE(6,'(A/1x,A)')' Printing Display information in file:',DISF
 
       OPEN(UNIT=15,FILE=DISF,FORM='UNFORMATTED',STATUS='UNKNOWN')
 
@@ -1452,7 +1441,7 @@ C     --------------------------------------------------------------------
       COMMON/CSFE/XE(MC),YE(MC),ZE(MC),RE(MC),IUSE(MC)
       COMMON/PUN/ITO(MV),ISO(MV),ISA(MV),XP(MV),YP(MV),ZP(MV),AP(MV)
       
-      IF(LPR)WRITE(15,'(/A)')' ===> Start Subroutine ASSIGN1 '
+      IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine ASSIGN1 '
       DO I=1,NP
  
            IF(ISO(I).GT.NATOM)THEN
@@ -1537,7 +1526,7 @@ C     --------------------------------------------------------------------
 
       COMMON/CSFE/XE(MC),YE(MC),ZE(MC),RE(MC),IUSE(MC)
 
-      IF(LPR)WRITE(15,'(/A)')' ===> Start Subroutine SHELL '
+      IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine SHELL '
 
 
       DO I=1,NCOR-1
@@ -1603,7 +1592,7 @@ C     ---------------------------------------------------------------------
       COMMON/CSFE/XE(MC),YE(MC),ZE(MC),RE(MC),IUSE(MC)
       COMMON/PUN/ITO(MV),ISO(MV),ISA(MV),XP(MV),YP(MV),ZP(MV),AP(MV)
 
-      IF(LPR)WRITE(15,'(/A)')' ===> Start Subroutine VOLARE '
+      IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine VOLARE '
 
       STOT=0.0E0
       VOL=0.0E0
@@ -1637,24 +1626,24 @@ C     ---------------------------------------------------------------------
       END IF
 
 
-c      WRITE(15,'(//A)')' ----------------- RESULTS -----------------'
-c      WRITE(15,'(A/)') ' -------------------------------------------'
-c      WRITE(15,'(A)')  ' *******************************************'
-c      WRITE(15,'(A)')  ' *******************************************'
-c      WRITE(15,'(A,F17.3,A)')' ** Area             =',STOT,'   **'
-c      IF(.NOT.GHOST)THEN
-c      WRITE(15,'(A,F17.3,A)')' ** Volume           =',VOL,'   **'
-c      END IF
-c      WRITE(15,'(A,I11,A)')' ** Number of Points =  ',NP,'       **'
-c      WRITE(15,'(A)')' *******************************************'
-c      WRITE(15,'(A)')' *******************************************'
+      WRITE(6,'(//A)')' ----------------- RESULTS -----------------'
+      WRITE(6,'(A/)') ' -------------------------------------------'
+      WRITE(6,'(A)')  ' *******************************************'
+      WRITE(6,'(A)')  ' *******************************************'
+      WRITE(6,'(A,F17.3,A)')' ** Area             =',STOT,'   **'
+      IF(.NOT.GHOST)THEN
+      WRITE(6,'(A,F17.3,A)')' ** Volume           =',VOL,'   **'
+      END IF
+      WRITE(6,'(A,I11,A)')' ** Number of Points =  ',NP,'       **'
+      WRITE(6,'(A)')' *******************************************'
+      WRITE(6,'(A)')' *******************************************'
 
       RETURN 
       END
 C
 
 
-      SUBROUTINE mySTAT(NCOR)
+      SUBROUTINE GSTAT(NCOR)
 C     ------------------------------------------------------------- 
 C     This prepares some statistics about the set of spheres
 C     ------------------------------------------------------------- 
@@ -1682,7 +1671,7 @@ C     -------------------------------------------------------------
 
       DIMENSION CT4(MAXI),CT6(MAXI)
 
-      WRITE(15,'(/A)')' ==> Start subroutine mySTAT'
+      WRITE(6,'(/A)')' ==> Start subroutine STAT'
       
       VINT=0.1
       TMIN=9000
@@ -1715,12 +1704,12 @@ C     -------------------------------------------------------------
       END IF
       END DO
 
-      WRITE(15,'(A)')' RADII .GE. and .LT.    TYPE 4    TYPE 6'
+      WRITE(6,'(A)')' RADII .GE. and .LT.    TYPE 4    TYPE 6'
 
       DO J=TMIN,TMAX
       R1=(J-1)*VINT
       R2=J*VINT
-      WRITE(15,'(2F10.5,2I10)')R1,R2,CT4(J),CT6(J)
+      WRITE(6,'(2F10.5,2I10)')R1,R2,CT4(J),CT6(J)
       END DO
  
       RETURN
@@ -1752,25 +1741,25 @@ C     --------------------------------------------------------------------
 
       COMMON/CSFE/XE(MC),YE(MC),ZE(MC),RE(MC),IUSE(MC)     
 
-      IF(LPR)WRITE(15,'(/A)')' ==> Start subroutine SUM'
+      IF(LPR)WRITE(6,'(/A)')' ==> Start subroutine SUM'
 
       IF(OP.EQ.'SUMA')THEN
 
-        IF(LPR)WRITE(15,'(A)')' Adding the radius of the solvent'
+        IF(LPR)WRITE(6,'(A)')' Adding the radius of the solvent'
         DO I=1,NCOR
          IF(IUSE(I).NE.1)RE(I)=RE(I)+RD
         END DO
 
       ELSE IF(OP.EQ.'REST')THEN
 
-        IF(LPR)WRITE(15,'(A)')' Subtracting the radius of the solvent'
+        IF(LPR)WRITE(6,'(A)')' Subtracting the radius of the solvent'
         DO I=1,NCOR
          IF(IUSE(I).NE.1)RE(I)=RE(I)-RD
         END DO
 
       ELSE
 
-        WRITE(15,'(A)')' Variable OP badly defined'
+        WRITE(6,'(A)')' Variable OP badly defined'
         STOP
 
       END IF
@@ -1811,7 +1800,7 @@ C     ----------------------------------------------------------------
  
       DIMENSION DI(MC),KENG(MC)
       
-      IF(LPR)WRITE(15,'(/A)')' ===> Start Subroutine CREA '
+      IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine CREA '
 
       OFACT=1.0E0-OFAC*2.0E0
 
@@ -1994,7 +1983,7 @@ C
 
 
       IF(NCOR.GT.MC)THEN
-        WRITE(15,'(A)')' %-ERROR-% DIMENSION. TOO MANY SPHERES CREATED'
+        WRITE(6,'(A)')' %-ERROR-% DIMENSION. TOO MANY SPHERES CREATED'
         STOP
       END IF
 
@@ -2011,7 +2000,7 @@ C Mark spheres with area zero
       END IF
       
       IF(LPR)THEN
-       WRITE(15,'(A,I10)')' Number of generations     =',NGE
+       WRITE(6,'(A,I10)')' Number of generations     =',NGE
       END IF
 
       RETURN
@@ -2054,7 +2043,7 @@ C     ----------------------------------------------------------------
       DIMENSION DI(MC),SC(MC),KENG(MC)
       
 
-      IF(LPR)WRITE(15,'(/A)')' ===> Start Subroutine BULK '
+      IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine BULK '
      
       OFACT=1.0E0-OFAC*2.0E0
 
@@ -2231,7 +2220,7 @@ C
   602 CONTINUE
 
       IF(NCOR.GT.MC)THEN
-        WRITE(15,'(A)')' %-ERROR-% DIMENSION. TOO MANY SPHERES CREATED'
+        WRITE(6,'(A)')' %-ERROR-% DIMENSION. TOO MANY SPHERES CREATED'
         STOP
       END IF
 
@@ -2253,7 +2242,7 @@ C Mark spheres with area zero
 C Write
 C Number of generations
       IF(LPR)THEN
-      WRITE(15,'(A,I10)')' Number of generations       =',NGE
+      WRITE(6,'(A,I10)')' Number of generations       =',NGE
       END IF
 
 
@@ -2297,7 +2286,7 @@ C     ----------------------------------------------------------------
 
       DIMENSION SC(MC),CHECK(MC)
 
-      IF(LPR)WRITE(15,'(/A)')' ==> Start subroutine MZERO5'
+      IF(LPR)WRITE(6,'(/A)')' ==> Start subroutine MZERO5'
 
 C
 C Discard Spheres that have been engulfed by another (iuse=2)
@@ -2326,10 +2315,10 @@ C Discard Spheres that have been engulfed by another (iuse=2)
 
 C Print information about spheres discarded
       IF(LPR)THEN
-      WRITE(15,'(A,I7)')' New spheres in last generation       =',NEW
+      WRITE(6,'(A,I7)')' New spheres in last generation       =',NEW
       NEW=NEW-(J-K)
-      WRITE(15,'(A,I7)')' Final new spheres in last generation =',NEW
-      WRITE(15,'(A,I7)')' Spheres discarded (engulfed)         =',J
+      WRITE(6,'(A,I7)')' Final new spheres in last generation =',NEW
+      WRITE(6,'(A,I7)')' Spheres discarded (engulfed)         =',J
       END IF
 
 C Find spheres with zero area.
@@ -2431,7 +2420,7 @@ C Determine if the sphere I has area zero
 
 
       IF(LPR)THEN
-      WRITE(15,'(A,I7)')' Spheres marked with zero area        =',NZERO
+      WRITE(6,'(A,I7)')' Spheres marked with zero area        =',NZERO
       END IF
 
       RETURN
@@ -2473,7 +2462,7 @@ C     ----------------------------------------------------------------
 
       DIMENSION SC(MC),USEFUL(MC)
 
-      IF(LPR)WRITE(15,'(/A)')' ==> Start subroutine CLEAN5  '
+      IF(LPR)WRITE(6,'(/A)')' ==> Start subroutine CLEAN5  '
 
       NTRI=60*4**(NDIV-1)
 
@@ -2597,9 +2586,8 @@ C Discard spheres totally inside of others
       NCOR=NCOR-J
     
       IF(LPR)THEN
-      WRITE(15,'(A,I7)')' Spheres discarded (not useful)       =',J
+      WRITE(6,'(A,I7)')' Spheres discarded (not useful)       =',J
       END IF
 
-      CLOSE(15)
       RETURN
       END

@@ -80,6 +80,7 @@ c
       character*255 field
       logical do_cosmo
       logical do_gepol
+      integer cosmo_ndiv
       logical do_cosmo_file
       logical do_gasphase
       logical status
@@ -137,6 +138,7 @@ c
       solvname_long = 'water'
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
+      cosmo_ndiv   = 2 ! used with the gepol cavity
       minbem   =2
       maxbem   =4 ! used with the Klamt-Schuurmann model
       ificos   =0
@@ -346,7 +348,7 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- do_gepol flag: use GEPOL93 code for cavity calculation in KS,
+c   --- do_gepol flag: use GEPOL93 code for SES cavity calculation in KS,
 c   ---         not relevant in YK
 c
       else if(inp_compare(.false.,'do_gepol',field)) then
@@ -355,6 +357,32 @@ c
      $    rtdb_put(rtdb,'cosmo:do_gepol',mt_log,1,do_gepol))
      $    call errquit('cosmo_input: cannot put do_gepol in rtdb',
      $    0,rtdb_err)
+c
+c   --- ndiv: specifies the division level for the triangles on the
+c   ---          surface when do_gepol is activated.
+c             Valid values are:
+c               - coarse: 60 triangles per sphere
+c               - fine  : 240 (default)
+c               - xfine : 960
+c
+      else if(inp_compare(.false.,'ndiv',field)) then
+        if (.not.inp_a(token))
+     $        call errquit('cosmo_input: ndiv',911, INPUT_ERR)
+        if (inp_compare(.false.,'coarse',token)) then
+          cosmo_ndiv = 1
+        else if (inp_compare(.false.,'fine',token)) then
+          cosmo_ndiv = 2
+        else if (inp_compare(.false.,'xfine',token)) then
+          cosmo_ndiv = 3
+        else
+          write(luout,*)"invalid option for NDIV, valid options are:"
+          write(luout,*)" coarse, fine (default), xfine"
+          call util_flush(luout)
+          call errquit("cosmo_input: invalid option for NDIV",911,
+     $                 INPUT_ERR)
+      endif
+      if (.not. rtdb_put(rtdb,'cosmo:ndiv',mt_int,1,cosmo_ndiv))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- parameter file
 c

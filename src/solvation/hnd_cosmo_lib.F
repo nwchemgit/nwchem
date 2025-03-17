@@ -716,15 +716,17 @@ c
 c     Use the GEPOL93 algorithm to obtain a precise SES surface.
 c
       if (do_cosmo_model.eq.DO_COSMO_KS.and.do_gepol) then
+c       We are sending all arguments in A.U.
         rd = rsolv/cau2ang
-        rmim = 0.5
+        rmim = 0.5/cau2ang
         ofac = 0.8
-        ndiv = 3
+        dvec = 1.0
+        if(.not.rtdb_get(rtdb,'cosmo:ndiv',mt_int,1,ndiv)) ndiv=2
         call gepol('ESURF',.false.,.false.,.false.,.false.,'TIT',0,
-     &                  rmim,'','','',ofac,rd,ndiv,1,
-     &                  .false.,.false.,
-     &                  nat,ratm,xyzatm,mxface,
-     &                  nefc,xyzseg,segarea,segatom,srfmol,volmol)
+     &             rmim,'','','',ofac,rd,ndiv,dvec,
+     &             .true.,.false.,
+     &             nat,ratm,xyzatm,mxface,
+     &             nefc,xyzseg,segarea,segatom,srfmol,volmol,.false.)
         nseg = nefc
       end if
 c
