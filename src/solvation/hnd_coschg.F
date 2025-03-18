@@ -528,8 +528,8 @@ c      integer cosmo_sccor ! do correction?
       integer nodcmp ! flag specifying how to handle errors
       integer need ! the amount of memory needed
 c
-      integer l_epot, l_xyzpt, l_zanpt ! memory handles
-      integer k_epot, k_xyzpt, k_zanpt ! memory offsets
+      integer l_epot, l_xyzpt, l_zanpt, l_costag ! memory handles
+      integer k_epot, k_xyzpt, k_zanpt, k_costag ! memory offsets
 c
       double precision charge ! the total QM region charge
       double precision chgnuc ! the total nuclear charge
@@ -719,9 +719,11 @@ c
      &    call errquit('hnd_coschg: ma failed',911,MA_ERR)
       if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
      &    call errquit('hnd_coschg: ma failed',911,MA_ERR)
+      if (.not. ma_push_get(mt_byte,nat*16,'tags',l_costag,k_costag))
+     &    call errquit('hnd_coschg: k_costag failed',911,MA_ERR)
       do iat=1,nat
-        if(.not.geom_cent_get(geom,iat,at_tag,dbl_mb(k_xyzpt+3*(iat-1)),
-     &     dbl_mb(k_zanpt+iat-1))) call
+        if(.not.geom_cent_get(geom,iat,byte_mb(k_costag+16*(iat-1)),
+     &     dbl_mb(k_xyzpt+3*(iat-1)),dbl_mb(k_zanpt+iat-1))) call
      &     errquit('hnd_coschg: geom_cent_get',911,GEOM_ERR)
       enddo ! iat
 c
@@ -1251,11 +1253,13 @@ c
          write(fn,"(a)") "$coord_rad"
          write(fn,"(a)") "#atom x y z [a.u.] element radius [A]"
          do i = 1,nat
+           call util_set_ma_char_arrays(16,
+     +            byte_mb(k_costag+16*(i-1)),at_tag)
             write(fn,*) i,
      +     dbl_mb(k_xyzpt  +3*(i-1)),
      +     dbl_mb(k_xyzpt+1+3*(i-1)),
      +     dbl_mb(k_xyzpt+2+3*(i-1)),
-     +     int(dbl_mb(k_zanpt+i-1)),
+     +     at_tag,
      +     ratm(i)*cau2ang
          enddo ! i
 c        
