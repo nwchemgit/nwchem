@@ -18,7 +18,7 @@ c     Standard cosmo output
 c
         if (.not.do_cosmo_smd) then
            write(luout,911)
-           if (dabs(egas).gt.1d-9) then
+           if (dabs(egas).gt.0d0) then
                 write(luout,912) egas
                 write(luout,913) esol
                 write(luout,914) (egas-esol),(egas-esol)*cau2kcal
@@ -30,7 +30,7 @@ c
         else  ! cosmo-smd output
 c
            write(luout,819)
-           if (dabs(egas).gt.1d-9) then
+           if (dabs(egas).gt.0d0) then
              write(luout,820) egas
              write(luout,821) (gstote-gspol)
              write(luout,822) (gstote-gspol-egas),
