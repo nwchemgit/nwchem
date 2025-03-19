@@ -326,8 +326,10 @@ c   --- do_cosmo_yk: switch to York-Karplus model
 c
       else if(inp_compare(.false.,'do_cosmo_yk',field)) then
          do_cosmo_model=DO_COSMO_YK
-         if (.not. rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
-     $                      do_cosmo_model))
+         do_gepol=.true.
+         if (.not.(rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
+     $                      do_cosmo_model)
+     $       .and.rtdb_put(rtdb,'cosmo:do_gepol',mt_log,1,do_gepol)))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- do_cosmo_file flag
@@ -348,15 +350,17 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- do_gepol flag: use GEPOL93 code for SES cavity calculation in KS,
-c   ---         not relevant in YK
+c   --- do_gepol flag: use GEPOL93 code for SES cavity calculation.
+c   ---         This option also forces using the KS method.
 c
       else if(inp_compare(.false.,'do_gepol',field)) then
         do_gepol=.true.
-        if (.not. 
-     $    rtdb_put(rtdb,'cosmo:do_gepol',mt_log,1,do_gepol))
-     $    call errquit('cosmo_input: cannot put do_gepol in rtdb',
-     $    0,rtdb_err)
+        do_cosmo_model=DO_COSMO_KS
+        if (.not.(rtdb_put(rtdb,'cosmo:do_gepol',mt_log,1,do_gepol)
+     $     .and.rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
+     $                      do_cosmo_model)))
+     $    call errquit('cosmo_input: rtdb put failed',0,RTDB_ERR)
+
 c
 c   --- ndiv: specifies the division level for the triangles on the
 c   ---          surface when do_gepol is activated.

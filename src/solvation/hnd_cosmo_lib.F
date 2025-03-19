@@ -487,7 +487,11 @@ c
       pi = acos(-1.0d0)
 c
       if(ga_nodeid().eq.0) then
-         write(luout,9999)
+        if(do_gepol) then
+          write(luout,8888)
+        else
+          write(luout,9999)
+        endif
       endif
 c
 c     ----- print atomic centers -----
@@ -681,7 +685,7 @@ c
 c
       enddo
 c
-      if(ga_nodeid().eq.0) then
+      if(ga_nodeid().eq.0.and..not.do_gepol) then
          write(luout,9985) nseg,nfac
          write(luout,9992)
          do iat=1,nat
@@ -692,7 +696,7 @@ c
             write(luout,9991) iat,nspa(iat),nppa(iat),npp
          enddo
       endif
-      if(oprint_debug) then
+      if(oprint_debug.and..not.do_gepol) then
          write(luout,9987)
          do iat=1,nat
             do iseg=1,nseg
@@ -720,7 +724,7 @@ c       We are sending all arguments in A.U.
         rd = rsolv/cau2ang
         rmim = 0.5/cau2ang
         ofac = 0.9 ! to reduce the concave regions
-        dvec = 1.0
+        dvec = 1.0 ! segment vector direction, not relevant
         if(.not.rtdb_get(rtdb,'cosmo:ndiv',mt_int,1,ndiv)) ndiv=2
         call gepol('ESURF',.false.,.false.,.false.,.false.,'TIT',0,
      &             rmim,'','','',ofac,rd,ndiv,dvec,
@@ -767,13 +771,19 @@ c           save segment surfaces
 c           save segment to atom mapping
 c
       if(do_cosmo_model.eq.DO_COSMO_KS.and.do_gepol) then
-        do iseg=1,nseg
-          dbl_mb(k_efcc+3*(iseg-1))  =xyzseg(1,iseg)
-          dbl_mb(k_efcc+3*(iseg-1)+1)=xyzseg(2,iseg)
-          dbl_mb(k_efcc+3*(iseg-1)+2)=xyzseg(3,iseg)
+c       Save gepol results, but keep the segments sorted by atom for grad_hdn_cos
+        ief = 0
+        do iat=1,nat
+          do iseg=1,nseg
+            if(iat.ne.segatom(iseg)) cycle
+            ief = ief+1
+            dbl_mb(k_efcc+3*(ief-1))  =xyzseg(1,iseg)
+            dbl_mb(k_efcc+3*(ief-1)+1)=xyzseg(2,iseg)
+            dbl_mb(k_efcc+3*(ief-1)+2)=xyzseg(3,iseg)
 
-          dbl_mb(k_efcs+iseg-1) = segarea(iseg)
-          int_mb(k_efciat+iseg-1) = segatom(iseg)
+            dbl_mb(k_efcs+ief-1) = segarea(iseg)
+            int_mb(k_efciat+ief-1) = segatom(iseg)
+          enddo
         enddo
       else
       srfmol=0d0
@@ -970,6 +980,7 @@ c
 c
       return
  9999 format(/,1x,'solvent accessible surface',/,1x,26(1h-))
+ 8888 format(/,1x,'solvent  excluded  surface',/,1x,26(1h-))
  9998 format(/,1x,'---------- ATOMIC COORDINATES (A.U.) ----------',
      1            '-- VDWR(ANG.) --')
  9997 format(  1x,i5,3f14.8,f10.3)

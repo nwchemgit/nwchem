@@ -44,7 +44,7 @@ c
       character*16 ctag(203)
       double precision crad(203)
 c
-      logical odbug, osome
+      logical odbug, osome, do_gepol
       integer me
 c
 c
@@ -254,6 +254,9 @@ c
       do_cosmo_model = DO_COSMO_YK
       if(.not.rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec))
      D        dielec   =78.4d0 ! default water dielectric
+      do_gepol = .false.
+      if(.not.rtdb_get(rtdb,'cosmo:do_gepol',mt_log,1,do_gepol))
+     D        do_gepol = .false.
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
       minbem   =2
@@ -506,6 +509,7 @@ c
          write(Luout,9999)
          if (do_cosmo_model.eq.DO_COSMO_KS) then
            write(Luout,9970)
+           if (do_gepol) write (Luout,8870)
          else if (do_cosmo_model.eq.DO_COSMO_YK) then
            write(Luout,9971)
          endif
@@ -750,6 +754,8 @@ c
  9972 format(' surface charge correction     = ',a)
  9971 format(' Cosmo: York-Karplus, doi: 10.1021/jp992097l')
  9970 format(' Cosmo: Klamt-Schuurmann, doi: 10.1039/P29930000799')
+c TODO: describe the GEPOL modifications and publish a new article
+ 8870 format(' SES surface, doi: 10.1002/jcc.540151009, ??')
 
  9969 format(' Using -Lebedev- grid')
  9968 format(' -iangleb',I4)
