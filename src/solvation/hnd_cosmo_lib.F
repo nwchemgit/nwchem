@@ -487,9 +487,11 @@ c
       pi = acos(-1.0d0)
 c
       if(ga_nodeid().eq.0) then
-        if(do_gepol) then
+        if(do_cosmo_model.eq.DO_COSMO_KS) then
           write(luout,8888)
         else
+c         YK model is currently using a vdW surface and not SAS
+c         as described in the original paper.
           write(luout,9999)
         endif
       endif
@@ -979,8 +981,8 @@ c
      &   errquit('cosmo_cossas chop stack k_efcc failed',911,MA_ERR)
 c
       return
- 9999 format(/,1x,'solvent accessible surface',/,1x,26(1h-))
- 8888 format(/,1x,'solvent  excluded  surface',/,1x,26(1h-))
+ 9999 format(/,1x,'  van der Waals surface   ',/,1x,26(1h-))
+ 8888 format(/,1x,' solvent excluded surface ',/,1x,26(1h-))
  9998 format(/,1x,'---------- ATOMIC COORDINATES (A.U.) ----------',
      1            '-- VDWR(ANG.) --')
  9997 format(  1x,i5,3f14.8,f10.3)

@@ -326,7 +326,7 @@ c   --- do_cosmo_yk: switch to York-Karplus model
 c
       else if(inp_compare(.false.,'do_cosmo_yk',field)) then
          do_cosmo_model=DO_COSMO_YK
-         do_gepol=.true.
+         do_gepol=.false.
          if (.not.(rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
      $                      do_cosmo_model)
      $       .and.rtdb_put(rtdb,'cosmo:do_gepol',mt_log,1,do_gepol)))
