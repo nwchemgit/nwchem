@@ -258,6 +258,7 @@ c     == initialize DIIS call counter ==
       icall(2) = 0
 c
       gcds = 0.d0
+      egas = 0d0
       do_cosmo_vem = 0
       istep_cosmo_vem = 0
       do_cosmo_smd = .false.
