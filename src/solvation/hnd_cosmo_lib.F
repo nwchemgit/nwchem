@@ -721,7 +721,7 @@ c
 c
 c     Use the GEPOL93 algorithm to obtain a precise SES surface.
 c
-      if (do_cosmo_model.eq.DO_COSMO_KS.and.do_gepol) then
+      if (do_gepol) then
 c       We are sending all arguments in A.U.
         rd = rsolv/cau2ang
         rmim = 0.5/cau2ang
@@ -772,8 +772,9 @@ c     ----- save coordinates of surface points -----
 c           save segment surfaces
 c           save segment to atom mapping
 c
-      if(do_cosmo_model.eq.DO_COSMO_KS.and.do_gepol) then
-c       Save gepol results, but keep the segments sorted by atom for grad_hdn_cos
+      if(do_gepol) then
+c       Save gepol results, but keep the segments sorted by atom
+c       so grad_hdn_cos can work properly.
         ief = 0
         do iat=1,nat
           do iseg=1,nseg
