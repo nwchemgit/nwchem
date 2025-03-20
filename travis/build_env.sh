@@ -229,10 +229,10 @@ if [[ "$os" == "Linux" ]]; then
 	    icx -V
 	    $MYSUDO rm -rf $MKLROOT/lib/*sycl* || true
 	fi
-	if [[ "$FC" == 'flang-new-'* ]]; then
+	if [[ "$FC" == 'flang-new-'* || "$FC" == 'flang-'?? ]]; then
 	    wget https://apt.llvm.org/llvm.sh
 	    chmod +x llvm.sh
-	    llvm_ver=$(echo $FC | cut -d - -f 3)
+	    llvm_ver=$(echo "${FC##*-}")
 	    $MYSUDO ./llvm.sh $llvm_ver
 	    $MYSUDO apt-get install -y flang-$llvm_ver
 	fi
