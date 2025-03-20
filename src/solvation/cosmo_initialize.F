@@ -612,10 +612,12 @@ c
       if(osome.and.me.eq.0) then
          write(luout,9993) lineq
          if ((iangleb.lt.1).and.(fibonacci.lt.1)) then
-           write(luout,9991) minbem
-           if (do_cosmo_model.eq.DO_COSMO_KS) then
-             write(luout,9992) maxbem
-           endif
+           if (.not.do_gepol) then
+             write(luout,9991) minbem
+             if (do_cosmo_model.eq.DO_COSMO_KS) then
+               write(luout,9992) maxbem
+             endif
+           end if
            if(ificos.eq.0) then
               write(luout,9990)
            else

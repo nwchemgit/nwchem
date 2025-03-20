@@ -448,7 +448,7 @@ C>   10.1111/1468-0262.00296</a>.
 C>
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
      &                      efcc,efcs,msrf,efcz,efczz,efciat,ratm,
-     &                      ecos,cosmo_file_in)
+     &                      ecos,egas,esol,cosmo_file_in)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -489,8 +489,10 @@ c
       double precision ratm(nat)    !< [Input] the atom radii
       double precision ecos !< [Output] the energy contribution due to
                             !< the COSMO charges
+      double precision egas !< [Input] the total gas energy
+      double precision esol !< [Input] the total solvated energy
       logical  status
-      logical  do_cosmo_file
+      logical  do_cosmo_file, do_gepol
 c
       logical  dbug,more,out,direct,noall,all,elec,nucl,iefc_done
       character*16 at_tag
@@ -1224,6 +1226,8 @@ c     ----- printing cosmo file for COSMO-RS/SAC codes -----
 c
       if (.not. rtdb_get(rtdb,'cosmo:do_cosmo_file',mt_log,1,
      $     do_cosmo_file)) do_cosmo_file=.false.
+      if (.not. rtdb_get(rtdb,'cosmo:do_gepol',mt_log,1,
+     $     do_gepol)) do_gepol=.false.
       if (do_cosmo_file) then
          cosmo_file_in = "cosmo"
          call util_file_name(cosmo_file_in,.false.,.false.,cosmo_file)
@@ -1242,6 +1246,11 @@ c
             write(fn,*) " epsilon= infinity"
          else
             write(fn,*) " epsilon= ", dielec
+         endif
+         if(do_gepol) then
+            write(fn,*) " cavity= gepol SES"
+         else
+            write(fn,*) " cavity= vdW"
          endif
          write(fn,*) " rsolv= ", rsolv
 c
@@ -1262,7 +1271,11 @@ c
      +     at_tag,
      +     ratm(i)*cau2ang
          enddo ! i
-c        
+c
+         write(fn,"(a)") "$energy"
+         if(dabs(egas).gt.0d0) write(fn,*) " total_gas= ", egas
+         if(dabs(esol).gt.0d0) write(fn,*) " total_solvated= ", esol
+c
          write(fn,"(a)") "$segment_information"
          write(fn,"(a)") "# n atom x y z charge area charge/area"
          write(fn,"(a)") "# coordinates [a.u.], area [A2]"

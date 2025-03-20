@@ -754,7 +754,7 @@ c          if (oroot) write(luout,*) "calling cosmo_charges_from_dmat"
            call cosmo_charges_from_dmat(rtdb,
      &                                  ihdl_bfao,
      &                                  ihdl_geom,
-     &                                  ecosmo, 
+     &                                  ecosmo, 0d0, 0d0,
      &                                  odbug,       ! debug
      &                                  1,           ! up and down are combined
      &                                  g_p_ao,      ! input density
