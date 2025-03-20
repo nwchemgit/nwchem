@@ -6,7 +6,7 @@ c ... jochen: further mods were made to accomodate the situation that
 c     we might have damping in the response. That causes all quantities to
 c     have an imaginary part, too
 
-      subroutine rohf_hessv3(acc, g_x, g_ax, g_x_im, g_Ax_im,
+      subroutine rohf_hessv3(rtdb, acc, g_x, g_ax, g_x_im, g_Ax_im,
      &   omega, limag, lifetime, gamwidth, ncomp)
       implicit none
 #include "errquit.fh"
@@ -18,6 +18,7 @@ c     have an imaginary part, too
 c     
 c     $Id$
 c
+      integer rtdb
 c ... jochen: these two arrays now have two components:
       integer g_x(2)  ! [input]  A-matrix elements for density matrix
       integer g_ax(2) ! [output] Perturbed Fock operator
@@ -64,7 +65,7 @@ c
 c     Call internal routine
 c  
       if (debug) write (6,*) 'calling rohf_hessv_xx3'
-      call rohf_hessv_xx3( basis, geom, nbf, nmo,
+      call rohf_hessv_xx3( rtdb, basis, geom, nbf, nmo,
      $     nclosed, nopen,
      $     pflg, g_movecs, oskel, noskew,
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
@@ -96,8 +97,8 @@ c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      subroutine rohf_hessv_xx3( basis, geom, nbf, nmo, nclosed, nopen, 
-     $     pflg,
+      subroutine rohf_hessv_xx3( rtdb, basis, geom, 
+     $     nbf, nmo, nclosed, nopen, pflg,
      $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax, g_x_im, g_Ax_im, omega, limag,
      &     lifetime, gamwidth, ncomp)
@@ -109,6 +110,7 @@ C     $Id$
 #include "rtdb.fh"
 #include "bgj.fh"
 c     
+      integer rtdb
       integer basis, geom
       integer nbf, nmo, nclosed, nopen
       integer pflg
@@ -228,23 +230,27 @@ c       separately here
 c
         if (ncomp.gt.1) then    ! call 2e code for dynamic case
           if (debug) write (6,*) 'calling rohf_hessv_2e3'
-          call rohf_hessv_2e3( basis, geom, nbf, nmo, nclosed, nopen,
+          call rohf_hessv_2e3( rtdb, basis, geom, 
+     &                         nbf, nmo, nclosed, nopen,
      $       g_movecs, oskel, noskew, g_x, acc, ! was min(1d-6,acc)
      $       g_ax, limag)
           if (debug) write (6,*) 'back from rohf_hessv_2e3'
           if (lifetime) then
             if (debug) write (6,*) 'calling rohf_hessv_2e3 for Im part'
-            call rohf_hessv_2e3( basis, geom, nbf, nmo, nclosed, nopen,
+            call rohf_hessv_2e3( rtdb, basis, geom, 
+     &                           nbf, nmo, nclosed, nopen,
      $         g_movecs, oskel, noskew, g_x_im, acc, ! was min(1d-6,acc)
      $         g_ax_im, limag)
             if (debug) write (6,*) 'back from rohf_hessv_2e3 Im part'
           endif                 ! lifetime
         else                    ! call static 2e code
-          call rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
+          call rohf_hessv_2e2( rtdb, basis, geom,
+     &       nbf, nmo, nclosed, nopen,
      $       g_movecs, oskel, noskew, g_x(1), acc, ! was min(1d-6,acc)
      $       g_ax(1))
           if (lifetime) then
-            call rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
+            call rohf_hessv_2e2( rtdb, basis, geom, 
+     &         nbf, nmo, nclosed, nopen,
      $         g_movecs, oskel, noskew, g_x_im(1), acc, ! was min(1d-6,acc)
      $         g_ax_im(1))
           endif ! lifetime
@@ -254,7 +260,7 @@ c
 c   DIM/QM JEM
 c   This call is placed differently than in rohf_hessv2 because we
 c   require knowledge of the real and imaginary simultaneously.
-      if (.not.rtdb_get(bgj_get_rtdb_handle(),'dimqm:lrsp',MT_LOG, 1,
+      if (.not.rtdb_get(rtdb,'dimqm:lrsp',MT_LOG, 1,
      $                  ldimqm)) ldimqm = .false.
       if(ldimqm) then
         call dimqm_addop(g_x, g_x_im, g_ax, g_ax_im, ncomp, 
@@ -266,7 +272,8 @@ c
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      subroutine rohf_hessv_2e3( basis, geom, nbf, nmo, nclosed, nopen,
+      subroutine rohf_hessv_2e3( rtdb, basis, geom,
+     &                           nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, noskew, g_x, acc, g_ax, limag)
 C     $Id$
       implicit none
@@ -292,6 +299,7 @@ c
 ccccccccccccccc This code does NOT work for open shell!!!!!ccccccccccccccccc
 c
 c
+      integer rtdb
       integer basis, geom       ! basis & geom handle
       integer nbf, nclosed, nopen ! Basis size and occupation
       integer nmo               ! No. of linearly dependent MOs
@@ -347,7 +355,7 @@ c
       if (debug) call ga_print(g_Ax(2))
 c
       oprint= util_print('rohf_hessv2',print_debug)
-      xc_xfac1=bgj_kfac() ! amount of exact exchange in the functional
+      xc_xfac1=bgj_kfac(rtdb) ! amount of exact exchange in the functional
       if (debug) write (6,*) 'xc_xfac1: ', xc_xfac1
 c     
 c     This get's cleaned up a lot when the Fock build accepts
@@ -740,12 +748,12 @@ c     will be symmetrized and antisymmetrized, respectively.
 c
 c     case I: symmetric density matrix
       if (.not.cam_exch) then
-        call shell_fock_build(geom, basis, 0, nfock, 
+        call shell_fock_build(rtdb, geom, basis, 0, nfock, 
      $   dbl_mb(k_jfac(1)), dbl_mb(k_kfac(1)),
      $   tol2e, g_dens(1), g_fock(1), .true.)
          if (debug) write (6,*) 'rohf_h2e3 step 11'
       else   ! for attenuated calculations
-        call shell_fock_build_cam(geom, basis, 0, nfock, 
+        call shell_fock_build_cam(rtdb, geom, basis, 0, nfock, 
      $   dbl_mb(k_jfac(1)), dbl_mb(k_kfac(1)),
      $   tol2e, g_dens(1), g_fock(1), .true.)
       end if
@@ -757,12 +765,12 @@ c     HF exchange. For pure DFT we just skip the call to save CPU time.
 c
       if (abs(xc_xfac1).gt.tenm6) then
        if (.not.cam_exch) then
-        call shell_fock_build(geom, basis, 0, nfock, 
+        call shell_fock_build(rtdb, geom, basis, 0, nfock, 
      $   dbl_mb(k_jfac(2)), dbl_mb(k_kfac(2)),
      $   tol2e, g_dens(2), g_fock(2), .false.)
          if (debug) write (6,*) 'shell_fock_build called with P(A)'
        else  ! for attenuated calculations
-        call shell_fock_build_cam(geom, basis, 0, nfock, 
+        call shell_fock_build_cam(rtdb, geom, basis, 0, nfock, 
      $   dbl_mb(k_jfac(2)), dbl_mb(k_kfac(2)),
      $   tol2e, g_dens(2), g_fock(2), .false.)
        end if
