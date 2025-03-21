@@ -487,11 +487,14 @@ c
       pi = acos(-1.0d0)
 c
       if(ga_nodeid().eq.0) then
-        if(do_cosmo_model.eq.DO_COSMO_KS) then
+        if(do_gepol) then
           write(luout,8888)
         else
 c         YK model is currently using a vdW surface and not SAS
 c         as described in the original paper.
+c         The KS model currently has a defect: it produces an 
+c         incomplete vdW surface, leaving solvent-excluded areas
+c         open, with the surface closure step missing.
           write(luout,9999)
         endif
       endif

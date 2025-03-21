@@ -1226,9 +1226,9 @@ c     ----- printing cosmo file for COSMO-RS/SAC codes -----
 c
       if (.not. rtdb_get(rtdb,'cosmo:do_cosmo_file',mt_log,1,
      $     do_cosmo_file)) do_cosmo_file=.false.
-      if (.not. rtdb_get(rtdb,'cosmo:do_gepol',mt_log,1,
-     $     do_gepol)) do_gepol=.false.
       if (do_cosmo_file) then
+         if (.not. rtdb_get(rtdb,'cosmo:do_gepol',mt_log,1,
+     $     do_gepol)) do_gepol=.false.
          cosmo_file_in = "cosmo"
          call util_file_name(cosmo_file_in,.false.,.false.,cosmo_file)
          call util_file_name_resolve(cosmo_file,.false.)
@@ -1242,13 +1242,14 @@ c
      +     cosmo_file
          end if
          write(fn,"(a)") "$cosmo"
-         if(screen.eq.1d0) then
+         write(fn,*) " screen= ", screen
+         if(screen.eq.one) then
             write(fn,*) " epsilon= infinity"
          else
             write(fn,*) " epsilon= ", dielec
          endif
          if(do_gepol) then
-            write(fn,*) " cavity= gepol SES"
+            write(fn,*) " cavity= SES"
          else
             write(fn,*) " cavity= vdW"
          endif

@@ -173,7 +173,8 @@ c
        call ga_zero(g_dens)
        call ga_copy(g_cdens,g_dens)
        if (nopen.gt.0) call ga_add(1.d0,g_cdens,one,g_odens,g_dens)
-        call cosmo_charges_from_dmat(rtdb, basis, geom, ecosmo, odebug,
+        call cosmo_charges_from_dmat(rtdb, basis, geom,
+     &                                  ecosmo, 0d0, 0d0, odebug,
      &                                  1,           ! 1 = closed  shell
      &                                  g_dens,      ! input density
      &                                  cosmo_file)  ! cosmo charges file name
