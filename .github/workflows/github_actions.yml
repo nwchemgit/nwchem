@@ -387,7 +387,7 @@ jobs:
             fc: ifx
           - os: ubuntu-latest
             experimental: true
-            mpi_impl: mpich
+            mpi_impl: build_mpich
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
             fc: flang-20
