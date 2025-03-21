@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-git clone https://github.com/pytorch/cpuinfo
+git -q clone https://github.com/pytorch/cpuinfo
 cd cpuinfo
 mkdir build && cd build
-cmake ..
-make -j3
+cmake .. >& cmake.log
+tail -f cmake.log
+make -j3 >& make.log
+tail -3 make.log
 ./isa-info
 ./cpu-info
 cd ../..
