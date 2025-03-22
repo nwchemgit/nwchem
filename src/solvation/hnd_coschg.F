@@ -1243,7 +1243,7 @@ c
      +     cosmo_file
          end if
          if (rtdb_get(rtdb,'cosmo:info',mt_byte,255,cosmo_info))
-     +     write(fn,"(a)") '# ' // cosmo_info
+     +     write(fn,"(a)") '# ' // trim(cosmo_info)
          write(fn,"(a)") "$cosmo"
          write(fn,*) " screen= ", screen
          if(screen.eq.one) then
