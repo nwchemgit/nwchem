@@ -92,6 +92,10 @@ env|egrep MP
 if [[ "$MPI_IMPL" == "openmpi" ]]; then
 export MPIRUN_NPOPT=" --allow-run-as-root -mca mpi_yield_when_idle 0 --oversubscribe -np "
 fi
+if [[ "$MPI_IMPL" == "intel" ]]; then
+#to avoid segfault with FI_PROVIDER=shm in MPI_Finalize with Intel MPI 2021.15
+export FI_PROVIDER=tcp
+fi
 if [[ -d "$TRAVIS_BUILD_DIR/.cachedir/files/libraries" ]]; then
  echo === ls binaries cache ===
  ls -lrt $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/ || true
