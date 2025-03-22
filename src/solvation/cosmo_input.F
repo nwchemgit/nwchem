@@ -79,7 +79,7 @@ c
       double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
       character*255 field
       logical do_cosmo
-      logical do_gepol
+      logical do_ses
       integer cosmo_ndiv
       logical do_cosmo_file
       logical do_gasphase
@@ -138,7 +138,7 @@ c
       solvname_long = 'water'
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
-      cosmo_ndiv   = 2 ! used with the gepol cavity
+      cosmo_ndiv   = 2 ! used with the SES cavity
       minbem   =2
       maxbem   =4 ! used with the Klamt-Schuurmann model
       ificos   =0
@@ -322,14 +322,14 @@ c
      $                      do_cosmo_model))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- do_cosmo_yk: switch to York-Karplus model
+c   --- do_cosmo_yk: switch to York-Karplus model; also forces do_ses=false
 c
       else if(inp_compare(.false.,'do_cosmo_yk',field)) then
          do_cosmo_model=DO_COSMO_YK
-         do_gepol=.false.
+         do_ses=.false.
          if (.not.(rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
      $                      do_cosmo_model)
-     $       .and.rtdb_put(rtdb,'cosmo:do_gepol',mt_log,1,do_gepol)))
+     $       .and.rtdb_put(rtdb,'cosmo:do_ses',mt_log,1,do_ses)))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- do_cosmo_file flag
@@ -338,8 +338,16 @@ c
         do_cosmo_file=.true.
         if (.not. 
      $    rtdb_put(rtdb,'cosmo:do_cosmo_file',mt_log,1,do_cosmo_file))
-     $    call errquit('cosmo_input: cannot put do_cosmo_file in rtdb',
-     $    0,rtdb_err)
+     $      call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- info: Information line to be printed in the cosmo file as a comment.
+c             Maximum lenth is 255 characters.
+c
+      else if(inp_compare(.false.,'info',field)) then
+        if (.not.inp_a(token))
+     $        call errquit('cosmo_input: info',911, INPUT_ERR)
+        if (.not.(rtdb_put(rtdb,'cosmo:info',mt_byte,255,token)))
+     $    call errquit('cosmo_input: rtdb put failed',0,RTDB_ERR)
 c
 c   --- rsolv: Used in Klamt-Schuurmann, but not in York-Karplus
 c   ---        approach
@@ -350,20 +358,20 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- do_gepol flag: use GEPOL93 code for SES cavity calculation.
+c   --- do_ses flag: Solvent-Excluded-Surface (SES) cavity calculation.
 c   ---         This option also forces using the KS method.
 c
-      else if(inp_compare(.false.,'do_gepol',field)) then
-        do_gepol=.true.
+      else if(inp_compare(.false.,'do_ses',field)) then
+        do_ses=.true.
         do_cosmo_model=DO_COSMO_KS
-        if (.not.(rtdb_put(rtdb,'cosmo:do_gepol',mt_log,1,do_gepol)
+        if (.not.(rtdb_put(rtdb,'cosmo:do_ses',mt_log,1,do_ses)
      $     .and.rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
      $                      do_cosmo_model)))
      $    call errquit('cosmo_input: rtdb put failed',0,RTDB_ERR)
 
 c
-c   --- ndiv: specifies the division level for the triangles on the
-c   ---          surface when do_gepol is activated.
+c   --- ndiv: specifies the division level for the triangles on
+c   ---      sphere surface when do_ses is activated.
 c             Valid values are:
 c               - coarse: 60 triangles per sphere
 c               - fine  : 240 (default)
@@ -386,7 +394,7 @@ c
      $                 INPUT_ERR)
       endif
       if (.not. rtdb_put(rtdb,'cosmo:ndiv',mt_int,1,cosmo_ndiv))
-     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+     $    call errquit('cosmo_input: rtdb put failed',0,RTDB_ERR)
 c
 c   --- parameter file
 c

@@ -492,10 +492,11 @@ c
       double precision egas !< [Input] the total gas energy
       double precision esol !< [Input] the total solvated energy
       logical  status
-      logical  do_cosmo_file, do_gepol
+      logical  do_cosmo_file, do_ses
 c
       logical  dbug,more,out,direct,noall,all,elec,nucl,iefc_done
       character*16 at_tag
+      character*255 cosmo_info
       integer istrlen
       character*255 cosmo_file_in
       character*(nw_max_path_len) cosmo_file
@@ -1227,8 +1228,8 @@ c
       if (.not. rtdb_get(rtdb,'cosmo:do_cosmo_file',mt_log,1,
      $     do_cosmo_file)) do_cosmo_file=.false.
       if (do_cosmo_file) then
-         if (.not. rtdb_get(rtdb,'cosmo:do_gepol',mt_log,1,
-     $     do_gepol)) do_gepol=.false.
+         if (.not. rtdb_get(rtdb,'cosmo:do_ses',mt_log,1,
+     $     do_ses)) do_ses=.false.
          cosmo_file_in = "cosmo"
          call util_file_name(cosmo_file_in,.false.,.false.,cosmo_file)
          call util_file_name_resolve(cosmo_file,.false.)
@@ -1241,6 +1242,8 @@ c
             write(*,*) "printing cosmo file for COSMO-RS/SAC",
      +     cosmo_file
          end if
+         if (rtdb_get(rtdb,'cosmo:info',mt_byte,255,cosmo_info))
+     +     write(fn,"(a)") '# ' // cosmo_info
          write(fn,"(a)") "$cosmo"
          write(fn,*) " screen= ", screen
          if(screen.eq.one) then
@@ -1248,7 +1251,7 @@ c
          else
             write(fn,*) " epsilon= ", dielec
          endif
-         if(do_gepol) then
+         if(do_ses) then
             write(fn,*) " cavity= SES"
          else
             write(fn,*) " cavity= vdW"

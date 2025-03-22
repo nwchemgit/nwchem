@@ -190,7 +190,7 @@ c
       double precision  wleb(mxfac)
       double precision  energy
 c
-      logical    do_gepol
+      logical    do_ses
       logical    oprint_out
       logical    oprint_more
       logical    oprint_debug
@@ -206,8 +206,8 @@ c
       oprint_more = util_print("cosmo_cossrf_more",print_never).and.
      D     (ga_nodeid().eq.0)
 c
-      if (.not. rtdb_get(rtdb,'cosmo:do_gepol',mt_log,1,
-     $     do_gepol)) do_gepol=.false.
+      if (.not. rtdb_get(rtdb,'cosmo:do_ses',mt_log,1,
+     $     do_ses)) do_ses=.false.
 c
 c     ----- approximate sphere with segments and points -----
 c
@@ -271,7 +271,7 @@ c
          if(radius(iat).eq.0.0d0) then
             ratm(iat)=0.0d0
          else
-            if (do_cosmo_model.eq.DO_COSMO_KS.and..not.do_gepol) then
+            if (do_cosmo_model.eq.DO_COSMO_KS.and..not.do_ses) then
               ratm(iat)=(radius(iat)+rsolv)/cau2ang
             else
               ratm(iat)=radius(iat)/cau2ang
@@ -285,7 +285,7 @@ c
       call hnd_cossas(nat,xyzatm,ratm,mxatm,
      1                nspa,nppa,xyzspa,ijkspa,
      2                nseg,nfac,xyzseg,ijkseg,insseg,
-     3                numpps,xyzff,wleb,mxfac,geom,do_gepol,rtdb)
+     3                numpps,xyzff,wleb,mxfac,geom,do_ses,rtdb)
 c
       return
  9999 format(' nseg,nfac,ndiv=nfac/nseg,dsurf,dvol = ',3i7,2f10.6)
@@ -378,7 +378,7 @@ C>
       subroutine hnd_cossas(nat,xyzatm,ratm,mxatom,
      1                      nspa,nppa,xyzspa,ijkspa,
      2                      nseg,nfac,xyzseg,ijkseg,insseg,
-     3                      numpps,xyzff,wleb,mxface,geom,do_gepol,
+     3                      numpps,xyzff,wleb,mxface,geom,do_ses,
      4                      rtdb)
       implicit none
 #include "cosmo_params.fh"
@@ -434,8 +434,8 @@ c
       integer l_efclb, k_efclb, k_efciat, l_efciat
       integer l_efczz, k_efczz
       integer l_msrf,k_msrf
-c     GEPOL variables
-      logical do_gepol
+c     SES variables
+      logical do_ses
       real*4 ofac,rd,dvec,rmim
       INTEGER*4 ndiv
       double precision segarea(mxface)
@@ -487,7 +487,7 @@ c
       pi = acos(-1.0d0)
 c
       if(ga_nodeid().eq.0) then
-        if(do_gepol) then
+        if(do_ses) then
           write(luout,8888)
         else
 c         YK model is currently using a vdW surface and not SAS
@@ -504,7 +504,7 @@ c
       if(ga_nodeid().eq.0) then
         write(luout,9998)
         do iat=1,nat
-          if (do_cosmo_model.eq.DO_COSMO_KS.and..not.do_gepol) then
+          if (do_cosmo_model.eq.DO_COSMO_KS.and..not.do_ses) then
             write(luout,9997) iat,xyzatm(1,iat),xyzatm(2,iat),
      1                                       xyzatm(3,iat),
      2                    (ratm(iat)*cau2ang-rsolv)
@@ -690,7 +690,7 @@ c
 c
       enddo
 c
-      if(ga_nodeid().eq.0.and..not.do_gepol) then
+      if(ga_nodeid().eq.0.and..not.do_ses) then
          write(luout,9985) nseg,nfac
          write(luout,9992)
          do iat=1,nat
@@ -701,7 +701,7 @@ c
             write(luout,9991) iat,nspa(iat),nppa(iat),npp
          enddo
       endif
-      if(oprint_debug.and..not.do_gepol) then
+      if(oprint_debug.and..not.do_ses) then
          write(luout,9987)
          do iat=1,nat
             do iseg=1,nseg
@@ -722,9 +722,9 @@ c
          endif
       enddo
 c
-c     Use the GEPOL93 algorithm to obtain a precise SES surface.
+c     Construct a precise SES surface, using a modified GEPOL93.
 c
-      if (do_gepol) then
+      if (do_ses) then
 c       We are sending all arguments in A.U.
         rd = rsolv/cau2ang
         rmim = 0.5/cau2ang
@@ -775,7 +775,7 @@ c     ----- save coordinates of surface points -----
 c           save segment surfaces
 c           save segment to atom mapping
 c
-      if(do_gepol) then
+      if(do_ses) then
 c       Save gepol results, but keep the segments sorted by atom
 c       so grad_hdn_cos can work properly.
         ief = 0

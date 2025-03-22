@@ -44,7 +44,7 @@ c
       character*16 ctag(203)
       double precision crad(203)
 c
-      logical odbug, osome, do_gepol
+      logical odbug, osome, do_ses
       integer me
 c
 c
@@ -254,9 +254,9 @@ c
       do_cosmo_model = DO_COSMO_YK
       if(.not.rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec))
      D        dielec   =78.4d0 ! default water dielectric
-      do_gepol = .false.
-      if(.not.rtdb_get(rtdb,'cosmo:do_gepol',mt_log,1,do_gepol))
-     D        do_gepol = .false.
+      do_ses = .false.
+      if(.not.rtdb_get(rtdb,'cosmo:do_ses',mt_log,1,do_ses))
+     D        do_ses = .false.
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
       minbem   =2
@@ -509,7 +509,7 @@ c
          write(Luout,9999)
          if (do_cosmo_model.eq.DO_COSMO_KS) then
            write(Luout,9970)
-           if (do_gepol) write (Luout,8870)
+           if (do_ses) write (Luout,8870)
          else if (do_cosmo_model.eq.DO_COSMO_YK) then
            write(Luout,9971)
          endif
@@ -612,7 +612,7 @@ c
       if(osome.and.me.eq.0) then
          write(luout,9993) lineq
          if ((iangleb.lt.1).and.(fibonacci.lt.1)) then
-           if (.not.do_gepol) then
+           if (.not.do_ses) then
              write(luout,9991) minbem
              if (do_cosmo_model.eq.DO_COSMO_KS) then
                write(luout,9992) maxbem
