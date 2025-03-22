@@ -2049,6 +2049,16 @@ ifneq ($(TARGET),LINUX)
         ifeq ($(USE_FLANG),1)
 		FLANG_NEW := $(shell [ $(shell $(FC) --help |head -1| cut -d " " -f 2 )  == flang ] && echo true || echo false)
 	endif
+	FC_HAS_MINUSW=true
+	ifeq ($(FLANG_NEW),true)
+	    FLANGMAJORIN := $(shell $(FC) -dM -E - </dev/null 2> /dev/null|grep flang_maj|| echo null)
+	    ifneq ($(FLANGMAJORIN),null)
+	        FLANGMAJOR := $(shell $(FC) -dM -E - </dev/null 2> /dev/null|grep flang_maj |cut -d " " -f 3 )
+	        FC_HAS_MINUSW := $(shell [ $(FLANGMAJOR) -le 19 ] && echo false || echo true)
+	    else
+	        FC_HAS_MINUSW = false
+	    endif
+	endif
 
 #@info 
 #@info FLANG_NEW $(FLANG_NEW)
@@ -2154,7 +2164,7 @@ ifneq ($(TARGET),LINUX)
                 FOPTIONS   += -ffast-math #-Wunused  
             endif
             ifeq ($(V),-1)
-                ifeq ($(FLANG_NEW),false)
+                ifeq ($(FC_HAS_MINUSW),true)
                   FOPTIONS += -w
 		endif
                 COPTIONS += -w
