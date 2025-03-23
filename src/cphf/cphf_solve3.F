@@ -150,7 +150,7 @@ c     Must use the same vectors as the converged SCF
      $        call errquit('cphf_solve3: no DFT MO vectors',0, RTDB_ERR)
 #if 0
 c !!! Hack to set up scftype properly for later code !!! ? need this?
-         if (bgj_restricted()) then
+         if (bgj_restricted(rtdb)) then
             scftype = 'RHF'
          else
             scftype = 'UHF'
@@ -165,7 +165,7 @@ c
      &       UNKNOWN_ERR)
       nbases = 1
       bases(1) = basis
-      if (bgj_have_j_fit()) then
+      if (bgj_have_j_fit(rtdb)) then
         nbases = 2
         bases(2) = bgj_CD_bas_han()
         write(*,*) 'cphf_solve3: bases',bases
