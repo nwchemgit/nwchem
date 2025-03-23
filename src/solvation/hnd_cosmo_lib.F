@@ -428,8 +428,8 @@ c
       integer          numpps(  mxface,mxatom)
       double precision  xyzff(  mxface,mxatom)
       double precision   wleb(         mxface)
-      double precision zero, one
-      data one     /1.0d+00/
+      double precision zero, one, two
+      data zero/0.0d00/,one/1.0d00/,two/2.0d00/
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
       integer l_efclb, k_efclb, k_efciat, l_efciat
       integer l_efczz, k_efczz
@@ -443,7 +443,7 @@ c     SES variables
 c
       double precision ratm_real,dij,dum,cavdsp,pi,zetai,zetaii
       integer m,mfac,mseg
-      integer nefc,iat,jat,npp,i,iseg,ifac,ief,ipp
+      integer nefc,iat,jat,npp,i,iseg,jseg,ifac,ief,ipp
 
       integer l_dum1, l_dum2, l_attag, k_dum1, k_dum2, k_attag
       character(len=16) aname
@@ -782,15 +782,38 @@ c       so grad_hdn_cos can work properly.
         do iat=1,nat
           do iseg=1,nseg
             if(iat.ne.segatom(iseg)) cycle
+c           Checking for overlapping segments (ended up too close).
+c           For simplicity, here we are assuming half the radius of
+c           a circular segment with the equivalent area.
+            dij = one
+            dum = sqrt(segarea(iseg)/pi)/two
+            do jseg=iseg+1,nseg
+              dij=dist(xyzseg(1,iseg),xyzseg(2,iseg),xyzseg(3,iseg),
+     +                 xyzseg(1,jseg),xyzseg(2,jseg),xyzseg(3,jseg))
+              if(dij.lt.dum) then
+                dij = zero
+c               Accumulate the area on the j segment, we could calculate
+c               adjusted coordinates in between the segments...
+                segarea(jseg) = segarea(jseg) + segarea(iseg)
+                exit
+              end if
+            end do
+            if(dij.eq.zero) cycle
+c
             ief = ief+1
             dbl_mb(k_efcc+3*(ief-1))  =xyzseg(1,iseg)
             dbl_mb(k_efcc+3*(ief-1)+1)=xyzseg(2,iseg)
             dbl_mb(k_efcc+3*(ief-1)+2)=xyzseg(3,iseg)
 
-            dbl_mb(k_efcs+ief-1) = segarea(iseg)
+            dbl_mb(k_efcs+ief-1) = segarea(iseg) ! KS area
+c       We currently do not support YK with SES surface, as the
+c       zetai and other variables need to be initialized.
+c            dbl_mb(k_msrf+ief-1) = segarea(iseg) ! YK area
             int_mb(k_efciat+ief-1) = segatom(iseg)
           enddo
         enddo
+        nefc = ief
+        nseg = nefc
       else
       srfmol=0d0
       volmol=0d0

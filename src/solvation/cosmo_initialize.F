@@ -617,12 +617,12 @@ c
              if (do_cosmo_model.eq.DO_COSMO_KS) then
                write(luout,9992) maxbem
              endif
+             if(ificos.eq.0) then
+               write(luout,9990)
+             else
+               write(luout,9989)
+             endif
            end if
-           if(ificos.eq.0) then
-              write(luout,9990)
-           else
-              write(luout,9989)
-           endif
          elseif (fibonacci.lt.1) then
            write(luout,9969)
            write(luout,9968) iangleb
