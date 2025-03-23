@@ -406,7 +406,7 @@ c
       else if(inp_compare(.false.,'mfactor',field)) then
         if(.not. inp_f(mfactor))
      $     call errquit('cosmo_input: mfactor',911, INPUT_ERR)
-        if (.not. rtdb_put(rtdb,'cosmo:mfactor',mt_dbl,1,rsolv))
+        if (.not. rtdb_put(rtdb,'cosmo:mfactor',mt_dbl,1,mfactor))
      $     call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- parameter file

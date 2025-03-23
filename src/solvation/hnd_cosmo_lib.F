@@ -789,7 +789,7 @@ c       so grad_hdn_cos can work properly.
 c           Checking for overlapping segments to merge.
 c           A circular area is assumed around each segment, and its
 c           radius R is calculated. Any two segments closer than
-c           R * rfactor are merged into a single segment.
+c           R * mfactor are merged into a single segment.
             dij = one
             dum = sqrt(segarea(iseg)/pi)*mfactor
             do jseg=iseg+1,nseg
