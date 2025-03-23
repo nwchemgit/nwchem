@@ -785,7 +785,7 @@ c       so grad_hdn_cos can work properly.
         ief = 0
         do iat=1,nat
           do iseg=1,nseg
-            if(iat.ne.segatom(iseg)) cycle
+            if(iat.ne.segatom(iseg).or.segarea(iseg).le.zero) cycle
 c           Checking for overlapping segments to merge.
 c           A circular area is assumed around each segment, and its
 c           radius R is calculated. Any two segments closer than
@@ -793,17 +793,22 @@ c           R * mfactor are merged into a single segment.
             dij = one
             dum = sqrt(segarea(iseg)/pi)*mfactor
             do jseg=iseg+1,nseg
+              if(segarea(jseg).le.zero) cycle
               dij=dist(xyzseg(1,iseg),xyzseg(2,iseg),xyzseg(3,iseg),
      +                 xyzseg(1,jseg),xyzseg(2,jseg),xyzseg(3,jseg))
               if(dij.lt.dum) then
-                dij = zero
-c               Accumulate the area on the j segment, we could calculate
-c               adjusted coordinates in between the segments...
-                segarea(jseg) = segarea(jseg) + segarea(iseg)
+c               Accumulate the area on the largest segment.
+                if(segarea(iseg).lt.segarea(jseg)) then
+                  segarea(jseg) = segarea(jseg) + segarea(iseg)
+                  segarea(iseg) = zero;
+                else
+                  segarea(iseg) = segarea(iseg) + segarea(jseg);
+                  segarea(jseg) = zero;
+                end if
                 exit
               end if
             end do
-            if(dij.eq.zero) cycle
+            if(segarea(iseg).eq.zero) cycle
 c
             ief = ief+1
             dbl_mb(k_efcc+3*(ief-1))  =xyzseg(1,iseg)
