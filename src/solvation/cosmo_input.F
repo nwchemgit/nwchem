@@ -81,6 +81,7 @@ c
       logical do_cosmo
       logical do_ses
       integer cosmo_ndiv
+      double precision mfactor
       logical do_cosmo_file
       logical do_gasphase
       logical status
@@ -138,7 +139,8 @@ c
       solvname_long = 'water'
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
-      cosmo_ndiv   = 2 ! used with the SES cavity
+      cosmo_ndiv   = 2   ! used with the SES cavity
+      mfactor  =0.50d+00 ! used with the SES cavity
       minbem   =2
       maxbem   =4 ! used with the Klamt-Schuurmann model
       ificos   =0
@@ -329,8 +331,8 @@ c
          do_ses=.false.
          if (.not.(rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
      $                      do_cosmo_model)
-     $       .and.rtdb_put(rtdb,'cosmo:do_ses',mt_log,1,do_ses)))
-     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+     $       .and.rtdb_put(rtdb,'cosmo:do_ses',mt_log,1,do_ses)
+     $     )) call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- do_cosmo_file flag
 c
@@ -366,9 +368,8 @@ c
         do_cosmo_model=DO_COSMO_KS
         if (.not.(rtdb_put(rtdb,'cosmo:do_ses',mt_log,1,do_ses)
      $     .and.rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
-     $                      do_cosmo_model)))
-     $    call errquit('cosmo_input: rtdb put failed',0,RTDB_ERR)
-
+     $                      do_cosmo_model)
+     $    )) call errquit('cosmo_input: rtdb put failed',0,RTDB_ERR)
 c
 c   --- ndiv: specifies the division level for the triangles on
 c   ---      sphere surface when do_ses is activated.
@@ -394,7 +395,19 @@ c
      $                 INPUT_ERR)
       endif
       if (.not. rtdb_put(rtdb,'cosmo:ndiv',mt_int,1,cosmo_ndiv))
-     $    call errquit('cosmo_input: rtdb put failed',0,RTDB_ERR)
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c    --- mfactor: Merging factor for segments that are too close.
+c        After constructing the SES surface, a circular area is
+c        assumed around each segment, and its radius R is calculated.
+c        Any two segments closer than R * mfactor are merged into
+c        a single segment. The default value is 0.5.
+c
+      else if(inp_compare(.false.,'mfactor',field)) then
+        if(.not. inp_f(mfactor))
+     $     call errquit('cosmo_input: mfactor',911, INPUT_ERR)
+        if (.not. rtdb_put(rtdb,'cosmo:mfactor',mt_dbl,1,rsolv))
+     $     call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- parameter file
 c

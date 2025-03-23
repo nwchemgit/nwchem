@@ -191,6 +191,7 @@ c
       double precision  energy
 c
       logical    do_ses
+      double precision mfactor
       logical    oprint_out
       logical    oprint_more
       logical    oprint_debug
@@ -208,6 +209,8 @@ c
 c
       if (.not. rtdb_get(rtdb,'cosmo:do_ses',mt_log,1,
      $     do_ses)) do_ses=.false.
+      if (.not. rtdb_get(rtdb,'cosmo:mfactor',mt_dbl,1,
+     $     mfactor)) mfactor=0.5d0
 c
 c     ----- approximate sphere with segments and points -----
 c
@@ -284,8 +287,8 @@ c
 
       call hnd_cossas(nat,xyzatm,ratm,mxatm,
      1                nspa,nppa,xyzspa,ijkspa,
-     2                nseg,nfac,xyzseg,ijkseg,insseg,
-     3                numpps,xyzff,wleb,mxfac,geom,do_ses,rtdb)
+     2                nseg,nfac,xyzseg,ijkseg,insseg,numpps,
+     3                xyzff,wleb,mxfac,geom,do_ses,mfactor,rtdb)
 c
       return
  9999 format(' nseg,nfac,ndiv=nfac/nseg,dsurf,dvol = ',3i7,2f10.6)
@@ -377,8 +380,8 @@ C>     10.1021/jp992097l</a>.
 C>
       subroutine hnd_cossas(nat,xyzatm,ratm,mxatom,
      1                      nspa,nppa,xyzspa,ijkspa,
-     2                      nseg,nfac,xyzseg,ijkseg,insseg,
-     3                      numpps,xyzff,wleb,mxface,geom,do_ses,
+     2                      nseg,nfac,xyzseg,ijkseg,insseg,numpps,
+     3                      xyzff,wleb,mxface,geom,do_ses,mfactor,
      4                      rtdb)
       implicit none
 #include "cosmo_params.fh"
@@ -436,6 +439,7 @@ c
       integer l_msrf,k_msrf
 c     SES variables
       logical do_ses
+      double precision mfactor
       real*4 ofac,rd,dvec,rmim
       INTEGER*4 ndiv
       double precision segarea(mxface)
@@ -782,11 +786,12 @@ c       so grad_hdn_cos can work properly.
         do iat=1,nat
           do iseg=1,nseg
             if(iat.ne.segatom(iseg)) cycle
-c           Checking for overlapping segments (ended up too close).
-c           For simplicity, here we are assuming half the radius of
-c           a circular segment with the equivalent area.
+c           Checking for overlapping segments to merge.
+c           A circular area is assumed around each segment, and its
+c           radius R is calculated. Any two segments closer than
+c           R * rfactor are merged into a single segment.
             dij = one
-            dum = sqrt(segarea(iseg)/pi)/two
+            dum = sqrt(segarea(iseg)/pi)*mfactor
             do jseg=iseg+1,nseg
               dij=dist(xyzseg(1,iseg),xyzseg(2,iseg),xyzseg(3,iseg),
      +                 xyzseg(1,jseg),xyzseg(2,jseg),xyzseg(3,jseg))
