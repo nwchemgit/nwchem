@@ -2691,7 +2691,9 @@ c
       integer icent, jcent
       integer i
       double precision scale, tmp(3),twopi
-      character*80 buf
+      integer buflen
+      parameter(buflen=128)
+      character*(buflen) buf
       logical oprint_uniq,ofinite,oprint_crystal
 c
 c     external functions
@@ -2727,6 +2729,9 @@ c
      $     call errquit('geom_print: user units?',0, GEOM_ERR)
 c     
       buf = ' '
+      if(lenn(geom)+lent(geom)+17.gt.buflen) call errquit
+     $     ('geom_print: increase buflen to',
+     $     lenn(geom)+lent(geom)+17, GEOM_ERR)
       write(buf,1) 'Geometry',
      $        names(geom)(1:lenn(geom)), 
      $        trans(geom)(1:lent(geom))
