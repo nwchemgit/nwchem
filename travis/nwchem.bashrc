@@ -102,6 +102,8 @@ if [[ -f "$IONEAPI_ROOT"/mpi/latest/env/vars.sh ]]; then
     if [[ "$MPI_IMPL" == "intel" ]]; then
 	mpif90 -v
 	mpif90 -show
+ 	#to avoid segfault with FI_PROVIDER=shm in MPI_Finalize with Intel MPI 2021.15
+       export FI_PROVIDER=tcp
     fi
     if [ -f /opt/intel/oneapi/mkl/latest/env/vars.sh ] ; then
 	source /opt/intel/oneapi/mkl/latest/env/vars.sh
