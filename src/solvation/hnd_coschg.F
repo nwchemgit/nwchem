@@ -1262,6 +1262,13 @@ c
          else
             write(fn,*) " cavity= vdW"
          endif
+         if (cosmo_sccor.eq.COSMO_SCCOR_NO) then
+            write(fn,*) " charge_correction= no"
+         else if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
+            write(fn,*) " charge_correction= lagrangian"
+         else if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
+            write(fn,*) " charge_correction= scale"
+         end if
          write(fn,*) " rsolv= ", rsolv
 c
          write(fn,"(a)") "$cosmo_data"
