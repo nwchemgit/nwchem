@@ -446,6 +446,12 @@ C>   <i>Econometrica</i> (2002) <b>70</b>, 583-601, DOI:
 C>   <a href="https://doi.org/10.1111/1468-0262.00296">
 C>   10.1111/1468-0262.00296</a>.
 C>
+C>   [10] A. Klamt, V. Jonas, T. Burger, J. C. W. Lohrenz,
+C>   "Refinement and Parametrization of COSMO-RS",
+C>   <i>J. Phys. Chem. A</i> (1998) <b>102</b>, 1089-5639, DOI:
+C>   <a href="https://doi.org/10.1021/jp980017s">
+C>   10.1021/jp980017s</a>.
+C>
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
      &                      efcc,efcs,msrf,efcz,efczz,efciat,ratm,
      &                      ecos,egas,esol,cosmo_file_in)
@@ -1279,9 +1285,14 @@ c
          write(fn,"(a)") "$energy"
          if(dabs(egas).gt.0d0) write(fn,*) " total_gas= ", egas
          if(dabs(esol).gt.0d0) write(fn,*) " total_solvated= ", esol
+c         
+c        Dielectric energy = 0.5 * sum(potential_i * q_i), Eq. (5) of Ref. [10].
+c        This energy is expected to correlate well with the solvation energy.
+         write(fn,*) " dielectric= ", pt5*allefc
 c
          write(fn,"(a)") "$segment_information"
-         write(fn,"(a)") "# n atom x y z charge area charge/area"
+         write(fn,"(a)")
+     +     "# n atom x y z charge area charge/area potential"
          write(fn,"(a)") "# coordinates [a.u.], area [A2]"
          do ief=1,nefc
             efcsi = efcs(ief)*(cau2ang**2)
@@ -1290,7 +1301,8 @@ c
 
             write(fn,*) ief, efciat(ief),
      +      efcc(1,ief), efcc(2,ief), efcc(3,ief),
-     +      efcz(ief), efcsi, efcz(ief)/efcsi
+     +      efcz(ief), efcsi, efcz(ief)/efcsi,
+     +      dbl_mb(i10+ief-1)
          end do
          close(fn)
          end if
