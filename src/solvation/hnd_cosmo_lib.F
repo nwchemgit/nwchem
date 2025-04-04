@@ -190,7 +190,7 @@ c
       double precision  wleb(mxfac)
       double precision  energy
 c
-      logical    do_ses
+      integer    cosmo_cavity
       double precision mfactor
       logical    oprint_out
       logical    oprint_more
@@ -207,8 +207,8 @@ c
       oprint_more = util_print("cosmo_cossrf_more",print_never).and.
      D     (ga_nodeid().eq.0)
 c
-      if (.not. rtdb_get(rtdb,'cosmo:do_ses',mt_log,1,
-     $     do_ses)) do_ses=.false.
+      if (.not. rtdb_get(rtdb,'cosmo:cavity',mt_int,1,
+     $     cosmo_cavity)) cosmo_cavity=COSMO_CAVITY_VDW
       if (.not. rtdb_get(rtdb,'cosmo:mfactor',mt_dbl,1,
      $     mfactor)) mfactor=0.5d0
 c
@@ -274,7 +274,8 @@ c
          if(radius(iat).eq.0.0d0) then
             ratm(iat)=0.0d0
          else
-            if (do_cosmo_model.eq.DO_COSMO_KS.and..not.do_ses) then
+            if (do_cosmo_model.eq.DO_COSMO_KS.and.
+     +          cosmo_cavity.ne.COSMO_CAVITY_SES) then
               ratm(iat)=(radius(iat)+rsolv)/cau2ang
             else
               ratm(iat)=radius(iat)/cau2ang
@@ -288,7 +289,7 @@ c
       call hnd_cossas(nat,xyzatm,ratm,mxatm,
      1                nspa,nppa,xyzspa,ijkspa,
      2                nseg,nfac,xyzseg,ijkseg,insseg,numpps,
-     3                xyzff,wleb,mxfac,geom,do_ses,mfactor,rtdb)
+     3                xyzff,wleb,mxfac,geom,cosmo_cavity,mfactor,rtdb)
 c
       return
  9999 format(' nseg,nfac,ndiv=nfac/nseg,dsurf,dvol = ',3i7,2f10.6)
@@ -381,8 +382,8 @@ C>
       subroutine hnd_cossas(nat,xyzatm,ratm,mxatom,
      1                      nspa,nppa,xyzspa,ijkspa,
      2                      nseg,nfac,xyzseg,ijkseg,insseg,numpps,
-     3                      xyzff,wleb,mxface,geom,do_ses,mfactor,
-     4                      rtdb)
+     3                      xyzff,wleb,mxface,geom,cosmo_cavity,
+     4                      mfactor,rtdb)
       implicit none
 #include "cosmo_params.fh"
 #include "errquit.fh"
@@ -438,7 +439,7 @@ c
       integer l_efczz, k_efczz
       integer l_msrf,k_msrf
 c     SES variables
-      logical do_ses
+      integer cosmo_cavity
       double precision mfactor
       real*4 ofac,rd,dvec,rmim
       INTEGER*4 ndiv
@@ -491,7 +492,7 @@ c
       pi = acos(-1.0d0)
 c
       if(ga_nodeid().eq.0) then
-        if(do_ses) then
+        if(cosmo_cavity.eq.COSMO_CAVITY_SES) then
           write(luout,8888)
         else
 c         YK model is currently using a vdW surface and not SAS
@@ -508,7 +509,8 @@ c
       if(ga_nodeid().eq.0) then
         write(luout,9998)
         do iat=1,nat
-          if (do_cosmo_model.eq.DO_COSMO_KS.and..not.do_ses) then
+          if (do_cosmo_model.eq.DO_COSMO_KS.and.
+     +        cosmo_cavity.ne.COSMO_CAVITY_SES) then
             write(luout,9997) iat,xyzatm(1,iat),xyzatm(2,iat),
      1                                       xyzatm(3,iat),
      2                    (ratm(iat)*cau2ang-rsolv)
@@ -694,7 +696,7 @@ c
 c
       enddo
 c
-      if(ga_nodeid().eq.0.and..not.do_ses) then
+      if(ga_nodeid().eq.0.and.cosmo_cavity.ne.COSMO_CAVITY_SES) then
          write(luout,9985) nseg,nfac
          write(luout,9992)
          do iat=1,nat
@@ -705,7 +707,7 @@ c
             write(luout,9991) iat,nspa(iat),nppa(iat),npp
          enddo
       endif
-      if(oprint_debug.and..not.do_ses) then
+      if(oprint_debug.and.cosmo_cavity.ne.COSMO_CAVITY_SES) then
          write(luout,9987)
          do iat=1,nat
             do iseg=1,nseg
@@ -728,7 +730,7 @@ c
 c
 c     Construct a precise SES surface, using a modified GEPOL93.
 c
-      if (do_ses) then
+      if (cosmo_cavity.eq.COSMO_CAVITY_SES) then
 c       We are sending all arguments in A.U.
         rd = rsolv/cau2ang
         rmim = 0.5/cau2ang
@@ -779,7 +781,7 @@ c     ----- save coordinates of surface points -----
 c           save segment surfaces
 c           save segment to atom mapping
 c
-      if(do_ses) then
+      if(cosmo_cavity.eq.COSMO_CAVITY_SES) then
 c       Save gepol results, but keep the segments sorted by atom
 c       so grad_hdn_cos can work properly.
         ief = 0

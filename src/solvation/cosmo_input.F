@@ -79,7 +79,7 @@ c
       double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
       character*255 field
       logical do_cosmo
-      logical do_ses
+      integer cosmo_cavity
       integer cosmo_ndiv
       double precision mfactor
       logical do_cosmo_file
@@ -316,22 +316,24 @@ c
       else if(inp_compare(.false.,'off',field)) then
          do_cosmo=.false.
 c
-c   --- do_cosmo_ks: switch to Klamt-Schuurmann model
+c   --- do_cosmo_ks: switch to Klamt-Schuurmann model; also makes cavity=ses
 c
       else if(inp_compare(.false.,'do_cosmo_ks',field)) then
          do_cosmo_model=DO_COSMO_KS
-         if (.not. rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
-     $                      do_cosmo_model))
-     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+         cosmo_cavity=COSMO_CAVITY_SES
+         if (.not.(rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
+     $                      do_cosmo_model)
+     $        .and.rtdb_put(rtdb,'cosmo:cavity',mt_log,1,cosmo_cavity))
+     $      ) call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- do_cosmo_yk: switch to York-Karplus model; also forces do_ses=false
+c   --- do_cosmo_yk: switch to York-Karplus model; also makes cavity=vdw
 c
       else if(inp_compare(.false.,'do_cosmo_yk',field)) then
          do_cosmo_model=DO_COSMO_YK
-         do_ses=.false.
+         cosmo_cavity=COSMO_CAVITY_VDW
          if (.not.(rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
      $                      do_cosmo_model)
-     $       .and.rtdb_put(rtdb,'cosmo:do_ses',mt_log,1,do_ses)
+     $       .and.rtdb_put(rtdb,'cosmo:cavity',mt_log,1,cosmo_cavity)
      $     )) call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- do_cosmo_file flag
@@ -360,19 +362,38 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- do_ses flag: Solvent-Excluded-Surface (SES) cavity calculation.
-c   ---         This option also forces using the KS method.
+c   --- CAVITY: cavity construction method
+c       CAVITY VDW : van der Waals cavity
+c       CAVITY SES : solvent-excluded-cavity
 c
-      else if(inp_compare(.false.,'do_ses',field)) then
-        do_ses=.true.
-        do_cosmo_model=DO_COSMO_KS
-        if (.not.(rtdb_put(rtdb,'cosmo:do_ses',mt_log,1,do_ses)
-     $     .and.rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
-     $                      do_cosmo_model)
-     $    )) call errquit('cosmo_input: rtdb put failed',0,RTDB_ERR)
+c       default for each model:
+c       - CAVITY SES : with the Klamt-Schuurmann model
+c       - CAVITY VDW : with the York-Karplus model
+c
+c       For now, SES cavity cannot be used with the YK model
+c
+      else if(inp_compare(.false.,'cavity',field)) then
+        if (.not.inp_a(token))
+     $        call errquit('cosmo_input: cavity',911, INPUT_ERR)
+        if (inp_compare(.false.,'vdw',token)) then
+          cosmo_cavity = COSMO_CAVITY_VDW
+        else if (inp_compare(.false.,'ses',token)) then
+c         Only accept SES if the model is not YK
+          if(do_cosmo_model.ne.DO_COSMO_YK)
+     $        cosmo_cavity = COSMO_CAVITY_SES
+        else
+          write(luout,*)"invalid option for CAVITY, valid options are:"
+          write(luout,*)"- VDW  for a van der Waals cavity"
+          write(luout,*)"- SES  for a solvent-excluded-cavity"
+          call util_flush(luout)
+          call errquit("cosmo_input: invalid option for CAVITY",911,
+     $                 INPUT_ERR)
+        endif
+        if (.not. rtdb_put(rtdb,'cosmo:cavity',mt_int,1,cosmo_cavity))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- ndiv: specifies the division level for the triangles on
-c   ---      sphere surface when do_ses is activated.
+c   ---      sphere surface when a SES cavity is used.
 c             Valid values are:
 c               - coarse: 60 triangles per sphere
 c               - fine  : 240 (default)

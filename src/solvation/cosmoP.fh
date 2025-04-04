@@ -44,3 +44,12 @@ c
       integer COSMO_LINEQ_ITERATIVE
       parameter (COSMO_LINEQ_DIRECT = 0)
       parameter (COSMO_LINEQ_ITERATIVE = 1)
+c
+c     COSMO cavity type
+c     - COSMO_CAVITY_VDW   : Use a van der Waals cavity
+c     - COSMO_CAVITY_SES   : Use a solvent-excluded cavity
+c
+      integer COSMO_CAVITY_VDW
+      integer COSMO_CAVITY_SES
+      parameter (COSMO_CAVITY_VDW = 0)
+      parameter (COSMO_CAVITY_SES = 1)

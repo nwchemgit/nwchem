@@ -498,7 +498,8 @@ c
       double precision egas !< [Input] the total gas energy
       double precision esol !< [Input] the total solvated energy
       logical  status
-      logical  do_cosmo_file, do_ses
+      logical  do_cosmo_file
+      integer  cosmo_cavity
 c
       logical  dbug,more,out,direct,noall,all,elec,nucl,iefc_done
       character*16 at_tag
@@ -1234,8 +1235,8 @@ c
       if (.not. rtdb_get(rtdb,'cosmo:do_cosmo_file',mt_log,1,
      $     do_cosmo_file)) do_cosmo_file=.false.
       if (do_cosmo_file) then
-         if (.not. rtdb_get(rtdb,'cosmo:do_ses',mt_log,1,
-     $     do_ses)) do_ses=.false.
+         if (.not. rtdb_get(rtdb,'cosmo:cavity',mt_int,1,
+     $     cosmo_cavity)) cosmo_cavity=COSMO_CAVITY_VDW
          cosmo_file_in = "cosmo"
          call util_file_name(cosmo_file_in,.false.,.false.,cosmo_file)
          call util_file_name_resolve(cosmo_file,.false.)
@@ -1251,16 +1252,22 @@ c
          if (rtdb_get(rtdb,'cosmo:info',mt_byte,255,cosmo_info))
      +     write(fn,"(a)") '# ' // trim(cosmo_info)
          write(fn,"(a)") "$cosmo"
-         write(fn,*) " screen= ", screen
+         write(fn,"(a,f6.3)") "  screen= ", screen
          if(screen.eq.one) then
             write(fn,*) " epsilon= infinity"
          else
-            write(fn,*) " epsilon= ", dielec
+            write(fn,"(a,f6.3)") "  epsilon= ", dielec
          endif
-         if(do_ses) then
+         if(cosmo_cavity.eq.COSMO_CAVITY_SES) then
             write(fn,*) " cavity= SES"
          else
             write(fn,*) " cavity= vdW"
+         endif
+         if(do_cosmo_model.eq.DO_COSMO_YK) then
+            write(fn,*) " model=  YK"
+         else
+            write(fn,*) " model=  KS"
+            write(fn,"(a,f6.3)") "  rsolv= ", rsolv
          endif
          if (cosmo_sccor.eq.COSMO_SCCOR_NO) then
             write(fn,*) " charge_correction= no"
@@ -1269,19 +1276,18 @@ c
          else if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
             write(fn,*) " charge_correction= scale"
          end if
-         write(fn,*) " rsolv= ", rsolv
 c
          write(fn,"(a)") "$cosmo_data"
-         write(fn,*) " nps= ", nefc
-         write(fn,*) " area= ", srfmol/(cau2ang**2)
-         write(fn,*) " volume= ", volmol/(cau2ang**3)
+         write(fn,"(a,i6)") "  nps= ", nefc
+         write(fn,"(a,f10.2)") "  area=   ", srfmol/(cau2ang**2)
+         write(fn,"(a,f10.2)") "  volume= ", volmol/(cau2ang**3)
 c
          write(fn,"(a)") "$coord_rad"
          write(fn,"(a)") "#atom x y z [a.u.] element radius [A]"
          do i = 1,nat
            call util_set_ma_char_arrays(16,
      +            byte_mb(k_costag+16*(i-1)),at_tag)
-            write(fn,*) i,
+            write(fn,"(i6,3f15.9,2x,a,f6.3)") i,
      +     dbl_mb(k_xyzpt  +3*(i-1)),
      +     dbl_mb(k_xyzpt+1+3*(i-1)),
      +     dbl_mb(k_xyzpt+2+3*(i-1)),
@@ -1290,12 +1296,14 @@ c
          enddo ! i
 c
          write(fn,"(a)") "$energy"
-         if(dabs(egas).gt.0d0) write(fn,*) " total_gas= ", egas
-         if(dabs(esol).gt.0d0) write(fn,*) " total_solvated= ", esol
+         if(dabs(egas).gt.0d0)
+     +     write(fn,"(a,f15.9)") "  total_gas=      ", egas
+         if(dabs(esol).gt.0d0)
+     +     write(fn,"(a,f15.9)") "  total_solvated= ", esol
 c         
 c        Dielectric energy = 0.5 * sum(potential_i * q_i), Eq. (5) of Ref. [10].
 c        This energy is expected to correlate well with the solvation energy.
-         write(fn,*) " dielectric= ", pt5*allefc
+         write(fn,"(a,f15.9)")   "  dielectric=     ", pt5*allefc
 c
          write(fn,"(a)") "$segment_information"
          write(fn,"(a)")
@@ -1306,7 +1314,7 @@ c
             if (do_cosmo_model.eq.DO_COSMO_YK)
      +        efcsi = msrf(ief)*(cau2ang**2)
 
-            write(fn,*) ief, efciat(ief),
+            write(fn,"(2i6,7f15.9)") ief, efciat(ief),
      +      efcc(1,ief), efcc(2,ief), efcc(3,ief),
      +      efcz(ief), efcsi, efcz(ief)/efcsi,
      +      dbl_mb(i10+ief-1)
