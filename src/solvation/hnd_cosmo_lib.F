@@ -1853,6 +1853,12 @@ C>     pp 11060-11079, DOI:
 C>     <a href="https://doi.org/10.1021/jp992097l">
 C>     10.1021/jp992097l</a>.
 C>
+C> [3] A. Klamt, V. Jonas,
+C>     "Treatment of the outlying charge in continuum solvation models",
+C>     <i>J. Chem. Phys.</i> (1996) <b>105</b>, pp 9972–9981, DOI:
+C>     <a href="https://doi.org/10.1063/1.472829">
+C>     10.1063/1.472829</a>.
+C>
       subroutine hnd_cos_energy(nat,nefc,chgscr,efcc,efcs,efcz,efczz,
      &           efciat,ratm,catm,zatm,pot,allefc,atmefc,elcefc,efcefc)
       implicit none
@@ -1882,8 +1888,9 @@ c
       double precision ratm(nat)    !< [Input] The atomic radii
       double precision catm(3,nat)  !< [Input] The atomic coordinates
       double precision zatm(nat)    !< [Input] The nuclear charges
-      double precision pot(nefc)    !< [Input] The molecular potential
-                                    !< at the COSMO charge positions
+      double precision pot(nefc)    !< [Input/Output] The molecular potential
+                                    !< at the COSMO charge positions. On output,
+                                    !< update to account for outlying charge corrections
 c
       double precision allefc !< [Output] The total solute charge 
                               !< density - COSMO charge interaction
@@ -1908,6 +1915,12 @@ c
       double precision zero, one, two
       parameter (zero=0.0d0, one=1.0d0, two=2.0d0)
       double precision pi
+c
+c     If outlying charge corrections have been applied, the potential
+c     should also be updated, pot = -A*q, see Eq. 12 of Ref. [3].
+c     In case of no correction, the follwoing leaves the potential unchanged.
+      call hnd_cosaxd(nat,efcz,pot,nefc,efcc,efcs,efczz,efciat,ratm)
+      call dscal(nefc,-1d0,pot,1)
 c
       pi    =acos(-1.0d0)
       allefc=zero
