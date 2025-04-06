@@ -72,6 +72,7 @@ c
       integer iat, nfield, nrad, irad
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
       integer cosmo_screen, cosmo_sccor
+      logical cosmo_ptcor
       integer iangleb
       integer fibonacci
       integer thomson
@@ -565,6 +566,15 @@ c
         endif
         if (.not. rtdb_put(rtdb,'cosmo:sccor',mt_int,1,cosmo_sccor))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- no_potcor flag: for debugging purposes, disable the potential
+c                       correction associated with charge corrections
+c
+      else if(inp_compare(.false.,'no_potcor',field)) then
+        cosmo_ptcor=.false.
+        if (.not. 
+     $    rtdb_put(rtdb,'cosmo:ptcor',mt_log,1,cosmo_ptcor))
+     $      call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- minbem
 c

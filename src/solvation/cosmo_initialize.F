@@ -259,6 +259,7 @@ c
      D        cosmo_cavity = COSMO_CAVITY_VDW
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
+      cosmo_ptcor = .true. ! correct potentials in case of outlying charge corrections
       minbem   =2
       maxbem   =4 ! used in Klamt-Schuurmann model but not in 
                   ! York-Karplus model
@@ -299,6 +300,7 @@ c
       endif
       status = rtdb_get(rtdb,'cosmo:screen',mt_int,1,cosmo_screen) 
       status = rtdb_get(rtdb,'cosmo:sccor',mt_int,1,cosmo_sccor)
+      status = rtdb_get(rtdb,'cosmo:ptcor',mt_log,1,cosmo_ptcor)
       status = rtdb_get(rtdb,'cosmo:minbem',mt_int,1,minbem) 
       status = rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem)
       status = rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos) 

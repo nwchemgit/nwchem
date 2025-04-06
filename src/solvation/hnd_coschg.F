@@ -452,6 +452,12 @@ C>   <i>J. Phys. Chem. A</i> (1998) <b>102</b>, 1089-5639, DOI:
 C>   <a href="https://doi.org/10.1021/jp980017s">
 C>   10.1021/jp980017s</a>.
 C>
+C>   [11] A. Klamt, V. Jonas,
+C>   "Treatment of the outlying charge in continuum solvation models",
+C>   <i>J. Chem. Phys.</i> (1996) <b>105</b>, pp 9972–9981, DOI:
+C>   <a href="https://doi.org/10.1063/1.472829">
+C>   10.1063/1.472829</a>.
+C>
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
      &                      efcc,efcs,msrf,efcz,efczz,efciat,ratm,
      &                      ecos,egas,esol,cosmo_file_in)
@@ -566,7 +572,6 @@ c
       double precision solnrg ! solvation energy
       double precision dlambda ! lambda (surface charge correction)
       double precision elambda ! lambda dependent energy term
-      double precision ecos2
       double precision pi
       double precision zero, pt5, one, two ! constants
       data zero   /0.0d+00/
@@ -1054,6 +1059,23 @@ c
         enddo
       endif
 c
+c       ----- update potentials due to outlying charge correction
+c
+      if (cosmo_sccor.ne.COSMO_SCCOR_NO.and.cosmo_ptcor) then
+c       If outlying charge corrections have been applied, the total
+c       potential should be updated, pot = -A*q, see Eq. 12 of Ref. [11].
+c
+c       The total potential is stored at i10, total point charges at i20.
+        call hnd_cosaxd(nat,dbl_mb(i20),dbl_mb(i10),nefc,efcc,
+     +                  efcs,efczz,efciat,ratm)
+c       The nuclear potential should not be changed by the outlying
+c       charges, so the elec potential should be adjusted.
+c       Elec potential (i12) = total (i10) - nuc (i11)
+        do ief=1,nefc
+          dbl_mb(ief+i12-1) = dbl_mb(ief+i10-1) - dbl_mb(ief+i11-1)
+        enddo
+      endif
+c
 c     ----- charge screening due to the dielectric medium -----
 c
 c     ----- set screening factor -----
@@ -1119,6 +1141,13 @@ c     identical. If surface charge corrections are employed using
 c     scaling factors or Lagrangian multipliers then additional 
 c     correction terms are needed to ensure the expressions agree.
 c
+c     A consistent correction is to recalculate the total potential
+c     with the corrected charges (see Ref. [11] and cosmo_ptcor above).
+c     After that, adjust the elec potential accordingly, with a
+c     constant nuclear potential. This makes both formulations
+c     agree and also makes scale and Lagrangian corrections
+c     to produce similar results, elambda must be disregarded.
+c
       call hnd_cos_energy(nat,nefc,chgfac,efcc,efcs,efcz,efczz,efciat,
      &                    ratm,dbl_mb(k_xyzpt),dbl_mb(k_zanpt),
      &                    dbl_mb(i10),
@@ -1143,22 +1172,18 @@ c
       allefc = ddot(nefc,efcz,1,dbl_mb(i10),1)
       atmefc = ddot(nefc,efcz,1,dbl_mb(i11),1)
       elcefc = ddot(nefc,efcz,1,dbl_mb(i12),1)
-      solnrg= pt5* allefc + elambda
+c      solnrg= pt5* allefc + elambda
+      solnrg= pt5* allefc
 c     COSMO contribution Alternative 2 (Ref.[1] Eq.(11))
 c     ecos = pt5*(atmefc-elcefc)+elambda
-      if (do_cosmo_smd) then
-        ecos = pt5*(atmefc-elcefc)
-      else
-c        ecos = efcefc + atmefc
-        ecos = pt5*(atmefc-elcefc) + elambda
-      endif
+      ecos = pt5*(atmefc-elcefc)
 
       if (oprint_energies) then
          write(luout,*)'Alternative 2'
          write(luout,9991) atmefc
          write(luout,9990) elcefc
-         write(luout,9989) allefc
          write(luout,9988) solnrg
+         write(luout,9989) allefc
          write(luout,9994) ecos 
       endif
 
@@ -1303,12 +1328,12 @@ c
 c         
 c        Dielectric energy = 0.5 * sum(potential_i * q_i), Eq. (5) of Ref. [10].
 c        This energy is expected to correlate well with the solvation energy.
-         write(fn,"(a,f15.9)")   "  dielectric=     ", pt5*allefc
+         write(fn,"(a,f15.9)")   "  dielectric=     ", solnrg
 c
          write(fn,"(a)") "$segment_information"
          write(fn,"(a)")
      +     "# n atom x y z charge area charge/area potential"
-         write(fn,"(a)") "# coordinates [a.u.], area [A2]"
+         write(fn,"(a)") "# coordinates and potential [a.u.], area [A2]"
          do ief=1,nefc
             efcsi = efcs(ief)*(cau2ang**2)
             if (do_cosmo_model.eq.DO_COSMO_YK)
