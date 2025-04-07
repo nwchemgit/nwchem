@@ -2,7 +2,7 @@ c UERR - Not yet assigned to a catagory
 c UNKNOWN_ERR - Not yet assigned to a catagory
 c MEM_ERR - Generic Memory error
 c RTDB_ERR - Error in the Runtime Database
-c INPUT_ERR - Error resulting from inproper user input
+c INPUT_ERR - Error resulting from erroneous user input
 c CAPMIS_ERR - Features that have not been implemented yet
 c BASIS_ERR - Error related to basis sets
 c GEOM_ERR - Error related to geometry
