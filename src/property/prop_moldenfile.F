@@ -69,7 +69,7 @@ c movecs
 c> movecs 
       if (.not. movecs_read_header(vec_file, title_vec, basis_name,
      &    scftype_vecs, nbf, nset, nmo, 2))
-     &  call errquit(subname//': basis set error:', 86, basis_err)
+     &  call errquit(subname//': failed to open movecs:', 86, DISK_ERR)
       
       if (.not. ga_create(mt_dbl, nbf, nmo(1),
      +     'movad1', nbf, 0, g_movecs(1))) call errquit(
