@@ -1173,7 +1173,7 @@ c
       atmefc = ddot(nefc,efcz,1,dbl_mb(i11),1)
       elcefc = ddot(nefc,efcz,1,dbl_mb(i12),1)
 c      solnrg= pt5* allefc + elambda
-      solnrg= pt5* allefc
+      solnrg = pt5*allefc
 c     COSMO contribution Alternative 2 (Ref.[1] Eq.(11))
 c     ecos = pt5*(atmefc-elcefc)+elambda
       ecos = pt5*(atmefc-elcefc)
@@ -1328,7 +1328,7 @@ c
 c         
 c        Dielectric energy = 0.5 * sum(potential_i * q_i), Eq. (5) of Ref. [10].
 c        This energy is expected to correlate well with the solvation energy.
-         write(fn,"(a,f15.9)")   "  dielectric=     ", solnrg
+         write(fn,"(a,f15.9)")   "  diel=           ", pt5*allefc
 c
          write(fn,"(a)") "$segment_information"
          write(fn,"(a)")
