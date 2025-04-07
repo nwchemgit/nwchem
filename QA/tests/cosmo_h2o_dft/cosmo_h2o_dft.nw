@@ -25,6 +25,10 @@ end
 cosmo
   minbem 2
   maxbem 3
+
+  # Skipping the potential correction due to outlying charges,
+  # to maintain backward compatibility and avoid breaking existing tests.
+  no_potcor
 end
 
 property
