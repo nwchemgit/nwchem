@@ -864,6 +864,9 @@ c         write(6,*) ga_nodeid(), 'avail0 ',avail0
      c     write(6,*) ga_nodeid(),': toolarge ',toolarge
       if(toolarge.gt.0) then
          nuse=ga_nnodes()
+         if (io_node) then
+           ierr=eaf_close(fd)
+         endif
       else
  1025 call ga_sync()
       if(ierr.ne.0) call errquit('utilscratchavail: eaf_open',ierr,
