@@ -1,0 +1,43 @@
+echo
+memory noverify
+start mcscf_lih2_sto3g_neb_dat
+basis
+  * library sto-3g
+end
+
+geometry units angstroms print xyz noautosym
+H        0.0000000000      0.0000000000      3.0
+H        0.0000000000      0.0000000000      2.254
+H        0.0000000000      0.0000000000     -3.0
+end
+
+geometry endgeom units angstroms print xyz noautosym
+H        0.0000000000      0.0000000000      3.0
+H        0.0000000000      0.0000000000     -2.254
+H        0.0000000000      0.0000000000     -3.0
+end
+
+scf
+  rohf
+  nopen 1
+  doublet
+end
+
+mcscf
+  active      13
+  actelec      5
+  multiplicity 2
+end
+
+neb
+  maxiter 35
+  nbeads 31
+  stepsize 0.10
+  kbeads 0.1
+  freeze1 .true.
+  freezeN .true.
+end
+
+task scf energy
+#task mcscf energy
+task scf neb ignore
