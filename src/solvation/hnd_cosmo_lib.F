@@ -1882,9 +1882,8 @@ c
       double precision ratm(nat)    !< [Input] The atomic radii
       double precision catm(3,nat)  !< [Input] The atomic coordinates
       double precision zatm(nat)    !< [Input] The nuclear charges
-      double precision pot(nefc)    !< [Input/Output] The molecular potential
-                                    !< at the COSMO charge positions. On output,
-                                    !< update to account for outlying charge corrections
+      double precision pot(nefc)    !< [Input] The molecular potential
+                                    !< at the COSMO charge positions
 c
       double precision allefc !< [Output] The total solute charge 
                               !< density - COSMO charge interaction
