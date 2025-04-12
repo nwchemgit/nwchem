@@ -425,7 +425,7 @@ c    --- mfactor: Merging factor for segments that are too close.
 c        After constructing the SES surface, a circular area is
 c        assumed around each segment, and its radius R is calculated.
 c        Any two segments closer than R * mfactor are merged into
-c        a single segment. The default value is 0.5.
+c        a single segment. The default value is 0.6.
 c
       else if(inp_compare(.false.,'mfactor',field)) then
         if(.not. inp_f(mfactor))

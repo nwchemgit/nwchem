@@ -210,7 +210,7 @@ c
       if (.not. rtdb_get(rtdb,'cosmo:cavity',mt_int,1,
      $     cosmo_cavity)) cosmo_cavity=COSMO_CAVITY_VDW
       if (.not. rtdb_get(rtdb,'cosmo:mfactor',mt_dbl,1,
-     $     mfactor)) mfactor=0.5d0
+     $     mfactor)) mfactor=0.6d0
 c
 c     ----- approximate sphere with segments and points -----
 c

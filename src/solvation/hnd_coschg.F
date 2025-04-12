@@ -1322,13 +1322,13 @@ c
 c
          write(fn,"(a)") "$energy"
          if(dabs(egas).gt.0d0)
-     +     write(fn,"(a,f15.9)") "  total_gas=      ", egas
+     +     write(fn,"(a,f18.10)") "  total_gas=      ", egas
          if(dabs(esol).gt.0d0)
-     +     write(fn,"(a,f15.9)") "  total_solvated= ", esol
+     +     write(fn,"(a,f18.10)") "  total_solvated= ", esol
 c         
 c        Dielectric energy = 0.5 * sum(potential_i * q_i), Eq. (5) of Ref. [10].
 c        This energy is expected to correlate well with the solvation energy.
-         write(fn,"(a,f15.9)")   "  diel=           ", pt5*allefc
+         write(fn,"(a,f18.10)")   "  diel=           ", pt5*allefc
 c
          write(fn,"(a)") "$segment_information"
          write(fn,"(a)")
