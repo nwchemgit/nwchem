@@ -324,7 +324,7 @@ c
          cosmo_cavity=COSMO_CAVITY_SES
          if (.not.(rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
      $                      do_cosmo_model)
-     $        .and.rtdb_put(rtdb,'cosmo:cavity',mt_log,1,cosmo_cavity))
+     $        .and.rtdb_put(rtdb,'cosmo:cavity',mt_int,1,cosmo_cavity))
      $      ) call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- do_cosmo_yk: switch to York-Karplus model; also makes cavity=vdw
@@ -334,7 +334,7 @@ c
          cosmo_cavity=COSMO_CAVITY_VDW
          if (.not.(rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
      $                      do_cosmo_model)
-     $       .and.rtdb_put(rtdb,'cosmo:cavity',mt_log,1,cosmo_cavity)
+     $       .and.rtdb_put(rtdb,'cosmo:cavity',mt_int,1,cosmo_cavity)
      $     )) call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- do_cosmo_file flag
