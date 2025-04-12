@@ -803,11 +803,11 @@ c               Accumulate the area on the largest segment.
                 if(segarea(iseg).lt.segarea(jseg)) then
                   segarea(jseg) = segarea(jseg) + segarea(iseg)
                   segarea(iseg) = zero;
+                  exit
                 else
                   segarea(iseg) = segarea(iseg) + segarea(jseg);
                   segarea(jseg) = zero;
                 end if
-                exit
               end if
             end do
             if(segarea(iseg).eq.zero) cycle
@@ -818,7 +818,8 @@ c
             dbl_mb(k_efcc+3*(ief-1)+2)=xyzseg(3,iseg)
 
             dbl_mb(k_efcs+ief-1) = segarea(iseg) ! KS area
-c           Also store the YK variables.
+c           Store the YK variables as well, although they are currently unused
+c           because this combination is blocked in comso_input.F.
             dbl_mb(k_msrf+ief-1) = segarea(iseg) ! YK area
             zetai=zeta/sqrt(segarea(iseg))       ! YK zeta
             dbl_mb(k_efczz+ief-1) = zetai        ! YK, store zeta
