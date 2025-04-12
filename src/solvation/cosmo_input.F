@@ -141,7 +141,7 @@ c
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
       cosmo_ndiv   = 2   ! used with the SES cavity
-      mfactor  =0.50d+00 ! used with the SES cavity
+      mfactor  =1.00d+00 ! used with the SES cavity
       minbem   =2
       maxbem   =4 ! used with the Klamt-Schuurmann model
       ificos   =0
@@ -422,10 +422,8 @@ c
      $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
 c
 c    --- mfactor: Merging factor for segments that are too close.
-c        After constructing the SES surface, a circular area is
-c        assumed around each segment, and its radius R is calculated.
-c        Any two segments closer than R * mfactor are merged into
-c        a single segment. The default value is 0.6.
+c        Any two segments closer than f(rsolv,ndiv) * mfactor are merged into
+c        a single segment. The default value is 1.0.
 c
       else if(inp_compare(.false.,'mfactor',field)) then
         if(.not. inp_f(mfactor))

@@ -210,7 +210,7 @@ c
       if (.not. rtdb_get(rtdb,'cosmo:cavity',mt_int,1,
      $     cosmo_cavity)) cosmo_cavity=COSMO_CAVITY_VDW
       if (.not. rtdb_get(rtdb,'cosmo:mfactor',mt_dbl,1,
-     $     mfactor)) mfactor=0.6d0
+     $     mfactor)) mfactor=1.d0
 c
 c     ----- approximate sphere with segments and points -----
 c
@@ -784,16 +784,18 @@ c
       if(cosmo_cavity.eq.COSMO_CAVITY_SES) then
 c       Save gepol results, but keep the segments sorted by atom
 c       so grad_hdn_cos can work properly.
+c
+c       The minimum distance we will accept between 2 segments,
+c       this is about 80% of the minimum distance for a rsolv sphere.
+        dum = rsolv/cau2ang * 0.3 * mfactor
+        if (ndiv.eq.2) dum = dum/2.0
+        if (ndiv.eq.3) dum = dum/4.0
+c
         ief = 0
         do iat=1,nat
           do iseg=1,nseg
             if(iat.ne.segatom(iseg).or.segarea(iseg).le.zero) cycle
 c           Checking for overlapping segments to merge.
-c           A circular area is assumed around each segment, and its
-c           radius R is calculated. Any two segments closer than
-c           R * mfactor are merged into a single segment.
-            dij = one
-            dum = sqrt(segarea(iseg)/pi)*mfactor
             do jseg=iseg+1,nseg
               if(segarea(jseg).le.zero) cycle
               dij=dist(xyzseg(1,iseg),xyzseg(2,iseg),xyzseg(3,iseg),
@@ -803,7 +805,6 @@ c               Accumulate the area on the largest segment.
                 if(segarea(iseg).lt.segarea(jseg)) then
                   segarea(jseg) = segarea(jseg) + segarea(iseg)
                   segarea(iseg) = zero;
-                  exit
                 else
                   segarea(iseg) = segarea(iseg) + segarea(jseg);
                   segarea(jseg) = zero;
