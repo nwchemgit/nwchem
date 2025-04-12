@@ -495,11 +495,11 @@ c
         if(cosmo_cavity.eq.COSMO_CAVITY_SES) then
           write(luout,8888)
         else
-c         YK model is currently using a vdW surface and not SAS
+c         YK model is currently using a vdW surface and not a SAS
 c         as described in the original paper.
-c         The KS model currently has a defect: it produces an 
+c         The KS model with a vdW cavity has a defect: it produces an 
 c         incomplete vdW surface, leaving solvent-excluded areas
-c         open, with the surface closure step missing.
+c         open, small values of rsolv are needed.
           write(luout,9999)
         endif
       endif
@@ -818,9 +818,11 @@ c
             dbl_mb(k_efcc+3*(ief-1)+2)=xyzseg(3,iseg)
 
             dbl_mb(k_efcs+ief-1) = segarea(iseg) ! KS area
-c       We currently do not support YK with SES surface, as the
-c       zetai and other variables need to be initialized.
-c            dbl_mb(k_msrf+ief-1) = segarea(iseg) ! YK area
+c           Also store the YK variables.
+            dbl_mb(k_msrf+ief-1) = segarea(iseg) ! YK area
+            zetai=zeta/sqrt(segarea(iseg))       ! YK zeta
+            dbl_mb(k_efczz+ief-1) = zetai        ! YK, store zeta
+c           Atom map.
             int_mb(k_efciat+ief-1) = segatom(iseg)
           enddo
         enddo
