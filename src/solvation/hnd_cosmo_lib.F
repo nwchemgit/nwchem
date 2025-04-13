@@ -440,7 +440,8 @@ c
       integer l_msrf,k_msrf
 c     SES variables
       integer cosmo_cavity
-      double precision mfactor, asum
+      integer cseg
+      double precision mfactor, asum, dmin
       real*4 ofac,rd,dvec,rmim
       INTEGER*4 ndiv
       double precision segarea(mxface)
@@ -787,7 +788,7 @@ c       so grad_hdn_cos can work properly.
 c
 c       The minimum distance we will accept between 2 segments,
 c       this is slight lower than the minimum distance for a rsolv sphere.
-        dum = rsolv/cau2ang * 0.37 * mfactor
+        dum = rsolv/cau2ang * 0.3 * mfactor
         if (ndiv.eq.2) dum = dum/2.0
         if (ndiv.eq.3) dum = dum/4.0
 c
@@ -795,22 +796,34 @@ c
         do iat=1,nat
           do iseg=1,nseg
             if(iat.ne.segatom(iseg).or.segarea(iseg).le.zero) cycle
+            dmin = dum
+            cseg = 0
 c           Checking for overlapping segments to merge.
             do jseg=iseg+1,nseg
               if(segarea(jseg).le.zero) cycle
               dij=dist(xyzseg(1,iseg),xyzseg(2,iseg),xyzseg(3,iseg),
      +                 xyzseg(1,jseg),xyzseg(2,jseg),xyzseg(3,jseg))
-              if(dij.lt.dum) then
-c               Accumulate the area on the i segment at the centroid.
-                asum = segarea(iseg) + segarea(jseg)
-                do m=1,3
-                  xyzseg(m,iseg) = (segarea(iseg)*xyzseg(m,iseg) +
-     +              segarea(jseg)*xyzseg(m,jseg))/asum
-                end do
-                segarea(iseg) = asum;
-                segarea(jseg) = zero;
+              if(dij.lt.dmin) then
+                dmin = dij
+                cseg = jseg
               end if
             end do
+            if (cseg.gt.0) then
+c             Accumulate the area on the largest segment.
+              asum = segarea(iseg) + segarea(cseg)
+c              do m=1,3
+c                xyzseg(m,iseg) = (segarea(iseg)*xyzseg(m,iseg) +
+c     +            segarea(cseg)*xyzseg(m,cseg))/asum
+c              end do
+              if (segarea(iseg).gt.segarea(cseg)) then
+                segarea(iseg) = asum;
+                segarea(cseg) = zero;
+              else
+                segarea(cseg) = asum;
+                segarea(iseg) = zero;
+              end if
+            end if
+            if(segarea(iseg).le.zero) cycle
 c
             ief = ief+1
             dbl_mb(k_efcc+3*(ief-1))  =xyzseg(1,iseg)
