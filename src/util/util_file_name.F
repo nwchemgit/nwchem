@@ -822,10 +822,8 @@ c
      ,     availmax
       character*255 dirscr
       parameter(l1megabyte=2*1000000)
-      integer fiftytb! 50TB
-      parameter(fiftytb=50*1024*1024)
-      logical util_file_parse_dir,oprint,io_node
-      integer ppn,toolarge
+      logical util_file_parse_dir,oprint,io_node,junkhere
+      integer ppn
       double precision my8mega
       external util_file_parse_dir
 c
@@ -839,93 +837,57 @@ c
       nattpt=0
       avail0=0
       avail1=0
-      toolarge=0
 #ifdef NOIO
       avail0=10**8
       nuse=ga_nnodes()
       avail1=-16d0*nuse+avail0
+      io_node=ga_nodeid().eq.0
 #else
       call util_getppn(ppn)
       io_node=mod(me,ppn).eq.0
+      nuse=0
       call ga_sync()
       if(io_node) then
-         call util_file_name('junk',.true.,.true.,mine)
-         ierr=eaf_delete(mine)
-         ierr=eaf_open(mine, eaf_rw, fd)
-         call util_fsync(mine)
+         call util_file_name('junk',.true.,.false.,mine)
+         if(ga_nodeid().eq.0)  then
+            ierr=eaf_delete(mine)
+            ierr=eaf_open(mine, eaf_rw, fd)
+            if(ierr.ne.0) call errquit('utilscratchavail: eaf_open',
+     I           ierr, DISK_ERR)
+            ierr=eaf_close(fd)
+            call util_fsync(mine)
+         endif
          ierr = eaf_stat(mine, avail0, fstype)
-c         write(6,*) ga_nodeid(), 'avail0 ',avail0
-         if(avail0.gt.fiftytb) toolarge=1
+         if (oprint)
+     O        write(luout,*) ga_nodeid(), ' ierr avail0 ',ierr,avail0
+         inquire( file=mine, exist=junkhere )
+         if(junkhere) nuse=1
+         ierr=eaf_close(fd)
+         if(ga_nodeid().eq.0)
+     I        ierr=eaf_delete(mine)
       else
          ierr=0
       endif
-      call ga_igop(msg_utscr,toolarge,1,'+')
-      if(io_node.and.oprint) 
-     c     write(6,*) ga_nodeid(),': toolarge ',toolarge
-      if(toolarge.gt.0) then
-         nuse=ga_nnodes()
-         if (io_node) then
-           ierr=eaf_close(fd)
-         endif
-      else
- 1025 call ga_sync()
-      if(ierr.ne.0) call errquit('utilscratchavail: eaf_open',ierr,
-     &     DISK_ERR)
-      if (io_node) then
-c
-c     now write 16M of doubles
-c
-      if (.not.ma_push_get(MT_Dbl,l1megabyte,'cc',l_k,i_k))
-     &   call errquit('utilfname: cannot allocate ',0, MA_ERR)
-      call dcopy(l1megabyte,0d0,0,dbl_mb(i_k),1)
-      ierr = eaf_write(fd, 0d0, dbl_mb(i_k),8*l1megabyte)
-      my8mega=8*l1megabyte/1024d0/1024d0
-      if (.not.ma_pop_stack(l_k))
-     &   call errquit('utilfname: cannot deallocate ',0, MA_ERR)
-      ierr=eaf_close(fd)
-      endif
-      call ga_sync()
-      nuse_fail=0
-      if(io_node) then
-         call util_fsync(mine)
-         ierr = eaf_stat(mine, avail1, fstype)
-c         write(6,*) ga_nodeid(), 'avail1 ',avail1
-         if (ierr .ne. 0) call errquit(
-     U        'util_scratch_avail: eaf_stat',ierr,DISK_ERR)
-         ierr=eaf_delete(mine)
-         nuse=nint((avail0-avail1)/my8mega)
-         if (nuse .le. 0) then
-            write(6,*) ' avail0,avail1,avail0-avail1 ',
-     R           avail0,avail1,avail0-avail1
-            nuse_fail= 1
-         endif
-      else
-         nuse=0
-      endif
-      call ga_igop(msg_utscr,nuse_fail,1,'+')
-      if(nuse_fail.ne.0) then
-        if(oprint.and.ga_nodeid().eq.0) write(luout,*) ' negative nuse'
-        nattpt=nattpt+1
-        if(nattpt.gt.3) then
-           if(oprint.and.ga_nodeid().eq.0) then
-              write(luout,*)'utilscravail: too many attempts',nattpt
-              write(luout,*)'utilscravail:  set nuse = ga_nnodes'
-           endif
-c
-c    something wrong with filesystem: go for upper bound, ie nuse=nproc
-c
-           nuse=ga_nnodes()
-        else
-          goto 1025
-        endif
-      endif
+      call ga_igop(msg_utscr2,avail0,1,'max')
       call ga_igop(msg_utscr,nuse,1,'+')
       nuse=nuse*ppn
+      if(io_node.and.oprint)  then
+         write(luout,*) ga_nodeid(),' nuse ',nuse
+         if(nuse.eq.ga_nnodes().and.ppn.lt.ga_nnodes()) then
+            write(luout,*) ga_nodeid(),' parallel filesystem '
+         else
+            write(luout,*) ga_nodeid(),' local filesystem '
+         endif
       endif
-c     io_node.eq.f => avail0=0
-      call ga_igop(msg_utscr2,avail0,1,'max')
+      if(ga_nodeid().eq.0)  then
+         if(nuse.eq.ga_nnodes().and.ppn.lt.ga_nnodes()) then
+            write(luout,*) 'Shared filesystem for scratch_dir '
+         else
+            write(luout,*) 'Local filesystem for scratch_dir'
+         endif
+      endif
 #endif
-      if(oprint) then
+      if(oprint.and.io_node) then
          call util_directory_name(dirscr, .true., ga_nodeid())
          write(luout,11) ga_nodeid(),nuse,
      .     avail0/nuse,
@@ -935,9 +897,6 @@ c     io_node.eq.f => avail0=0
       endif
 c
 c     now eaf_stat returns Mb instead of kb
-c
-!      avail=avail0*1024
-
 c
       availmax=avail0/nuse
       util_scratch_dir_avail_for_me = 1024d0*dble(availmax)
