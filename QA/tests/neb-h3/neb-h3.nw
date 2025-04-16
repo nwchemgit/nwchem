@@ -23,11 +23,6 @@ scf
   doublet
 end
 
-mcscf
-  active      13
-  actelec      5
-  multiplicity 2
-end
 
 neb
   maxiter 35
