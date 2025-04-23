@@ -168,7 +168,6 @@ c
       if (.not. ma_push_get(MT_DBL,nbf,'psquared',p2m_a,p2Im_a))
      $     call errquit('int_1edk_ga: ma_push_get failed psquared',0,
      &       MA_ERR)
-#ifdef PARALLEL_DIAG
 #ifdef SCALAPACK
 c     pdsygv is unstable since it uses the inaccurate pdsyevx
 cold         call ga_pdsygv(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
@@ -191,9 +190,8 @@ c     diag f_prime c_prime
 c     c=inv(chol)_t*c_prime
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,tmpg_a,
      Z     0.0d0,ug_a)
-#else
+#elif defined(PEIGS)
       call ga_diag(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
-#endif
 #else
       call ga_diag_seq(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
 #endif

@@ -203,12 +203,10 @@ c
         if ( util_print('evp_input', print_never) ) then
             call scf_dump_evp_input(rtdb,g_fock,g_over)
         endif
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
         call ga_pdsygv(g_fock,g_over, g_tmp, dbl_mb(k_eval))
-#else
+#elif defined(PEIGS)
         call ga_diag( g_fock, g_over, g_tmp, dbl_mb(k_eval))
-#endif
 #else 
         call ga_diag_seq( g_fock, g_over, g_tmp, dbl_mb(k_eval))
 #endif
