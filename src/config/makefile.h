@@ -328,7 +328,7 @@ ifndef EXTERNAL_GA_PATH
 endif
 
 NW_CORE_SUBDIRS += include basis geom inp input  \
-                  pstat rtdb task symmetry util peigs perfm bq cons $(CORE_SUBDIRS_EXTRA)
+                  pstat rtdb task symmetry util peigs perfm bq cons peigs_comm $(CORE_SUBDIRS_EXTRA)
 
 
 
@@ -437,10 +437,10 @@ FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 
 ifdef OLD_GA
 #    CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
-    CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lperfm -lcons -lbq -lnwcutil
+    CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs_comm -lperfm -lcons -lbq -lnwcutil
 else
 #    CORE_LIBS = -lnwcutil -lga -larmci -lpeigs -lperfm -lcons -lbq -lnwcutil
-    CORE_LIBS = -lnwcutil -lga -larmci  -lperfm -lcons -lbq -lnwcutil
+    CORE_LIBS = -lnwcutil -lga -larmci  -lperfm -lpeigs_comm -lcons -lbq -lnwcutil
 endif
 
 
