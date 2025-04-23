@@ -570,7 +570,14 @@ c
            dbl_mb(k_h+j-1) = 0.0d0
          enddo
 
+#ifdef SCALAPACK
+         call dft_scaleig(g_h,g_hvec,dbl_mb(k_h),
+     P     mdeg)
+#elif defined(PEIGS)
          call ga_diag_std(g_h,g_hvec,dbl_mb(k_h))
+#else
+         call ga_diag_std_seq(g_h,g_hvec,dbl_mb(k_h))
+#endif
 
 cccc %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CJB Analyse

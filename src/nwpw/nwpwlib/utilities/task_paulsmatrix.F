@@ -185,7 +185,13 @@ c     >                          read_time,diag_time)
       if (oprint)
      >write(luout,*) "Into diagonalize matrix,current time=",cpu2-cpu1
 
+#ifdef SCALAPACK
+      call ga_pdsyev(hmatrix,vmatrix,eigs,0)
+#elif defined(PEIGS)
       call ga_diag_std(hmatrix,vmatrix,eigs)
+#else
+      call ga_diag_std_seq(hmatrix,vmatrix,eigs)
+#endif
       call current_second(cpu3)
 
         !*** destroy the ga matrix hmatrix ***

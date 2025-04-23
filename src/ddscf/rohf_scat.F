@@ -371,12 +371,10 @@ c
       call ga_dgemm('t','n',nscat,nscat,nbf_all,
      &     1.0d0, g_tran, g_tmp, 1.0d0, g_scat)
 c
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
       call ga_pdsygv(g_scat, g_over, g_tmpscat, dbl_mb(k_evals+nbf))
-#else
+#elif defined(PEIGS)
       call ga_diag(g_scat, g_over, g_tmpscat, dbl_mb(k_evals+nbf))
-#endif
 #else 
       call ga_diag_seq(g_scat, g_over, g_tmpscat, dbl_mb(k_evals+nbf))
 #endif

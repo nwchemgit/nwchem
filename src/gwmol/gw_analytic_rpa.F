@@ -94,12 +94,10 @@ C
         !
         ! Perform the Eigendecomposition of the Casida matrix
         !
-#ifdef PARALLEL_DIAG
 #ifdef SCALAPACK        
         call dft_scaleig(g_rpa,g_rpa,omega,0)
-#else
+#elif defined(PEIGS)
         call ga_diag_std(g_rpa,g_rpa,omega)
-#endif
 #else
         call ga_diag_std_seq(g_rpa,g_rpa,omega)
 #endif
@@ -247,12 +245,10 @@ c       ECRPA pending
 c       pars%ecrpa =      
 
 c       Diagonalize RPA matrix
-#ifdef PARALLEL_DIAG
 #ifdef SCALAPACK        
         call dft_scaleig(g_rpa,g_rpa,omega,0)
-#else
+#elif defined(PEIGS)
         call ga_diag_std(g_rpa,g_rpa,omega)
-#endif
 #else
         call ga_diag_std_seq(g_rpa,g_rpa,omega)
 #endif

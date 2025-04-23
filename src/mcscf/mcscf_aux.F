@@ -1195,12 +1195,10 @@ c
       call ga_copy_patch( 'n', g_gfock, 1, nclosed, 1, nclosed,
      $                         g_tmp, 1, nclosed, 1, nclosed )
       call ga_symmetrize( g_tmp )
-#ifdef PARALLEL_DIAG
 #ifdef SCALAPACK
          call ga_pdsyev  (g_tmp, g_u, eps, 0)
-#else
+#elif defined(PEIGS)
       call ga_diag_std( g_tmp, g_u, eps )
-#endif
 #else
       call ga_diag_std_seq( g_tmp, g_u, eps )
 #endif
@@ -1224,12 +1222,10 @@ c
       call ga_copy_patch( 'n', g_gfock, aoff, aend, aoff, aend,
      $                         g_tmp, 1, nact, 1, nact )
       call ga_symmetrize( g_tmp )
-#ifdef PARALLEL_DIAG
 #ifdef SCALAPACK
          call ga_pdsyev  (g_tmp, g_u, eps(aoff), 0)
-#else
+#elif defined(PEIGS)
       call ga_diag_std( g_tmp, g_u, eps(aoff) )
-#endif
 #else
       call ga_diag_std_seq( g_tmp, g_u, eps(aoff) )
 #endif
@@ -1254,12 +1250,10 @@ c
      $                    2.d0, g_afock, aoff, nbf, aoff, nbf,
      $                          g_tmp, 1, nvir, 1, nvir )
       call ga_symmetrize( g_tmp )
-#ifdef PARALLEL_DIAG
 #ifdef SCALAPACK
          call ga_pdsyev  (g_tmp, g_u, eps(aoff), 0)
-#else
+#elif defined(PEIGS)
       call ga_diag_std( g_tmp, g_u, eps(aoff) )
-#endif
 #else
       call ga_diag_std_seq( g_tmp, g_u, eps(aoff) )
 #endif
