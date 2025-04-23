@@ -4,7 +4,7 @@
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
 
-SUBDIRS = src\c src\f77 comm ctof
+SUBDIRS = src\c src\f77 ctof
 
 LIBRARY = peigs.lib
 
@@ -44,7 +44,6 @@ cleanDEP:
 clean:
 	(cd ./src/c; $(MAKE) clean)
 	(cd ./src/f77; $(MAKE) clean)
-	(cd ./comm; $(MAKE) clean)
 	(cd ./ctof; $(MAKE) clean)
 
 realclean: clean
@@ -64,10 +63,9 @@ source:
 lib:
 	(cd ./src/c; $(MAKE))
 	(cd ./src/f77; $(MAKE))
-	(cd ./comm; $(MAKE))
 	(cd ./ctof; $(MAKE))
 	-rm -f libpeigs.a
-	$(peigs_AR) $(TOPDIR)/lib/$(NWCHEM_TARGET)/libpeigs.a comm/*.o ctof/*.o src/c/*.o src/f77/*.o
+	$(peigs_AR) $(TOPDIR)/lib/$(NWCHEM_TARGET)/libpeigs.a  ctof/*.o src/c/*.o src/f77/*.o
 	$(peigs_RANLIB) $(TOPDIR)/lib/$(NWCHEM_TARGET)/libpeigs.a
 #	($(MAKE) clean)
 
