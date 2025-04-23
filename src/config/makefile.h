@@ -436,9 +436,11 @@ FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 
 
 ifdef OLD_GA
-    CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
+#    CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
+    CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lperfm -lcons -lbq -lnwcutil
 else
-    CORE_LIBS = -lnwcutil -lga -larmci -lpeigs -lperfm -lcons -lbq -lnwcutil
+#    CORE_LIBS = -lnwcutil -lga -larmci -lpeigs -lperfm -lcons -lbq -lnwcutil
+    CORE_LIBS = -lnwcutil -lga -larmci  -lperfm -lcons -lbq -lnwcutil
 endif
 
 
@@ -3395,6 +3397,12 @@ else
     ifeq ($(_USE_SCALAPACK),)
         _USE_SCALAPACK := $(shell ${GA_PATH}/bin/ga-config  --use_scalapack| awk ' /1/ {print "Y"}')
     endif
+    ifneq ("$(wildcard ${NWCHEM_TOP}/src/ga_use_peigs.txt)","")
+        _USE_PEIGS := $(shell cat $(NWCHEM_TOP)/src/ga_use_peigs.txt)
+    endif
+    ifeq ($(_USE_PEIGS),)
+        _USE_PEIGS := $(shell ${GA_PATH}/bin/ga-config  --use_peigs| awk ' /1/ {print "Y"}')
+    endif
 endif
 
 ifeq ($(_USE_SCALAPACK),Y)
@@ -3420,6 +3428,10 @@ ifeq ($(_USE_SCALAPACK),Y)
                     -brename:.pdgetrf_,.pdgetrf \
                     -brename:.pdgetrs_,.pdgetrs 
     endif
+endif
+ifeq ($(_USE_PEIGS),Y)
+    DEFINES += -DPEIGS
+    CORE_LIBS += -lpeigs
 endif
 CORE_LIBS += $(ELPA) $(SCALAPACK) $(SCALAPACK_LIB)
 
