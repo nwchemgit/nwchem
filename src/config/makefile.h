@@ -289,7 +289,14 @@ ifdef USE_INTERNALBLAS
     LAPACK_LIB=-L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/ -lnwclapack
 endif
 
+ifdef SCALAPACK
+    SCALAPACK_SUPPLIED=y
+endif
+ifdef SCALAPACK_LIB
+    SCALAPACK_SUPPLIED=y
+endif
 ifdef BUILD_SCALAPACK
+    SCALAPACK_SUPPLIED=y
     NW_CORE_SUBDIRS += libext
     ifneq ($(or $(SCALAPACK),$(SCALAPACK_LIB)),)
         $(info     )
@@ -301,6 +308,21 @@ ifdef BUILD_SCALAPACK
     endif
 
     SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_scalapack
+endif
+
+ifndef SCALAPACK_SUPPLIED
+    ifndef USE_SERIALEIGENVOLVERS
+    ifndef USE_PEIGS
+        errorscalapack:
+	    $(info     )
+	    $(info NWChem's Performance is degraded by not using ScaLAPACK)
+	    $(info Please consider using a prebuilt ScaLAPACK library)
+	    $(info by setting the SCALAPACK envirornment variable or)
+	    $(info set BUILD_SCALAPACK=y to have NWChem build the ScaLAPACK library.)
+	    $(info If you decide to not use a ScaLAPACK,)
+	    $(info please define USE_SERIALEIGENVOLVERS=y and the slower serial eigensolvers will be used.)
+    endif
+    endif
 endif
 
 
