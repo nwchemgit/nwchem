@@ -138,6 +138,15 @@ jobs:
             fc: gfortran
             blas: "internal"
             blas_size: 4
+          - os: ubuntu-latest
+            experimental: true
+            mpi_impl: mpich
+            armci_network: MPI-TS
+            nwchem_modules: "all"
+            fc: gfortran
+            blas: "internal"
+            blas_size: 4
+            use_peigs: 1
           - os: ubuntu-22.04
             experimental: false
             mpi_impl: mpich
@@ -460,6 +469,7 @@ jobs:
       MPI_IMPL: ${{ matrix.mpi_impl }}
       ARMCI_NETWORK: ${{ matrix.armci_network }}
       NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
+      USE_PEIGS: ${{ matrix.use_peigs }}
       USE_SIMINT: ${{ matrix.use_simint }}
       USE_LIBXC: ${{ matrix.use_libxc }}
       USE_TBLITE: ${{ matrix.use_tblite }}
