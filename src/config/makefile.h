@@ -350,7 +350,7 @@ ifndef EXTERNAL_GA_PATH
 endif
 
 NW_CORE_SUBDIRS += include basis geom inp input  \
-                  pstat rtdb task symmetry util peigs perfm bq cons peigs_comm $(CORE_SUBDIRS_EXTRA)
+	  pstat rtdb task symmetry util perfm bq cons peigs_comm $(PEIGS) $(CORE_SUBDIRS_EXTRA)
 
 
 
@@ -459,10 +459,10 @@ FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 
 ifdef OLD_GA
 #    CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
-    CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs_comm -lperfm -lcons -lbq -lnwcutil
+	  CORE_LIBS = -lnwcutil -lpario -lglobal -lma $(LPEIGS) -lpeigs_comm -lperfm -lcons -lbq -lnwcutil
 else
 #    CORE_LIBS = -lnwcutil -lga -larmci -lpeigs -lperfm -lcons -lbq -lnwcutil
-    CORE_LIBS = -lnwcutil -lga -larmci  -lperfm -lpeigs_comm -lcons -lbq -lnwcutil
+  CORE_LIBS = -lnwcutil -lga -larmci  -lperfm $(LPEIGS) -lpeigs_comm -lcons -lbq -lnwcutil
 endif
 
 
@@ -3441,9 +3441,10 @@ ifeq ($(_USE_SCALAPACK),Y)
                     -brename:.pdgetrs_,.pdgetrs 
     endif
 endif
-ifeq ($(_USE_PEIGS),Y)
+ifdef USE_PEIGS
     DEFINES += -DPEIGS
-    CORE_LIBS += -lpeigs
+    LPEIGS = -lpeigs
+    PEIGS = peigs
 endif
 CORE_LIBS += $(ELPA) $(SCALAPACK) $(SCALAPACK_LIB)
 
