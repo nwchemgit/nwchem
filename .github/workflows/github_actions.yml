@@ -138,6 +138,7 @@ jobs:
             fc: gfortran
             blas: "internal"
             blas_size: 4
+            use_peigs: 1
           - os: ubuntu-latest
             experimental: true
             mpi_impl: mpich
@@ -170,6 +171,7 @@ jobs:
             cc: gcc
             use_libxc: -1
             blas: "internal"
+            use_peigs: 1
             blas_size: 8
           - os: ubuntu-latest
             experimental: true
