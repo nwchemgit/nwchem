@@ -89,62 +89,11 @@ c
          call ga_sync()
          if (.not. ga_duplicate(g_2ceri, g_cdinv, 'CD 2cERInv'))
      &    call errquit(pname//'Error creating g_cdinv',0, GA_ERR)
-         call ga_zero(g_cdinv)
-         lmiss = 1
-c         if (lmiss.eq.1) then
-            call ga_zero(g_cdinv)
-            info = 0
-#if defined(PARALLEL_DIAG)
-#ifdef SCALAPACK
-            call ga_copy(g_2ceri, g_cdinv)
-            call ga_sync()
-            info= ga_cholesky('U',g_cdinv)
-#else
-            call ga_chol(g_2ceri, g_cdinv, info)
-#endif
-#else 
-            call ga_chol_seq(g_2ceri, g_cdinv, info)
-#endif
-            if (info.ne.0)then
-               if (me.eq.0)then
-                  write(LuOut,*)' Problem in performing a Cholesky '
-                  write(LuOut,*)' decomposition of the 2-ctr ERI '
-                  write(LuOut,*)' matrix using CD fitting basis. '
-                  write(LuOut,*)' Attempting a diag/inverse. '
-               endif
-            endif
-            if (info.eq.0) then
-               g_tmpb = g_2ceri
-#if defined(PARALLEL_DIAG)
-#ifdef SCALAPACK
-               info = ga_llt_i('U',g_cdinv,-1)
-            if (info.ne.0)then
-               if (me.eq.0)then
-                  write(LuOut,*)' Problem in performing a Invers. '
-                  write(LuOut,*)' of the 2-ctr ERI '
-               endif
-               call ga_sync
-               call errquit(pname//'Inverse failed ',0,0)
-            endif
-               
-#else
-               call ga_inverse(g_cdinv, g_tmpb)
-#endif
-#ifndef SCALAPACK
-               call ga_dgemm('T', 'N', nbf_cd, nbf_cd, nbf_cd, 1.d0, 
-     &              g_tmpb, g_tmpb, 0.d0, g_cdinv)
-#endif
-#else 
-               call ga_copy(g_cdinv, g_tmpb)
-               call ga_inv_seq(g_tmpb, g_cdinv)
-#endif
-            else
-               call dft_invdiag(g_2ceri, g_cdinv, 
-     &                          nbf_cd)
-            endif
+
+         call dft_cholinv(g_2ceri, g_cdinv)
 #ifndef SCALAPACK            
 c
-c     second build of g_2ceri needed becuase previous calls destroyed it
+c     second build of g_2ceri needed because previous calls destroyed it
 c     
             call ga_zero(g_2ceri)
             call dft_get2eri(CD_bas_han, g_2ceri,oskel)
