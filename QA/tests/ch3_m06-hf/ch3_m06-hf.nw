@@ -1,7 +1,7 @@
 echo
 title "M06-HF/6-31+G* CH3 force "
 
-start ch3
+start 
 
 geometry
      C     0.000000    0.000000    0.000000

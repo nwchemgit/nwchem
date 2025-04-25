@@ -1,6 +1,6 @@
 echo
 
-start ch3radical_unrot_mp
+start
 title ch3radical_unrot_mp
 
 geometry noautoz units angstrom nocenter

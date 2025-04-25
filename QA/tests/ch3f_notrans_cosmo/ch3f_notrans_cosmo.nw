@@ -1,6 +1,6 @@
 echo
 
-start ch3f_notrans_cosmo_dat
+start
 title ch3f_notrans_cosmo
 
 geometry noautoz units angstrom nocenter

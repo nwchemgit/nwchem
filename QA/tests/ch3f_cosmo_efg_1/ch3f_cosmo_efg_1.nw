@@ -1,6 +1,6 @@
 echo
 
-start ch3f_cosmo_efg_1
+start 
 title ch3f_cosmo_efg_1
 
 geometry noautoz units angstrom nocenter

@@ -1,5 +1,5 @@
 echo
-start ch3f-lc-wpbeh
+start
 title ch3f-lc-wpbeh
 
 geometry notrans noautoz units angstrom nocenter
