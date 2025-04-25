@@ -5,7 +5,7 @@ echo
 title "ch4_2"
 
 
-start ch4_2
+start
 
 geometry units angstroms noautoz
  C 0.00000000 0.00000000 1.78977169
