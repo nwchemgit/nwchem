@@ -295,6 +295,9 @@ endif
 ifdef SCALAPACK_LIB
     SCALAPACK_SUPPLIED=y
 endif
+ifdef BUILD_MPICH
+    NW_CORE_SUBDIRS += libext
+endif
 ifdef BUILD_SCALAPACK
     SCALAPACK_SUPPLIED=y
     NW_CORE_SUBDIRS += libext
