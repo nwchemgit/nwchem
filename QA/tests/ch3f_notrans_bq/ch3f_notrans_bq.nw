@@ -1,6 +1,6 @@
 echo
 
-start ch3f_notrans_bq
+start
 title ch3f_notrans_bq
 
 geometry noautoz units angstrom nocenter

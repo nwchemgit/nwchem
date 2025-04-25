@@ -289,7 +289,17 @@ ifdef USE_INTERNALBLAS
     LAPACK_LIB=-L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/ -lnwclapack
 endif
 
+ifdef SCALAPACK
+    SCALAPACK_SUPPLIED=y
+endif
+ifdef SCALAPACK_LIB
+    SCALAPACK_SUPPLIED=y
+endif
+ifdef BUILD_MPICH
+    NW_CORE_SUBDIRS += libext
+endif
 ifdef BUILD_SCALAPACK
+    SCALAPACK_SUPPLIED=y
     NW_CORE_SUBDIRS += libext
     ifneq ($(or $(SCALAPACK),$(SCALAPACK_LIB)),)
         $(info     )
@@ -301,6 +311,21 @@ ifdef BUILD_SCALAPACK
     endif
 
     SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_scalapack
+endif
+
+ifndef SCALAPACK_SUPPLIED
+    ifndef USE_SERIALEIGENVOLVERS
+    ifndef USE_PEIGS
+        errorscalapack:
+	    $(info     )
+	    $(info NWChem's Performance is degraded by not using ScaLAPACK)
+	    $(info Please consider using a prebuilt ScaLAPACK library)
+	    $(info by setting the SCALAPACK envirornment variable or)
+	    $(info set BUILD_SCALAPACK=y to have NWChem build the ScaLAPACK library.)
+	    $(info If you decide to not use a ScaLAPACK,)
+	    $(info please define USE_SERIALEIGENVOLVERS=y and the slower serial eigensolvers will be used.)
+    endif
+    endif
 endif
 
 
@@ -328,7 +353,7 @@ ifndef EXTERNAL_GA_PATH
 endif
 
 NW_CORE_SUBDIRS += include basis geom inp input  \
-                  pstat rtdb task symmetry util peigs perfm bq cons $(CORE_SUBDIRS_EXTRA)
+	  pstat rtdb task symmetry util perfm bq cons peigs_comm $(PEIGS) $(CORE_SUBDIRS_EXTRA)
 
 
 
@@ -436,9 +461,11 @@ FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 
 
 ifdef OLD_GA
-    CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
+#    CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
+	  CORE_LIBS = -lnwcutil -lpario -lglobal -lma $(LPEIGS) -lpeigs_comm -lperfm -lcons -lbq -lnwcutil
 else
-    CORE_LIBS = -lnwcutil -lga -larmci -lpeigs -lperfm -lcons -lbq -lnwcutil
+#    CORE_LIBS = -lnwcutil -lga -larmci -lpeigs -lperfm -lcons -lbq -lnwcutil
+  CORE_LIBS = -lnwcutil -lga -larmci  -lperfm $(LPEIGS) -lpeigs_comm -lcons -lbq -lnwcutil
 endif
 
 
@@ -3395,6 +3422,12 @@ else
     ifeq ($(_USE_SCALAPACK),)
         _USE_SCALAPACK := $(shell ${GA_PATH}/bin/ga-config  --use_scalapack| awk ' /1/ {print "Y"}')
     endif
+    ifneq ("$(wildcard ${NWCHEM_TOP}/src/ga_use_peigs.txt)","")
+        _USE_PEIGS := $(shell cat $(NWCHEM_TOP)/src/ga_use_peigs.txt)
+    endif
+    ifeq ($(_USE_PEIGS),)
+        _USE_PEIGS := $(shell ${GA_PATH}/bin/ga-config  --use_peigs| awk ' /1/ {print "Y"}')
+    endif
 endif
 
 ifeq ($(_USE_SCALAPACK),Y)
@@ -3420,6 +3453,11 @@ ifeq ($(_USE_SCALAPACK),Y)
                     -brename:.pdgetrf_,.pdgetrf \
                     -brename:.pdgetrs_,.pdgetrs 
     endif
+endif
+ifdef USE_PEIGS
+    DEFINES += -DPEIGS
+    LPEIGS = -lpeigs
+    PEIGS = peigs
 endif
 CORE_LIBS += $(ELPA) $(SCALAPACK) $(SCALAPACK_LIB)
 

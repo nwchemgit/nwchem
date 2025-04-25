@@ -22,14 +22,12 @@ c
       call ga_inquire(g_b, itype, n, n)
       call ga_zero(g_b)
       info = 0
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
       call ga_copy(g_a, g_b)
       call ga_sync()
       info= ga_cholesky('U',g_b)
-#else
+#elif defined(PEIGS)
       call ga_chol(g_a, g_b, info)
-#endif
 #else 
       call ga_chol_seq(g_a, g_b, info)
 #endif
@@ -44,7 +42,6 @@ c
       endif
       if (info.eq.0) then
       if (odftps) call pstat_on(ps_inv)
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
          info = ga_llt_i('U',g_b,-1)
          if (info.ne.0)then
@@ -55,15 +52,13 @@ c
             call ga_sync
             call errquit(pname//'Inverse failed ',0,0)
          endif
-#else
+#elif defined(PEIGS)
          call ga_inverse(g_b, g_a)
-#endif
          if (odftps) call pstat_on(ps_bdgemm)
-#ifndef SCALAPACK
          call ga_dgemm('T', 'N', n, n, n, 1.d0, 
      &        g_a, g_a, 0.d0, g_b)
-#endif
          if (odftps) call pstat_off(ps_bdgemm)
+
 #else 
          call ga_copy(g_b, g_a)
          call ga_inv_seq(g_a, g_b)

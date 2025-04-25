@@ -298,7 +298,10 @@ c
       g_vecs = ga_create_atom_blocked(geom, bas_han,
      &                                 'tmp eig vecs')
       call ga_zero(g_vecs)
-#if defined(PARALLEL_DIAG)
+#ifdef SCALAPACK
+      call dft_scaleig(g_m, g_vecs, evals,
+     P     nbf) 
+#elif defined(PEIGS)
       call ga_diag_std(g_m, g_vecs, evals)
 #else
       call ga_diag_std_seq(g_m, g_vecs, evals)
@@ -938,7 +941,10 @@ c
       g_svecs = ga_create_atom_blocked(geom, AO_bas_han,
      &                                 'AO ovl eig vecs')
       call ga_zero(g_svecs)
-#if defined(PARALLEL_DIAG)
+#ifdef SCALAPACK
+      call dft_scaleig(g_s, g_svecs, Dbl_MB(isvals),
+     P     nbf_ao) 
+#elif defined(PEIGS)
       call ga_diag_std(g_s, g_svecs, Dbl_MB(isvals))
 #else
       call ga_diag_std_seq(g_s, g_svecs, Dbl_MB(isvals))

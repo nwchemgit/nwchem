@@ -147,14 +147,12 @@ c
      &     call dft_tstamp(' calling diag ')
 
       if (odftps) call pstat_on(ps_diag)
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
       call dft_scaleig(g_fockt, g_fockt, evals,
      P     nocc) 
-#else
+#elif defined(PEIGS)
       call ga_diag_std(
      .     g_fockt,  g_fockt, evals)
-#endif
 #else 
       call ga_diag_std_seq(g_fockt, g_fockt, evals)
 #endif
@@ -386,11 +384,15 @@ c     ma for complex diagonalizer
      &     call errquit('dft_scf:push_get failed', 13, MA_ERR)
 c
 c     call diagonalizer
+#if 1      
+      call zcopy(nbf_mo*nbf_mo,dcmplx(0.0, 0.0),0,DCpl_mb(ia),1)
+#else
       do i = 1, nbf_mo 
          do j = 1, nbf_mo
             DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=dcmplx(0.0, 0.0)
          enddo
       enddo
+#endif
       do i = 1, nbf_mo 
          call ga_get(g_fockso(1), 1,i, i,i, dbl_mb(ibuff),1)
          do j=1,i 

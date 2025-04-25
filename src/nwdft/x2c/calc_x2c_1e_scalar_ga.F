@@ -675,7 +675,6 @@ c     diagonalize the mDE Hamiltonian:
       if (dbg>1) call ga_print(g_h)
       if (dbg>1) call ga_print(g_m)
       
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
 c     
 c     SCALAPACK piece needs code similar to what's
@@ -699,10 +698,9 @@ c     call ga_pdsygv(g_h, g_m, g_temp, dbl_mb(k_eval))
      &  g_m, g_temp,   0.0d0, g_h)
       call ga_copy (g_h, g_temp)
       
-#else
+#elif defined(PEIGS)
       if (master .and. dbg>0) write (luout,*) 'calling ga_diag'
       call ga_diag(g_h, g_m, g_temp, dbl_mb(k_eval))
-#endif
 #else
       if (master .and. dbg>0) write (luout,*) 'calling ga_diag_seq'
       call ga_diag_seq(g_h, g_m, g_temp, dbl_mb(k_eval))

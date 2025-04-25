@@ -68,7 +68,14 @@ C
       call ga_zero (g_fockre_mo)
       call ga_zero (g_fockim_mo)
       call convert_z2d (g_zfock_mo, g_fockre_mo, g_fockim_mo)
-      call ga_diag_std (g_fockre_mo, g_movecs_gs, dbl_mb(ievals))
+#ifdef SCALAPACK
+         call dft_scaleig(g_fockre_mo, g_movecs_gs, dbl_mb(ievals),
+     P     params%ns_mo)
+#elif defined(PEIGS)
+         call ga_diag_std(g_fockre_mo, g_movecs_gs, dbl_mb(ievals))
+#else
+         call ga_diag_std_seq(g_fockre_mo, g_movecs_gs, dbl_mb(ievals))
+#endif
 
 
 C     XXX

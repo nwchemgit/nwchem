@@ -32,13 +32,11 @@ c
       
 C     diag
       call ga_sync
-#if defined(PARALLEL_DIAG)         
 #ifdef SCALAPACK
       call dft_scaleig(g_a, g_tmp2, DBl_MB(iev),
      P     0) 
-#else
+#elif defined(PEIGS)
       call ga_diag_std(g_A,g_tmp2,DBl_MB(iev))
-#endif
 #else
       call ga_diag_std_seq(g_A,g_tmp2,DBl_MB(iev))
 #endif

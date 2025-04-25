@@ -13,7 +13,7 @@ arch=`uname -m`
 env | grep FC || true
 env | grep CC || true
 if test -f "/usr/lib/os-release"; then
-    dist=$(grep ID= /etc/os-release |head -1 |cut -c4-| sed 's/\"//g')
+    dist=$(grep ID= /etc/os-release |grep -v VERSION |head -1 |cut -c4-| sed 's/\"//g')
 fi
 if test -f "/usr/lib/fedora-release"; then
     dist="fedora"
@@ -177,6 +177,12 @@ if [[ "$os" == "Linux" ]]; then
 	which mpif90
 	mpif90 -show
     else
+       #fix for MPICH on ubuntu 24.04
+	if [[ "$MPI_IMPL" == "mpich" ]] && [[ "$DISTR" == "ubuntu" ]]; then
+	    ubuntu_v=$(grep VERSION_ID /etc/os-release|cut -d = -f 2 | sed 's/\"//g' )
+	    if [ $ubuntu_v = "24.04" ]; then export MPI_IMPL="build_mpich"; export BUILD_MPICH=1 ; fi
+	fi
+
 	if [[ "$MPI_IMPL" == "openmpi" ]]; then
 	    mpi_bin="openmpi-bin" ; mpi_libdev="libopenmpi-dev" scalapack_libdev="libscalapack-openmpi-dev"
 	fi

@@ -15,6 +15,8 @@ C     $Id$
 #include "eaf.fh"
 #include "global.fh"
       character*(nw_max_path_len) fname
+      character*80 errmsg
+      character*9 eafop
       logical oprint_ioinfo
       double precision offs
 c     
@@ -54,14 +56,23 @@ c
       if(ioop.eq.'READ') then
          do j=1,nbf
             ierr = eaf_read(fd, offs, dbl_mb(iinv),8*nbf)
-      if(ierr.ne.0) call errquit('dftinvio: eaf_read',ierr,
-     &       DISK_ERR)
+            if(ierr.ne.0) then
+               call eaf_errmsg(ierr,errmsg)
+               write(LuOut,*) ga_nodeid(),' eaf_read error:',errmsg,
+     F              ' for name ',name,' j= ',j
+               eafop='eaf_read '
+               goto 1984
+c               call errquit('dftinvio: eaf_read',ierr, DISK_ERR)
+            endif
             offs=offs+8*nbf
             call put_col(iga_inv,nbf,j,Dbl_MB(iinv))
          enddo
          ierr=eaf_close(fd)
-      if(ierr.ne.0) call errquit('dftinvio: eaf_close1',ierr,
-     &       DISK_ERR)
+         if(ierr.ne.0) then
+            write(luout,*)'  eaf_close1'
+            eafop='eaf_close'
+            goto 1984
+         endif
          lmiss=0
          if(.not.ma_pop_stack(linv))
      &        call errquit('dft_invio: cannot pop stack',0, MA_ERR)
@@ -72,8 +83,11 @@ c
          if(.not.ma_pop_stack(linv))
      &        call errquit('dft_invio: cannot pop stack',0, MA_ERR)
          ierr=eaf_close(fd)
-         if(ierr.ne.0) call errquit('dftinvio: eaf_close2',ierr,
-     &       DISK_ERR)
+         if(ierr.ne.0) then
+            write(luout,*)'  eaf_close2'
+            eafop='eaf_close'
+            goto 1984
+         endif
          if(me.eq.0.and.oprint_ioinfo)
      &   write(LuOut,*) ' READ file ', fname, ' lmiss = ',lmiss
          return
@@ -83,8 +97,11 @@ c
          do j=1,nbf
             call get_col(iga_inv,nbf,j,Dbl_MB(iinv))
             ierr = eaf_write(fd, offs, dbl_mb(iinv),8*nbf)
-            if(ierr.ne.0) call errquit('dftinvio: eaf_write',ierr,
-     &       DISK_ERR)
+            if(ierr.ne.0) then
+               write(luout,*)'  eaf_write error j=',j
+               eafop='eaf_write'
+               goto 1984
+            endif
             offs=offs+8*nbf
          enddo
          if(.not.ma_pop_stack(linv))
@@ -96,4 +113,11 @@ c
      &   write(LuOut,*) ' WRITE file ', fname, ' lmiss = ',lmiss
          return
       endif
+c     error termination
+ 1984 continue
+      call eaf_errmsg(ierr,errmsg)
+      write(LuOut,*) ga_nodeid(),eafop,' error:',errmsg,
+     F              ' for name ',name
+      lmiss=1
+      return
       END
