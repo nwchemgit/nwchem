@@ -314,7 +314,7 @@ ifdef BUILD_SCALAPACK
 endif
 
 ifndef SCALAPACK_SUPPLIED
-    ifndef USE_SERIALEIGENVOLVERS
+    ifndef USE_SERIALEIGENSOLVERS
     ifndef USE_PEIGS
         errorscalapack:
 	    $(info     )
@@ -323,7 +323,7 @@ ifndef SCALAPACK_SUPPLIED
 	    $(info by setting the SCALAPACK envirornment variable or)
 	    $(info set BUILD_SCALAPACK=y to have NWChem build the ScaLAPACK library.)
 	    $(info If you decide to not use a ScaLAPACK,)
-	    $(info please define USE_SERIALEIGENVOLVERS=y and the slower serial eigensolvers will be used.)
+	    $(info please define USE_SERIALEIGENSOLVERS=y and the slower serial eigensolvers will be used.)
     endif
     endif
 endif
