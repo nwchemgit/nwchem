@@ -316,7 +316,7 @@ endif
 ifndef SCALAPACK_SUPPLIED
     ifndef USE_SERIALEIGENSOLVERS
     ifndef USE_PEIGS
-        errorscalapack:
+        errorsdiag:
 	    $(info     )
 	    $(info NWChem's Performance is degraded by not using ScaLAPACK)
 	    $(info Please consider using a prebuilt ScaLAPACK library)
@@ -324,6 +324,7 @@ ifndef SCALAPACK_SUPPLIED
 	    $(info set BUILD_SCALAPACK=y to have NWChem build the ScaLAPACK library.)
 	    $(info If you decide to not use a ScaLAPACK,)
 	    $(info please define USE_SERIALEIGENSOLVERS=y and the slower serial eigensolvers will be used.)
+	    exit 1
     endif
     endif
 endif
@@ -3417,6 +3418,16 @@ else
     endif
     ifeq ($(_USE_PEIGS),)
         _USE_PEIGS := $(shell ${GA_PATH}/bin/ga-config  --use_peigs| awk ' /1/ {print "Y"}')
+    endif
+# check if USE_PEIGS and _USE_PEIGS are consistent
+    ifeq ($(shell $(NWCHEM_TOP)/src/config/peigs_check.sh $(NWCHEM_TOP)),1)
+        errorpeigs:
+	    $(info  Peigs interface not working.)
+	    $(info  environment USE_PEIGS is set to $(USE_PEIGS))
+	    $(info  GA _USE_PEIGS is set to $(_USE_PEIGS))
+	    $(info )
+	    $(shell  rm $(NWCHEM_TOP)/src/peigs_check_done.txt)
+	    exit 1
     endif
 endif
 
