@@ -217,7 +217,7 @@ fi
 
 #disable threading for ppc64le since it uses OPENMP
 echo arch is "$arch"
-if [[ "$arch" == "ppc64le" ||  "$arch" == "riscv64" ]]; then
+if [[ "$arch" == "ppc64le" ||  "$arch" == "riscv64" || $FORCETARGET == *"POWER"* || $FORCETARGET == *"RISCV64"*  ]]; then
 if [[ ${GCCVERSIONGT5} != 1 ]]; then
        echo
        echo gcc version 6 and later needed for ppc64le
