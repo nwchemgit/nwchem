@@ -76,7 +76,7 @@ c
      $        call errquit('cphf_solve: no DFT MO vectors',0, RTDB_ERR)
 c !!! Hack to set up scftype properly for later code !!! ? need this?
 #if 0
-         if (bgj_restricted()) then
+         if (bgj_restricted(rtdb)) then
             scftype = 'RHF'
          else
             scftype = 'UHF'
@@ -91,7 +91,7 @@ c
      &       UNKNOWN_ERR)
       nbases = 1
       bases(1) = basis
-      if (bgj_have_j_fit()) then
+      if (bgj_have_j_fit(rtdb)) then
         nbases = 2
         bases(2) = bgj_CD_bas_han()
         write(*,*) 'cphf_solve: bases',bases
