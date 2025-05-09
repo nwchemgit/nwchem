@@ -1,7 +1,7 @@
 
 echo
 
-start ch3radical_rot
+start
 title ch3radical_rot
 
 geometry noautoz units angstrom nocenter

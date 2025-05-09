@@ -29,7 +29,6 @@ cleanDEP:
 clean:
 	(cd ./src/c; $(MAKE) clean)
 	(cd ./src/f77; $(MAKE) clean)
-	(cd ./comm; $(MAKE) clean)
 	(cd ./ctof; $(MAKE) clean)
 
 realclean: clean
@@ -42,14 +41,12 @@ sngl_to_dbl dbl_to_sngl:
 64_to_32:
 	(cd ./src/c; $(MAKE) 64_to_32)
 	(cd ./src/f77; $(MAKE) 64_to_32)
-	(cd ./comm; $(MAKE) 64_to_32)
 	(cd ./ctof; $(MAKE) 64_to_32)
 	(cd ./h; $(MAKE) 64_to_32)
 
 32_to_64:
 	(cd ./src/c; $(MAKE) 32_to_64)
 	(cd ./src/f77; $(MAKE) 32_to_64)
-	(cd ./comm; $(MAKE) 32_to_64)
 	(cd ./ctof; $(MAKE) 32_to_64)
 	(cd ./h; $(MAKE) 32_to_64)
 
@@ -63,10 +60,9 @@ source:
 lib:
 	(cd ./src/c; $(MAKE))
 	(cd ./src/f77; $(MAKE))
-	(cd ./comm; $(MAKE))
 	(cd ./ctof; $(MAKE))
 	-rm -f libpeigs.a
-	$(peigs_AR) $(peigs_LIB) comm/*.o ctof/*.o src/c/*.o src/f77/*.o
+	$(peigs_AR) $(peigs_LIB)  ctof/*.o src/c/*.o src/f77/*.o
 	$(peigs_RANLIB) $(peigs_LIB)
 #	($(MAKE) clean)
 

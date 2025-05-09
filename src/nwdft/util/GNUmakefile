@@ -1,6 +1,6 @@
 #$Id$
 
-	OBJ=	ga_chol.o ga_inverse.o ga_chol_seq.o ga_inv_seq.o dft_invio.o dft_print_mats.o dft_save_mats.o
+	OBJ=	ga_chol_seq.o ga_inv_seq.o dft_invio.o dft_print_mats.o dft_save_mats.o
 
 
 	OBJ_OPTIMIZE=  \
@@ -31,5 +31,8 @@ LIB_INCLUDES = -I../include
 USES_BLAS = ga_chol_seq.F ga_inv_seq.F int_1e_fde.F dft_utilmap.F
 
 include ../../config/makefile.h
+ifeq ($(_USE_PEIGS),Y)
+	OBJ+=	ga_chol.o ga_inverse.o
+endif
 include ../../config/makelib.h
 

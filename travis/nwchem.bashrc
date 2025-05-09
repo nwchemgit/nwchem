@@ -11,7 +11,7 @@ else
     MYSUDO=" "
 fi
 if test -f "/usr/lib/os-release"; then
-    dist=$(grep ID= /etc/os-release |head -1 |cut -c4-| sed 's/\"//g')
+    dist=$(grep ID= /etc/os-release |grep -v VERSION |head -1 |cut -c4-| sed 's/\"//g')
 fi
 if [ -z "$CC" ] ; then
     CC=cc
@@ -123,8 +123,16 @@ if [[ "$os" == "Darwin" ]]; then
   fi
 
 fi
-if [[ "$os" == "Linux" ]]; then 
-   export NWCHEM_TARGET=LINUX64 
+if [[ "$os" == "Linux" ]]; then
+   export NWCHEM_TARGET=LINUX64
+   if [[ "$MPI_IMPL" == "mpich" ]]; then
+       #fix for MPICH on ubuntu 24.04
+       #https://bugs.launchpad.net/ubuntu/+source/mpich/+bug/2072338
+       #https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1102612
+       #https://github.com/pmodels/mpich/issues/7064
+       ubuntu_v=$(grep VERSION_ID /etc/os-release|cut -d = -f 2 | sed 's/\"//g' )
+       if [ $ubuntu_v = "24.04" ]; then export BUILD_MPICH=1 ; fi
+   fi
 fi
 export OMP_NUM_THREADS=1
 export USE_NOIO=1
@@ -213,6 +221,7 @@ fi
 if [[ ! -z "$BUILD_ELPA" ]]; then
 echo "BUILD_ELPA = " "$BUILD_ELPA"
 fi
+echo "BUILD_MPICH = " "$BUILD_MPICH"
 export NWCHEM_EXECUTABLE=$TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/nwchem_"$arch"_`echo $NWCHEM_MODULES|sed 's/ /-/g'`_"$MPI_IMPL"_"$FC"
 
 if [[ "$FC" == "gfortran" ]]; then

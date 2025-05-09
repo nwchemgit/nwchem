@@ -1,6 +1,6 @@
 echo
 
-start h3co_dat
+start
 
 geometry
     o      0.00000000     0.00000000     0.27851507
