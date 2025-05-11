@@ -550,7 +550,7 @@ c
       double precision charge ! the total QM region charge
       double precision chgnuc ! the total nuclear charge
       integer          nelec  ! the total number of electrons
-      double precision chgfac ! scale factor for COSMO charges
+      double precision chgfac, chgfacn, chgface ! scale factor for COSMO charges
       double precision chgcos ! the total COSMO surface charge
       double precision chgcvg ! the convergence of the COSMO charges
       double precision chgina ! the inv(A) COSMO charge
@@ -1022,9 +1022,11 @@ c
         else if (nucl) then
           errcos=chgnuc-chgcos
           chgfac=chgnuc/chgcos
+          chgfacn = chgfac
         else if (elec) then
           errcos=-dble(nelec)-chgcos
           chgfac=-dble(nelec)/chgcos
+          chgface = chgfac
         endif
         call dscal(nefc,chgfac,dbl_mb(ieq),1)
       else if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
@@ -1300,6 +1302,8 @@ c
             write(fn,*) " charge_correction= lagrangian"
          else if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
             write(fn,*) " charge_correction= scale"
+            write(fn,"(a,f12.9)") "  charge_corr_elec= ", chgface
+            write(fn,"(a,f12.9)") "  charge_corr_nucl= ", chgfacn
          end if
 c
          write(fn,"(a)") "$cosmo_data"
@@ -1331,18 +1335,33 @@ c        This energy is expected to correlate well with the solvation energy.
          write(fn,"(a,f18.10)")   "  diel=           ", pt5*allefc
 c
          write(fn,"(a)") "$segment_information"
+         if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
+           write(fn,"(a)")
+     +   "# n atom x y z charge area charge/area potential charge_elec"
+         else
+           write(fn,"(a)")
+     +       "# n atom x y z charge area charge/area potential"
+         end if
          write(fn,"(a)")
-     +     "# n atom x y z charge area charge/area potential"
-         write(fn,"(a)") "# coordinates and potential [a.u.], area [A2]"
+     +   "# coordinates and potential [a.u.], area [A2]"
          do ief=1,nefc
             efcsi = efcs(ief)*(cau2ang**2)
             if (do_cosmo_model.eq.DO_COSMO_YK)
      +        efcsi = msrf(ief)*(cau2ang**2)
-
-            write(fn,"(2i6,7f15.9)") ief, efciat(ief),
-     +      efcc(1,ief), efcc(2,ief), efcc(3,ief),
-     +      efcz(ief), efcsi, efcz(ief)/efcsi,
-     +      dbl_mb(i10+ief-1)
+            if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
+              write(fn,"(2i6,8f15.9)") ief, efciat(ief),
+     +        efcc(1,ief), efcc(2,ief), efcc(3,ief),
+     +        efcz(ief), efcsi, efcz(ief)/efcsi,
+     +        dbl_mb(i10+ief-1),
+c             i22 is the charge from electrons only, we report it also
+c             so the user can get the nucl one from charge-charge_elec
+     +        dbl_mb(i22+ief-1)
+            else
+              write(fn,"(2i6,7f15.9)") ief, efciat(ief),
+     +        efcc(1,ief), efcc(2,ief), efcc(3,ief),
+     +        efcz(ief), efcsi, efcz(ief)/efcsi,
+     +        dbl_mb(i10+ief-1)
+            end if
          end do
          close(fn)
          end if
