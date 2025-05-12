@@ -230,7 +230,7 @@ else
 	INCPATH :=  $(word $(words $(GA_CPPFLAGS)),$(GA_CPPFLAGS))
 
         ifdef EXTERNAL_GA_PATH
-	  INCPATH += -I$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+	  INCPATH := $(INCPATH) -I$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
         endif
     endif
 endif
@@ -2170,7 +2170,7 @@ ifneq ($(TARGET),LINUX)
             DEFINES  +=-DMPICH_NO_ATTR_TYPE_TAGS
 	    DEFINES  += -DNOIO -DEAFHACK
 #	    LDOPTIONS +=-Wl,-rpath=/usr/local/lib/gcc7
-            LDOPTIONS += $(shell mpif90  -show 2>&1 |cut -d " " -f 2) 
+            LDOPTIONS := $(LDOPTIONS) $(shell mpif90  -show 2>&1 |cut -d " " -f 2) 
             ARFLAGS = rU
         endif
 
@@ -3615,8 +3615,8 @@ ifdef BUILD_PLUMED
     LD_LIBRARY_PATH := $(NWCHEM_TOP)/src/libext/lib:$(LD_LIBRARY_PATH)
     DEFINES += -DUSE_PLUMED
     PLUMED_HOME=$(NWCHEM_TOP)/src/libext
-    PLUMED_DYNAMIC_LIBS = $(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep DYNAMIC_LIBS| cut -c 14-)
-    PLUMED_HASMPI = $(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
+    PLUMED_DYNAMIC_LIBS := $(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep DYNAMIC_LIBS| cut -c 14-)
+    PLUMED_HASMPI := $(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
 endif
 ifdef USE_PLUMED
     DEFINES += -DUSE_PLUMED
@@ -3748,11 +3748,11 @@ endif
 #case guard against case when tools have not been compiled yet
 #  ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
 #  else
-COMM_LIBS=  $(shell ${GA_PATH}/bin/ga-config --network_ldflags)
-COMM_LIBS +=  $(shell ${GA_PATH}/bin/ga-config --network_libs)
+COMM_LIBS :=  $(shell ${GA_PATH}/bin/ga-config --network_ldflags)
+COMM_LIBS :=  $(COMM_LIBS) $(shell ${GA_PATH}/bin/ga-config --network_libs)
 #comex bit
 #COMM_LIBS +=  $(shell [ -e ${NWCHEM_TOP}/src/tools/build/comex/config.h ] && grep LIBS\ = ${NWCHEM_TOP}/src/tools/build/comex/Makefile|grep -v _LIBS| cut -b 8-) -lpthread
-COMM_LIBS += $(shell [ -e ${GA_PATH}/bin/comex-config ] && ${GA_PATH}/bin/comex-config --libs) -lpthread
+COMM_LIBS := $(COMM_LIBS) $(shell [ -e ${GA_PATH}/bin/comex-config ] && ${GA_PATH}/bin/comex-config --libs) -lpthread
 ifdef COMM_LIBS 
     CORE_LIBS += $(COMM_LIBS) 
 endif 
@@ -3911,14 +3911,14 @@ ifdef USE_MPI
     else ifdef BUILD_MPICH
         NW_CORE_SUBDIRS += libext
         PATH := $(NWCHEM_TOP)/src/libext/bin:$(PATH)
-        NWMPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
-        NWMPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
-        NWLIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-	NWLIBMPI      += $(shell pkg-config --libs-only-L hwloc 2> /dev/null)
+        NWMPI_INCLUDE := $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+        NWMPI_LIB     := $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+        NWLIBMPI      := $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+	NWLIBMPI      := $(NWLIBMPI) $(shell pkg-config --libs-only-L hwloc 2> /dev/null)
         ifeq ($(NWCHEM_TARGET),MACX64)
            GOT_BREW := $(shell command -v brew 2> /dev/null)
            ifdef GOT_BREW
-	       NWLIBMPI	+= -L$(shell brew --prefix)/lib
+	       NWLIBMPI	:= $(NWLIBMPI) -L$(shell brew --prefix)/lib
            endif
 	endif
     else ifdef FORCE_MPI_ENV
