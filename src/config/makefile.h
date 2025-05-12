@@ -152,6 +152,20 @@ ifdef EXTERNAL_GA_PATH
     ifndef BLAS_SIZE
         BLAS_SIZE=8
     endif
+    ifneq ($(GA_HAS_SCALAPACK),Y)
+    #check scalapack size
+      GA_SCALAPACK_SIZE := $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --scalapack_size)
+    #check if scalapack and blas sizes are the same
+    ifneq ($(GA_SCALAPACK_SIZE),$(GA_BLAS_SIZE))
+         $(info )
+         $(info NWChem requires BLAS and ScaLapack with the same size )
+         $(info Global Arrays was built with BLAS size=${GA_BLAS_SIZE})
+         $(info Global Arrays was built with ScaLapack size=${GA_SCALAPACK_SIZE})
+         $(info )
+         $(error )
+    endif
+
+    endif
 
     ifneq ($(BLAS_SIZE),$(GA_BLAS_SIZE))
          $(info )
