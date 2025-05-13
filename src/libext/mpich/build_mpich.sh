@@ -84,3 +84,4 @@ if [[ "$?" != "0" ]]; then
 fi
 
 make install >& mpich_install.log
+${NWCHEM_TOP}/src/tools/check_libmpi.sh ${NWCHEM_TOP}

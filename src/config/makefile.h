@@ -3927,8 +3927,8 @@ ifdef USE_MPI
         PATH := $(NWCHEM_TOP)/src/libext/bin:$(PATH)
         NWMPI_INCLUDE := $(NWCHEM_TOP)/src/libext/include
         NWMPI_LIB     := $(NWCHEM_TOP)/src/libext/lib
-        NWLIBMPI      := -lmpifort -lmpi
-	NWLIBMPI      := $(NWLIBMPI) $(shell pkg-config --libs-only-L hwloc 2> /dev/null)
+        NWLIBMPI      = $(shell $(NWCHEM_TOP)/src/tools/check_libmpi.sh $(NWCHEM_TOP))
+	NWLIBMPI      += $(shell pkg-config --libs-only-L hwloc 2> /dev/null)
         ifeq ($(NWCHEM_TARGET),MACX64)
            GOT_BREW := $(shell command -v brew 2> /dev/null)
            ifdef GOT_BREW
