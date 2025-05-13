@@ -214,7 +214,7 @@ else
       #extract GA libs location from last word in GA_LDLFLAGS
         LIBPATH :=  $(word $(words ${GA_LDFLAGS}),${GA_LDFLAGS}) 
         ifdef EXTERNAL_GA_PATH
-	  LIBPATH ::= -L$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+	  LIBPATH ::= -L$(shell $(NWCHEM_TOP)/src/tools/check_mpi_lib.sh $(NWCHEM_TOP))
         endif
     endif
 endif
@@ -244,7 +244,7 @@ else
 	INCPATH :=  $(word $(words $(GA_CPPFLAGS)),$(GA_CPPFLAGS))
 
         ifdef EXTERNAL_GA_PATH
-	  INCPATH := $(INCPATH) -I$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+	  INCPATH ::= $(INCPATH) -I$(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh $(NWCHEM_TOP))
         endif
     endif
 endif
@@ -3979,8 +3979,8 @@ ifdef USE_MPI
         endif
 
 	NWMPI_INCLUDE := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh $(NWCHEM_TOP))
-	NWMPI_LIB     := $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
-	NWLIBMPI      := $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+	NWMPI_LIB     := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_lib.sh $(NWCHEM_TOP))
+	NWLIBMPI      := $(shell $(NWCHEM_TOP)/src/tools/check_libmpi.sh $(NWCHEM_TOP))
     endif
 
     ifdef NWMPI_INCLUDE
