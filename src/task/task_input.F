@@ -47,6 +47,8 @@ c      logical oembed
       character*30 test, operation
       character*32 theory
       character*128 err_string
+      external task_checkoper
+      integer task_checkoper,nops
 c
       theory    = ' '
       operation = ' '
@@ -63,9 +65,17 @@ c      oembed    = .false.
 c
       call rtdb_clean(rtdb, 'task:') ! Delete ALL previous task parameters
       
+      nops=0
 c
       if (.not. inp_a(test)) goto 1000 ! task keyword
  10   if (inp_a(test)) then
+c
+c     check that a single operation is provided
+c
+         nops=nops+task_checkoper(test)
+         if(nops.gt.1) call
+     A        errquit(' multiple task operations provided in one line',
+     N        nops,INPUT_ERR)
          if (inp_compare(.false.,test,'energy')) then
             operation = 'energy'
          else if (inp_compare(.false.,test,'abc')) then
@@ -395,5 +405,52 @@ c      omm = task_save_state(0,'a')
 c      omm = task_restore_state(0,'a')
 c      omm = task_delete_state(0,'a')
 c
+      end
+      integer function task_checkoper(test)
+      implicit none
+#include "inp.fh"
+#include "util.fh"
+      character*(*) test
+      integer maxops, i,numops
+      parameter(maxops=28)
+      character*30 op_list(maxops)
+      data op_list/
+     $     'energy',
+     $     'gradient',
+     $     'aoints',
+     $     'grdtrc',
+     $     'nadtrc',
+     $     'property',
+     $     'hessian',
+     $     'optimize',
+     $     'saddle',
+     $     'neb',
+     $     'lst',
+     $     'et',
+     $     'rt_tddft',
+     $     'fcidump',
+     $     'freq',
+     $     'mepgs',
+     $     'string',
+     $     'dynamics',
+     $     'qmd',
+     $     'rfcf',
+     $     'fep',
+     $     'abc',
+     $     'thermodynamics',
+     $     'prepare',
+     $     'raman',
+     $     'vscf',
+     $     'dntmc',
+     $     'gw'/
+      task_checkoper=0
+      numops=0
+      do i=1,maxops
+         if (inp_compare(.false.,test, op_list(i))) then
+            task_checkoper=task_checkoper+1
+         endif
+      enddo
+cdbg      write(6,*) 'TTTT ',test,task_checkoper
+      return
       end
 C> @}
