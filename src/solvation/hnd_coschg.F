@@ -1335,33 +1335,18 @@ c        This energy is expected to correlate well with the solvation energy.
          write(fn,"(a,f18.10)")   "  diel=           ", pt5*allefc
 c
          write(fn,"(a)") "$segment_information"
-         if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
-           write(fn,"(a)")
-     +   "# n atom x y z charge area charge/area potential charge_elec"
-         else
-           write(fn,"(a)")
-     +       "# n atom x y z charge area charge/area potential"
-         end if
+         write(fn,"(a)")
+     +     "# n atom x y z charge area charge/area potential"
          write(fn,"(a)")
      +   "# coordinates and potential [a.u.], area [A2]"
          do ief=1,nefc
             efcsi = efcs(ief)*(cau2ang**2)
             if (do_cosmo_model.eq.DO_COSMO_YK)
      +        efcsi = msrf(ief)*(cau2ang**2)
-            if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
-              write(fn,"(2i6,8f15.9)") ief, efciat(ief),
-     +        efcc(1,ief), efcc(2,ief), efcc(3,ief),
-     +        efcz(ief), efcsi, efcz(ief)/efcsi,
-     +        dbl_mb(i10+ief-1),
-c             i22 is the charge from electrons only, we report it also
-c             so the user can get the nucl one from charge-charge_elec
-     +        dbl_mb(i22+ief-1)
-            else
-              write(fn,"(2i6,7f15.9)") ief, efciat(ief),
-     +        efcc(1,ief), efcc(2,ief), efcc(3,ief),
-     +        efcz(ief), efcsi, efcz(ief)/efcsi,
-     +        dbl_mb(i10+ief-1)
-            end if
+            write(fn,"(2i6,7f15.9)") ief, efciat(ief),
+     +      efcc(1,ief), efcc(2,ief), efcc(3,ief),
+     +      efcz(ief), efcsi, efcz(ief)/efcsi,
+     +      dbl_mb(i10+ief-1)
          end do
          close(fn)
          end if
