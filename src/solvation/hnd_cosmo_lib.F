@@ -440,12 +440,13 @@ c
       integer l_msrf,k_msrf
 c     SES variables
       integer cosmo_cavity
-      integer cseg
       double precision mfactor, asum, dmin
       real*4 ofac,rd,dvec,rmim
       INTEGER*4 ndiv
       double precision segarea(mxface)
       integer          segatom(mxface)
+      integer gseg
+      double precision garea, gvolume
 c
       double precision ratm_real,dij,dum,cavdsp,pi,zetai,zetaii
       integer m,mfac,mseg
@@ -909,6 +910,23 @@ c 775
             enddo
          endif
       enddo
+c     Volume is underestimated with the above method, let's use GEPOL
+c     just to get a better volume estimate for the vdW cavity.
+c     For the KS method the SES cavity should be used.
+      if (do_cosmo_model.eq.DO_COSMO_YK) then
+        rd = 0! no solvent
+        rmim = rd/2! dummy, not used
+        ofac = 0.9 ! dummy, not used
+        dvec = 1.0 ! segment vector direction, not relevant
+        ndiv = 1
+        call gepol('WSURF',.false.,.false.,.false.,.false.,'TIT',0,
+     &        rmim,'','','',ofac,rd,ndiv,dvec,
+     &        .true.,.false.,nat,ratm,xyzatm,mxface,
+     &        gseg,xyzseg,segarea,segatom,
+     &        garea,gvolume,.false.)
+        volmol = gvolume
+      endif
+c
       endif
       srfmol=srfmol*(cau2ang**2)
       volmol=volmol*(cau2ang**3)
