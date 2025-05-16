@@ -76,7 +76,7 @@ TOOLGIT=`which git`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
 if test "x$DEV_GA" != x
 then
-    GA_BRANCH=5.9.1
+    GA_BRANCH=5.9.2
     GA_DIR=ga-${GA_BRANCH}
 fi
 if test "x$GA_BRANCH" = x 
@@ -87,7 +87,7 @@ if test "x$USE_GA_RELEASE" != x
 then
     if test "x$GA_RELEASE_NO" = x
     then
-	GA_RELEASE_NO=5.9.1
+	GA_RELEASE_NO=5.9.2
     fi
     GA_DIR=ga-"$GA_RELEASE_NO"
     if [ ! -f ga-"$GA_RELEASE_NO".tar.gz ]; then
@@ -147,7 +147,7 @@ else
 	    GA_DIR=`echo $GA_DIR0 | sed -e 's/\//_/g'`
 	fi
     else
-        GA_BRANCH=5.9.1
+        GA_BRANCH=5.9.2
         GA_DIR=ga-${GA_BRANCH}
     fi
 fi
