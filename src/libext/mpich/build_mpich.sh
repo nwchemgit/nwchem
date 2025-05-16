@@ -84,4 +84,8 @@ if [[ "$?" != "0" ]]; then
 fi
 
 make install >& mpich_install.log
-${NWCHEM_TOP}/src/tools/check_libmpi.sh ${NWCHEM_TOP}
+which mpif90
+mpif90 -show
+rm -f ${NWCHEM_TOP}/src/libmpi.txt
+${NWCHEM_TOP}/src/tools/guess-mpidefs --libmpi
+PATH=${NWCHEM_TOP}/src/libext/bin:$PATH ${NWCHEM_TOP}/src/tools/check_libmpi.sh ${NWCHEM_TOP}

@@ -2,8 +2,9 @@
 #set -v
 arch=`uname -m`
 #SHORTVERSION=2021.11.001
-SHORTVERSION=2023.05.001
-VERSION=new_release_${SHORTVERSION}
+SHORTVERSION=2025.01.002
+#VERSION=new_release_${SHORTVERSION}
+VERSION=${SHORTVERSION}
 echo mpif90 is `which mpif90`
 if [ -f  elpa-${VERSION}.tar.gz ]; then
     echo "using existing"  elpa-${VERSION}.tar.gz
@@ -11,8 +12,10 @@ else
     rm -rf elpa*
 #    echo    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
 #    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
-    echo curl https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
-    curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+#    echo curl https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+#    curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+echo    curl -LJO https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${VERSION}/elpa-${VERSION}.tar.gz
+    curl -LJO https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${VERSION}/elpa-${VERSION}.tar.gz
 fi
 tar xzf elpa-${VERSION}.tar.gz
 ln -sf elpa-${VERSION} elpa
@@ -268,6 +271,7 @@ echo FC is $MPIF90 CC is $MPICC CXX is $MPICXX
   CFLAGS="$MYCFLAGS" \
   FCFLAGS="$MYFCFLAGS" \
   --enable-option-checking=fatal \
+ --disable-openmp  \
  --disable-dependency-tracking \
  --disable-shared --enable-static  \
  --disable-c-tests \
