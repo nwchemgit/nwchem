@@ -442,10 +442,9 @@ c     SES variables
       integer cosmo_cavity
       double precision mfactor, asum, dmin
       real*4 ofac,rd,dvec,rmim
-      INTEGER*4 ndiv
+      INTEGER*4 ndiv, gseg
       double precision segarea(mxface)
       integer          segatom(mxface)
-      integer gseg
       double precision garea, gvolume
 c
       double precision ratm_real,dij,dum,cavdsp,pi,zetai,zetaii
@@ -743,8 +742,9 @@ c       We are sending all arguments in A.U.
      &             rmim,'','','',ofac,rd,ndiv,dvec,
      &             .true.,.false.,
      &             nat,ratm,xyzatm,mxface,
-     &             nefc,xyzseg,segarea,segatom,srfmol,volmol,.false.)
-        nseg = nefc
+     &             gseg,xyzseg,segarea,segatom,srfmol,volmol,.false.)
+        nefc = gseg
+        nseg = gseg
       end if
 c
 c
