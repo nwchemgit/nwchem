@@ -141,4 +141,4 @@ dft
     xc becke88 lyp
     maxiter 100
 end
-task dft energy gradient
+task dft gradient
