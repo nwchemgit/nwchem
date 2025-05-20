@@ -3352,12 +3352,14 @@ ifeq ($(BUILDING_PYTHON),python)
     PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
     PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
     ifeq ($(PYGE38),true)
-	PYCFG := $(shell python$(PYTHONVERSION)-config --ldflags --embed)
+	PYCFG := -L$(shell python$(PYTHONVERSION)-config --configdir)
+	PYCFG := $(PYCFG) $(shell python$(PYTHONVERSION)-config --libs --embed)
         ifeq ($(shell uname -s),Darwin)
 	  PYCFG := $(shell echo $(PYCFG) | sed -e "s/-lintl //")
         endif
     else
-        PYCFG := $(shell python$(PYTHONVERSION)-config --ldflags)
+        PYCFG := -L$(shell python$(PYTHONVERSION)-config --configdir)
+        PYCFG := $(PYCFG) $(shell python$(PYTHONVERSION)-config --libs)
     endif
 	EXTRA_LIBS += -lnwcutil $(PYCFG)
 else
