@@ -214,7 +214,7 @@ c
        iv_fock(4) = g_f4
        iv_fock(5) = g_f5
        iv_fock(6) = g_f6
-       call fock_2e( geom, basis, nn, jfac, kfac, tol2e, oskel,
+       call fock_2e(rtdb, geom, basis, nn, jfac, kfac, tol2e, oskel,
      $               iv_dens, iv_fock, .false. )
 c
 c  Symmetrize AO Fock matrices
