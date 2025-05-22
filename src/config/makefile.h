@@ -3752,19 +3752,16 @@ endif
 
 # lower level libs used by communication libraries 
 #case guard against case when tools have not been compiled yet
-ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
-else
+#ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
+#else
    ifneq ($(ARMCI_NETWORK),$(findstring $(ARMCI_NETWORK), MPI-PR MPI-TS MPI-PT MPI-MT MPI3))
-      COMM_LIBS =  $(shell ${GA_PATH}/bin/ga-config --network_ldflags)
-      COMM_LIBS +=  $(shell ${GA_PATH}/bin/ga-config --network_libs)
+     COMM_LIBS =  $(shell $(GA_PATH)/bin/ga-config --network_ldflags)
+     COMM_LIBS +=  $(shell $(GA_PATH)/bin/ga-config --network_libs)
    endif
-#comex bit
-#COMM_LIBS +=  $(shell [ -e ${NWCHEM_TOP}/src/tools/build/comex/config.h ] && grep LIBS\ = ${NWCHEM_TOP}/src/tools/build/comex/Makefile|grep -v _LIBS| cut -b 8-) -lpthread
-COMM_LIBS := $(COMM_LIBS) $(shell [ -e ${GA_PATH}/bin/comex-config ] && ${GA_PATH}/bin/comex-config --libs) -lpthread
-endif
-ifdef COMM_LIBS 
-    CORE_LIBS += $(COMM_LIBS) 
-endif 
+   COMM_LIBS +=  $(shell [ -e $(GA_PATH)/bin/comex-config ] && ${GA_PATH}/bin/comex-config --libs) -lpthread
+   ifdef COMM_LIBS
+       CORE_LIBS += $(COMM_LIBS)
+   endif
 #endif
 ifdef USE_CRAYSHASTA
     CORE_LIBS += -lpmi2
@@ -3772,9 +3769,6 @@ endif
 ifdef USE_LINUXAIO
     CORE_LIBS += -lrt
 endif
-
-# g++ GNU compatibility (might go away)
-#CORE_LIBS += -lstdc++
 
 EXTRA_LIBS += $(CONFIG_LIBS)
 CORE_LIBS += $(EXTRA_LIBS)
@@ -3904,8 +3898,6 @@ else
         else
             CORE_LIBS += -larmci
         endif
-    else
-        CORE_LIBS +=
     endif
 endif
 
@@ -4010,8 +4002,6 @@ else
         $(error )
     ifdef OLD_GA
       CORE_LIBS += -ltcgmsg 
-    else
-      CORE_LIBS += 
     endif
     endif
 endif 
