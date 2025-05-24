@@ -1293,6 +1293,7 @@ c
          endif
          if(do_cosmo_model.eq.DO_COSMO_YK) then
             write(fn,*) " model=  YK"
+            write(fn,"(a,f6.3)") "  zeta= ", zeta
          else
             write(fn,*) " model=  KS"
          endif
