@@ -371,8 +371,6 @@ c       default for each model:
 c       - CAVITY SES : with the Klamt-Schuurmann model
 c       - CAVITY VDW : with the York-Karplus model
 c
-c       For now, SES cavity cannot be used with the YK model
-c
       else if(inp_compare(.false.,'cavity',field)) then
         if (.not.inp_a(token))
      $        call errquit('cosmo_input: cavity',911, INPUT_ERR)
@@ -380,10 +378,6 @@ c
           cosmo_cavity = COSMO_CAVITY_VDW
         else if (inp_compare(.false.,'ses',token)) then
           cosmo_cavity = COSMO_CAVITY_SES
-c         Only accept SES if the model is not YK
-          if(do_cosmo_model.eq.DO_COSMO_YK) call errquit(
-     $      "cosmo_input: SES cavity incompatible with YK method",
-     $      911,INPUT_ERR)
         else
           write(luout,*)"invalid option for CAVITY, valid options are:"
           write(luout,*)"- VDW  for a van der Waals cavity"
