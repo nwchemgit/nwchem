@@ -18,8 +18,6 @@ C
       implicit none
 c
 #include "errquit.fh"
-#include "bas.fh"
-#include "geom.fh"
 #include "global.fh"
 #include "hess_info.fh"
 #include "mafdecls.fh"
