@@ -3,6 +3,7 @@ c
       implicit none
 #include "errquit.fh"
 #include "geom.fh"
+#include "bas.fh"
 #include "hess_info.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -21,10 +22,11 @@ c
       external xc_got2nd
       logical grid_clinit,gstatus
       external grid_clinit
-      character*15 gridtype
+      character*15 gridtype,gridtype_old
       character*24 rtdb_errmsg
       logical int_disablesim
       external int_disablesim
+      integer ncent_ecp
 c     
 c  Get theory type
 c
@@ -41,6 +43,17 @@ c
      *  call errquit('hess_init: geom_create problem', 555, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geomold, 'geometry'))
      *  call errquit('hess_init: no geometry ', 555, GEOM_ERR)
+      if (.not. bas_create(basis, 'ao basis'))
+     $     call errquit('hessian: bas_create?', 0, BASIS_ERR)
+      if (.not. bas_rtdb_load(rtdb, geomold, basis, 'ao basis'))
+     $     call errquit('hessian: no ao basis ', 0, RTDB_ERR)
+      if(.not.geom_ncent_ecp(geomold, ncent_ecp))
+     $      call errquit('hess_energyinit: geom_ncent_ecp failed',
+     &     0, GEOM_ERR)
+      write(6,*) ' ncent_ecp'
+      if (.not.bas_destroy(basis))
+     &      call errquit(' hess_init: bas_destroy failed',555,
+     &       BASIS_ERR)
       if (.not. geom_makec1(geomold, geomnew))
      $  call errquit('hess_init: failure to decrease symmetry',555,
      &       GEOM_ERR)
@@ -94,15 +107,23 @@ c
      A        'analytic 2nds not ready for these XC functionals',0,
      &       CAPMIS_ERR)
 c
-c     set grid to fine or leave the user to set it to xfine
+c     set grid to fine or leave the user to set it
+c     to fine  for all-electron
+c     to xfine when ECPs are present
 c
-         if (rtdb_cget(rtdb, 'dft:gridtype', 1, gridtype)) then
-            if(gridtype.eq.'coarse'.or.gridtype.eq.'xcoarse'.
-     $           or.gridtype.eq.'medium') gridtype='fine'
+         if (.not.rtdb_cget(rtdb, 'dft:gridtype', 1, gridtype_old))
+     G        gridtype_old='none'
+         gridtype=gridtype_old
+         if(ncent_ecp.gt.0) then
+            write(6,*) ' ECPs here',basis,ncent_ecp
+            if(gridtype_old.ne.'huge') gridtype='xfine'
+c     no ecps case
          else
-            gridtype='fine'
+            write(6,*) ' NO ECPs here',basis
+            if(gridtype_old.ne.'huge'.and.
+     A           gridtype_old.ne.'xfine') gridtype='fine'
          endif
- 
+         write(6,*) ' HESS GRID ',gridtype
          if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      $        call errquit('hessinit:rtdbcput failed',0, RTDB_ERR)
 c
