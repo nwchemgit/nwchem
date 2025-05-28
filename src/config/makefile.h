@@ -152,6 +152,20 @@ ifdef EXTERNAL_GA_PATH
     ifndef BLAS_SIZE
         BLAS_SIZE=8
     endif
+    ifeq ($(GA_HAS_SCALAPACK),Y)
+    #check scalapack size
+      GA_SCALAPACK_SIZE := $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --scalapack_size)
+    #check if scalapack and blas sizes are the same
+    ifneq ($(GA_SCALAPACK_SIZE),$(GA_BLAS_SIZE))
+         $(info )
+         $(info NWChem requires BLAS and ScaLapack with the same size )
+         $(info Global Arrays was built with BLAS size=$(GA_BLAS_SIZE))
+         $(info Global Arrays was built with ScaLapack size=$(GA_SCALAPACK_SIZE))
+         $(info )
+         $(error )
+    endif
+
+    endif
 
     ifneq ($(BLAS_SIZE),$(GA_BLAS_SIZE))
          $(info )
@@ -200,7 +214,7 @@ else
       #extract GA libs location from last word in GA_LDLFLAGS
         LIBPATH :=  $(word $(words ${GA_LDFLAGS}),${GA_LDFLAGS}) 
         ifdef EXTERNAL_GA_PATH
-	  LIBPATH ::= -L$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+	  LIBPATH ::= -L$(shell $(NWCHEM_TOP)/src/tools/check_mpi_lib.sh $(NWCHEM_TOP))
         endif
     endif
 endif
@@ -230,7 +244,7 @@ else
 	INCPATH :=  $(word $(words $(GA_CPPFLAGS)),$(GA_CPPFLAGS))
 
         ifdef EXTERNAL_GA_PATH
-	  INCPATH += -I$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+	  INCPATH ::= $(INCPATH) -I$(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh $(NWCHEM_TOP))
         endif
     endif
 endif
@@ -2160,7 +2174,7 @@ ifneq ($(TARGET),LINUX)
             DEFINES  +=-DMPICH_NO_ATTR_TYPE_TAGS
 	    DEFINES  += -DNOIO -DEAFHACK
 #	    LDOPTIONS +=-Wl,-rpath=/usr/local/lib/gcc7
-            LDOPTIONS += $(shell mpif90  -show 2>&1 |cut -d " " -f 2) 
+            LDOPTIONS := $(LDOPTIONS) $(shell mpif90  -show 2>&1 |cut -d " " -f 2) 
             ARFLAGS = rU
         endif
 
@@ -3338,12 +3352,14 @@ ifeq ($(BUILDING_PYTHON),python)
     PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
     PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
     ifeq ($(PYGE38),true)
-	PYCFG := $(shell python$(PYTHONVERSION)-config --ldflags --embed)
+	PYCFG := -L$(shell python$(PYTHONVERSION)-config --configdir)
+	PYCFG := $(PYCFG) $(shell python$(PYTHONVERSION)-config --libs --embed)
         ifeq ($(shell uname -s),Darwin)
 	  PYCFG := $(shell echo $(PYCFG) | sed -e "s/-lintl //")
         endif
     else
-        PYCFG := $(shell python$(PYTHONVERSION)-config --ldflags)
+        PYCFG := -L$(shell python$(PYTHONVERSION)-config --configdir)
+        PYCFG := $(PYCFG) $(shell python$(PYTHONVERSION)-config --libs)
     endif
 	EXTRA_LIBS += -lnwcutil $(PYCFG)
 else
@@ -3735,27 +3751,21 @@ ifdef GWDEBUG
 endif
 
 # lower level libs used by communication libraries 
-#case guard against case when tools have not been compiled yet
-#  ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
-#  else
-COMM_LIBS=  $(shell ${GA_PATH}/bin/ga-config --network_ldflags)
-COMM_LIBS +=  $(shell ${GA_PATH}/bin/ga-config --network_libs)
-#comex bit
-#COMM_LIBS +=  $(shell [ -e ${NWCHEM_TOP}/src/tools/build/comex/config.h ] && grep LIBS\ = ${NWCHEM_TOP}/src/tools/build/comex/Makefile|grep -v _LIBS| cut -b 8-) -lpthread
-COMM_LIBS += $(shell [ -e ${GA_PATH}/bin/comex-config ] && ${GA_PATH}/bin/comex-config --libs) -lpthread
-ifdef COMM_LIBS 
-    CORE_LIBS += $(COMM_LIBS) 
-endif 
-#endif
+ifneq ($(ARMCI_NETWORK),$(findstring $(ARMCI_NETWORK), MPI-PR MPI-TS MPI-PT MPI-MT MPI3))
+  COMM_LIBS =  $(shell $(GA_PATH)/bin/ga-config --network_ldflags)
+  COMM_LIBS +=  $(shell $(GA_PATH)/bin/ga-config --network_libs)
+endif
+COMM_LIBS +=  $(shell [ -e $(GA_PATH)/bin/comex-config ] && ${GA_PATH}/bin/comex-config --libs) -lpthread
+ifdef COMM_LIBS
+    CORE_LIBS += $(COMM_LIBS)
+endif
+
 ifdef USE_CRAYSHASTA
     CORE_LIBS += -lpmi2
 endif
 ifdef USE_LINUXAIO
     CORE_LIBS += -lrt
 endif
-
-# g++ GNU compatibility (might go away)
-#CORE_LIBS += -lstdc++
 
 EXTRA_LIBS += $(CONFIG_LIBS)
 CORE_LIBS += $(EXTRA_LIBS)
@@ -3885,8 +3895,6 @@ else
         else
             CORE_LIBS += -larmci
         endif
-    else
-        CORE_LIBS +=
     endif
 endif
 
@@ -3901,14 +3909,14 @@ ifdef USE_MPI
     else ifdef BUILD_MPICH
         NW_CORE_SUBDIRS += libext
         PATH := $(NWCHEM_TOP)/src/libext/bin:$(PATH)
-        NWMPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
-        NWMPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
-        NWLIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+        NWMPI_INCLUDE := $(NWCHEM_TOP)/src/libext/include
+        NWMPI_LIB     := $(NWCHEM_TOP)/src/libext/lib
+        NWLIBMPI      = $(shell $(NWCHEM_TOP)/src/tools/check_libmpi.sh $(NWCHEM_TOP))
 	NWLIBMPI      += $(shell pkg-config --libs-only-L hwloc 2> /dev/null)
         ifeq ($(NWCHEM_TARGET),MACX64)
            GOT_BREW := $(shell command -v brew 2> /dev/null)
            ifdef GOT_BREW
-	       NWLIBMPI	+= -L$(shell brew --prefix)/lib
+	       NWLIBMPI	:= $(NWLIBMPI) -L$(shell brew --prefix)/lib
            endif
 	endif
     else ifdef FORCE_MPI_ENV
@@ -3965,8 +3973,8 @@ ifdef USE_MPI
         endif
 
 	NWMPI_INCLUDE := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_inc.sh $(NWCHEM_TOP))
-	NWMPI_LIB     := $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
-	NWLIBMPI      := $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+	NWMPI_LIB     := $(shell $(NWCHEM_TOP)/src/tools/check_mpi_lib.sh $(NWCHEM_TOP))
+	NWLIBMPI      := $(shell $(NWCHEM_TOP)/src/tools/check_libmpi.sh $(NWCHEM_TOP))
     endif
 
     ifdef NWMPI_INCLUDE
@@ -3991,8 +3999,6 @@ else
         $(error )
     ifdef OLD_GA
       CORE_LIBS += -ltcgmsg 
-    else
-      CORE_LIBS += 
     endif
     endif
 endif 
