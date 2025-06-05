@@ -115,7 +115,7 @@ c ---------------------------------------------
 c Call fock_2e to get symmetrized fock matrices
 c ---------------------------------------------
 c
-      call fock_2e( geom, basis, 4, jfac, kfac,
+      call fock_2e( rtdb, geom, basis, 4, jfac, kfac,
      $     tol2e, .false., g_dens, g_fock, .false.)
 c
 c --------------------------------------------
@@ -177,7 +177,7 @@ c --------------------------------------------------
 c Call fock_2e then get ANTI-symmetrized fock matrices
 c --------------------------------------------------
 c
-      call fock_2e( geom, basis, 2, jfac, kfac,
+      call fock_2e( rtdb, geom, basis, 2, jfac, kfac,
      $     tol2e, .false., g_dens, g_fock, .true.)
 c
       do i = 1,2

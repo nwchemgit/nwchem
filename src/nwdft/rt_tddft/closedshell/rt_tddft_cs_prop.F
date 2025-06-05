@@ -7,7 +7,7 @@ C>
 C>  Propagates closed shell density matrix using von Neumann
 C>  dynamics.
 C--------------------------------------------------------------------
-      subroutine rt_tddft_cs_prop (params)
+      subroutine rt_tddft_cs_prop (rtdb, params)
       implicit none
 
 #include "errquit.fh"
@@ -25,6 +25,7 @@ C--------------------------------------------------------------------
 
       
 C     == Inputs ==
+      integer, intent(in)              :: rtdb
       type(rt_params_t), intent(inout) :: params  !< struct containing parameters
 
 
@@ -186,7 +187,8 @@ C     calculation.
 C
       params%skip_fock = .false.
 
-      call zfock_cs_build (params, g_zdens_ao, energies, g_zfock_ao)
+      call zfock_cs_build (rtdb, params, g_zdens_ao, energies,
+     &                     g_zfock_ao)
       call canorg_trans (params,"F","AO->MO", g_zfock_ao, g_zfock_mo)
 
       if ( (params%mocap_active).or.(params%cap_active) ) then
