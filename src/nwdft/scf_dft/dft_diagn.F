@@ -242,6 +242,7 @@ c
       implicit none
 #include "dft_scaleig.fh"
 #include "global.fh"
+#include "errquit.fh"
       integer g_s,g_svecs
       double precision evals(*)
       integer nocc,i
@@ -251,7 +252,9 @@ c
       if(yev.eq.'v') then
          call ga_pdsyev(g_s, g_svecs, evals,nb)
       elseif(yev.eq.'x') then
-         call ga_pdsyevx(g_s, g_svecs, evals,nb)
+         call errquit(' dft:scaladiag=x no longer supported', 0,
+     c        CAPMIS_ERR)
+c         call ga_pdsyevx(g_s, g_svecs, evals,nb)
       elseif(yev.eq.'d') then
          call ga_pdsyevd(g_s, g_svecs, evals,nb)
 #ifdef USE_PDSYEVR
