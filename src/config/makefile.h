@@ -119,6 +119,26 @@ endif
 INCDIR := $(TOPDIR)/src/include
 CNFDIR := $(TOPDIR)/src/config
 
+ifdef USE_SUBGROUPS
+      DONTUSE_PARALLEL_LA :=y
+endif
+ifeq ($(GOTMINGW64),1)
+      DONTUSE_PARALLEL_LA :=y
+endif
+ifdef DONTUSE_PARALLEL_LA
+    DEFINES += -DGANXTVAL -DUSE_SUBGROUPS
+    #turn off any parallel linear algebra
+    override undefine SCALAPACK
+    override undefine USE_SCALAPACK
+    override undefine _USE_SCALAPACK
+    override undefine BUILD_SCALAPACK
+    override undefine SCALAPACK_LIB
+    override undefine BUILD_ELPA
+    override undefine USE_ELPA
+    override undefine ELPA
+    override undefine PEIGS
+    override USE_SERIALEIGENSOLVERS := Y
+endif
 
 ifdef EXTERNAL_GA_PATH
    #check if ga-config is there
@@ -3553,14 +3573,6 @@ ifdef USE_NOIO
 endif
 
 
-ifdef USE_SUBGROUPS
-    DEFINES += -DGANXTVAL -DUSE_SUBGROUPS
-    #turn off peigs for now
-else
-    ifneq ($(GOTMINGW64),1)
-        DEFINES += -DPARALLEL_DIAG
-    endif
-endif
 
 
 ###################################################################
