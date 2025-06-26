@@ -124,14 +124,7 @@ c
 #ifdef SCALAPACK
       call slexit
       call slexit2
-      if (.not. rtdb_cget(rtdb, 'dft:scaladiag',1,yev))
-#ifdef USE_PDSYEVR__
-     &     yev='r'
-#else
-     &     yev='d'
-#endif
-      if (.not. rtdb_get(rtdb, 'dft:scalanb',mt_int,1,nb))
-     &     nb=0
+      call dft_utilscal(rtdb)
 #endif
 c
 c     == Trash junk that may have remained in restart calcs ==
