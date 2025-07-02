@@ -83,28 +83,28 @@
       size2 = nq*(ipol*(ipol+1))/2
 
       if (.not.(ma_push_get(mt_dbl,size1,'rhoval',lrho,krho)))
-     $  call errquit(" could not allocate",0,ma_err) 
+     $  call errquit(" could not allocate rhoval",0,ma_err)
       if (.not.(ma_push_get(mt_dbl,size1,'vrho',lvrho,kvrho)))
-     $  call errquit(" could not allocate",0,ma_err) 
+     $  call errquit(" could not allocate vrho",0,ma_err)
       if (.not.(ma_push_get(mt_dbl,nq,'exc',lexc,kexc)))
-     $  call errquit(" could not allocate",0,ma_err)
+     $  call errquit(" could not allocate exc",0,ma_err)
 
       if (ksgrad) then
         if (.not.(ma_push_get(mt_dbl,size2,'sigma',lsigma,ksigma)))
-     $    call errquit(" could not allocate",0,ma_err) 
+     $    call errquit(" could not allocate sigma",0,ma_err)
         if (.not.(ma_push_get(mt_dbl,size2,'vsigma',lvsigma,kvsigma)))
-     $    call errquit(" could not allocate",0,ma_err) 
+     $    call errquit(" could not allocate vsigma",0,ma_err)
       endif
 
       if (kske.or.kslap) then
-          if (.not.(ma_push_get(mt_dbl,size2,'tau',ltau,ktau)))
-     $      call errquit(" could not allocate",0,ma_err) 
-          if (.not.(ma_push_get(mt_dbl,size2,'vtau',lvtau,kvtau)))
-     $      call errquit(" could not allocate",0,ma_err) 
-          if (.not.(ma_push_get(mt_dbl,size2,'lapl',llapl,klapl)))
-     $      call errquit(" could not allocate",0,ma_err) 
-          if (.not.(ma_push_get(mt_dbl,size2,'vlapl',lvlapl,kvlapl)))
-     $      call errquit(" could not allocate",0,ma_err) 
+          if (.not.(ma_push_get(mt_dbl,size1,'tau',ltau,ktau)))
+     $      call errquit(" could not allocate tau",0,ma_err)
+          if (.not.(ma_push_get(mt_dbl,size1,'vtau',lvtau,kvtau)))
+     $      call errquit(" could not allocate vtau",0,ma_err)
+          if (.not.(ma_push_get(mt_dbl,size1,'lapl',llapl,klapl)))
+     $      call errquit(" could not allocate lapl",0,ma_err)
+          if (.not.(ma_push_get(mt_dbl,size1,'vlapl',lvlapl,kvlapl)))
+     $      call errquit(" could not allocate vlapl",0,ma_err)
       endif
 
       if (do_2nd .or. do_3rd) then
