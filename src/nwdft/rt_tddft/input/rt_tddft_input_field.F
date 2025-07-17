@@ -655,12 +655,14 @@ C     == Variables ==
       
       entry_name = trim(basename) // "name"
       if (.not.rtdb_cget(rtdb,entry_name,1,field%name))
-     $     call errquit(pname//'Read failed for name rtdb',
+     $     call errquit(pname//'Read failed for name rtdb ='
+     $     //entry_name,
      $     0,RTDB_ERR)
 
       entry_name = trim(basename) // "filename"
       if (.not.rtdb_cget(rtdb,entry_name,1,field%filename))
-     $     call errquit(pname//'Read failed for name rtdb',
+     $     call errquit(pname//'Read failed for filename rtdb ='
+     $     //entry_name,
      $     0,RTDB_ERR)
 
       entry_name = trim(basename) // "type"

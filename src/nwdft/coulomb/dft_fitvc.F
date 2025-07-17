@@ -61,6 +61,7 @@ c
       integer k_at,l_at,atom_c_in,atom_d_in
       integer nbffac
       logical v_nonzero
+      integer nctr_used
       external nxtask
       double precision ddot
       external ddot
@@ -151,9 +152,11 @@ c
         call ga_zero(g_vc(imat))
       enddo
       if(.not.MA_Push_Get(MT_int,ncenters,'at list',l_at,k_at))
-     &  call errquit('dft_fitvc: cannot allocate at list',0, MA_ERR)
+     &     call errquit('dft_fitvc: cannot allocate at list for nat=',
+     N     ncenters, MA_ERR)
 c     sort atoms list based on decreasing atomic weight
-      call dft_sortatbyz(geom,ncenters,int_mb(k_at))
+      nctr_used=ncenters
+      call dft_sortatbyz_screen(ao_bas_han,geom,nctr_used,int_mb(k_at))
 c
       n1=0
       use_nxtask=.not.incore
@@ -162,7 +165,7 @@ c
       ipoint=1
 c
       n_batch_done = 1
-      do atom_c_in = 1,ncenters
+      do atom_c_in = 1,nctr_used
          atom_c=int_mb(k_at+atom_c_in-1)
          if (.not. bas_ce2cnr( AO_bas_han, atom_c, sh_lo_c, sh_hi_c)) 
      &        call errquit('Exiting in dft_fitcd',110, BASIS_ERR)

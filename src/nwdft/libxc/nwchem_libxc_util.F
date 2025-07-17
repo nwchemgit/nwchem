@@ -59,11 +59,19 @@
           nwchem_libxc_family = iand(libxc_flags(ifunc),
      $                           xc_flags_have_fxc).eq.
      $                           xc_flags_have_fxc
+C MGGAs are not ready for 2nd derivatives
+          if((libxc_family(ifunc).eq.xc_family_mgga).or.
+     $       (libxc_family(ifunc).eq.xc_family_hyb_mgga))
+     $       nwchem_libxc_family = .false.
           if (.not.nwchem_libxc_family) return
         elseif (family.eq."kxc") then
           nwchem_libxc_family = iand(libxc_flags(ifunc),
      $                           xc_flags_have_kxc).eq.
      $                           xc_flags_have_kxc
+C MGGAs are not ready for 3rd derivatives
+          if((libxc_family(ifunc).eq.xc_family_mgga).or.
+     $       (libxc_family(ifunc).eq.xc_family_hyb_mgga))
+     $       nwchem_libxc_family = .false.
           if (.not.nwchem_libxc_family) return
         endif
       enddo
