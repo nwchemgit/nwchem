@@ -14,16 +14,26 @@
 #endif
 #include "typesf2c.h"
 
-void FATR util_talker_(char addr_name[], Integer * inet, Integer * n1, Integer * portin, Integer * sockout)
+void FATR util_talker_(char addr_name[], Integer * inet, Integer * n1, Integer * portin, Integer * sockout, Integer * max_retries_in, Integer * retry_delay_seconds_in)
 {
 #if defined(__MINGW32__)
     perror("util_talker: not coded for this architecture");
     exit(1);
 #else
     int sock = 0;
-    const int max_retries = 30;
-    const int retry_delay_seconds = 2;
+    int max_retries = ((int) *max_retries_in);
+    int retry_delay_seconds = ((int) *retry_delay_seconds_in);
     int retries = 0;
+
+    if (max_retries <= 0){
+        perror("Got an invalid (<=0) number of retries, resetting to 30\n");
+        max_retries = 30;
+    }
+    if (retry_delay_seconds <= 0){
+        perror("Got an invalid (<=0) delay for retries, resetting to 2\n");
+        retry_delay_seconds = 2;
+    }
+
 
     if (*inet > 0)
     {
@@ -58,7 +68,7 @@ void FATR util_talker_(char addr_name[], Integer * inet, Integer * n1, Integer *
                 fprintf(stderr, "\nutil_talker: TCP connection failed after %d attempts: %s. Exiting.\n", max_retries, strerror(errno));
                 exit(1);
             }
-            printf("util_talker: Connection failed. Retrying in %d seconds... (%d/%d)\n",
+            printf("util_talker: Connection failed. Retrying in %d second(s)... (%d/%d)\n",
                    retry_delay_seconds, retries, max_retries);
             sleep(retry_delay_seconds);
         }
@@ -96,8 +106,7 @@ void FATR util_talker_(char addr_name[], Integer * inet, Integer * n1, Integer *
                         max_retries, strerror(errno));
                 exit(1);
             }
-            printf("util_talker: Connection failed. Retrying in %d seconds... "
-                   "(%d/%d)\n",
+            printf("util_talker: Connection failed. Retrying in %d second(s)... (%d/%d)\n",
                    retry_delay_seconds, retries, max_retries);
             sleep(retry_delay_seconds);
         }

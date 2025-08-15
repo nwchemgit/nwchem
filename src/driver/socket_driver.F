@@ -25,6 +25,8 @@
       integer rion(2),fion(2),nion,nion0
       real*8 unita(3,3),invunita(3,3),stress(3,3),energy
       real*8 cpu1,cpu2
+      real*8 retry_delay_seconds
+      integer max_retries
 
 *     **** external functions ****
       logical  task_gradient
@@ -106,7 +108,10 @@
          write(luout,'(" Connected to    = ",A)') socket_ip
          write(luout,'(" Number of atoms =",I8)') nion
          write(luout,*)
-         call util_talker(ip,inet,ii-1,port,sock)
+         retry_delay_seconds = 2.0
+         max_retries = 30
+         call util_talker(ip,inet,ii-1,port,sock,max_retries,
+     >   retry_delay_seconds)
          write(luout,*)
          !call nwpw_talker("127.0.0.1",9,port,sock)
       end if
