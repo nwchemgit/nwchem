@@ -20,63 +20,93 @@ void FATR util_talker_(char addr_name[], Integer * inet, Integer * n1, Integer *
     perror("util_talker: not coded for this architecture");
     exit(1);
 #else
-    int sock = 0, valread;
-    int na   = ((int) *n1);
+    int sock = 0;
+    const int max_retries = 30;
+    const int retry_delay_seconds = 2;
+    int retries = 0;
 
-    addr_name[na]   = 0;
-    addr_name[na+1] = 0;
-
-    if (*inet>0)
+    if (*inet > 0)
     {
-        struct sockaddr_in serv_addr; 
+        // --- TCP/IP Socket Logic ---
+        struct sockaddr_in serv_addr;
         int port = ((int) *portin);
+        int na   = ((int) *n1);
+        char addr_name_buf[256]; // Use a safe buffer
+        strncpy(addr_name_buf, addr_name, na);
+        addr_name_buf[na] = '\0';
 
-        printf("util_talker: addr_name=%s\n",addr_name);
-        printf("util_talker: port=%d\n",port);
+        printf("util_talker: Attempting to connect to TCP server %s:%d\n", addr_name_buf, port);
 
-        if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) 
-        { 
-            printf("\nutil_talker:Socket creation error \n"); 
+        if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+        {
+            perror("util_talker: TCP socket creation error");
             exit(1);
-        } 
-        serv_addr.sin_family = AF_INET; 
-        serv_addr.sin_port = htons(port); 
+        }
+        serv_addr.sin_family = AF_INET;
+        serv_addr.sin_port = htons(port);
 
-        // Convert IPv4 and IPv6 addresses from text to binary form 
-        if(inet_pton(AF_INET, addr_name, &serv_addr.sin_addr)<=0)  
-        { 
-            printf("\nutil_talker:Invalid address/ Address not supported \n"); 
+        if(inet_pton(AF_INET, addr_name_buf, &serv_addr.sin_addr) <= 0)
+        {
+            printf("\nutil_talker: Invalid address/Address not supported\n");
             exit(1);
-        } 
-        if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) 
-        { 
-            printf("\nutil_talker:Connection Failed \n"); 
-            exit(1);
-        } 
+        }
+
+        // --- Retry Loop for TCP ---
+        while (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+        {
+            if (++retries >= max_retries) {
+                fprintf(stderr, "\nutil_talker: TCP connection failed after %d attempts: %s. Exiting.\n", max_retries, strerror(errno));
+                exit(1);
+            }
+            printf("util_talker: Connection failed. Retrying in %d seconds... (%d/%d)\n",
+                   retry_delay_seconds, retries, max_retries);
+            sleep(retry_delay_seconds);
+        }
     }
     else
     {
+        // --- UNIX Domain Socket Logic ---
         struct sockaddr_un serv_addr;
+        int na = ((int)*n1);
+        char addr_name_buf[256];
+        strncpy(addr_name_buf, addr_name, na);
+        addr_name_buf[na] = '\0';
+
         memset(&serv_addr, 0, sizeof(struct sockaddr_un));
         serv_addr.sun_family = AF_UNIX;
-        strcpy(serv_addr.sun_path, "/tmp/ipi_");
-        strcpy(serv_addr.sun_path+9, addr_name);
-        if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
-        {
-            printf("\nutil_talker:Socket creation error \n");
+        // Construct the full socket path, same as the server
+        snprintf(serv_addr.sun_path, sizeof(serv_addr.sun_path), "/tmp/ipi_%s",
+                 addr_name_buf);
+
+        printf("util_talker: Attempting to connect to UNIX socket %s\n",
+               serv_addr.sun_path);
+
+        if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+            perror("util_talker: UNIX socket creation error");
             exit(1);
         }
-        if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-        {
-            printf("\nutil_talker:Failed to connect to UNIX socket \n");
-            exit(1);
+
+        // --- Retry Loop for UNIX ---
+        while (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) <
+               0) {
+            if (++retries >= max_retries) {
+                fprintf(stderr,
+                        "\nutil_talker: UNIX socket connection failed after %d "
+                        "attempts: %s. Exiting.\n",
+                        max_retries, strerror(errno));
+                exit(1);
+            }
+            printf("util_talker: Connection failed. Retrying in %d seconds... "
+                   "(%d/%d)\n",
+                   retry_delay_seconds, retries, max_retries);
+            sleep(retry_delay_seconds);
         }
     }
 
-    printf("util_talker: sockid=%d\n",sock);
-    *sockout = ((Integer) sock);
-#endif
-}
+    printf("util_talker: Connection successful! Socket ID: %d\n", sock);
+    *sockout = ((Integer)sock);
+    #endif
+    }
 
 
 
