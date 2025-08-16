@@ -116,28 +116,23 @@ c
      >          call errquit('driver_input: rtdb put failed',8,RTDB_ERR)
                end if
 
-               max_retries = 30
-               retry_delay = 2
-
                do while (inp_a(field))
-                  if (inp_compare(.false., 'retries', field)) then
+                  if (inp_compare(.false.,'retries',field)) then
                      if (.not. inp_i(max_retries)) call errquit(
-     &                'driver_input: expected integer for retries', 0,
-     &                INPUT_ERR)
-                  else if (inp_compare(.false., 'delay', field)) then
+     &                  'driver_input: expected integer for retries',0,
+     &                  INPUT_ERR)
+                     if (.not. rtdb_put(rtdb,'driver:socket_retries',
+     &                    mt_int,1,max_retries)) call errquit(
+     &                    'driver_input: rtdb put failed',10,RTDB_ERR)
+                  else if (inp_compare(.false.,'delay',field)) then
                      if (.not. inp_i(retry_delay)) call errquit(
-     &                'driver_input: expected float for delay',0,
-     &                INPUT_ERR)
+     &                  'driver_input: expected int for delay',0,
+     &                  INPUT_ERR)
+                     if (.not. rtdb_put(rtdb,'driver:socket_delay',
+     &                    mt_int,1,retry_delay)) call errquit(
+     &                    'driver_input: rtdb put failed',11,RTDB_ERR)
                   end if
                end do
-
-               if (.not. rtdb_put(rtdb,'driver:socket_retries',mt_int,1,
-     &              max_retries)) call errquit(
-     &              'driver_input: rtdb put failed', 10, RTDB_ERR)
-
-               if (.not. rtdb_put(rtdb,'driver:socket_delay',mt_int,1,
-     &              retry_delay)) call errquit(
-     &              'driver_input: rtdb put failed', 11, RTDB_ERR)
 
                diagh = .true.
                if (.not. rtdb_put(rtdb,'driver:socket',
