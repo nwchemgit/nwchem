@@ -99,7 +99,7 @@ c
      $                      mt_log,1,diagh))
      $        call errquit('driver_input: rtdb put failed',0, RTDB_ERR)
 c
-c socket ipi_client ip:port retries delay
+c socket ipi_client ip:port [retries <int>] [delay <int>]
 c
       else if (inp_compare(.false.,'socket', field)) then
          if (inp_a(f2)) then
@@ -116,12 +116,20 @@ c
      >          call errquit('driver_input: rtdb put failed',8,RTDB_ERR)
                end if
 
-               if (.not. inp_i(max_retries)) call errquit(
-     &              'driver_input: failed to read retries integer', 0,
-     &              INPUT_ERR)
-               if (.not. inp_i(retry_delay)) call errquit(
-     &              'driver_input: failed to read delay float', 0,
-     &              INPUT_ERR)
+               max_retries = 30
+               retry_delay = 2
+
+               do while (inp_a(field))
+                  if (inp_compare(.false., 'retries', field)) then
+                     if (.not. inp_i(max_retries)) call errquit(
+     &                'driver_input: expected integer for retries', 0,
+     &                INPUT_ERR)
+                  else if (inp_compare(.false., 'delay', field)) then
+                     if (.not. inp_i(retry_delay)) call errquit(
+     &                'driver_input: expected float for delay',0,
+     &                INPUT_ERR)
+                  end if
+               end do
 
                if (.not. rtdb_put(rtdb,'driver:socket_retries',mt_int,1,
      &              max_retries)) call errquit(
