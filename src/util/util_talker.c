@@ -114,8 +114,8 @@ void FATR util_talker_(char addr_name[], Integer * inet, Integer * n1, Integer *
 
     printf("util_talker: Connection successful! Socket ID: %d\n", sock);
     *sockout = ((Integer)sock);
-    #endif
-    }
+#endif
+}
 
 
 
