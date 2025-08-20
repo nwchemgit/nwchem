@@ -1176,9 +1176,13 @@ c
       elcefc = ddot(nefc,efcz,1,dbl_mb(i12),1)
 c      solnrg= pt5* allefc + elambda
       solnrg = pt5*allefc
+      ecos = pt5*(atmefc-elcefc)
 c     COSMO contribution Alternative 2 (Ref.[1] Eq.(11))
 c     ecos = pt5*(atmefc-elcefc)+elambda
-      ecos = pt5*(atmefc-elcefc)
+c     add lagrangian multiplier correction to the energy
+c     when the potential is not corrected
+c
+      if(.not.cosmo_ptcor) ecos=ecos+elambda
 
       if (oprint_energies) then
          write(luout,*)'Alternative 2'
