@@ -395,6 +395,8 @@ c             Valid values are:
 c               - coarse: 60 triangles per sphere
 c               - fine  : 240 (default)
 c               - xfine : 960
+c               - huge  : tbd
+c               - xxl  : tbd
 c
       else if(inp_compare(.false.,'ndiv',field)) then
         if (.not.inp_a(token))
@@ -405,6 +407,10 @@ c
           cosmo_ndiv = 2
         else if (inp_compare(.false.,'xfine',token)) then
           cosmo_ndiv = 3
+        else if (inp_compare(.false.,'huge',token)) then
+          cosmo_ndiv = 4
+        else if (inp_compare(.false.,'xxl',token)) then
+          cosmo_ndiv = 5
         else
           write(luout,*)"invalid option for NDIV, valid options are:"
           write(luout,*)" coarse, fine (default), xfine"

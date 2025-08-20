@@ -791,33 +791,36 @@ c       The minimum distance we will accept between 2 segments,
 c       this is slight lower than the minimum distance for a rsolv sphere.
         dmin = rsolv/cau2ang * 0.3 * mfactor
         if (ndiv.eq.2) dmin = dmin/2.0
-        if (ndiv.eq.3) dmin = dmin/4.0
+        if (ndiv.ge.3) dmin = dmin/4.0
 c
 c       Checking for overlapping segments to merge.
-        iseg = 0
-        do while (iseg <= nseg)
-          if (dmin.le.zero) exit
-          iseg = iseg + 1
-          if(segarea(iseg).le.zero) cycle
-          do jseg=iseg+1,nseg
-            if(segarea(jseg).le.zero) cycle
-            dij=dist(xyzseg(1,iseg),xyzseg(2,iseg),xyzseg(3,iseg),
-     +               xyzseg(1,jseg),xyzseg(2,jseg),xyzseg(3,jseg))
-            if(dij.lt.dmin) then
-c             Accumulate the area at the centroid.
-              asum = segarea(iseg) + segarea(jseg)
-              do m=1,3
-                xyzseg(m,iseg) = (segarea(iseg)*xyzseg(m,iseg) +
-     +          segarea(jseg)*xyzseg(m,jseg))/asum
+        if (do_cosmo_model.ne.DO_COSMO_YK.and.
+     A       dmin.gt.zero) then
+           iseg = 0
+           do while (iseg <= nseg)
+              iseg = iseg + 1
+              if(segarea(iseg).le.zero) cycle
+              do jseg=iseg+1,nseg
+                 if(segarea(jseg).le.zero) cycle
+                 dij=dist(
+     I                xyzseg(1,iseg),xyzseg(2,iseg),xyzseg(3,iseg),
+     J                xyzseg(1,jseg),xyzseg(2,jseg),xyzseg(3,jseg))
+                 if(dij.lt.dmin) then
+c     Accumulate the area at the centroid.
+                    asum = segarea(iseg) + segarea(jseg)
+                    do m=1,3
+                       xyzseg(m,iseg) = (segarea(iseg)*xyzseg(m,iseg)+
+     +                      segarea(jseg)*xyzseg(m,jseg))/asum
+                    end do
+                    segarea(iseg) = asum;
+                    segarea(jseg) = zero;
+c     Start over, perhaps 3 or more segments should be merged
+                    iseg = 0
+                    exit
+                 end if
               end do
-              segarea(iseg) = asum;
-              segarea(jseg) = zero;
-c             Start over, perhaps 3 or more segments should be merged
-              iseg = 0
-              exit
-            end if
-          end do
-        end do
+           end do
+        endif
 c       Add the segments sorted by atom.
         ief = 0
         do iat=1,nat
