@@ -1,0 +1,80 @@
+echo
+
+start 
+
+geometry
+    o      0.00000000    -1.11909860    -0.09529177
+    o      0.00000000     1.11909860    -0.09529177
+    c      0.00000000     0.00000000     0.66838924
+    c      0.00000000     0.00000000     1.99717688
+    h      0.00000000    -0.92756722     2.53578926
+    h      0.00000000     0.92756722     2.53578926
+end
+
+charge -2
+
+basis spherical
+  * library 6-31g*
+end
+
+title "new potential"
+
+cosmo
+ificos 1 ; minbem 3
+do_gasphase f
+end
+
+driver
+maxiter 99
+ clear
+end
+dft
+xc hfexch
+end
+task dft optimize
+
+title "old potential"
+geometry 
+    o      0.00000000    -1.11909860    -0.09529177
+    o      0.00000000     1.11909860    -0.09529177
+    c      0.00000000     0.00000000     0.66838924
+    c      0.00000000     0.00000000     1.99717688
+    h      0.00000000    -0.92756722     2.53578926
+    h      0.00000000     0.92756722     2.53578926
+end
+
+cosmo
+ no_potcor
+ do_gasphase f
+ificos 1 ; minbem 3
+print cosmo_energies
+end
+
+driver
+ clear
+end
+
+
+task scf optimize ignore
+title "GEPOL cavity"
+geometry 
+    o      0.00000000    -1.11909860    -0.09529177
+    o      0.00000000     1.11909860    -0.09529177
+    c      0.00000000     0.00000000     0.66838924
+    c      0.00000000     0.00000000     1.99717688
+    h      0.00000000    -0.92756722     2.53578926
+    h      0.00000000     0.92756722     2.53578926
+end
+
+cosmo
+ do_gasphase f
+ cavity ses
+ ndiv xfine
+end
+unset cosmo:ptcor
+driver
+ clear
+end
+
+
+task scf optimize ignore
