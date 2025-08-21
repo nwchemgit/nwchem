@@ -1,0 +1,26 @@
+echo
+
+start
+
+geometry ang2au 1.88972612
+ C                     0.        0.        0. 
+ H                     0.        1.0777    0. 
+ H                     0.93332  -0.53885   0. 
+ H                    -0.93332  -0.53885   0. 
+end
+
+basis spherical
+* library def2-qzvp
+end
+
+dft
+ mult 2
+ xc mgga_c_cf22d 1. hyb_mgga_x_cf22d 1.
+ disp vdw 3
+ grid fine
+end
+
+set dft:vdw_s6  1.
+set dft:vdw_s8  1d-10
+set dft:vdw_sr6 1.53
+task dft

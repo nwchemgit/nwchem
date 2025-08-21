@@ -41,5 +41,9 @@ let "myexit+=$?"
 ./runtests.mpi.unix procs $np libxc_scanl
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np libxc_waterdimer_bmk
+let "myexit+=$?"
+./runtests.mpi.unix procs $np libxc_h2o_cf22d
+let "myexit+=$?"
+./runtests.mpi.unix procs $np libxc_ch3_cf22d
 fi
 exit $myexit
