@@ -124,6 +124,7 @@ fi
 	 fi
 	 if [[ ! $(grep -i cosmo $TRAVIS_BUILD_DIR/src/stubs.F| awk '/cosmo_input/') ]]; then
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs cosmo_h2o_dft
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs cosmo_h2cco2_opt
 	 fi
          if [[ ! $(grep -i gw $TRAVIS_BUILD_DIR/src/stubs.F| awk '/gw_input/') ]]; then
   	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ritddft_h2o ritddft_co
