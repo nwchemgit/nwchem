@@ -23,14 +23,11 @@ include ../config/makelib.h
   ifeq ($(_FC),pgf90)
             FOPTIONS += -Mnorecursive
   endif
-  ifeq ($(FC),gfortran)
-        ifdef USE_OPENMP
-            FOPTIONS += -fno-recursive -fno-openmp
-	endif
-  endif
   ifeq ($(_FC),gfortran)
 	ifdef USE_OPENMP
-            FOPTIONS += -fno-recursive -fno-openmp
+            ifneq ($(FLANG_NEW),true)
+                FOPTIONS += -fno-recursive -fno-openmp
+            endif
 	endif
   endif
   ifeq ($(FC),pathf90)
