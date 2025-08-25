@@ -1,6 +1,7 @@
 cedo#define NBACC 1
 cedo#define NBGET 1
-      subroutine new_giao_2e(geom, !  in: geometry handle
+      subroutine new_giao_2e(rtdb,
+     &                      geom, !  in: geometry handle
      &                      basis, !  in: basis handle
      &                        nbf, !  in: nr. of basis functions
      &                      tol2e,
@@ -21,7 +22,7 @@ c                       2011-06-17 20:00     FA
 #include "case.fh"
 c
       integer npol,ntot
-      integer geom, basis, g_fock, nbf
+      integer rtdb,geom, basis, g_fock, nbf
       integer g_dens(3)  ! g_dens(npol)
       integer g_fock1,disp
       integer i,g_dens1(4) ! for udft calc
@@ -274,7 +275,7 @@ c -------- check input g_dens1 -------- END
          Exc(1) = 0.0d0
          Exc(2) = 0.0d0
          nExc = 1
-         call fock_xc(geom,nbf,basis,nfock(npol),
+         call fock_xc(rtdb,geom,nbf,basis,nfock(npol),
      &                  g_dens1,g_xc,
      &                  Exc,nExc,.false.) ! out: g_xc
 c
@@ -341,7 +342,7 @@ c     == clean up local array ==
 c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c To produce output: g_fock_Coul,g_fock_Exch =========== START
-      subroutine new_giao_2e_JK(
+      subroutine new_giao_2e_JK(rtdb,
      &                       geom, !  in : geometry handle
      &                      basis, !  in : basis handle
      &                        nbf, !  in : nr. of basis functions
@@ -364,7 +365,7 @@ c $Id$
 #include "case.fh"
 
       integer npol,ntot
-      integer geom, basis, g_fock, nbf
+      integer rtdb,geom, basis, g_fock, nbf
       integer g_fock_Coul,g_fock_Exch
       integer g_dens(3)  ! g_dens(npol)
       integer g_fock1,disp
@@ -643,7 +644,7 @@ c -------- check input g_dens1 -------- END
          Exc(1) = 0.0d0
          Exc(2) = 0.0d0
          nExc = 2 
-         call fock_xc(geom,nbf,basis,nfock(npol),
+         call fock_xc(rtdb,geom,nbf,basis,nfock(npol),
      &                g_dens1,g_xc,
      &                Exc,nExc,.false.) ! out: g_xc
         if (debug_giaofock.eq.1) then
