@@ -259,7 +259,7 @@ c
      D        cosmo_cavity = COSMO_CAVITY_VDW
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
-      cosmo_ptcor = .true. ! correct potentials in case of outlying charge corrections
+      cosmo_ptcor = .false. ! correct potentials in case of outlying charge corrections
       minbem   =2
       maxbem   =4 ! used in Klamt-Schuurmann model but not in 
                   ! York-Karplus model

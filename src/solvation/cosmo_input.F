@@ -572,7 +572,7 @@ c
 c   --- no_potcor flag: for debugging purposes, disable the potential
 c                       correction associated with charge corrections
 c
-      else if(inp_compare(.false.,'no_potcor',field)) then
+      else if(inp_compare(.false.,'potcorr',field)) then
         cosmo_ptcor=.false.
         if (.not. 
      $    rtdb_put(rtdb,'cosmo:ptcor',mt_log,1,cosmo_ptcor))
