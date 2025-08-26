@@ -380,6 +380,8 @@ c
           cosmo_cavity = COSMO_CAVITY_SES
 c     use KS model by default when using SES cavity
           do_cosmo_model=DO_COSMO_KS
+c     correct potential when using SES
+        cosmo_ptcor=.true.
         else
           write(luout,*)"invalid option for CAVITY, valid options are:"
           write(luout,*)"- VDW  for a van der Waals cavity"
@@ -393,6 +395,9 @@ c     use KS model by default when using SES cavity
         if (.not. rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
      C       do_cosmo_model))
      $        call errquit('cosmo_input: rtdb put failed',912, RTDB_ERR)
+        if (.not. 
+     $    rtdb_put(rtdb,'cosmo:ptcor',mt_log,1,cosmo_ptcor))
+     $      call errquit('cosmo_input: rtdb put failed',913, RTDB_ERR)
 c
 c   --- ndiv: specifies the division level for the triangles on
 c   ---      sphere surface when a SES cavity is used.
@@ -572,11 +577,11 @@ c
         if (.not. rtdb_put(rtdb,'cosmo:sccor',mt_int,1,cosmo_sccor))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- no_potcor flag: for debugging purposes, disable the potential
+c   --- potcorr flag: use the potential
 c                       correction associated with charge corrections
 c
       else if(inp_compare(.false.,'potcorr',field)) then
-        cosmo_ptcor=.false.
+        cosmo_ptcor=.true.
         if (.not. 
      $    rtdb_put(rtdb,'cosmo:ptcor',mt_log,1,cosmo_ptcor))
      $      call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
