@@ -395,8 +395,8 @@ c             Valid values are:
 c               - coarse: 60 triangles per sphere
 c               - fine  : 240 (default)
 c               - xfine : 960
-c               - huge  : tbd
-c               - xxl  : tbd
+c               - huge  : 3840
+c               - xxl   :15360
 c
       else if(inp_compare(.false.,'ndiv',field)) then
         if (.not.inp_a(token))
