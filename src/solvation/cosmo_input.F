@@ -390,6 +390,9 @@ c     use KS model by default when using SES cavity
         endif
         if (.not. rtdb_put(rtdb,'cosmo:cavity',mt_int,1,cosmo_cavity))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+        if (.not. rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
+     C       do_cosmo_model))
+     $        call errquit('cosmo_input: rtdb put failed',912, RTDB_ERR)
 c
 c   --- ndiv: specifies the division level for the triangles on
 c   ---      sphere surface when a SES cavity is used.

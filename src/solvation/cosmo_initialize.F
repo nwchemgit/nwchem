@@ -251,7 +251,6 @@ c
       if(.not.ma_pop_stack(l_costag)) call
      &  errquit('cosmo_init,ma_pop_stack of l_tag failed',911, MA_ERR)
 c
-      do_cosmo_model = DO_COSMO_YK
       if(.not.rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec))
      D        dielec   =78.4d0 ! default water dielectric
       cosmo_cavity = COSMO_CAVITY_VDW
@@ -289,8 +288,9 @@ c
 c
       status = rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo)
       status = rtdb_get(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv)
-      status = rtdb_get(rtdb,'cosmo:do_cosmo_model',mt_int,1,
-     +                  do_cosmo_model) 
+      if(.not.rtdb_get(rtdb,'cosmo:do_cosmo_model',mt_int,1,
+     +     do_cosmo_model))
+     C     do_cosmo_model=DO_COSMO_YK
       if (do_cosmo_model.eq.DO_COSMO_KS) then
         cosmo_sccor  = COSMO_SCCOR_SCALE
         cosmo_screen = COSMO_SCREEN_KS
