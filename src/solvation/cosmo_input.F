@@ -378,6 +378,8 @@ c
           cosmo_cavity = COSMO_CAVITY_VDW
         else if (inp_compare(.false.,'ses',token)) then
           cosmo_cavity = COSMO_CAVITY_SES
+c     use KS model by default when using SES cavity
+          do_cosmo_model=DO_COSMO_KS
         else
           write(luout,*)"invalid option for CAVITY, valid options are:"
           write(luout,*)"- VDW  for a van der Waals cavity"
