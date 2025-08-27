@@ -20,6 +20,7 @@ end
 title "new potential"
 
 cosmo
+potcorr true
 ificos 1 ; minbem 3
 do_gasphase f
 end
@@ -44,7 +45,7 @@ geometry
 end
 
 cosmo
- no_potcor
+potcorr false
  do_gasphase f
 ificos 1 ; minbem 3
 print cosmo_energies

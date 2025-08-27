@@ -581,7 +581,7 @@ c   --- potcorr flag: use the potential
 c                       correction associated with charge corrections
 c
       else if(inp_compare(.false.,'potcorr',field)) then
-        cosmo_ptcor=.true.
+         if (.not. inp_l(cosmo_ptcor)) cosmo_ptcor=.true.
         if (.not. 
      $    rtdb_put(rtdb,'cosmo:ptcor',mt_log,1,cosmo_ptcor))
      $      call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
