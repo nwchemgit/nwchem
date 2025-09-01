@@ -736,6 +736,8 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_nio_r2scan
 let "myexit+=$?"
+./runtests.mpi.unix procs $np  cosmo_h2cco2_opt
+let "myexit+=$?"
 if [[ "$what" != "flaky" ]]; then
     echo
     echo  "the number of failed tests is" $myexit

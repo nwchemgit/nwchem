@@ -72,6 +72,7 @@ c
       integer iat, nfield, nrad, irad
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
       integer cosmo_screen, cosmo_sccor
+      logical cosmo_ptcor
       integer iangleb
       integer fibonacci
       integer thomson
@@ -79,6 +80,9 @@ c
       double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
       character*255 field
       logical do_cosmo
+      integer cosmo_cavity
+      integer cosmo_ndiv
+      double precision mfactor
       logical do_cosmo_file
       logical do_gasphase
       logical status
@@ -136,6 +140,8 @@ c
       solvname_long = 'water'
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
+      cosmo_ndiv   = 2   ! used with the SES cavity
+      mfactor  =1.00d+00 ! used with the SES cavity
       minbem   =2
       maxbem   =4 ! used with the Klamt-Schuurmann model
       ificos   =0
@@ -311,21 +317,25 @@ c
       else if(inp_compare(.false.,'off',field)) then
          do_cosmo=.false.
 c
-c   --- do_cosmo_ks: switch to Klamt-Schuurmann model
+c   --- do_cosmo_ks: switch to Klamt-Schuurmann model; also makes cavity=ses
 c
       else if(inp_compare(.false.,'do_cosmo_ks',field)) then
          do_cosmo_model=DO_COSMO_KS
-         if (.not. rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
-     $                      do_cosmo_model))
-     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+         cosmo_cavity=COSMO_CAVITY_SES
+         if (.not.(rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
+     $                      do_cosmo_model)
+     $        .and.rtdb_put(rtdb,'cosmo:cavity',mt_int,1,cosmo_cavity))
+     $      ) call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- do_cosmo_yk: switch to York-Karplus model
+c   --- do_cosmo_yk: switch to York-Karplus model; also makes cavity=vdw
 c
       else if(inp_compare(.false.,'do_cosmo_yk',field)) then
          do_cosmo_model=DO_COSMO_YK
-         if (.not. rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
-     $                      do_cosmo_model))
-     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+         cosmo_cavity=COSMO_CAVITY_VDW
+         if (.not.(rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
+     $                      do_cosmo_model)
+     $       .and.rtdb_put(rtdb,'cosmo:cavity',mt_int,1,cosmo_cavity)
+     $     )) call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- do_cosmo_file flag
 c
@@ -333,8 +343,16 @@ c
         do_cosmo_file=.true.
         if (.not. 
      $    rtdb_put(rtdb,'cosmo:do_cosmo_file',mt_log,1,do_cosmo_file))
-     $    call errquit('cosmo_input: cannot put do_cosmo_file in rtdb',
-     $    0,rtdb_err)
+     $      call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- info: Information line to be printed in the cosmo file as a comment.
+c             Maximum lenth is 255 characters.
+c
+      else if(inp_compare(.false.,'info',field)) then
+        if (.not.inp_a(token))
+     $        call errquit('cosmo_input: info',911, INPUT_ERR)
+        if (.not.(rtdb_put(rtdb,'cosmo:info',mt_byte,255,token)))
+     $    call errquit('cosmo_input: rtdb put failed',0,RTDB_ERR)
 c
 c   --- rsolv: Used in Klamt-Schuurmann, but not in York-Karplus
 c   ---        approach
@@ -344,6 +362,84 @@ c
      $        call errquit('cosmo_input: rsolv',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- CAVITY: cavity construction method
+c       CAVITY VDW : van der Waals cavity
+c       CAVITY SES : solvent-excluded-cavity
+c
+c       default for each model:
+c       - CAVITY SES : with the Klamt-Schuurmann model
+c       - CAVITY VDW : with the York-Karplus model
+c
+      else if(inp_compare(.false.,'cavity',field)) then
+        if (.not.inp_a(token))
+     $        call errquit('cosmo_input: cavity',911, INPUT_ERR)
+        if (inp_compare(.false.,'vdw',token)) then
+          cosmo_cavity = COSMO_CAVITY_VDW
+        else if (inp_compare(.false.,'ses',token)) then
+          cosmo_cavity = COSMO_CAVITY_SES
+c     use KS model by default when using SES cavity
+          do_cosmo_model=DO_COSMO_KS
+c     correct potential when using SES
+        cosmo_ptcor=.true.
+        else
+          write(luout,*)"invalid option for CAVITY, valid options are:"
+          write(luout,*)"- VDW  for a van der Waals cavity"
+          write(luout,*)"- SES  for a solvent-excluded-cavity"
+          call util_flush(luout)
+          call errquit("cosmo_input: invalid option for CAVITY",911,
+     $                 INPUT_ERR)
+        endif
+        if (.not. rtdb_put(rtdb,'cosmo:cavity',mt_int,1,cosmo_cavity))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+        if (.not. rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
+     C       do_cosmo_model))
+     $        call errquit('cosmo_input: rtdb put failed',912, RTDB_ERR)
+        if (.not. 
+     $    rtdb_put(rtdb,'cosmo:ptcor',mt_log,1,cosmo_ptcor))
+     $      call errquit('cosmo_input: rtdb put failed',913, RTDB_ERR)
+c
+c   --- ndiv: specifies the division level for the triangles on
+c   ---      sphere surface when a SES cavity is used.
+c             Valid values are:
+c               - coarse: 60 triangles per sphere
+c               - fine  : 240 (default)
+c               - xfine : 960
+c               - huge  : 3840
+c               - xxl   :15360
+c
+      else if(inp_compare(.false.,'ndiv',field)) then
+        if (.not.inp_a(token))
+     $        call errquit('cosmo_input: ndiv',911, INPUT_ERR)
+        if (inp_compare(.false.,'coarse',token)) then
+          cosmo_ndiv = 1
+        else if (inp_compare(.false.,'fine',token)) then
+          cosmo_ndiv = 2
+        else if (inp_compare(.false.,'xfine',token)) then
+          cosmo_ndiv = 3
+        else if (inp_compare(.false.,'huge',token)) then
+          cosmo_ndiv = 4
+        else if (inp_compare(.false.,'xxl',token)) then
+          cosmo_ndiv = 5
+        else
+          write(luout,*)"invalid option for NDIV, valid options are:"
+          write(luout,*)" coarse, fine (default), xfine"
+          call util_flush(luout)
+          call errquit("cosmo_input: invalid option for NDIV",911,
+     $                 INPUT_ERR)
+      endif
+      if (.not. rtdb_put(rtdb,'cosmo:ndiv',mt_int,1,cosmo_ndiv))
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c    --- mfactor: Merging factor for segments that are too close.
+c        Any two segments closer than f(rsolv,ndiv) * mfactor are merged into
+c        a single segment. The default value is 1.0.
+c
+      else if(inp_compare(.false.,'mfactor',field)) then
+        if(.not. inp_f(mfactor))
+     $     call errquit('cosmo_input: mfactor',911, INPUT_ERR)
+        if (.not. rtdb_put(rtdb,'cosmo:mfactor',mt_dbl,1,mfactor))
+     $     call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- parameter file
 c
@@ -480,6 +576,15 @@ c
         endif
         if (.not. rtdb_put(rtdb,'cosmo:sccor',mt_int,1,cosmo_sccor))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- potcorr flag: use the potential
+c                       correction associated with charge corrections
+c
+      else if(inp_compare(.false.,'potcorr',field)) then
+         if (.not. inp_l(cosmo_ptcor)) cosmo_ptcor=.true.
+        if (.not. 
+     $    rtdb_put(rtdb,'cosmo:ptcor',mt_log,1,cosmo_ptcor))
+     $      call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- minbem
 c

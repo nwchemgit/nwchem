@@ -40,20 +40,24 @@ c
       integer  ibegin,iend,ilen,i
       character*4096 newchr
       integer maxno_authors,len_newchr
-      parameter(maxno_authors=107)
+      parameter(maxno_authors=108)
       character*64 name_author(maxno_authors)
       data name_author/
      +     'E. Apra', 'E. J. Bylaska', 
      +     'N. Govind', 'K. Kowalski',
+     +     'D. Mejia-Rodriguez',
+     +     'N. P. Bauman', 'A. Panyala',
+     +     'R. J. Harrison',
      +     'M. Valiev',
-     +     'D. Mejia-Rodriguez', 'A. Kunitsa',
-     +     'N. P. Bauman', 'A. Panyala', 
      +     'W. A. de Jong', 'T. P. Straatsma',  'H. J. J. van Dam',
      +     'D. Wang', 'T. L. Windus',
-     +     'J. Hammond', 'J. Autschbach','A. Woods',
+     +     'J. Hammond', 'J. Autschbach',
+     +     'R. de P. Soares',
+     +     'A. Kunitsa',
      +     'K. Bhaskaran-Nair',
      +     'J. Brabec','K. Lopata','S. A. Fischer','S. Krishnamoorthy',
      +     'M. Jacquelin',
+     +     'A. Woods',
      +     'W. Ma', 'M. Klemm', 'O. Villa', 'Y. Chen', 'V. Anisimov',
      +     'F. Aquino', 'S. Hirata', 'M. T. Hackler',
      +     'E. Hermes', 'L. Jensen', 'J. E. Moore', 'J. C. Becca',
@@ -61,7 +65,7 @@ c
      +     'M. Malagoli', 'A. Marenich', 'A. Otero-de-la-Roza', 
      +     'J. Mullin', 'P. Nichols', 'R. Peverati', 'J. Pittner', 
      +     'Y. Zhao', 'P.-D. Fan', 'A. Fonari', 'M. J. Williamson',
-     +     'R. J. Harrison', 'J. R. Rehr',
+     +     'J. R. Rehr',
      +     'M. Dupuis', 'D. Silverstein', 'D. M. A. Smith', 
      +     'J. Nieplocha', 'V. Tipparaju', 'M. Krishnan', 
      +     'B. E. Van Kuiken', 'A. Vazquez-Mayagoitia', 

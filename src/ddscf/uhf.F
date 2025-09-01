@@ -1152,7 +1152,8 @@ c     check if we are doing dft (e.g. cphf case)
         end do
         call ga_copy(g_a_dens,g_dens(1))  ! alpha = 1
         call ga_copy(g_b_dens,g_dens(2))  ! beta = 2
-        call cosmo_charges_from_dmat(rtdb, basis, geom, ecosmo, odebug, 
+        call cosmo_charges_from_dmat(rtdb, basis, geom,
+     &                                  ecosmo, 0d0, energy, odebug, 
      &                                  2,           ! 2 = open shell 
      &                                  g_dens,      ! input density
      &                                  cosmo_file)  ! cosmo charges file name

@@ -1268,7 +1268,7 @@ c     Calculate cosmo charges
       if (cosmo_on.and.cosmo_phase.eq.2) then
        cosmo_file = "cosmo.xyz"
        call cosmo_charges_from_dmat(rtdb, ao_bas_han, geom,
-     &          ecosmo, odbug, ipol, g_dens, cosmo_file)
+     &   ecosmo, egas, etnew+enuc, odbug, ipol, g_dens, cosmo_file)
        call cosmo_fock(ao_bas_han, g_fock)
        call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
        Ecore = ga_ddot(g_dens(1), g_fock)
