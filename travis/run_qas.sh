@@ -41,7 +41,7 @@ fi
 env|egrep MP
  do_largeqas=1
 
- if [[ "$EXTRA_BUILD" == "1" ]] || [[ ! -z "$USE_SIMINT" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "ppc64le" ]] || [[ "$arch" == "riscv64" ]]; then
+ if [[ "$CACHE_HIT" == "N" ]] || [[ "$EXTRA_BUILD" == "1" ]] || [[ ! -z "$USE_SIMINT" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "ppc64le" ]] || [[ "$arch" == "riscv64" ]]; then
      do_largeqas=0
  fi
 
