@@ -9,7 +9,9 @@ OBJ = bsemol.o bse_input.o bse_init.o bse_analytic.o \
       bse_davidson_newvecs.o bse_davidson_residual.o \
       bse_s2.o
 
-USES_BLAS = bse_buildw.F bse_ri_init.F bse_wmn.F
+USES_BLAS = bse_buildw.F bse_ri_init.F bse_wmn.F \
+            bse_davidson.F bse_davidson_diagonal.F bse_davidson_kvec.F bse_davidson_kortho.F \
+            bse_init.F bse_puteris.F bse_s2.F
 
 OBJ_OPTIMIZE = bse_buildw.o
 
