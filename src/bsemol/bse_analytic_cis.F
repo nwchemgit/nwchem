@@ -112,12 +112,10 @@
 
         ! First step is to get (A-B)^(1/2)
         call ga_sync()
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
         info= ga_cholesky('L',g_amb)
-#else
+#elif defined(PEIGS)
         call ga_chol(g_amb, g_amb, info)
-#endif
 #else 
         call ga_chol_seq(g_amb, g_amb, info)
 #endif
@@ -289,12 +287,10 @@
 
         ! First step is to get (A-B)^(1/2)
         call ga_sync()
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
         info= ga_cholesky('L',g_amb)
-#else
+#elif defined(PEIGS)
         call ga_chol(g_amb, g_amb, info)
-#endif
 #else 
         call ga_chol_seq(g_amb, g_amb, info)
 #endif
