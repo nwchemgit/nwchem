@@ -19,23 +19,23 @@ with the grid points defined by:
 */
 
 
-extern void     init_LogGrid();
+extern void     init_LogGrid(double);
 extern void     end_LogGrid();
 extern double  *alloc_LogGrid();
-extern void	dealloc_LogGrid();
+extern void	dealloc_LogGrid(double *);
 extern double  *r_LogGrid();
 extern int      N_LogGrid();
 extern double   log_amesh_LogGrid();
 extern double   amesh_LogGrid();
-extern double	Integrate_LogGrid();
+extern double	Integrate_LogGrid(double *);
 extern double  Integrate_LogGrid_na_nb(int,int,double*);
-extern double	Integrate2_LogGrid();
-extern void	Zero_LogGrid();
-extern void	Copy_LogGrid();
-extern double	Norm_LogGrid();
-extern void	Derivative_LogGrid();
+extern double	Integrate2_LogGrid(int, double, double *);
+extern void	Zero_LogGrid(double *);
+extern void	Copy_LogGrid(double *, double *);
+extern double	Norm_LogGrid(int, double, double *);
+extern void	Derivative_LogGrid(double *, double *);
 extern void	Plot_LogGrid(char*,double*);
-extern int  	index_r_LogGrid();
+extern int  	index_r_LogGrid(double );
 
 #ifdef WIN32
 /* Microsoft C does not implement rint */
@@ -43,7 +43,7 @@ extern int  	index_r_LogGrid();
 
 #endif
 #include <math.h>
-#if defined(CRAY) &&!defined(__crayx1)
+#if defined(CRAY)
 #include <fp.h>
 #endif
 

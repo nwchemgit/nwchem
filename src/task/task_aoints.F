@@ -31,7 +31,7 @@ cc
       logical oecce
 cc
 cgk debug
-*      write(*,*)'gk: entered task_aoints'
+c      write(*,*)'gk: entered task_aoints'
 cgk end
       oecce = .false.
       cpu  = util_cpusec()
@@ -46,7 +46,7 @@ c
      $     call errquit('task:aoints: theory not specified',0, 
      $       RTDB_ERR)
 
-      if (theory .ne. 'sodft') then
+      if ((theory .ne. 'sodft').and.(theory .ne. 'dft')) then
         call errquit('task_aoints: theory not supported for aoints'
      &    ,0,RTDB_ERR)
       else
@@ -194,7 +194,7 @@ c
 *     integer which_mp2
 c
 cgk debug
-*      write(*,*)'gk: in task_aoints_doit'
+*      write(*,*)'gk: in task_aoints_doit, theory=',theory
 cgk end
       call ecce_print_module_entry('task energy')
 c
@@ -392,8 +392,8 @@ cgk end
 *     else if (theory .eq. 'dangchang') then
 *        status = dc_energy(rtdb)
 * hack below
-      if (theory .eq. 'sodft') then
-         status = sodft_aoints(rtdb)
+      if ((theory .eq. 'sodft').OR.(theory .eq. 'dft')) then
+         status = sodft_aoints(rtdb,theory)
       else
          call errquit('task_aoints: unknown theory',0, INPUT_ERR)
       endif

@@ -83,23 +83,11 @@
 *==============================================================================
 
 *------------------------------------------------------------------------------
-* Maximum number of shells or contractions on an atom
-*
-      integer nw_max_atom_shells
-      parameter (nw_max_atom_shells = 300)
-*------------------------------------------------------------------------------
 * Maximum number of shells on a QM system 
-*...................................(must be <= nw_max_atom_shells*nw_max_atom)
       integer nw_max_shells
       parameter (nw_max_shells = 10000)
 *------------------------------------------------------------------------------
-* Maximum number of basis functions on an atom 
-*
-      integer nw_max_atom_nbf
-      parameter (nw_max_atom_nbf = 3000)
-*------------------------------------------------------------------------------
 * Maximum number of basis functions on a QM system
-*...................................(must be <= nw_max_atom_nbf*nw_max_atom)
       integer nw_max_nbf
       parameter (nw_max_nbf = 10000)
 *------------------------------------------------------------------------------

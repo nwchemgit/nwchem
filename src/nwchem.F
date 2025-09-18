@@ -29,7 +29,7 @@ c
 c  $Id$
 c
 c  ======================================================================================================
-C> \mainpage Northwest Computational Chemistry Package (NWChem) 7.2.1
+C> \mainpage Northwest Computational Chemistry Package (NWChem) 7.2.3
 C>
 C> NWChem is an open-source computational chemistry package distributed under the terms of
 C> the Educational Community License (ECL) 2.0
@@ -60,7 +60,7 @@ C>   <I>Computer Physics Communications</I>, <b>181</b>, 1477–1489, DOI: <a hr
 C>
 C> provides details on the codes capabilities.
 C>
-C> Copyright (c) 1994-2022 Pacific Northwest National Laboratory, Battelle Memorial Institute
+C> Copyright (c) 1994-2024 Pacific Northwest National Laboratory, Battelle Memorial Institute
 C>
 C> Environmental Molecular Sciences Laboratory (EMSL)<br>
 C> Pacific Northwest National Laboratory<br>
@@ -93,11 +93,13 @@ c     Create parallel processes and initialize IPC layer
 c
       call pbeginf()
 
+#ifdef PEIGS
 c
 c     MXINIT is needed by PeIGS and PFFT to initialize
 c     the communication fabric they use.
 c
       call mxinit
+#endif
 c
 c     Initialize timers so they are relative to job start
 c
@@ -465,7 +467,7 @@ c
       write(LuOut,*)
       write(LuOut,*)
       call util_print_centered(LuOut,
-     $     'Northwest Computational Chemistry Package (NWChem) 7.2.1',
+     $     'Northwest Computational Chemistry Package (NWChem) 7.2.3',
      $     40, .true.)
       write(LuOut,*)
       write(LuOut,*)
@@ -561,7 +563,7 @@ C
 C  Print version information to ecce.out file
 C
       compiled(inp_strlen(compiled)+1:inp_strlen(compiled)+25) = 
-     $         ' Version 7.2.1'
+     $         ' Version 7.2.3'
       call ecce_print_version(compiled(1:inp_strlen(compiled)))
 C
       If ( Inp_StrLen(BatchID) .gt. 0) then

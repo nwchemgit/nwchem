@@ -1,0 +1,47 @@
+echo
+start h2co_zts_par_dat
+
+charge 0
+
+geometry geometry nocenter
+  symmetry c1
+  h    0.00000000     0.92415102    -1.07411939
+  h    0.00000000    -0.92415102    -1.07411939
+  c    0.00000000     0.00000000    -0.49305547
+  o    0.00000000     0.00000000     0.69129425
+end
+
+geometry endgeom nocenter
+  symmetry c1
+  h  -0.00000000     0.85488575     0.91568825
+  h  -0.00000000    -0.94470138    -1.11116114
+  c   0.00000000     0.10071217    -0.77208781
+  o   0.00000000    -0.01089653     0.52279419
+end
+
+
+basis
+  * library 6-31g*
+end
+
+print low
+
+scf
+  direct
+end
+
+string
+  tol  0.001d0
+  stepsize 0.20d0
+  nbeads 24
+  maxiter 100
+  interpol 1
+  mode parallel
+end
+
+# We have to freeze the end points since this reaction has no barrier
+set string:freezen .true.
+set string:freeze1 .true.
+
+task string scf
+

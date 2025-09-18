@@ -16,6 +16,7 @@ c
 c   local variable
 c
       character*255 field,geom_name,test2
+      character*8   mode ! "serial" or "parallel"
       real*8 tol, temp, stepsize
       integer nbeads, maxit, interpol,ind,i
       logical frze
@@ -30,6 +31,7 @@ c
 c
 c     ----- read values from input -----
 c
+      mode = "serial" ! default setting: loop over beads
  10   if(.not.inp_read())
      $     call errquit('string_input: unexpected eof',911, INPUT_ERR)
       if (.not. inp_a(field))
@@ -169,9 +171,29 @@ c     ----------------------------
             if (.not. rtdb_put(rtdb,'bead_list:new',mt_log,1,.false.))
      >        call errquit('string_input: rtdb put failed',34,
      >        RTDB_ERR)
-
          end if
-
+c
+c     mode ["serial"|"parallel"]
+c     --------------------------
+c     - serial means: loop over all beads calculating the energy and
+c       gradient one bead at a time.
+c     - parallel means: calculate the energy and gradients for all beads
+c       at once, executing every bead on a different processor group.
+c       This requires at least as many processors as there are beads.
+c     In either case there is also parallelism within executing every
+c     bead.
+      else if (inp_compare(.false.,'mode', field)) then
+         if (inp_a(mode)) then
+           if(inp_compare(.false.,'serial',mode).or.
+     &        inp_compare(.false.,'parallel',mode)) then
+           else
+             call errquit('string_input: invalid option for mode: '//
+     &                    mode,0,INPUT_ERR)
+           endif
+           if (.not. rtdb_cput(rtdb,'string:mode',1,mode))
+     &        call errquit('string_input: rtdb put failed',35,
+     &        RTDB_ERR)
+         endif
 c
       else
          call errquit('string_input: unknown directive',0, INPUT_ERR)

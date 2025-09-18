@@ -2,7 +2,6 @@
 
 all:	; texi2pdf peigs.texi
 
-.EXPORT_ALL_VARIABLES:
 
 .PHONY :	clean
 

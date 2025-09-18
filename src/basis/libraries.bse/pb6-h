@@ -1,0 +1,93 @@
+# BSE Version 0.11.dev17+g4fabcd53
+# Data downloaded on 2024-11-21T16:45
+# PB6-H version number 1
+# Description: PB6-H protonic basis
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem. 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  H
+#      PB6-H protonic basis
+#          yu2020a
+# 
+# 
+# 
+# yu2020a
+#     Yu, Qi, Pavošević, Fabijan, Hammes-Schiffer, Sharon
+#     Development of nuclear basis sets for multicomponent quantum chemistry
+#             methods
+#     J. Chem. Phys. 152, 244123 (2020)
+#     10.1063/5.0009233
+# 
+# # 
+basis "H_PB6-H" SPHERICAL 
+#basis SET: (6s,5p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
+H    S
+     36.931                  1.0
+H    S
+     21.429                  1.0
+H    S
+     12.485                  1.0
+H    S
+      9.562                  1.0
+H    S
+      3.249                  1.0
+H    S
+      1.386                  1.0
+H    P
+     24.119                  1.0
+H    P
+     18.376                  1.0
+H    P
+      9.930                  1.0
+H    P
+      4.240                  1.0
+H    P
+      1.399                  1.0
+H    D
+     20.768                  1.0
+H    D
+      7.750                  1.0
+H    D
+      5.141                  1.0
+H    D
+      2.607                  1.0
+H    F
+     26.408                  1.0
+H    F
+      9.129                  1.0
+H    F
+      0.509                  1.0
+H    G
+     28.407                  1.0
+H    G
+      9.445                  1.0
+H    H
+     10.193                  1.0
+end

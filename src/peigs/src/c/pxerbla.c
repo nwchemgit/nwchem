@@ -95,14 +95,7 @@ void pxerbla2_( n, array, procmap, len, iwork, info )
   
   Integer *iscrat, *proclist, *map_in;
   
-  extern Integer reduce_list2();
-  extern Integer indxL ();
-  extern Integer mxwrit_(), mxread_();
-  extern Integer qqsort();
-  extern void gi_sum();
-  extern void xerbla_();
   extern Integer mxcmp();
-  extern Integer      menode_();
   extern Integer mxmynd_();
   extern Integer mxnprc_();
   
@@ -125,7 +118,7 @@ void pxerbla2_( n, array, procmap, len, iwork, info )
   qqsort( proclist, 0, nprocs-1);
   
   if ( nprocs > maxprocs ) {
-    fprintf(stderr, "PXERBLA: Node %d Error: Number of processors in Proc List exceeds number allocated \n", me);
+    fprintf(stderr, "PXERBLA: Node %d Error: Number of processors in Proc List exceeds number allocated \n", (int)me);
     *info = -1;
     return;
   }
@@ -155,17 +148,17 @@ void pxerbla2_( n, array, procmap, len, iwork, info )
     
     isize = *n;
     if ( (me_indx % 2) == 0 ) {
-      mxwrit_( array, &isize, &next_proc, &TYPE );
-      mxread_( map_in, &isize, &last_proc, &TYPE );
+      mxwrit_( (DoublePrecision *)array, &isize, &next_proc, &TYPE );
+      mxread_( (DoublePrecision *)map_in, &isize, &last_proc, &TYPE );
     }
     else {
-      mxread_( map_in, &isize, &last_proc, &TYPE );
-      mxwrit_( array, &isize, &next_proc, &TYPE );
+      mxread_( (DoublePrecision *)map_in, &isize, &last_proc, &TYPE );
+      mxwrit_( (DoublePrecision *)array, &isize, &next_proc, &TYPE );
     }
     
     isize = *n;
-    indx = memcmp( array, map_in, isize );
-    indx = abs(indx);
+    indx = memcmp( (DoublePrecision *)array, map_in, isize );
+    indx = labs(indx);
     *info = indx;
     return;
   }

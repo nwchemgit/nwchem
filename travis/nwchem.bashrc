@@ -5,8 +5,13 @@ echo "BLASOPT is " $BLASOPT
 echo "BUILD_OPENBLAS is " $BUILD_OPENBLAS
 os=`uname`
 arch=`uname -m`
+if [[ -z "$APPTAINER_NAME" ]] || [[ -z "$SINGULARITY_NAME" ]] ; then
+    MYSUDO=sudo
+else
+    MYSUDO=" "
+fi
 if test -f "/usr/lib/os-release"; then
-    dist=$(grep ID= /etc/os-release |head -1 |cut -c4-| sed 's/\"//g')
+    dist=$(grep ID= /etc/os-release |grep -v VERSION |head -1 |cut -c4-| sed 's/\"//g')
 fi
 if [ -z "$CC" ] ; then
     CC=cc
@@ -39,29 +44,50 @@ if [[ "$FC" == "amdflang" ]]; then
     export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
      export BUILD_MPICH=1
 fi
-if [[ "$FC" == "flang-new-17" ]]; then
+if [[ "$FC" == 'flang-new-'* ]]; then
     export BUILD_MPICH=1
 fi
 
 if [[ "$FC" == "nvfortran" ]]; then
-     nv_major=23
-     nv_minor=7
-     nverdot="$nv_major"."$nv_minor"
-     export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
-     export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
-     sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
+     export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/latest/compilers/bin:$PATH
+     echo "**** before hpc_sdk makelocalrc"
+     $MYSUDO /opt/nvidia/hpc_sdk/Linux_"$arch"/latest/compilers/bin/makelocalrc -x
+     echo "**** done hpc_sdk makelocalrc"
+     export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/latest/compilers/lib:$LD_LIBRARY_PATH
      export FC=nvfortran
      export MPICH_FC=nvfortran
 fi
 if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
-    IONEAPI_ROOT=~/apps/oneapi
+    if [[ "$os" == "Darwin" ]]; then
+	IONEAPI_ROOT=~/apps/oneapi
+    else
+	IONEAPI_ROOT=/opt/intel/oneapi
+# fix runtime mpi_init error
+#	export FI_LOG_LEVEL=TRACE
+	export FI_PROVIDER=shm
+	echo "*** output of fi_info ***"
+	echo $(fi_info -l) || true
+    fi
 #    source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
     source "$IONEAPI_ROOT"/setvars.sh --force
     export I_MPI_F90="$FC"
-#force icc on macos to cross-compile x86 on arm64    
+#force icc on macos to cross-compile x86 on arm64
+# icx not available on macos
     if [[ "$os" == "Darwin" ]]; then
-	CC=icc
-	CXX=icpc
+     if [[ "$FC" != "gfortran" ]] && [[ "$FC" == "gfortran*" ]]; then
+	 mygccver=$(echo "$FC"|cut -d - -f 2)
+	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
+	 echo gfortran is $(gfortran -v)
+	 echo gfortran-"$mygccver" is $(gfortran-"$mygccver" -v)
+     fi
+     if [[ "$CC" != gcc ]] && [[ "$CC" == gcc* ]]; then
+	 mygccver=$(echo "$CC"|cut -d - -f 2)
+	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
+	 echo gcc is $(gcc -v)
+	 echo gcc-"$mygccver" is $(gcc-"$mygccver" -v)
+     fi
+#	CC=icc
+#	CXX=icc
 # Intel MPI not available on macos       
 #       export BUILD_MPICH=1
        unset BUILD_PLUMED
@@ -76,10 +102,15 @@ if [[ -f "$IONEAPI_ROOT"/mpi/latest/env/vars.sh ]]; then
     if [[ "$MPI_IMPL" == "intel" ]]; then
 	mpif90 -v
 	mpif90 -show
+ 	#to avoid segfault with FI_PROVIDER=shm in MPI_Finalize with Intel MPI 2021.15
+       export FI_PROVIDER=tcp
     fi
     if [ -f /opt/intel/oneapi/mkl/latest/env/vars.sh ] ; then
 	source /opt/intel/oneapi/mkl/latest/env/vars.sh
     fi
+fi
+if [[ "$MPI_IMPL" == "build_mpich" ]]; then 
+  export BUILD_MPICH=1
 fi
 if [[ "$os" == "Darwin" ]]; then 
   export NWCHEM_TARGET=MACX64 
@@ -90,13 +121,18 @@ if [[ "$os" == "Darwin" ]]; then
   if [[ "$MPI_IMPL" == "mpich" ]]; then 
     export PATH=/usr/local/opt/mpich/bin/:$PATH 
   fi
-  if [[ "$MPI_IMPL" == "build_mpich" ]]; then 
-    export BUILD_MPICH=1
-  fi
 
 fi
-if [[ "$os" == "Linux" ]]; then 
-   export NWCHEM_TARGET=LINUX64 
+if [[ "$os" == "Linux" ]]; then
+   export NWCHEM_TARGET=LINUX64
+   if [[ "$MPI_IMPL" == "mpich" ]]; then
+       #fix for MPICH on ubuntu 24.04
+       #https://bugs.launchpad.net/ubuntu/+source/mpich/+bug/2072338
+       #https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1102612
+       #https://github.com/pmodels/mpich/issues/7064
+       ubuntu_v=$(grep VERSION_ID /etc/os-release|cut -d = -f 2 | sed 's/\"//g' )
+       if [ $ubuntu_v = "24.04" ]; then export BUILD_MPICH=1 ; fi
+   fi
 fi
 export OMP_NUM_THREADS=1
 export USE_NOIO=1
@@ -185,6 +221,7 @@ fi
 if [[ ! -z "$BUILD_ELPA" ]]; then
 echo "BUILD_ELPA = " "$BUILD_ELPA"
 fi
+echo "BUILD_MPICH = " "$BUILD_MPICH"
 export NWCHEM_EXECUTABLE=$TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/nwchem_"$arch"_`echo $NWCHEM_MODULES|sed 's/ /-/g'`_"$MPI_IMPL"_"$FC"
 
 if [[ "$FC" == "gfortran" ]]; then
@@ -200,3 +237,5 @@ if [[ "$USE_LIBXC" == "-1" ]]; then
     export LIBXC_LIB=/usr/lib/x86_64-linux-gnu
     export LIBXC_INCLUDE=/usr/include
 fi
+
+#export PYTHONVERSION=$(python -V| cut -d ' ' -f 2 |cut -d . -f 1-2)

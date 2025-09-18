@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #set -v
 arch=`uname -m`
-VERSION=0.3.24
+VERSION=0.3.29
 #COMMIT=974acb39ff86121a5a94be4853f58bd728b56b81
 BRANCH=develop
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
@@ -28,7 +28,11 @@ cd OpenBLAS
 patch -p0 -s -N < ../arm64_fopt.patch
 #patch -p1 -s -N < ../9402df5604e69f86f58953e3883f33f98c930baf.patch
 patch -p0 -s -N < ../crayftn.patch
-patch -p0 -s -N < ../f_check.patch
+#patch -p0 -s -N < ../f_check.patch
+USE_ARUR=$(rm -f aru.tmp;ar --help  > aru.tmp 2>&1; grep U aru.tmp| awk ' /ctual timest/ {print "Y";exit};'; rm -f aru.tmp)
+if [[ ${USE_ARUR} == "Y" ]]; then
+patch -p0 -s -N < ../arflags.patch
+fi
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
@@ -83,7 +87,8 @@ fi
 if [[   -z "${CC}" ]]; then
     CC=cc
 fi
-${CC} -dM -E - < /dev/null 2> /dev/null|grep __x86_64__ 
+#${CC} -dM -E - < /dev/null 2> /dev/null|grep __x86_64__ 
+${CC} -dM -E - < /dev/null 2> /dev/null|grep __$(uname -m)__ 
 let cross_comp=$?
 echo "cross_code $cross_comp"
 if [[ "$cross_comp" == 1 ]]; then
@@ -212,7 +217,7 @@ fi
 
 #disable threading for ppc64le since it uses OPENMP
 echo arch is "$arch"
-if [[ "$arch" == "ppc64le" ||  "$arch" == "riscv64" ]]; then
+if [[ "$arch" == "ppc64le" ||  "$arch" == "riscv64" || $FORCETARGET == *"POWER"* || $FORCETARGET == *"RISCV64"*  ]]; then
 if [[ ${GCCVERSIONGT5} != 1 ]]; then
        echo
        echo gcc version 6 and later needed for ppc64le
@@ -244,14 +249,20 @@ if [[  ! -z "${USE_OPENMP}" ]]; then
 fi
 GOTFREEBSD=$(uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
 MYMAKE=make
-MAKEJ=" -j3 "
+MAKEJ="MAKE_NB_JOBS=2"
+MAKE_MAJOR=$(make --version 2>& 1|head -1| cut -d " " -f 3 |cut -d .  -f 1)
+MAKE_MINOR=$(make --version 2>& 1|head -1| cut -d " " -f 3 |cut -d .  -f 2)
+if [[ ${MAKE_MAJOR} -ge 4 ]] && [[ ${MAKE_MINOR} -ge 4 ]]; then
+    MAKEJ="MAKE_NB_JOBS=1"
+    echo MAKEJ is $MAKEJ
+fi
 if [[  "${GOTFREEBSD}" == 1 ]]; then
-MAKEJ=" "
+MAKEJ="MAKE_NB_JOBS=1"
 MYMAKE=gmake
 fi
 echo FC is $FC
 echo CC is $CC
-echo $MYMAKE FC=$FC $FORCETARGET LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib $MAKEJ
+echo $MYMAKE FC=$FC $FORCETARGET LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib $MAKEJ 
 echo
 echo OpenBLAS compilation in progress
 echo output redirected to libext/openblas/OpenBLAS/openblas.log
@@ -263,7 +274,7 @@ elif [[ ${FLANG_NEW} == "true" ]]; then
     echo $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET FCOMMON_OPT="$LAPACK_FPFLAGS_VAL" LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD ="$THREADOPT"  libs netlib  $MAKEJ
  $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET FCOMMON_OPT="$LAPACK_FPFLAGS_VAL" LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib  $MAKEJ >& openblas.log
 else
- $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKEJ >& openblas.log
+ $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKE $MAKEJ >& openblas.log
 fi
 if [[ "$?" != "0" ]]; then
     echo error code '$?'

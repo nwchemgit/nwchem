@@ -42,7 +42,7 @@ C
      $     pname//" only valid for double precision matricies", 0, 0)
       
       if (n1 .ne. n2)
-     $     call errquit (pname//"n1 must equal n2")
+     $     call errquit (pname//"n1 must equal n2",0,0)
 C
 C     Do all work on processor 0.
 C     
@@ -131,7 +131,7 @@ C
      $     pname//" only valid for double precision  matricies", 0, 0)
 C      
       if (n1 .ne. n2)
-     $     call errquit (pname//"n1 must equal n2")
+     $     call errquit (pname//"n1 must equal n2",0,0)
 C
 C     Do all work on processor 0.
 C     
@@ -238,3 +238,15 @@ c
       return
       end
 c $Id$
+      subroutine dft_forceatomic(rtdb)
+      implicit none
+      integer rtdb
+#include "cdft.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+      movecs_in='atomic'
+      if (.not. rtdb_cput(rtdb, 'dft:input vectors', 1, movecs_in))
+     $    call errquit(' dft_forceatomic: rtdb_cput',0,RTDB_ERR)
+      write(6,*) ' force mos in ',movecs_in
+      return
+      end

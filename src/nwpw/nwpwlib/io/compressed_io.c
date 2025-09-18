@@ -32,14 +32,7 @@
 #include <string.h>
 #include "typesf2c.h"
 
-#if !defined(__crayx1)
-
-#if defined(CRAY) || defined(CRAY_T3D) 
-#include <fortran.h>
-#define USE_FCD
-#endif
-
-#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(WIN32)) && !defined(__MINGW32__)
 #define cwrite_ CWRITE
 #define cread_  CREAD
 #define iwrite_ IWRITE
@@ -51,8 +44,6 @@
 #define flush_fileptr_  FLUSH_FILEPTR
 #define openfile_  OPENFILE
 #define closefile_ CLOSEFILE
-#endif
-
 #endif
 
 
@@ -72,21 +63,8 @@ static int ascii[MAX_UNIT];
 *************************************************************************
 */
 
-void FATR cwrite_
-#if defined(USE_FCD)
-(const Integer *unit, 
-                   _fcd fcd_c,
-             const Integer *n)
+void FATR cwrite_(const Integer *unit, char *c, const Integer *n)
 {
-   const char *c = _fcdtocp(fcd_c);
-
-#else
-(const Integer *unit, 
-                                char *c,
-                          const Integer *n)
-{
-#endif
-
    if (ascii[*unit])
    {
       int j;
@@ -94,25 +72,13 @@ void FATR cwrite_
          (void) fprintf(fd[*unit],"%c ",c[j]);
       (void) fprintf(fd[*unit],"\n");
    }
-   else
+   else {
       (void) fwrite(c, sizeof(char), *n, fd[*unit]);
+   }
 }
 
-void FATR cread_
-#if defined(USE_FCD)
-(const Integer *unit, 
-                  _fcd fcd_c,
-            const Integer *n)
+void FATR cread_ (const Integer *unit, char *c, const Integer *n)
 {
-    char *c = _fcdtocp(fcd_c);
-
-#else
-(const Integer *unit, 
-                     char *c, 
-            const Integer *n)
-{
-#endif
-
    if (ascii[*unit])
    {
       int j;
@@ -209,25 +175,11 @@ void FATR flush_fileptr_(const Integer *unit)
 
 #define FUDGE_FACTOR (8)
 
-void FATR openfile_
-#if defined(USE_FCD)
-(const Integer *unit, 
-                      _fcd fcd_filename,
-                      Integer *n1,
-       		      _fcd fcd_mode,
-		      Integer *n2)
+void FATR openfile_(const  Integer *unit, 
+                    char *filename, Integer *n1,
+       		    char *mode,    
+		    Integer *n2)
 {
-   const char *filename = _fcdtocp(fcd_filename);
-   const char *mode = _fcdtocp(fcd_mode);
-
-#else
-(const  Integer *unit, 
-                      char *filename, Integer *n1,
-       		      char *mode,    
-		      Integer *n2)
-{
-#endif
-
    char *file = (char *) malloc(*n1+1);
    char *rc, *wc;
 

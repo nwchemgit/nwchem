@@ -8,15 +8,18 @@
          cosmo_smd_output.o\
          cosmo_vem_output.o\
 	 cosmo_lebedev.o\
-	 cosmo_fibonacci.o
-
-   OBJ_OPTIMIZE = cosmo_input.o \
+	 cosmo_fibonacci.o\
+    hnd_cosmo_lib.o hnd_coschg.o\
+    cosmo_input.o \
          cosmo_initialize.o\
          cosmo_tidy.o\
          cosmo_def_radii.o\
          cosmo_charges.o\
-         grad_hnd_cos.o hnd_cosmo_lib.o hnd_coschg.o\
+         gepol_lib.o\
+         grad_hnd_cos.o\
 	 cosmo_thomson.o
+   
+   OBJ_OPTIMIZE =
 
    LIBRARY = libsolvation.a
 
@@ -34,4 +37,7 @@ HEADERS = ../property/prop.fh ../property/atomdata.fh cosmoP.fh cosmo_params.fh
 include ../config/makefile.h
 include ../config/makelib.h
 
+  ifeq ($(FLANG_NEW),true)
+            FOPTIONS += -fno-automatic
+  endif
 #FDEBUG += -O0

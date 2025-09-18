@@ -95,9 +95,6 @@ void pmmlsl2(n, mapA, mapvecA, vecA, mapB, mapvecB, vecB,
    * -------------------
    */
 
-  extern void     dcopy_();
-  extern Integer      mxmynd_(), mxwrit_(), mxread_();
-  extern void     zero_out(), de_sym(), mxm_ll();
 
   /*
    * Executable code

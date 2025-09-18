@@ -61,7 +61,7 @@
       double precision :: fac 
 
       double precision, external :: ddot
-      logical gga,mgga,dolap
+      logical gga,mgga,dolap,dotau
       logical,external :: nwchem_libxc_family
 
 #if LIBXC_NP_SIZE == 4
@@ -76,34 +76,35 @@
       gga = .false.
       mgga = .false.
       dolap = .false.
+      dotau = .false.
 
       nqs = nq
       size1 = nq*ipol
       size2 = nq*(ipol*(ipol+1))/2
 
       if (.not.(ma_push_get(mt_dbl,size1,'rhoval',lrho,krho)))
-     $  call errquit(" could not allocate",0,ma_err) 
+     $  call errquit(" could not allocate rhoval",0,ma_err)
       if (.not.(ma_push_get(mt_dbl,size1,'vrho',lvrho,kvrho)))
-     $  call errquit(" could not allocate",0,ma_err) 
+     $  call errquit(" could not allocate vrho",0,ma_err)
       if (.not.(ma_push_get(mt_dbl,nq,'exc',lexc,kexc)))
-     $  call errquit(" could not allocate",0,ma_err)
+     $  call errquit(" could not allocate exc",0,ma_err)
 
       if (ksgrad) then
         if (.not.(ma_push_get(mt_dbl,size2,'sigma',lsigma,ksigma)))
-     $    call errquit(" could not allocate",0,ma_err) 
+     $    call errquit(" could not allocate sigma",0,ma_err)
         if (.not.(ma_push_get(mt_dbl,size2,'vsigma',lvsigma,kvsigma)))
-     $    call errquit(" could not allocate",0,ma_err) 
+     $    call errquit(" could not allocate vsigma",0,ma_err)
       endif
 
       if (kske.or.kslap) then
-          if (.not.(ma_push_get(mt_dbl,size2,'tau',ltau,ktau)))
-     $      call errquit(" could not allocate",0,ma_err) 
-          if (.not.(ma_push_get(mt_dbl,size2,'vtau',lvtau,kvtau)))
-     $      call errquit(" could not allocate",0,ma_err) 
-          if (.not.(ma_push_get(mt_dbl,size2,'lapl',llapl,klapl)))
-     $      call errquit(" could not allocate",0,ma_err) 
-          if (.not.(ma_push_get(mt_dbl,size2,'vlapl',lvlapl,kvlapl)))
-     $      call errquit(" could not allocate",0,ma_err) 
+          if (.not.(ma_push_get(mt_dbl,size1,'tau',ltau,ktau)))
+     $      call errquit(" could not allocate tau",0,ma_err)
+          if (.not.(ma_push_get(mt_dbl,size1,'vtau',lvtau,kvtau)))
+     $      call errquit(" could not allocate vtau",0,ma_err)
+          if (.not.(ma_push_get(mt_dbl,size1,'lapl',llapl,klapl)))
+     $      call errquit(" could not allocate lapl",0,ma_err)
+          if (.not.(ma_push_get(mt_dbl,size1,'vlapl',lvlapl,kvlapl)))
+     $      call errquit(" could not allocate vlapl",0,ma_err)
       endif
 
       if (do_2nd .or. do_3rd) then
@@ -297,6 +298,12 @@
           mgga = .true.
           dolap = iand(libxc_flags(ifunc),xc_flags_needs_laplacian).eq.
      $            xc_flags_needs_laplacian
+#if XC_MAJOR_VERSION > 6
+          dotau = iand(libxc_flags(ifunc),xc_flags_needs_tau).eq.
+     $            xc_flags_needs_tau
+#else
+          dotau = .true.
+#endif
           
           if (iand(libxc_flags(ifunc),xc_flags_have_exc).eq.
      $                                xc_flags_have_exc) then
@@ -326,7 +333,8 @@
         endif
 
         call daxpy(nq,fac,dbl_mb(kvrho),ipol,Amat,1)
-        if (mgga) call daxpy(nq,0.5d0*fac,dbl_mb(kvtau),ipol,Mmat,1)
+        if (mgga.and.dotau) 
+     $             call daxpy(nq,0.5d0*fac,dbl_mb(kvtau),ipol,Mmat,1)
         if (dolap) call daxpy(nq,fac,dbl_mb(kvlapl),ipol,Lmat,1)
         
         if ((polarized.eq.xc_unpolarized) .and. (gga)) then
@@ -334,8 +342,8 @@
           call daxpy(nq,2d0*fac,dbl_mb(kvsigma),1,Cmat(1,D1_GAB),1)
         elseif (polarized.eq.xc_polarized) then
           call daxpy(nq,fac,dbl_mb(kvrho+1),2,Amat(1,2),1)
-          if (mgga) call daxpy(nq,0.5d0*fac,dbl_mb(kvtau+1),2,
-     $                         Mmat(1,2),1)
+          if (mgga.and.dotau) 
+     $        call daxpy(nq,0.5d0*fac,dbl_mb(kvtau+1),2,Mmat(1,2),1)
           if (dolap) call daxpy(nq,fac,dbl_mb(kvlapl+1),2,Lmat(1,2),1)
           if (gga) then
             call daxpy(nq,fac,dbl_mb(kvsigma),3,Cmat(1,D1_GAA),1)

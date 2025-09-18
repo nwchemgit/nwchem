@@ -254,14 +254,6 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
  * -------------------
  */
 
-    extern Integer  count_list(), reduce_list2();
-    extern void     xstop_(), pdiff(), pgexit();
-    extern void     mdiff1_(), bbcast00();
-    extern void     memreq_();
-
-    extern void     pstebz_(), pstein();
-    extern void     dshellsort_(), sorteig();
-
     extern Integer  mxmynd_(), mxnprc_();
     extern void     mxinit_();
 
@@ -348,7 +340,7 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
         *info = linfo;
 
      fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
-              msg, me, -linfo );
+              msg, (int)me, (int)(-linfo) );
      xstop_( &linfo );
      return;
    }
@@ -411,7 +403,7 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
    if ( *info != 0 ) {
       linfo = *info;
       fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
-               msg, me, -linfo);
+               msg, (int)me, (int)(-linfo));
       xstop_( info );
       return;
    }
@@ -531,7 +523,7 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
     *meigval = neigval;
 
     if( *info != 0 ) {
-      fprintf(stderr, " %s me = %d pstebz returned info = %d \n", msg, me, *info );
+      fprintf(stderr, " %s me = %d pstebz returned info = %d \n", msg, (int)me, (int)(*info) );
       *info = 1;
       return;
     }
@@ -570,7 +562,7 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
 #endif
       
       if( *info != 0 ) {
-        fprintf(stderr, " %s me = %d pstein returned info = %d \n", msg, me, *info );
+        fprintf(stderr, " %s me = %d pstein returned info = %d \n", msg, (int)me, (int)(*info) );
         *info = 2;
       }
     }

@@ -75,8 +75,8 @@ void g_exit2_( n, array, procmap, len, iwork )
 
   me = mxmynd_ ();
   
-  fprintf(stderr, "G_EXIT2: Node %d Error.  A routine called g_exit2_, \n", me);
-  fprintf(stderr, "Message from calling routine: %s  node id = %d \n", array, me);
+  fprintf(stderr, "G_EXIT2: Node %d Error.  A routine called g_exit2_, \n", (int)me);
+  fprintf(stderr, "Message from calling routine: %s  node id = %d \n", array, (int)me);
 
   mxpend_ ();
 
@@ -127,11 +127,6 @@ void g_exit_( n, array, procmap, len, iwork, work )
   Integer nprocs, me, maxprocs;
   Integer *iscrat, *proclist;
   
-  extern Integer reduce_list2();
-  extern Integer indxL ();
-  extern Integer mxwrit_ (), mxread_ ();
-  extern Integer qqsort();
-  extern void gi_sum();
   extern void xerbl2_ ();
   extern Integer mxcmp();
   extern void mxpend_ ();
@@ -148,7 +143,7 @@ void g_exit_( n, array, procmap, len, iwork, work )
   qqsort( proclist, 0, nprocs-1);
   
   if ( nprocs > maxprocs ) {
-    fprintf(stderr, "G_EXIT: Node %d Error: Number of processors in Proc List exceeds number allocated \n", me);
+    fprintf(stderr, "G_EXIT: Node %d Error: Number of processors in Proc List exceeds number allocated \n", (int)me);
     xerbl2_ ( );
     return;
   }
@@ -161,7 +156,7 @@ void g_exit_( n, array, procmap, len, iwork, work )
   
   if ( *n < 0 ) {
     *n = -51;
-    fprintf(stderr, " %s  My node id = %d info = %d (g_exit_) \n", array, me, *n);
+    fprintf(stderr, " %s  My node id = %d info = %d (g_exit_) \n", array, (int)me, (int)(*n));
     /*
       xerbl2_ ( );
       */
@@ -184,12 +179,11 @@ void gi_sum(buf, items, msgtype, root, snumprocs, plist, work)
      DoublePrecision *work;  /* workspace containing at least bufsiz bytes (see cmbbrf.h) */
 {
   Integer isize;
-  extern Integer sumiv_();
-  extern Integer mxcombv1_();
+  extern Integer sumiv_(Integer *, Integer *, Integer *, Integer *);
   
   isize = sizeof(Integer);
 
-  mxcombv1_ ( (char *) buf, sumiv_ , &isize, &items, &snumprocs, plist, &msgtype, (char *)work);
+  mxcombv1_ ( (Integer *) buf, sumiv_ , &isize, &items, &snumprocs, plist, &msgtype, (Integer *)work);
 
   return;
 }

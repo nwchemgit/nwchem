@@ -1,6 +1,3 @@
-/*
- $Id$
-*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -18,59 +15,25 @@
  **/
 #include "rpspsolve.c"
 
-#if defined(CRAY) || defined(CRAY_T3D)
-#include <fortran.h>
-#if !defined(__crayx1)
-#define USE_FCD
-#endif
-#endif
-
-#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__MINGW32__)
 #define pspsolve_ PSPSOLVE
 #endif
 
-void FATR pspsolve_
-#if defined(USE_FCD)
- 
-  (Integer * print_ptr,
-   Integer * debug_ptr,
-   Integer * lmax_ptr,
-   Integer * locp_ptr,
-   double *rlocal_ptr,
-   Integer * efg_ptr,
-   const _fcd fcd_sdir_name,
-   Integer * n9,
-   const _fcd fcd_dir_name,
-   Integer * n0,
-   const _fcd fcd_in_filename,
-   Integer * n1, const _fcd fcd_out_filename, Integer * n2)
+void FATR pspsolve_(Integer *print_ptr,
+                    Integer *debug_ptr,
+                    Integer *lmax_ptr,
+                    Integer *locp_ptr,
+                    double *rlocal_ptr,
+                    Integer *efg_ptr,
+                    char sdir_name[],
+                    Integer *n9,
+                    char dir_name[],
+                    Integer *n0,
+                    char in_filename[],
+                    Integer *n1,
+                    char out_filename[],
+                    Integer *n2)
 {
-  char *sdir_name = _fcdtocp (fcd_sdir_name);
-  char *dir_name = _fcdtocp (fcd_dir_name);
-  char *in_filename = _fcdtocp (fcd_in_filename);
-  char *out_filename = _fcdtocp (fcd_out_filename);
-
-#else
- 
-  (print_ptr, debug_ptr, lmax_ptr, locp_ptr, rlocal_ptr,efg_ptr,
-   sdir_name, n9, dir_name, n0, in_filename, n1, out_filename, n2)
-     Integer *print_ptr;
-     Integer *debug_ptr;
-     Integer *lmax_ptr;
-     Integer *locp_ptr;
-     double *rlocal_ptr;
-     Integer *efg_ptr;
-     char sdir_name[];
-     Integer *n9;
-     char dir_name[];
-     Integer *n0;
-     char in_filename[];
-     Integer *n1;
-     char out_filename[];
-     Integer *n2;
-{
-
-#endif
 
   int i, j, k, l, p, Nlinear, Nvalence,Ncore,istate,mch,kb_extra;
   int debug, print;

@@ -79,7 +79,7 @@ void upperUF_ ( n, rowU, mapU, nW, colW, mapW, iwork, work)
   
   Integer i, iii, k, me, isize;
   Integer nvecsU, nvecsW;
-  Integer count_list(), i_U;
+  Integer i_U;
   Integer nprocs;
   Integer *mapvecU, *mapvecW;
   Integer *iscrat;
@@ -91,24 +91,12 @@ void upperUF_ ( n, rowU, mapU, nW, colW, mapW, iwork, work)
   DoublePrecision safeulp;
   
   extern void combine_vector();
-  extern Integer fil_mapvec_();
-  extern Integer indxL();
-  
-  /*
-    blas calls
-    */
-  
-  extern void dcopy_ ();
-  extern DoublePrecision ddot_ ();
-
   
   /*
     mxsubs communication calls
     */
   
-  extern Integer mxwrit_ (), mxread_ (), mxmynd_ ();
-  extern void chol_pipe_bcast();
-  extern Integer mxmynd_ (), reduce_list2();
+  extern Integer mxmynd_ ();
   
   me = mxmynd_ ();
   

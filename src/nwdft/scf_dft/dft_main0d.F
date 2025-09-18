@@ -122,18 +122,9 @@ c
 c     == SCALAPACK related ==
 c
 #ifdef SCALAPACK
-#if defined(PARALLEL_DIAG)
       call slexit
       call slexit2
-      if (.not. rtdb_cget(rtdb, 'dft:scaladiag',1,yev))
-#ifdef USE_PDSYEVR__
-     &     yev='r'
-#else
-     &     yev='d'
-#endif
-      if (.not. rtdb_get(rtdb, 'dft:scalanb',mt_int,1,nb))
-     &     nb=0
-#endif
+      call dft_utilscal(rtdb)
 #endif
 c
 c     == Trash junk that may have remained in restart calcs ==
@@ -368,7 +359,7 @@ c
          call dft_cholinv(g_2ceri, g_cdinv)
 #ifndef SCALAPACK            
 c
-c     second build of g_2ceri needed becuase previous calls destroyed it
+c     second build of g_2ceri needed because previous calls destroyed it
 c     
             if (odftps) call pstat_on(ps_2cer)
             call ga_zero(g_2ceri)
@@ -437,7 +428,6 @@ c
      &     call errquit(pname//'Error creating ga',0,GA_ERR)
       call ga_zero(g_svecs)
       if (odftps) call pstat_on(ps_diag)
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
 c     we need all eigenvectors for the overlap matrix,
          yev0=yev
@@ -445,9 +435,8 @@ c     we need all eigenvectors for the overlap matrix,
          idum=0
          call dft_scaleig(g_s, g_svecs, Dbl_MB(isvals), idum)
          yev=yev0
-#else
+#elif defined(PEIGS)
       call ga_diag_std(g_s, g_svecs, Dbl_MB(isvals))
-#endif
 #else 
       call ga_diag_std_seq(g_s, g_svecs, Dbl_MB(isvals))
 #endif

@@ -84,16 +84,8 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
 
   /* blas calls */
 
-  extern void dcopy_(), daxpy_(), dscal_();
-  extern DoublePrecision ddot_();
   extern DoublePrecision gdot_();
-  extern DoublePrecision dnrm2_();
-
-  extern void bbcast00();
-  extern Integer count_list();
   extern Integer mxmynd_();
-  extern Integer reduce_list4();
-  extern Integer indxL();
   
   
   me = mxmynd_();

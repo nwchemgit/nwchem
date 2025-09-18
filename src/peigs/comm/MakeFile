@@ -24,7 +24,6 @@ LIBRARY = peigs.lib
 
 include ../DEFS
 
-.EXPORT_ALL_VARIABLES:
 
 .PHONY :	clean
 

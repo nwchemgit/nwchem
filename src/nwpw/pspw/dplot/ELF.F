@@ -66,8 +66,9 @@
      >                        dbl_mb(dns(1)),
      >                        dbl_mb(dnsp(1)))
       do i=1,n2ft3d
-        dbl_mb(dns(1)+i-1) = log(dn(i))
-        write(*,*) "i,dns=",i,dbl_mb(dns(1)+i-1)
+        dbl_mb(dns(1)+i-1) = dlog(dn(i))
+        !dbl_mb(dns(1)+i-1) = dlog(dabs(dn(i)))
+        !write(*,*) "i,dns=",i,dbl_mb(dns(1)+i-1)
       end do
       call D3dB_r_Zero_Ends(1,dbl_mb(dns(1)))
 
@@ -444,7 +445,7 @@ c      end do
          tsum = tsum + rho(i)
       end do
       tsum = tsum * dv
-      write(*,*) "<rho(:,j)> = ",jj,x,y,z,tsum
+      !write(*,*) "<rho(:,j)> = ",jj,x,y,z,tsum
 
       if (.not.BA_pop_stack(rgrid(2)))
      > call errquit('pspw_dplot_loop:pop stack',0,MA_ERR)

@@ -35,7 +35,7 @@ extern double* paw_get_pointer_paw_ps_density();
 extern double* paw_get_pointer_paw_density();
 
 extern double paw_get_paw_kinetic_energy();
-extern double paw_get_r_orbital();
+extern double paw_get_r_orbital(int);
 
 extern int paw_get_nbasis();
 extern double paw_get_Zvalence();

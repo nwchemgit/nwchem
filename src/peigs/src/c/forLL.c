@@ -91,18 +91,6 @@ void forwardLL_ ( n, mapL, mapv_L, colL, mapZ, mapvecZ, colZ, scratch, nprocs, p
   extern Integer mxmynd_ ();
   extern void combine_vector();
   
-  /* blas calls */
-  
-  extern void dcopy_ ();          
-  
-  /* 
-    mxsubs calls
-    */
-  
-  extern Integer mxwrit_ (),  mxread_ (), indxL();
-  extern Integer count_list();
-  extern void daxpy_();
-  
   me = mxmynd_ ();
 
   

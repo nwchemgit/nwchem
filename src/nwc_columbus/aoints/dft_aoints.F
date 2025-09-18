@@ -18,7 +18,7 @@
 *      call grid_cleanup(.true.)
 *c
 *      end
-      logical function sodft_aoints(rtdb)
+      logical function sodft_aoints(rtdb,theory)
 c     
 c>>>  driver 
 c     
@@ -50,6 +50,8 @@ c
 #include "util.fh"
 #include "cgridfile.fh"
 #include "cosmo.fh"
+
+#include "geomP.fh"
 c     
 c     local declarations
 c
@@ -67,11 +69,11 @@ c
       external dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
       logical grid_ok,l1ecache
       integer igok
-      character*80 theory
+      character*32 theory
       character*30 operation
 c     
 cgk debug
-*     write(*,*)'gk: entered sodft_aoints...'
+      !write(6,*)'gk: entered sodft_aoints...'
 *     write(*,*)'gk:    do some hand shaking so we can transfer some of'
 *    & ,' this to aoints'
 cgk end
@@ -87,30 +89,30 @@ c
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = ' '
 
-      if(.not.rtdb_cput(rtdb,'dft:theory', 1, 'sodft')) 
+      if(.not.rtdb_cput(rtdb,'dft:theory', 1, theory))
      &  call errquit('dft_aoints:  can not put theory on rtdb',
      &   0,RTDB_ERR)
 c
 c     init pstat
 c	
 cgk debug
-*      write(*,*)'gk: calling dft_pstat_init from sodft_aoints'
+      !write(6,*)'gk: calling dft_pstat_init from sodft_aoints'
 cgk end
       call dft_pstat_init(rtdb)
 cgk debug
-*     write(*,*)'gk: back from dft_pstat_init from sodft_aoints'
+      !write(6,*)'gk: back from dft_pstat_init from sodft_aoints'
 cgk end
 c
 c     init fdist
 c	
 cgk debug
-*     write(*,*)'gk: calling dft_fdist_init from sodft_aoints'
+      !write(6,*)'gk: calling dft_fdist_init from sodft_aoints'
 cgk end
       call dft_fdist_init(rtdb)
 cgk debug
-*     write(*,*)'gk: back from dft_fdist_init from sodft_aoints'
+      !write(6,*)'gk: back from dft_fdist_init from sodft_aoints'
 cgk end
-c
+c    
 c     Check for aoints...probably not neccessary now.
 c
 *     if (.not. rtdb_cget(rtdb, 'task:operation',1,operation))
@@ -138,11 +140,12 @@ c     Gather input from all available resources e.g. input unit,
 c     old checkpoint files, etc.
 c
 cgk debug
-*     write(*,*)'gk: calling dft_rdinput from sodft_aoints'
+      !write(6,*)'gk: calling dft_rdinput from sodft_aoints'
 cgk end
+
       call dft_rdinput(rtdb)
 cgk debug
-*     write(*,*)'gk: back from dft_rdinput from sodft_aoints'
+      !write(6,*)'gk: back from dft_rdinput from sodft_aoints'
 cgk end
 c
 c     ----- cosmo initialization ----
@@ -229,23 +232,23 @@ c
       endif
 c
 cgk debug
-*     write(*,*)'gk: !!!!!!!!!!!!!!calling int_init from sodft_aoints'
+      !write(6,*)'gk: !!!!!!!!!!!!!!calling int_init from sodft_aoints'
 *     write(*,*)'gk:  i3 = ', i3
 cgk end
       call int_init(rtdb, i3, bases)
 cgk debug
-*     write(*,*)'gk: !!!!!!!!!!!!!!back from int_init from sodft_aoints'
+      !write(6,*)'gk: !!!!!!!!!!!!!!back from int_init from sodft_aoints'
 cgk end
 c
 c     get 1-el in cache
 c
 cgk debug
-*     write(*,*)'gk: !!!!!!!!!!!calling schwartz_init from sodft_aoints'
+      !write(6,*)'gk: !!!!!!!!!!!calling schwartz_init from sodft_aoints'
 cgk end
 c     do we want Schwarz screening?
       call schwarz_init(geom, AO_bas_han)
 cgk debug
-*     write(*,*)'gk: !!!!!!!!!back from schwartz_init from sodft_aoints'
+      !write(6,*)'gk: !!!!!!!!!back from schwartz_init from sodft_aoints'
 cgk end
 c
       l1ecache=.false.
@@ -262,23 +265,23 @@ c     Build the grid.
 c
       grid_written=.false.
 cgk debug
-*     write(*,*)'gk: calling get_setquad in sodft_aoints'
-*     write(*,*)'gk:    building the grid'
+       !write(*,*)'gk: calling get_setquad in sodft_aoints'
+       !write(*,*)'gk:    building the grid'
 cgk end
       call grid_setquad(rtdb)
 cgk debug
-*     write(*,*)'gk: back from get_setquad in sodft_aoints'
+       !write(*,*)'gk: back from get_setquad in sodft_aoints'
 cgk end
 c
 c     Analyze set parameters for consistency
 c
 cgk debug
-*     write(*,*)'gk: calling dft_inpana in sodft_aoints'
-*     write(*,*)'gk:    analysing dft parameters '
+      !write(*,*)'gk: calling dft_inpana in sodft_aoints'
+      !write(*,*)'gk:    analysing dft parameters '
 cgk end
       call dft_inpana(rtdb)
 cgk debug
-*     write(*,*)'gk: back from dft_inpana in sodft_aoints'
+      !write(*,*)'gk: back from dft_inpana in sodft_aoints'
 cgk end
 c
 c     
@@ -294,20 +297,21 @@ c
 #endif
         if (inp_compare(.false., 'aoints', operation)) then
 cgk debug
-*     write(*,*)'gk: calling wrt_dft_aoints from sodft_aoints'
+      !write(6,*)'gk: calling wrt_dft_aoints from sodft_aoints'
 cgk end
          sodft_aoints = wrt_dft_aoints(rtdb)
 cgk debug
-*     write(*,*)'gk: back from from sodft_aoints'
+      !write(6,*)'gk: back from from sodft_aoints'
 cgk end
         else if(inp_compare(.false., 'grdtrc', operation)) then
            call int_terminate
            call intd_init(rtdb, i3, bases)
-           sodft_aoints = nadct_trace(rtdb,.false.,.false.)
+           sodft_aoints = nadct_trace(rtdb,.false.)
         else if(inp_compare(.false., 'nadtrc', operation)) then
            call int_terminate
            call intd_init(rtdb, i3, bases)
-           sodft_aoints = nadct_trace(rtdb,.true.,.true.)
+           sodft_aoints = nadct_trace(rtdb,.true.)
+           WRITE(*,*)"LB, back from nadct_trace"
 #ifdef GA_TRACE
       call trace_end(ga_nodeid())                            ! end trace
 #endif
@@ -323,7 +327,7 @@ c
 c     terminate integrals 
 c     
 cgk debug
-*      write(*,*)'gk: starting dft cleanup in sodft_aoints'
+       !write(6,*)'gk: starting dft cleanup in sodft_aoints'
 cgk end
       if(l1ecache) call int_1e_uncache_ga()
 cgk doing this in nadctrc, etc.
@@ -371,7 +375,7 @@ c
       call dft_pstat_print
       call util_print_pop
 cgk debug
-*     write(*,*)'gk: leaving sodft_aoints'
+      !write(6,*)'gk: leaving sodft_aoints'
 cgk end
 c
       return

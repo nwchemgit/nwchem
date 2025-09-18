@@ -56,9 +56,6 @@ void mxm88_( n, matA, mapA, m, matB, mapB, iwork, work)
   DoublePrecision *scratch;
   
   extern Integer mxmynd_();
-  extern Integer count_list();
-
-  extern void mxm88();
 
 
 

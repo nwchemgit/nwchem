@@ -132,7 +132,7 @@ c     the Fock matrix was diagonal in the basis of input MOs.
 
         do tt = 1,nloc
           t = iloc(tt)
-          call ga_get(g_t, 1, nloc, t, t, c(1,1), 1)
+          call ga_get(g_t, 1, nmo, t, t, c(1,1), 1)
           tmp = 0.0d0
           do ss = 1,nloc
             s = iloc(ss)
@@ -193,7 +193,9 @@ c     per lmo, a list of atomic populations is printed
 c     in decreasing magnitude, with the populations in parentheses.
 
       if (ga_nodeid() .eq. 0) then
-         write(luout,*)
+        write(luout,'(/1x,a/)') 'PM localized orbitals ('//ltyp//') :'
+        write(luout,*)
+     &    'orbital         e(au) occ      atom(weight) ...'
          do ss = 1, nloc
             s = iloc(ss)
             call ga_get(g_c,  1, nbf, s, s, c(1,1), 1)
@@ -228,7 +230,7 @@ c     in decreasing magnitude, with the populations in parentheses.
 
             write(luout,9002) s, eval(s),
      &        occ(s),(list(a), pop(a), a=1,nlist)
- 9002       format(i5, 1x, f14.6,1x, f5.3, 1x,100(2x,i4,'(',f5.2,')'))
+ 9002     format(i8, 1x, f13.5,1x, f5.3,1x,100(2x,i5,'(',f5.2,')'))
           end do
           write(luout,*)
          call util_flush(6)

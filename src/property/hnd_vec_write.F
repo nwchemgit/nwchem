@@ -64,6 +64,15 @@ c     name
         continue ! let's hope the file name is OK ...
       end if
 
+c ... jochen: nwchem gives an error if the number of MOs in subroutine
+c argument nmo, and more importantly the column dimensions of GA vectors
+c is smaller than what's in the movecs file from the SCF. The following
+c small code block is intended to fix this
+      
+      if (nmo.lt.nmo_molec(1) .or. nmo.lt.nmo_molec(2)) then
+        nmo_molec(:) = nmo
+      end if
+
 c      write (luout,*) 'writing localized MOs to file ',trim(movecs)
 
       if (.not. movecs_write(rtdb, basis, filename,

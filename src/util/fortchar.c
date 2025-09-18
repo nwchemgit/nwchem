@@ -1,6 +1,6 @@
 /*$Id$*/
 /* Name munging to handle the various conventions for Fortran-C interfacing */
-#if (defined(CRAY) || defined(ARDENT) || defined(WIN32)) && !defined(__crayx1)&&!defined(__MINGW32__)
+#if (defined(ARDENT) || defined(WIN32)) && !defined(__MINGW32__)
 #   define FCSND_  FCSND
 #   define FCRCV_  FCRCV
 #else
@@ -18,10 +18,6 @@
 
 #include <tcgmsg.h>
 #include <string.h>
-#if defined(CRAY) && !defined(__crayx1)
-#define FATR
-#include <fortran.h> /* Required for Fortran-C string interface on Crays */
-#endif /* CRAY */
 #ifdef WIN32
 #include "typesf2c.h"
 #endif
@@ -35,30 +31,11 @@
  **/
 
 
-#if defined(USE_FCD)
-void FATR FCSND_(type, fcd, node, sync)
-     long *type;
-     _fcd fcd;
-     long *node;
-     long *sync;
-#else /* CRAY */
-void FCSND_(type, fstring, node, sync, flength)
-     long *type;
-     long *node;
-     long *sync;
-     char *fstring;
-     long flength; /* Length of fstring, implicitly passed by FORTRAN */
-#endif /* CRAY */
+void FCSND_(long *type, char *fstring, long *node, long *sync,
+            long flength) /* Length of fstring, implicitly passed by FORTRAN */
 {
     char cstring[FC_MAXLEN];
-    long fpos, clength, lenbuf=sizeof cstring;
-#if defined(USE_FCD)
-    char	*fstring;	/* FORTRAN string */
-    long	flength;	/* length of fstring */
-
-    fstring = _fcdtocp(fcd);
-    flength = _fcdlen(fcd);
-#endif /* CRAY */
+    long fpos, clength, lenbuf=sizeof(cstring);
 	    
     /* If the Fortran string is too long it is sent in chunks */
     fpos = 0;
@@ -84,34 +61,12 @@ void FCSND_(type, fstring, node, sync, flength)
     }
 }
 
-#if defined(USE_FCD)
-void FATR FCRCV_(type, fcd, flength, nodeselect, nodefrom, sync)
-     long *type;
-     _fcd fcd;
-     long *flength;
-     long *nodeselect;
-     long *nodefrom;
-     long *sync;
-#else /* CRAY */
-void FCRCV_(type, fstring, flength, nodeselect, nodefrom, sync, fsize)
-     long *type;
-     char *fstring;
-     long *flength;
-     long *nodeselect;
-     long *nodefrom;
-     long *sync;
-     long fsize; /* Length of fstring, implicitly passed by FORTRAN */
-#endif
+void FCRCV_( long *type, char *fstring, long *flength,
+             long *nodeselect, long *nodefrom, long *sync,
+             long fsize) /* Length of fstring, implicitly passed by FORTRAN */
 {
     char cstring[FC_MAXLEN];
-    long i, clength, lenbuf=sizeof cstring;
-#if defined(USE_FCD)
-    char	*fstring;	/* FORTRAN string */
-    long	fsize;	        /* length of fstring */
-
-    fstring = _fcdtocp(fcd);
-    fsize = _fcdlen(fcd);
-#endif /* CRAY */
+    long i, clength, lenbuf=sizeof(cstring);
 	    
     /* Collect the text, which may be broken into multiple messages */
     *flength = 0;

@@ -65,9 +65,6 @@ void mxm25_( n1, n2, rowQ, mapQ, m, colW, mapW, colZ, iwork, work)
   DoublePrecision *dscrat;
   
   extern Integer mxmynd_();
-  extern Integer fil_mapvec_();
-  extern void mxm25();
-  extern Integer count_list();
   
   
   me = mxmynd_();

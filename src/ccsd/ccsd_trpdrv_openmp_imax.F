@@ -103,6 +103,30 @@
       external nxtask
       integer :: dgemm_flops, tengy_flops
       double precision agg_flops
+
+#ifdef USE_BATCHDGEMM_TRPDRV
+      integer, parameter :: batch_size=8
+      integer(KIND=C_SIZE_T) :: a_array1(batch_size)
+      integer(KIND=C_SIZE_T) :: b_array1(batch_size)
+      integer(KIND=C_SIZE_T) :: c_array1(batch_size)
+      integer(KIND=C_SIZE_T) :: a_array2(batch_size)
+      integer(KIND=C_SIZE_T) :: b_array2(batch_size)
+      integer(KIND=C_SIZE_T) :: c_array2(batch_size)
+      
+      integer, parameter :: grp_count=2
+      integer            :: group_size(grp_count)
+      character*1        :: transa_array(grp_count)
+      character*1        :: transb_array(grp_count)
+      integer            :: m_array(grp_count)
+      integer            :: n_array(grp_count)
+      integer            :: k_array(grp_count)
+      integer            :: lda_array(grp_count)
+      integer            :: ldb_array(grp_count)
+      integer            :: ldc_array(grp_count)
+      double precision   :: alpha_array(grp_count)
+      double precision   :: beta_array(grp_count)
+      integer            :: group_count
+#endif
 !
 !  Dependencies (global array, local array, handle):
 !
@@ -145,6 +169,12 @@
       logical got_ak
       integer thread_num
 
+!     timers
+      double precision :: tt0, tt1, tc0, tc1
+      double precision :: t_dgemm0, t_dgemm1, t_dgemm_total
+      double precision :: t_red0, t_red1, t_red_total
+
+#ifndef USE_BATCHDGEMM_TRPDRV
 !     OpenMP interop objects
       integer(kind = omp_interop_kind) :: obj0 = omp_interop_none
       integer(kind = omp_interop_kind) :: obj1 = omp_interop_none
@@ -156,34 +186,6 @@
       integer(kind = omp_interop_kind) :: obj7 = omp_interop_none
       integer(kind = omp_interop_kind) :: obj_lev0 = omp_interop_none
 
-!     timers
-      double precision :: tt0, tt1, tc0, tc1
-      double precision :: t_dgemm0, t_dgemm1, t_dgemm_total
-      double precision :: t_red0, t_red1, t_red_total
-
-#if 0
-      !$omp interop init(targetsync:obj0)
-      !$omp interop init(targetsync:obj1)
-      !$omp interop init(targetsync:obj2)
-      !$omp interop init(targetsync:obj3)
-      !$omp interop init(targetsync:obj4)
-      !$omp interop init(targetsync:obj5)
-      !$omp interop init(targetsync:obj6)
-      !$omp interop init(targetsync:obj7)
-#endif
-
-#if 0
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj0)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj1)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj2)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj3)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj4)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj5)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj6)
-      !$omp interop init(prefer_type("level_zero"),targetsync: obj7)
-#endif       
-
-#if 1
       !$omp interop init(prefer_type("sycl"),targetsync: obj0)
       !$omp interop init(prefer_type("sycl"),targetsync: obj1)
       !$omp interop init(prefer_type("sycl"),targetsync: obj2)
@@ -192,7 +194,7 @@
       !$omp interop init(prefer_type("sycl"),targetsync: obj5)
       !$omp interop init(prefer_type("sycl"),targetsync: obj6)
       !$omp interop init(prefer_type("sycl"),targetsync: obj7)
-      
+
       !$omp interop init(prefer_type("level_zero"),targetsync: obj_lev0)
 #endif
 
@@ -231,7 +233,6 @@
 !     &          stat=alloc_error)
 !      if (alloc_error.ne.0) call errquit('f[1234][tn]',8,MA_ERR)
 
-#if 1
       !$omp allocate allocator(omp_target_device_mem_alloc)
       allocate( f1n(1:nvir,1:nvir) )
       !$omp allocate allocator(omp_target_device_mem_alloc)
@@ -248,25 +249,6 @@
       allocate( f4n(1:nvir,1:nvir) )
       !$omp allocate allocator(omp_target_device_mem_alloc)
       allocate( f4t(1:nvir,1:nvir) )
-#else
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f1n(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f1t(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f2n(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f2t(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f3n(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f3t(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f4n(1:nvir,1:nvir) )
-      !$omp allocate allocator(omp_target_host_mem_alloc)
-      allocate( f4t(1:nvir,1:nvir) )
-#endif
-
 !
 ! device-only copy of input eorb
 !
@@ -370,7 +352,10 @@
      &  map(to:dintc1,dintx1,t1v1,dintc2,dintx2,t1v2)
      &  map(to:Jia,Tkj,Tia,Kkj,Kia,Tka,Kij)
      &  map(to:Xka,Jij,Xia,Jkj,Jka,Tij,Kka)
-      
+#ifdef USE_BATCHDGEMM_TRPDRV
+     &  map(to:a_array1, b_array1, c_array1)
+     &  map(to:a_array2, b_array2, c_array2)
+#endif
       do klo = 1, nocc, kchunk
          akold=0
          khi = min(nocc, klo+kchunk-1)
@@ -638,6 +623,163 @@
               tc0 = util_wallsec()
               t_dgemm0 = util_wallsec()
 
+#ifdef USE_BATCHDGEMM_TRPDRV
+              ! Update the arrays of pointers to arrays (a_array1, b_array1,
+              ! c_array1, a_array2, b_array2, and c_array2) on the device.
+              !
+              !$omp target
+                a_array1(1) = LOC(Jia(1))
+                a_array1(2) = LOC(Kia(1))
+                a_array1(3) = LOC(Jka(1+(k-klo)*lnvv))
+                a_array1(4) = LOC(Kka(1+(k-klo)*lnvv))
+                a_array1(5) = LOC(Jia(1))
+                a_array1(6) = LOC(Kia(1))
+                a_array1(7) = LOC(Jka(1+(k-klo)*lnvv))
+                a_array1(8) = LOC(Kka(1+(k-klo)*lnvv))
+
+                b_array1(1) = LOC(Tkj(1+(k-klo)*lnvv))
+                b_array1(2) = LOC(Tkj(1+(k-klo)*lnvv))
+                b_array1(3) = LOC(Tij(1))
+                b_array1(4) = LOC(Tij(1))
+                b_array1(5) = LOC(Tkj(1+(k-klo)*lnvv))
+                b_array1(6) = LOC(Tkj(1+(k-klo)*lnvv))
+                b_array1(7) = LOC(Tij(1))
+                b_array1(8) = LOC(Tij(1))
+
+                c_array1(1) = LOC(f1n(1,1))
+                c_array1(2) = LOC(f2n(1,1))
+                c_array1(3) = LOC(f1t(1,1))
+                c_array1(4) = LOC(f2t(1,1))
+                c_array1(5) = LOC(f3n(1,1))
+                c_array1(6) = LOC(f4n(1,1))
+                c_array1(7) = LOC(f3t(1,1))
+                c_array1(8) = LOC(f4t(1,1))
+
+                a_array2(1) = LOC(Tia(1))
+                a_array2(2) = LOC(Xia(1))
+                a_array2(3) = LOC(Tia(1))
+                a_array2(4) = LOC(Xia(1))
+                a_array2(5) = LOC(Tka(1+(k-klo)*lnov))
+                a_array2(6) = LOC(Xka(1+(k-klo)*lnov))
+                a_array2(7) = LOC(Tka(1+(k-klo)*lnov))
+                a_array2(8) = LOC(Xka(1+(k-klo)*lnov))
+
+                b_array2(1) = LOC(Kkj(1+(k-klo)*lnov))
+                b_array2(2) = LOC(Kkj(1+(k-klo)*lnov))
+                b_array2(3) = LOC(Jkj(1+(k-klo)*lnov))
+                b_array2(4) = LOC(Jkj(1+(k-klo)*lnov))
+                b_array2(5) = LOC(Kij(1))
+                b_array2(6) = LOC(Kij(1))
+                b_array2(7) = LOC(Jij(1))
+                b_array2(8) = LOC(Jij(1))
+
+                c_array2(1) = LOC(f1n(1,1))
+                c_array2(2) = LOC(f2n(1,1))
+                c_array2(3) = LOC(f3n(1,1))
+                c_array2(4) = LOC(f4n(1,1))
+                c_array2(5) = LOC(f1t(1,1))
+                c_array2(6) = LOC(f2t(1,1))
+                c_array2(7) = LOC(f3t(1,1))
+                c_array2(8) = LOC(f4t(1,1))
+              !$omp end target
+
+              !
+              ! First call to dgemm_batch (2 groups, each of size 4)
+              !
+
+              ! First group in first batch call.
+              ! 4 matrix multiplications. So group size is 4.
+              group_count = 2
+              group_size(1) = 4
+
+              transa_array(1) = 'n'
+              transb_array(1) = 't'
+
+              m_array(1) = nvir
+              n_array(1) = nvir
+              k_array(1) = nvir
+
+              lda_array(1) = nvir
+              ldb_array(1) = nvir
+              ldc_array(1) = nvir
+
+              alpha_array(1) = 1.0d0
+              beta_array(1)  = 0.0d0
+
+             ! Second group in first batch call.
+             ! 4 matrix multiplications. So group size is 4.
+             group_size(2) = 4
+
+             transa_array(2) = 'n'
+             transb_array(2) = 'n'
+
+             m_array(2) = nvir
+             n_array(2) = nvir
+             k_array(2) = nvir
+
+             lda_array(2) = nvir
+             ldb_array(2) = nvir
+             ldc_array(2) = nvir
+
+             alpha_array(2) = 1.0d0
+             beta_array(2)  = 0.0d0
+
+             !$omp dispatch
+               call dgemm_batch(transa_array,
+     &                          transb_array,
+     &                          m_array,
+     &                          n_array,
+     &                          k_array,
+     &                          alpha_array,
+     &                          a_array1,
+     &                          lda_array,
+     &                          b_array1,
+     &                          ldb_array,
+     &                          beta_array,
+     &                          c_array1,
+     &                          ldc_array,
+     &                          group_count,
+     &                          group_size)
+
+             !
+             ! Second call to dgemm_batch (1 group of size 8)
+             !
+
+             ! 8 matrix multiplications. So group size is 8.
+             group_count = 1
+             group_size(1) = 8
+
+             transa_array(1) = 'n'
+             transb_array(1) = 'n'
+
+             m_array(1) = nvir
+             n_array(1) = nvir
+             k_array(1) = nocc
+
+             lda_array(1) = nvir
+             ldb_array(1) = nocc
+             ldc_array(1) = nvir
+
+             alpha_array(1) = -1.0d0
+             beta_array(1) = 1.0d0
+
+             !$omp dispatch
+               call dgemm_batch(transa_array,
+     &                          transb_array,
+     &                          m_array,
+     &                          n_array,
+     &                          k_array,
+     &                          alpha_array,
+     &                          a_array2,
+     &                          lda_array,
+     &                          b_array2,
+     &                          ldb_array,
+     &                          beta_array,
+     &                          c_array2,
+     &                          ldc_array,
+     &                          group_count,
+     &                          group_size)
+#else
               !$omp parallel sections num_threads(8)
 
                 !$omp section
@@ -745,11 +887,6 @@
      2                      f4t,nvir)
               !$omp end parallel sections
 
-#if 0
-              !$omp interop use(obj0)
-#endif
-
-#if 1
               ! "omp interop use(obj_lev0)" generates a device barrier
               ! on level0 queue. This behavior is specific to Intel and
               ! works because of the mapping of level0 queues to
@@ -762,7 +899,6 @@
                
               !$omp interop use(obj_lev0) nowait
 #endif
-
               t_dgemm1 = util_wallsec()
               t_dgemm_total = t_dgemm_total + (t_dgemm1 - t_dgemm0)
                         
@@ -861,35 +997,6 @@
                emp5 = emp5 + emp5k
 #else
 
-#if 0
-!use two separate calls to C implementation
-!$omp target update to(emp4i,emp5i)
-           call ccsd_trpdrv_omp_reduce_01(f1n, f1t, f2n, f2t,
-     &                                 f3n, f3t, f4n, f4t,
-     &                                 eorb,
-     &                                 ncor, nocc, nvir,
-!     &                                 emp4i, emp5i,
-     &                                 eaijk,
-     &                                 dintc1, dintx1, t1v1)
-!$omp target update from(emp4i,emp5i)
-
-           if (i.ne.k) then
-!$omp target update to(emp4k,emp5k)
-           call ccsd_trpdrv_omp_reduce_02(f1n, f1t, f2n, f2t,
-     &                                 f3n, f3t, f4n, f4t,
-     &                                 eorb,
-     &                                 ncor, nocc, nvir,
-!     &                                 emp4k, emp5k, 
-     &                                 eaijk,
-     &                                 dintc2, dintx2, t1v2)
-!$omp target update from(emp4k,emp5k)
-               end if ! (i.ne.k)
-
-           emp4 = emp4 + emp4i
-           emp5 = emp5 + emp5i
-           emp4 = emp4 + emp4k
-           emp5 = emp5 + emp5k
-#endif
            
           call ccsd_trpdrv_omp_fbody_reduce_new (f1n, f1t, f2n, f2t,
      &                                 f3n, f3t, f4n, f4t,
@@ -981,6 +1088,7 @@
 ! end mapping of all data below
 !$omp end target data
 
+#ifndef USE_BATCHDGEMM_TRPDRV
       !$omp interop destroy(obj0)
       !$omp interop destroy(obj1)
       !$omp interop destroy(obj2)
@@ -990,6 +1098,7 @@
       !$omp interop destroy(obj6)
       !$omp interop destroy(obj7)
       !$omp interop destroy(obj_lev0)
+#endif
       
       call ga_sync()
       next=nxtask(-nodes, 1)

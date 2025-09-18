@@ -190,6 +190,8 @@ c
       double precision  wleb(mxfac)
       double precision  energy
 c
+      integer    cosmo_cavity
+      double precision mfactor
       logical    oprint_out
       logical    oprint_more
       logical    oprint_debug
@@ -204,6 +206,11 @@ c
      D     (ga_nodeid().eq.0)
       oprint_more = util_print("cosmo_cossrf_more",print_never).and.
      D     (ga_nodeid().eq.0)
+c
+      if (.not. rtdb_get(rtdb,'cosmo:cavity',mt_int,1,
+     $     cosmo_cavity)) cosmo_cavity=COSMO_CAVITY_VDW
+      if (.not. rtdb_get(rtdb,'cosmo:mfactor',mt_dbl,1,
+     $     mfactor)) mfactor=1.d0
 c
 c     ----- approximate sphere with segments and points -----
 c
@@ -267,7 +274,8 @@ c
          if(radius(iat).eq.0.0d0) then
             ratm(iat)=0.0d0
          else
-            if (do_cosmo_model.eq.DO_COSMO_KS) then
+            if (do_cosmo_model.eq.DO_COSMO_KS.and.
+     +          cosmo_cavity.ne.COSMO_CAVITY_SES) then
               ratm(iat)=(radius(iat)+rsolv)/cau2ang
             else
               ratm(iat)=radius(iat)/cau2ang
@@ -280,8 +288,8 @@ c
 
       call hnd_cossas(nat,xyzatm,ratm,mxatm,
      1                nspa,nppa,xyzspa,ijkspa,
-     2                nseg,nfac,xyzseg,ijkseg,insseg,
-     3                numpps,xyzff,wleb,mxfac,geom,rtdb)
+     2                nseg,nfac,xyzseg,ijkseg,insseg,numpps,
+     3                xyzff,wleb,mxfac,geom,cosmo_cavity,mfactor,rtdb)
 c
       return
  9999 format(' nseg,nfac,ndiv=nfac/nseg,dsurf,dvol = ',3i7,2f10.6)
@@ -373,9 +381,9 @@ C>     10.1021/jp992097l</a>.
 C>
       subroutine hnd_cossas(nat,xyzatm,ratm,mxatom,
      1                      nspa,nppa,xyzspa,ijkspa,
-     2                      nseg,nfac,xyzseg,ijkseg,insseg,
-     3                      numpps,xyzff,wleb,mxface,geom,
-     4                      rtdb)
+     2                      nseg,nfac,xyzseg,ijkseg,insseg,numpps,
+     3                      xyzff,wleb,mxface,geom,cosmo_cavity,
+     4                      mfactor,rtdb)
       implicit none
 #include "cosmo_params.fh"
 #include "errquit.fh"
@@ -424,15 +432,24 @@ c
       integer          numpps(  mxface,mxatom)
       double precision  xyzff(  mxface,mxatom)
       double precision   wleb(         mxface)
-      double precision zero, one
-      data one     /1.0d+00/
+      double precision zero, one, two
+      data zero/0.0d00/,one/1.0d00/,two/2.0d00/
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
       integer l_efclb, k_efclb, k_efciat, l_efciat
       integer l_efczz, k_efczz
       integer l_msrf,k_msrf
+c     SES variables
+      integer cosmo_cavity
+      double precision mfactor, asum, dmin
+      real*4 ofac,rd,dvec,rmim
+      INTEGER*4 ndiv, gseg
+      double precision segarea(mxface)
+      integer          segatom(mxface)
+      double precision garea, gvolume
+c
       double precision ratm_real,dij,dum,cavdsp,pi,zetai,zetaii
       integer m,mfac,mseg
-      integer nefc,iat,jat,npp,i,iseg,ifac,ief,ipp
+      integer nefc,iat,jat,npp,i,iseg,jseg,ifac,ief,ipp
 
       integer l_dum1, l_dum2, l_attag, k_dum1, k_dum2, k_attag
       character(len=16) aname
@@ -470,12 +487,22 @@ c
 c
       oprint_debug = util_print("cosmo_cossas_debug",print_debug).and.
      D     (ga_nodeid().eq.0)
+      dbug=oprint_debug
       oprint_molsurf = util_print("cosmo_mol_surface",print_never).and.
      D     (ga_nodeid().eq.0)
       pi = acos(-1.0d0)
 c
       if(ga_nodeid().eq.0) then
-         write(luout,9999)
+        if(cosmo_cavity.eq.COSMO_CAVITY_SES) then
+          write(luout,8888)
+        else
+c         YK model is currently using a vdW surface and not a SAS
+c         as described in the original paper.
+c         The KS model with a vdW cavity has a defect: it produces an 
+c         incomplete vdW surface, leaving solvent-excluded areas
+c         open, small values of rsolv are needed.
+          write(luout,9999)
+        endif
       endif
 c
 c     ----- print atomic centers -----
@@ -483,11 +510,12 @@ c
       if(ga_nodeid().eq.0) then
         write(luout,9998)
         do iat=1,nat
-          if (do_cosmo_model.eq.DO_COSMO_KS) then
+          if (do_cosmo_model.eq.DO_COSMO_KS.and.
+     +        cosmo_cavity.ne.COSMO_CAVITY_SES) then
             write(luout,9997) iat,xyzatm(1,iat),xyzatm(2,iat),
      1                                       xyzatm(3,iat),
      2                    (ratm(iat)*cau2ang-rsolv)
-          else if (do_cosmo_model.eq.DO_COSMO_YK) then
+          else
             write(luout,9997) iat,xyzatm(1,iat),xyzatm(2,iat),
      1                                       xyzatm(3,iat),
      2                    (ratm(iat)*cau2ang)
@@ -669,7 +697,7 @@ c
 c
       enddo
 c
-      if(ga_nodeid().eq.0) then
+      if(ga_nodeid().eq.0.and.cosmo_cavity.ne.COSMO_CAVITY_SES) then
          write(luout,9985) nseg,nfac
          write(luout,9992)
          do iat=1,nat
@@ -680,7 +708,7 @@ c
             write(luout,9991) iat,nspa(iat),nppa(iat),npp
          enddo
       endif
-      if(oprint_debug) then
+      if(oprint_debug.and.cosmo_cavity.ne.COSMO_CAVITY_SES) then
          write(luout,9987)
          do iat=1,nat
             do iseg=1,nseg
@@ -701,6 +729,25 @@ c
          endif
       enddo
 c
+c     Construct a precise SES surface, using a modified GEPOL93.
+c
+      if (cosmo_cavity.eq.COSMO_CAVITY_SES) then
+c       We are sending all arguments in A.U.
+        rd = rsolv/cau2ang
+        rmim = rd/2
+        ofac = 0.9 ! to reduce the concave regions
+        dvec = 1.0 ! segment vector direction, not relevant
+        if(.not.rtdb_get(rtdb,'cosmo:ndiv',mt_int,1,ndiv)) ndiv=2
+        call gepol('ESURF',.false.,.false.,.false.,.false.,'TIT',0,
+     &             rmim,'','','',ofac,rd,ndiv,dvec,
+     &             .true.,.false.,
+     &             nat,ratm,xyzatm,mxface,
+     &             gseg,xyzseg,segarea,segatom,srfmol,volmol,.false.)
+        nefc = gseg
+        nseg = gseg
+      end if
+c
+c
 c     Allocate memory for point charges
 c
       if(.not.ma_push_get(mt_dbl,nefc*3,'cosmo efcc',l_efcc,k_efcc))
@@ -715,11 +762,9 @@ c
      & call errquit('cosmo_cossas malloc k_efczz failed',911,MA_ERR) 
       if(.not.ma_push_get(mt_byte,nefc*8,'cosmo tags',l_efclb,k_efclb))
      &     call errquit('cosmo_cossas malloc k_tag failed',911,MA_ERR)
-      if(oprint_molsurf)  then
-         if(.not.ma_push_get(mt_dbl,nefc,'molsurf',l_msrf,k_msrf))
-     &        call errquit('cosmo_cossas malloc k_tag failed',1,MA_ERR)
-         call dfill(nefc,0.0d0,dbl_mb(k_msrf),1)
-      endif
+      if(.not.ma_push_get(mt_dbl,nefc,'molsurf',l_msrf,k_msrf))
+     &     call errquit('cosmo_cossas malloc k_msrf failed',1,MA_ERR)
+      call dfill(nefc,0.0d0,dbl_mb(k_msrf),1)
 
       if(oprint_debug) then
         if(.not.ma_push_get(mt_dbl,nat*3,'coord',l_dum1,k_dum1))
@@ -738,6 +783,72 @@ c     ----- save coordinates of surface points -----
 c           save segment surfaces
 c           save segment to atom mapping
 c
+      if(cosmo_cavity.eq.COSMO_CAVITY_SES) then
+c       Save gepol results, but keep the segments sorted by atom
+c       so grad_hdn_cos can work properly.
+c
+c       The minimum distance we will accept between 2 segments,
+c       this is slight lower than the minimum distance for a rsolv sphere.
+        dmin = rsolv/cau2ang * 0.3 * mfactor
+        if (ndiv.eq.2) dmin = dmin/2.0
+        if (ndiv.ge.3) dmin = dmin/4.0
+c
+c       Checking for overlapping segments to merge.
+        if (do_cosmo_model.ne.DO_COSMO_YK.and.
+     A       dmin.gt.zero) then
+           iseg = 0
+           do while (iseg <= nseg)
+              iseg = iseg + 1
+              if(segarea(iseg).le.zero) cycle
+              do jseg=iseg+1,nseg
+                 if(segarea(jseg).le.zero) cycle
+                 dij=dist(
+     I                xyzseg(1,iseg),xyzseg(2,iseg),xyzseg(3,iseg),
+     J                xyzseg(1,jseg),xyzseg(2,jseg),xyzseg(3,jseg))
+                 if(dij.lt.dmin) then
+c     Accumulate the area at the centroid.
+                    asum = segarea(iseg) + segarea(jseg)
+                    do m=1,3
+                       xyzseg(m,iseg) = (segarea(iseg)*xyzseg(m,iseg)+
+     +                      segarea(jseg)*xyzseg(m,jseg))/asum
+                    end do
+                    segarea(iseg) = asum;
+                    segarea(jseg) = zero;
+c     Start over, perhaps 3 or more segments should be merged
+                    iseg = 0
+                    exit
+                 end if
+              end do
+           end do
+        endif
+c       Add the segments sorted by atom.
+        ief = 0
+        do iat=1,nat
+          do iseg=1,nseg
+            if(iat.ne.segatom(iseg).or.segarea(iseg).le.zero) cycle
+c
+            ief = ief+1
+            dbl_mb(k_efcc+3*(ief-1))  =xyzseg(1,iseg)
+            dbl_mb(k_efcc+3*(ief-1)+1)=xyzseg(2,iseg)
+            dbl_mb(k_efcc+3*(ief-1)+2)=xyzseg(3,iseg)
+
+            dbl_mb(k_efcs+ief-1) = segarea(iseg) ! KS area
+            if (do_cosmo_model.eq.DO_COSMO_YK) then
+c             Store the YK variables.
+              zetai=zeta/sqrt(segarea(iseg)) ! zetai=zeta/sqrt(dsurf)/ratm_real
+              zetaii=zetai*sqrt(2d0/pi)
+              xyzff(iseg,iat) = one ! no segments inside other spheres
+              dbl_mb(k_efcs+ief-1) = zetaii ! zetaii/xyzff(iseg,iat))
+              dbl_mb(k_msrf+ief-1) = segarea(iseg) ! YK area
+              dbl_mb(k_efczz+ief-1) = zetai
+            end if
+c           Atom map.
+            int_mb(k_efciat+ief-1) = iat
+          enddo
+        enddo
+        nefc = ief
+        nseg = nefc
+      else
       srfmol=0d0
       volmol=0d0
       ief   =0
@@ -784,10 +895,8 @@ c
                       zetaii=zetai*sqrt(2d0/pi)
                       dbl_mb(k_efcs+ief-1) = (zetaii/xyzff(iseg,iat))
 c     769
-                      if(oprint_molsurf)  then
-                         dbl_mb(k_msrf+ief-1)=
+                      dbl_mb(k_msrf+ief-1)=
      x                        xyzff(iseg,iat)*dsurf*ratm_real**2
-                      endif
                       srfmol = srfmol+xyzff(iseg,iat)*dsurf*ratm_real**2
                       volmol = volmol+xyzff(iseg,iat)*dvol *ratm_real**3
                     else
@@ -795,10 +904,8 @@ c     769
                       zetaii=zetai*sqrt(2d0/pi)
                       dbl_mb(k_efcs+ief-1) = zetaii/xyzff(iseg,iat)
 c 775
-                      if(oprint_molsurf)  then
-                         dbl_mb(k_msrf+ief-1)=
+                      dbl_mb(k_msrf+ief-1)=
      x                        xyzff(iseg,iat)*wleb(iseg)*ratm_real**2
-                      endif
                       srfmol = srfmol + xyzff(iseg,iat)*
      $                                  wleb(iseg)*ratm_real**2
                       volmol = volmol + xyzff(iseg,iat)*
@@ -811,6 +918,24 @@ c 775
             enddo
          endif
       enddo
+c     Volume is underestimated with the above method, let's use GEPOL
+c     just to get a better volume estimate for the vdW cavity.
+c     For the KS method the SES cavity should be used.
+      if (do_cosmo_model.eq.DO_COSMO_YK) then
+        rd = 0! no solvent
+        rmim = rd/2! dummy, not used
+        ofac = 0.9 ! dummy, not used
+        dvec = 1.0 ! segment vector direction, not relevant
+        ndiv = 1
+        call gepol('WSURF',.false.,.false.,.false.,.false.,'TIT',0,
+     &        rmim,'','','',ofac,rd,ndiv,dvec,
+     &        .true.,.false.,nat,ratm,xyzatm,mxface,
+     &        gseg,xyzseg,segarea,segatom,
+     &        garea,gvolume,.false.)
+        volmol = gvolume
+      endif
+c
+      endif
       srfmol=srfmol*(cau2ang**2)
       volmol=volmol*(cau2ang**3)
 c
@@ -903,6 +1028,9 @@ c
       if(.not.rtdb_put(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
      $   call errquit('hnd_cossas: rtdb put failed for efcs  ',914,
      &       rtdb_err)
+      if(.not.rtdb_put(rtdb,'cosmo:msrf',mt_dbl,  nefc,dbl_mb(k_msrf)))
+     $   call errquit('hnd_cossas: rtdb put failed for msrf  ',914,
+     &       rtdb_err)
       if(.not.rtdb_put(rtdb,'cosmo:efczz',mt_dbl,nefc,dbl_mb(k_efczz)))
      &   call errquit('hnd_cossas: rtdb put failed for efczz ',914,
      &       rtdb_err) 
@@ -931,7 +1059,8 @@ c
      &   errquit('cosmo_cossas chop stack k_efcc failed',911,MA_ERR)
 c
       return
- 9999 format(/,1x,'solvent accessible surface',/,1x,26(1h-))
+ 9999 format(/,1x,'  van der Waals surface   ',/,1x,26(1h-))
+ 8888 format(/,1x,' solvent excluded surface ',/,1x,26(1h-))
  9998 format(/,1x,'---------- ATOMIC COORDINATES (A.U.) ----------',
      1            '-- VDWR(ANG.) --')
  9997 format(  1x,i5,3f14.8,f10.3)
@@ -1797,13 +1926,13 @@ c
 c
       double precision allefc !< [Output] The total solute charge 
                               !< density - COSMO charge interaction
-                              !< energy
+                              !< energy (pot*q)
       double precision atmefc !< [Output] The nuclear - COSMO charge
-                              !< interaction energy
+                              !< interaction energy (Q*B*q)
       double precision elcefc !< [Output] The electron - COSMO charge
                               !< interaction energy
       double precision efcefc !< [Output] The COSMO charge - COSMO
-                              !< charge interaction energy
+                              !< charge interaction energy (q'*A*q/2)
 c
 c
       integer ief, jef !< Counters over COSMO charges

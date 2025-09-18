@@ -100,22 +100,6 @@ void mxm_llx( n, colL, mapL, m, colF, mapF, iscratch, scratch)
   DoublePrecision *buffer, *d_ptr, *in_buffer, *out_buffer;
   DoublePrecision *F_ptr, *L_ptr, t;
 
-  /*
-    blas calls
-    */
-
-  extern void dcopy_ (), daxpy_ ();
-  extern DoublePrecision ddot_ ();
-
-  /* 
-    mxsubs calls
-    */
-
-  extern Integer mxwrit_ (),  mxread_ ();
-  extern Integer count_list();
-  extern Integer fil_mapvec_ ();
-  extern Integer ci_size_ ();
-
   i = 0;
   me = mxmynd_ ();
 

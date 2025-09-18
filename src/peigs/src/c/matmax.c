@@ -66,12 +66,7 @@ void mat_max ( n, m, colA,  mapA, norm, iwork, work)
   Integer *iscrat;
   DoublePrecision t, anorm;
   
-  extern DoublePrecision damax_();
-
-  extern void gmax00();
   extern Integer mxmynd_();
-  extern Integer reduce_list2();
-  extern Integer fil_mapvec_();
   
   me  = mxmynd_();
   

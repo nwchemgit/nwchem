@@ -36,7 +36,7 @@ c
       logical status
       logical cosmo
 c
-      integer iat, nrad, cosmo_screen
+      integer iat, nrad, cosmo_screen, cosmo_cavity
       integer l_rad, k_rad, l_costag, k_costag, l_coszan, k_coszan
       integer l_coscoor, k_coscoor
       integer invnuc, nat, nefc, nmap
@@ -251,9 +251,11 @@ c
       if(.not.ma_pop_stack(l_costag)) call
      &  errquit('cosmo_init,ma_pop_stack of l_tag failed',911, MA_ERR)
 c
-      do_cosmo_model = DO_COSMO_YK
       if(.not.rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec))
      D        dielec   =78.4d0 ! default water dielectric
+      cosmo_cavity = COSMO_CAVITY_VDW
+      if(.not.rtdb_get(rtdb,'cosmo:cavity',mt_int,1,cosmo_cavity))
+     D        cosmo_cavity = COSMO_CAVITY_VDW
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
       minbem   =2
@@ -285,8 +287,9 @@ c
 c
       status = rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo)
       status = rtdb_get(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv)
-      status = rtdb_get(rtdb,'cosmo:do_cosmo_model',mt_int,1,
-     +                  do_cosmo_model) 
+      if(.not.rtdb_get(rtdb,'cosmo:do_cosmo_model',mt_int,1,
+     +     do_cosmo_model))
+     C     do_cosmo_model=DO_COSMO_YK
       if (do_cosmo_model.eq.DO_COSMO_KS) then
         cosmo_sccor  = COSMO_SCCOR_SCALE
         cosmo_screen = COSMO_SCREEN_KS
@@ -296,6 +299,8 @@ c
       endif
       status = rtdb_get(rtdb,'cosmo:screen',mt_int,1,cosmo_screen) 
       status = rtdb_get(rtdb,'cosmo:sccor',mt_int,1,cosmo_sccor)
+      if(.not.rtdb_get(rtdb,'cosmo:ptcor',mt_log,1,cosmo_ptcor))
+     I     cosmo_ptcor = .false. ! correct potentials in case of outlying charge corrections
       status = rtdb_get(rtdb,'cosmo:minbem',mt_int,1,minbem) 
       status = rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem)
       status = rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos) 
@@ -506,6 +511,7 @@ c
          write(Luout,9999)
          if (do_cosmo_model.eq.DO_COSMO_KS) then
            write(Luout,9970)
+           if (cosmo_cavity.eq.COSMO_CAVITY_SES) write (Luout,8870)
          else if (do_cosmo_model.eq.DO_COSMO_YK) then
            write(Luout,9971)
          endif
@@ -608,15 +614,17 @@ c
       if(osome.and.me.eq.0) then
          write(luout,9993) lineq
          if ((iangleb.lt.1).and.(fibonacci.lt.1)) then
-           write(luout,9991) minbem
-           if (do_cosmo_model.eq.DO_COSMO_KS) then
-             write(luout,9992) maxbem
-           endif
-           if(ificos.eq.0) then
-              write(luout,9990)
-           else
-              write(luout,9989)
-           endif
+           if (cosmo_cavity.ne.COSMO_CAVITY_SES) then
+             write(luout,9991) minbem
+             if (do_cosmo_model.eq.DO_COSMO_KS) then
+               write(luout,9992) maxbem
+             endif
+             if(ificos.eq.0) then
+               write(luout,9990)
+             else
+               write(luout,9989)
+             endif
+           end if
          elseif (fibonacci.lt.1) then
            write(luout,9969)
            write(luout,9968) iangleb
@@ -750,6 +758,8 @@ c
  9972 format(' surface charge correction     = ',a)
  9971 format(' Cosmo: York-Karplus, doi: 10.1021/jp992097l')
  9970 format(' Cosmo: Klamt-Schuurmann, doi: 10.1039/P29930000799')
+c TODO: describe the GEPOL modifications and publish a new article
+ 8870 format(' SES surface, doi: 10.1002/jcc.540151009, ??')
 
  9969 format(' Using -Lebedev- grid')
  9968 format(' -iangleb',I4)

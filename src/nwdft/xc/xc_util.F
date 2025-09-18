@@ -41,7 +41,7 @@ c
      + xfac(60) + xfac(61) + xfac(62) + xfac(63) + xfac(68) + xfac(69)+
      +     xfac(66) + cfac(66) + xfac(67) + cfac(67) +
      +     cfac(68)+  cfac(69) + xfac(70) + xfac(71) + cfac(71) +
-     +     xfac(72) + xfac(73) + xfac(74) +
+     +     xfac(72) + xfac(73) + xfac(74) + cfac(74) +
      +     xfac(75) + cfac(75) +
      w     xfac(76) + xfac(77) + cfac(76) + cfac(77) +
      w     xfac(78) + cfac(78) + xfac(79) + cfac(79) +
@@ -304,6 +304,7 @@ c
      +      xfac(66) + cfac(66) + xfac(67) + cfac(67) +
      +      xfac(68) + cfac(68) + xfac(69) + cfac(69) +
      +      xfac(71) + cfac(71) + xfac(73) + cfac(73) +
+     +      xfac(74) + cfac(74) +
      +      xfac(79) + cfac(79) + xfac(80) + cfac(80) +
      +      xfac(81) + cfac(81) + xfac(83) + cfac(83) +
      +      xfac(84) + cfac(84) + xfac(85) + cfac(85) +

@@ -10,6 +10,8 @@ c
       integer i                 ! For implied do in data staements
       data ngeom_rtdb /0/
       data active /max_geom*.false./
+      data gfin_cached /max_geom*.false./
+      data geom_finnuc/max_geom*.false./
 c
 c--> names of the 3-dimensional space groups
 c
@@ -2689,7 +2691,9 @@ c
       integer icent, jcent
       integer i
       double precision scale, tmp(3),twopi
-      character*80 buf
+      integer buflen
+      parameter(buflen=128)
+      character*(buflen) buf
       logical oprint_uniq,ofinite,oprint_crystal
 c
 c     external functions
@@ -2725,6 +2729,9 @@ c
      $     call errquit('geom_print: user units?',0, GEOM_ERR)
 c     
       buf = ' '
+      if(lenn(geom)+lent(geom)+17.gt.buflen) call errquit
+     $     ('geom_print: increase buflen to',
+     $     lenn(geom)+lent(geom)+17, GEOM_ERR)
       write(buf,1) 'Geometry',
      $        names(geom)(1:lenn(geom)), 
      $        trans(geom)(1:lent(geom))
@@ -7477,11 +7484,17 @@ c
       integer i
       double precision sum
 c
-      sum = 0.0d0
-      do i = 1,ncenter(geom)
-        sum = sum+geom_invnucexp(i,geom)
-      end do
-      geom_any_finuc = sum .gt. 1.0d-20
+      if(.not.gfin_cached(geom)) then
+         sum = 0.0d0
+         do i = 1,ncenter(geom)
+            sum = sum+geom_invnucexp(i,geom)
+         end do
+         geom_any_finuc = sum .gt. 1.0d-20
+         geom_finnuc(geom)=geom_any_finuc
+         gfin_cached(geom)=.true.
+      else
+         geom_any_finuc =geom_finnuc(geom)
+      endif
       return
       end
       subroutine geom_momint0(geom,coord,natoms,ci,AI,oprint,

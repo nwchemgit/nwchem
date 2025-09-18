@@ -123,7 +123,8 @@ c
 c
       logical active, operiodic, oefield, include_bqbq, oecpcent,
      $     zmt_ijbond_frz, zmt_ijkang_frz, zmt_ijklto_frz,
-     $     zmt_ijklop_frz, zmt_ijklnb_frz
+     $     zmt_ijklop_frz, zmt_ijklnb_frz,
+     $     geom_finnuc,gfin_cached
 
       integer ngeom_rtdb, ncenter, lenn, lent, lenr, group_number,
      $     ncenter_unique, isystype, setting_number, unique_cent,
@@ -208,7 +209,8 @@ c
      $     zmt_ijkang_frz(max_zcoord,max_geom),
      $     zmt_ijklto_frz(max_zcoord,max_geom),
      $     zmt_ijklop_frz(max_zcoord,max_geom),
-     $     zmt_ijklnb_frz(max_zcoord,max_geom)
+     $     zmt_ijklnb_frz(max_zcoord,max_geom),
+     $     geom_finnuc(max_geom),gfin_cached(max_geom)
 c
       character*256 names, names_rtdb, trans
       character*16 tags

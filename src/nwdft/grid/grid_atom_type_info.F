@@ -15,7 +15,9 @@ c
 #include "bas.fh"
 #include "util_params.fh"
 c
-      double precision BSrad(105)
+      integer max_z
+      parameter(max_z=120)
+      double precision BSrad(max_z)
       double precision ictr_coord(3), ictr_chg
       double precision EPS
       parameter (EPS = 1.d-20)
@@ -68,8 +70,10 @@ c                  Tl   Pb   Bi   Po   At   Rn   Fr   Ra   Ac   Th
      &           1.90,1.80,1.60,1.90,1.90,1.90,2.60,2.15,1.95,1.80,
 c                  Pa    U   Np   Pu   Am   Cm   Bk   Cf   Es   Fm
      &           1.80,1.75,1.75,1.75,1.75,1.75,1.75,1.75,1.75,1.75,
-c                  Md   No   Lr  Unq  Unp
-     &           1.75,1.75,1.75,1.55,1.55/
+c                  Md   No   Lr   Rf   Db   Sg   Bh   Hs   Mt   Ds
+     &           1.75,1.75,1.75,1.55,1.55,1.55,1.55,1.55,1.55,1.55,
+c                  Rg   Cn   Nh   Fl   Mc   Lv   Ts   Og  UUe  Ubn
+     &           1.55,1.55,1.55,1.55,1.55,1.55,1.55,1.55,1.55,1.55/
 c
 c     Set print options.
 c
@@ -243,6 +247,9 @@ c
             if (i_atomic_number.ne.0)then ! not ghost atom
                ityp2ctr(itype)=ictr
 c
+               if(i_atomic_number.gt.max_z) call errquit(
+     Z              ' grid_atom_type_info: no data for z=',
+     U              i_atomic_number,UNKNOWN_ERR)
                bsrad_atom_type(itype) = BSrad(i_atomic_number)*cang2au
                if (bsrad_atom_type(itype).lt.EPS)then ! no radius found for atom
                   write(LuOut,*)' index ', 

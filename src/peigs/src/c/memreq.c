@@ -109,9 +109,7 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   Integer nvecsA, nvecsQ, nvecsQ_max, nvecsZ, nvecsZ_max, nvecsB;
   
 
-  extern Integer count_list(), ci_size_();
   extern Integer mxmynd_(), mxnprc_();
-  extern void   memreq2(), l_exit_();
   extern void     mxinit_();
   
    mxinit_();
@@ -178,7 +176,7 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
      for ( indx = 0; indx < *n; indx++ ) {
        if ( (iptr++ ) == NULL ) {
          linfo = -4;
-         fprintf(stderr, " me = %d error in mapB in memreq.c \n",me);
+         fprintf(stderr, " me = %d error in mapB in memreq.c \n",(int)me);
          l_exit_(&linfo,msg);
          return;
        }
@@ -194,7 +192,7 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
    for ( indx = 0; indx < *n; indx++ ) {
      if ( (iptr++ ) == NULL ) {
        linfo = -5;
-       fprintf(stderr, " me = %d error in mapZ in memreq.c \n",me);
+       fprintf(stderr, " me = %d error in mapZ in memreq.c \n",(int)me);
        l_exit_(&linfo,msg);
        return;
      }

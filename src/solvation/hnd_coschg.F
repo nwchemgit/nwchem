@@ -446,9 +446,21 @@ C>   <i>Econometrica</i> (2002) <b>70</b>, 583-601, DOI:
 C>   <a href="https://doi.org/10.1111/1468-0262.00296">
 C>   10.1111/1468-0262.00296</a>.
 C>
+C>   [10] A. Klamt, V. Jonas, T. Burger, J. C. W. Lohrenz,
+C>   "Refinement and Parametrization of COSMO-RS",
+C>   <i>J. Phys. Chem. A</i> (1998) <b>102</b>, 1089-5639, DOI:
+C>   <a href="https://doi.org/10.1021/jp980017s">
+C>   10.1021/jp980017s</a>.
+C>
+C>   [11] A. Klamt, V. Jonas,
+C>   "Treatment of the outlying charge in continuum solvation models",
+C>   <i>J. Chem. Phys.</i> (1996) <b>105</b>, pp 9972–9981, DOI:
+C>   <a href="https://doi.org/10.1063/1.472829">
+C>   10.1063/1.472829</a>.
+C>
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
-     &                      efcc,efcs,efcz,efczz,efciat,ratm,ecos,
-     &                      cosmo_file_in)
+     &                      efcc,efcs,msrf,efcz,efczz,efciat,ratm,
+     &                      ecos,egas,esol,cosmo_file_in)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -477,7 +489,9 @@ c
       double precision efcc(3,nefc) !< [Input] the COSMO charge
                                     !< coordinates
       double precision efcs(nefc)   !< [Input] the COSMO charge
-                                    !< surface area
+                                    !< surface area for KS
+      double precision msrf(nefc)   !< [Input] the COSMO charge
+                                    !< surface area for YK
 c
       double precision efcz(nefc)   !< [Output] the COSMO charges
       double precision efczz(nefc)  !< [Input[ the COSMO zeta value for
@@ -487,10 +501,15 @@ c
       double precision ratm(nat)    !< [Input] the atom radii
       double precision ecos !< [Output] the energy contribution due to
                             !< the COSMO charges
+      double precision egas !< [Input] the total gas energy
+      double precision esol !< [Input] the total solvated energy
       logical  status
+      logical  do_cosmo_file
+      integer  cosmo_cavity
 c
       logical  dbug,more,out,direct,noall,all,elec,nucl,iefc_done
       character*16 at_tag
+      character*255 cosmo_info
       integer istrlen
       character*255 cosmo_file_in
       character*(nw_max_path_len) cosmo_file
@@ -525,13 +544,13 @@ c      integer cosmo_sccor ! do correction?
       integer nodcmp ! flag specifying how to handle errors
       integer need ! the amount of memory needed
 c
-      integer l_epot, l_xyzpt, l_zanpt ! memory handles
-      integer k_epot, k_xyzpt, k_zanpt ! memory offsets
+      integer l_epot, l_xyzpt, l_zanpt, l_costag ! memory handles
+      integer k_epot, k_xyzpt, k_zanpt, k_costag ! memory offsets
 c
       double precision charge ! the total QM region charge
       double precision chgnuc ! the total nuclear charge
       integer          nelec  ! the total number of electrons
-      double precision chgfac ! scale factor for COSMO charges
+      double precision chgfac, chgfacn, chgface ! scale factor for COSMO charges
       double precision chgcos ! the total COSMO surface charge
       double precision chgcvg ! the convergence of the COSMO charges
       double precision chgina ! the inv(A) COSMO charge
@@ -549,10 +568,10 @@ c
       double precision zi, zj, zn, zp ! Z-coordinates
       double precision qi, qj ! charges
       double precision rr ! distance
+      double precision efcsi ! surface area of a segment
       double precision solnrg ! solvation energy
       double precision dlambda ! lambda (surface charge correction)
       double precision elambda ! lambda dependent energy term
-      double precision ecos2
       double precision pi
       double precision zero, pt5, one, two ! constants
       data zero   /0.0d+00/
@@ -588,6 +607,9 @@ c
       integer iter_cosmo_vem
       integer l_efczfx, k_efczfx  ! memory handles for fixed cosmo-vem charges
       integer g_vem(3) ! ga handles for cosmo-vem GS potential, GS charges, and ES noneq charges
+      integer nefc_rtdb
+      integer type1, ndim, dim1
+
       double precision, external :: ddot
 c
       oprint_energies = util_print("cosmo_energies",print_never)
@@ -636,12 +658,15 @@ c tesserae's geometries for later use in nwdft/scf_dft/dft_fockbld.F
 c
         call ga_sync()
 c
-       if(.not.rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem))
-     $  call errquit('hnd_coschg: cannot get g_vem from rtdb',
-     $  0,rtdb_err)
-        call nga_get(g_vem(3), 1, nefc, dbl_mb(k_efczfx), nefc)       
+        if(.not.rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem)) then
+           if(ga_nodeid().eq.0) write(luout,*)
+     W          ' W: failed to read g_vem3: resetting istep_cosmo_vem'
+           istep_cosmo_vem=0 
+        else
+           call nga_get(g_vem(3), 1, nefc, dbl_mb(k_efczfx), nefc)       
 c
-        call ga_sync()
+           call ga_sync()
+        endif
       endif
 c
 c <-- MN solvation models
@@ -709,9 +734,11 @@ c
      &    call errquit('hnd_coschg: ma failed',911,MA_ERR)
       if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
      &    call errquit('hnd_coschg: ma failed',911,MA_ERR)
+      if (.not. ma_push_get(mt_byte,nat*16,'tags',l_costag,k_costag))
+     &    call errquit('hnd_coschg: k_costag failed',911,MA_ERR)
       do iat=1,nat
-        if(.not.geom_cent_get(geom,iat,at_tag,dbl_mb(k_xyzpt+3*(iat-1)),
-     &     dbl_mb(k_zanpt+iat-1))) call
+        if(.not.geom_cent_get(geom,iat,byte_mb(k_costag+16*(iat-1)),
+     &     dbl_mb(k_xyzpt+3*(iat-1)),dbl_mb(k_zanpt+iat-1))) call
      &     errquit('hnd_coschg: geom_cent_get',911,GEOM_ERR)
       enddo ! iat
 c
@@ -873,30 +900,9 @@ c
 c
 c        ----- calculate qraw = q* = A^{-1}BQ -----
 c
-         if (all) then
-           if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,
-     d           dbl_mb(i20))) then
-c             If no raw total COSMO charges were found initialize x=0
-              call dfill(nefc,zero,dbl_mb(i20),1)
-           endif
-         else if (nucl) then
-           if (.not.rtdb_get(rtdb,'cosmo:qrawn',mt_dbl,nefc,
-     d           dbl_mb(i21)))then
-c             If no raw nuclear COSMO charges were found initialize x=0
-              call dfill(nefc,zero,dbl_mb(i21),1)
-           endif
-         else if (elec) then
-           if (.not.rtdb_get(rtdb,'cosmo:qrawe',mt_dbl,nefc,
-     d           dbl_mb(i22)))then
-c             If no raw electron COSMO charges were found initialize x=0
-              call dfill(nefc,zero,dbl_mb(i22),1)
-           endif
-         endif
-c
-         direct=.true.
-c
-c        ----- solve ... -----
-c
+         if (.not.rtdb_get(rtdb,'cosmo:n_raw',mt_int,1,nefc_rtdb))
+     c        nefc_rtdb=0
+
          iep=-99
          ieq=-99
          if (all) then
@@ -910,11 +916,47 @@ c
            ieq=i22
          endif
 
+         if((nefc_rtdb.eq.0).or.(nefc_rtdb.ne.nefc)) then
+            call dfill(nefc,zero,dbl_mb(ieq),1)
+            status = rtdb_delete(rtdb,'cosmo:qraw')
+            status = rtdb_delete(rtdb,'cosmo:qrawn')
+            status = rtdb_delete(rtdb,'cosmo:qrawe')
+         else
+         if (all) then
+           if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,
+     d           dbl_mb(i20))) then
+c             If no raw total COSMO charges were found initialize x=0
+              call dfill(nefc,zero,dbl_mb(i20),1)
+           endif
+         else if (nucl) then
+           if (.not.rtdb_get(rtdb,'cosmo:qrawn',mt_dbl,nefc,
+     d           dbl_mb(i21)))then
+c             If no raw nuclear COSMO charges were found initialize x=0
+              call dfill(nefc,zero,dbl_mb(i21),1)
+           endif
+        else if (elec) then
+           if (.not.rtdb_get(rtdb,'cosmo:qrawe',mt_dbl,nefc,
+     d           dbl_mb(i22)))then
+c             If no raw electron COSMO charges were found initialize x=0
+              call dfill(nefc,zero,dbl_mb(i22),1)
+           endif
+           endif
+        endif
+c
+         direct=.true.
+c
+c        ----- solve ... -----
+c
+
          call hnd_cg(nat,dbl_mb(iep),dbl_mb(ieq),nefc,
      1        dbl_mb(i40),dbl_mb(i50),dbl_mb(i60),
      d        dbl_mb(i70),
      2                   efcc,efcs,efczz,efciat,ratm)
 c
+         if (.not.rtdb_put(rtdb,'cosmo:n_raw',mt_int,1,nefc))
+     c        call errquit('hnd_coschg: could not store n_raw COSMO ',
+     1                  nefc,RTDB_ERR)
+
          if (all) then
             if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_dbl,nefc,
      d           dbl_mb(i20))) then
@@ -980,9 +1022,11 @@ c
         else if (nucl) then
           errcos=chgnuc-chgcos
           chgfac=chgnuc/chgcos
+          chgfacn = chgfac
         else if (elec) then
           errcos=-dble(nelec)-chgcos
           chgfac=-dble(nelec)/chgcos
+          chgface = chgfac
         endif
         call dscal(nefc,chgfac,dbl_mb(ieq),1)
       else if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
@@ -1014,6 +1058,23 @@ c       ----- compute combined COSMO charges (nuclear + elec) -----
 c
         do ief=1,nefc
            dbl_mb(ief+i20-1) = dbl_mb(ief+i21-1) + dbl_mb(ief+i22-1)
+        enddo
+      endif
+c
+c       ----- update potentials due to outlying charge correction
+c
+      if (cosmo_sccor.ne.COSMO_SCCOR_NO.and.cosmo_ptcor) then
+c       If outlying charge corrections have been applied, the total
+c       potential should be updated, pot = -A*q, see Eq. 12 of Ref. [11].
+c
+c       The total potential is stored at i10, total point charges at i20.
+        call hnd_cosaxd(nat,dbl_mb(i20),dbl_mb(i10),nefc,efcc,
+     +                  efcs,efczz,efciat,ratm)
+c       The nuclear potential should not be changed by the outlying
+c       charges, so the elec potential should be adjusted.
+c       Elec potential (i12) = total (i10) - nuc (i11)
+        do ief=1,nefc
+          dbl_mb(ief+i12-1) = dbl_mb(ief+i10-1) - dbl_mb(ief+i11-1)
         enddo
       endif
 c
@@ -1082,6 +1143,13 @@ c     identical. If surface charge corrections are employed using
 c     scaling factors or Lagrangian multipliers then additional 
 c     correction terms are needed to ensure the expressions agree.
 c
+c     A consistent correction is to recalculate the total potential
+c     with the corrected charges (see Ref. [11] and cosmo_ptcor above).
+c     After that, adjust the elec potential accordingly, with a
+c     constant nuclear potential. This makes both formulations
+c     agree and also makes scale and Lagrangian corrections
+c     to produce similar results, elambda must be disregarded.
+c
       call hnd_cos_energy(nat,nefc,chgfac,efcc,efcs,efcz,efczz,efciat,
      &                    ratm,dbl_mb(k_xyzpt),dbl_mb(k_zanpt),
      &                    dbl_mb(i10),
@@ -1106,22 +1174,22 @@ c
       allefc = ddot(nefc,efcz,1,dbl_mb(i10),1)
       atmefc = ddot(nefc,efcz,1,dbl_mb(i11),1)
       elcefc = ddot(nefc,efcz,1,dbl_mb(i12),1)
-      solnrg= pt5* allefc + elambda
+c      solnrg= pt5* allefc + elambda
+      solnrg = pt5*allefc
+      ecos = pt5*(atmefc-elcefc)
 c     COSMO contribution Alternative 2 (Ref.[1] Eq.(11))
 c     ecos = pt5*(atmefc-elcefc)+elambda
-      if (do_cosmo_smd) then
-        ecos = pt5*(atmefc-elcefc)
-      else
-c        ecos = efcefc + atmefc
-        ecos = pt5*(atmefc-elcefc) + elambda
-      endif
+c     add lagrangian multiplier correction to the energy
+c     when the potential is not corrected
+c
+      if(.not.cosmo_ptcor) ecos=ecos+elambda
 
       if (oprint_energies) then
          write(luout,*)'Alternative 2'
          write(luout,9991) atmefc
          write(luout,9990) elcefc
-         write(luout,9989) allefc
          write(luout,9988) solnrg
+         write(luout,9989) allefc
          write(luout,9994) ecos 
       endif
 
@@ -1193,6 +1261,102 @@ c
         close(fn)
       end if
 c
+c     ----- printing cosmo file for COSMO-RS/SAC codes -----
+c
+      if (.not. rtdb_get(rtdb,'cosmo:do_cosmo_file',mt_log,1,
+     $     do_cosmo_file)) do_cosmo_file=.false.
+      if (do_cosmo_file) then
+         if (.not. rtdb_get(rtdb,'cosmo:cavity',mt_int,1,
+     $     cosmo_cavity)) cosmo_cavity=COSMO_CAVITY_VDW
+         cosmo_file_in = "cosmo"
+         call util_file_name(cosmo_file_in,.false.,.false.,cosmo_file)
+         call util_file_name_resolve(cosmo_file,.false.)
+         if(ga_nodeid().eq.0) then
+         if(.not.util_io_unit(80,90,fn))
+     +     call errquit('cannot get free unit', 0, 0)
+c
+         open(unit=fn,form="formatted",file=cosmo_file)
+         if (dbug) then
+            write(*,*) "printing cosmo file for COSMO-RS/SAC",
+     +     cosmo_file
+         end if
+         if (rtdb_get(rtdb,'cosmo:info',mt_byte,255,cosmo_info))
+     +     write(fn,"(a)") '# ' // trim(cosmo_info)
+         write(fn,"(a)") "$cosmo"
+         write(fn,"(a,f6.3)") "  screen= ", screen
+         if(screen.eq.one) then
+            write(fn,*) " epsilon= infinity"
+         else
+            write(fn,"(a,f6.3)") "  epsilon= ", dielec
+         endif
+         if(cosmo_cavity.eq.COSMO_CAVITY_SES) then
+            write(fn,*) " cavity= SES"
+            write(fn,"(a,f6.3)") "  rsolv= ", rsolv
+         else
+            write(fn,*) " cavity= vdW"
+         endif
+         if(do_cosmo_model.eq.DO_COSMO_YK) then
+            write(fn,*) " model=  YK"
+            write(fn,"(a,f6.3)") "  zeta= ", zeta
+         else
+            write(fn,*) " model=  KS"
+         endif
+         if (cosmo_sccor.eq.COSMO_SCCOR_NO) then
+            write(fn,*) " charge_correction= no"
+         else if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
+            write(fn,*) " charge_correction= lagrangian"
+         else if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
+            write(fn,*) " charge_correction= scale"
+            write(fn,"(a,f12.9)") "  charge_corr_elec= ", chgface
+            write(fn,"(a,f12.9)") "  charge_corr_nucl= ", chgfacn
+         end if
+c
+         write(fn,"(a)") "$cosmo_data"
+         write(fn,"(a,i6)") "  nps= ", nefc
+         write(fn,"(a,f10.2)") "  area=   ", srfmol/(cau2ang**2)
+         write(fn,"(a,f10.2)") "  volume= ", volmol/(cau2ang**3)
+c
+         write(fn,"(a)") "$coord_rad"
+         write(fn,"(a)") "#atom x y z [a.u.] element radius [A]"
+         do i = 1,nat
+           call util_set_ma_char_arrays(16,
+     +            byte_mb(k_costag+16*(i-1)),at_tag)
+            write(fn,"(i6,3f15.9,2x,a,f6.3)") i,
+     +     dbl_mb(k_xyzpt  +3*(i-1)),
+     +     dbl_mb(k_xyzpt+1+3*(i-1)),
+     +     dbl_mb(k_xyzpt+2+3*(i-1)),
+     +     at_tag,
+     +     ratm(i)*cau2ang
+         enddo ! i
+c
+         write(fn,"(a)") "$energy"
+         if(dabs(egas).gt.0d0)
+     +     write(fn,"(a,f18.10)") "  total_gas=      ", egas
+         if(dabs(esol).gt.0d0)
+     +     write(fn,"(a,f18.10)") "  total_solvated= ", esol
+c         
+c        Dielectric energy = 0.5 * sum(potential_i * q_i), Eq. (5) of Ref. [10].
+c        This energy is expected to correlate well with the solvation energy.
+         write(fn,"(a,f18.10)")   "  diel=           ", pt5*allefc
+c
+         write(fn,"(a)") "$segment_information"
+         write(fn,"(a)")
+     +     "# n atom x y z charge area charge/area potential"
+         write(fn,"(a)")
+     +   "# coordinates and potential [a.u.], area [A2]"
+         do ief=1,nefc
+            efcsi = efcs(ief)*(cau2ang**2)
+            if (do_cosmo_model.eq.DO_COSMO_YK)
+     +        efcsi = msrf(ief)*(cau2ang**2)
+            write(fn,"(2i6,7f15.9)") ief, efciat(ief),
+     +      efcc(1,ief), efcc(2,ief), efcc(3,ief),
+     +      efcz(ief), efcsi, efcz(ief)/efcsi,
+     +      dbl_mb(i10+ief-1)
+         end do
+         close(fn)
+         end if
+      end if
+c
 c MN solvation models -->
 c
       if (do_cosmo_vem.ne.0.or.do_cosmo_smd) then
@@ -1204,14 +1368,17 @@ c
       call ga_sync()
 c
       if (do_cosmo_vem.ne.0.and.istep_cosmo_vem.eq.0) then
-       if(.not.rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem)) then
-        status = nga_create(mt_dbl, 1, nefc, 'V_GS', nefc, g_vem(1))
-        status = nga_create(mt_dbl, 1, nefc, 'Q_GS', nefc, g_vem(2))
-        status = nga_create(mt_dbl, 1, nefc, 'Q_neq', nefc, g_vem(3))
-        if(.not.rtdb_put(rtdb,'cosmo:g_vem',mt_int,3,g_vem))
-     $  call errquit('hnd_coschg: cannot put g_vem in rtdb',
-     $  0,rtdb_err)
-       endif
+         if(.not.rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem)) 
+     c        call hnd_create_gvems(rtdb,nefc,g_vem)
+         call ga_check_handle(g_vem(1), 'gvem1')
+         call nga_inquire(g_vem(1), type1, ndim, dim1)
+      if(dim1.ne.nefc) then
+         if(ga_nodeid().eq.0) write(luout,*)
+     W        ' W: dims1.ne.nefc. creating g_vems'
+         call hnd_destroy_gvems(rtdb,g_vem)
+         call hnd_create_gvems(rtdb,nefc,g_vem)
+      endif
+
        call ga_zero(g_vem)
        call nga_put(g_vem(1), 1, nefc, dbl_mb(i10),nefc)
        call ga_sync()
@@ -1504,3 +1671,42 @@ c
 c <-- MN solvation models
 c
       end
+      subroutine hnd_create_gvems(rtdb,nefc,g_vem)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "errquit.fh"
+      integer rtdb
+      integer nefc
+      integer g_vem(*)
+c      
+      if(.not.nga_create(mt_dbl, 1, nefc, 'V_GS', nefc, g_vem(1)))
+     c     call errquit('creategvems: failed ga_create',0,ga_err)
+      if(.not.nga_create(mt_dbl, 1, nefc, 'Q_GS', nefc, g_vem(2)))
+     c     call errquit('creategvems: failed ga_create',0,ga_err)
+      if(.not.nga_create(mt_dbl, 1, nefc, 'Q_neq', nefc, g_vem(3)))
+     c     call errquit('creategvems: failed ga_create',0,ga_err)
+      if(.not.rtdb_put(rtdb,'cosmo:g_vem',mt_int,3,g_vem))
+     c     call errquit('creategvems: failed rtdbput',0,rtdb_err)
+        return
+        end
+      subroutine hnd_destroy_gvems(rtdb,g_vem)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "errquit.fh"
+      integer rtdb
+      integer g_vem(*)
+c      
+          if (.not. ga_destroy(g_vem(1))) call errquit
+     $        ('hnd_destr: could not destroy g_vem(1)', 0, ga_err)
+          if (.not. ga_destroy(g_vem(2))) call errquit
+     $         ('hnd_destr: could not destroy g_vem(2)', 0, ga_err)
+          if (.not. ga_destroy(g_vem(3))) call errquit
+     $         ('hnd_destr: could not destroy g_vem(3)', 0, ga_err)
+          if (.not. rtdb_delete(rtdb,'cosmo:g_vem')) call
+     C         errquit(' hnd_destr: rtdb_del failed',0,rtdb_err)
+          return
+          end

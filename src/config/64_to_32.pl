@@ -87,16 +87,12 @@ foreach my $file (@ARGV){
     rename($file,$filebak);
     $file = '>' . $file;
     my $my_pid = $pid;
-    if (open(FILETOFIX,$filebak)) {
-#	print " open OK\n";
-    }else{
-	print "Exiting: Could not open file: $filebak\n";
-	kill 15, -$my_pid;
-    }
-    open(FIXEDFILE,$file) || die "Could not open file: $file\n";
-    while (<FILETOFIX>) {
+    my $str = "";
+    open my $fh, '<', $filebak or die "Can't open file $!";
+    my $file_content = "1234";
+    while (<$fh>) {
 	if ( /^c/ || /^C/ || /^\*/ || /^$/){
-	    print FIXEDFILE $_;
+	    $str .= $_;
 	}
 	else	{
 	    for ($compare = 0; $compare < $num_compare ; $compare++)
@@ -122,11 +118,13 @@ foreach my $file (@ARGV){
 		    }
 		}
 	    }
-	    print FIXEDFILE $_;
+	    $str .= $_;
 	}
     }
+    close $fh or die $!;
+    open(FIXEDFILE,$file) || die "Could not open file: $file\n";
+    print FIXEDFILE $str;
     close(FIXEDFILE);
-    close(FILETOFIX);
     unlink($filebak);
     my $filesize = stat("$orgfile")->size;
     if($filesize eq "0") {

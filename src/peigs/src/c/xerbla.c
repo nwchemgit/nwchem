@@ -42,9 +42,9 @@ void xerbla( string, info )
 {
   extern Integer mxmynd_();
 
-  fprintf(stdout, " processor %d \n", mxmynd_());
+  fprintf(stdout, " processor %d \n", (int)mxmynd_());
   fprintf(stdout, " ** On entry to %s parameter number %d had an illegal value or pointer \n",
-          string, *info );
+          string, (int)(*info) );
   /*
      should put some global exit here
      */

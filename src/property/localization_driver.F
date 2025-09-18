@@ -46,12 +46,12 @@ c     subroutine arguments:
 c     local GA handles:
       integer g_uc(4), g_smat, g_sc, g_t
       integer g_movecs(2), g_cmo(2), g_temp, g_tmp1, g_tmp2
-      integer g_sc0
+      integer g_sc0, g_iao(2)
 
 c     MA variables:
       integer l_c, k_c, l_sc, k_sc, l_eval, k_eval, l_occ, k_occ
       integer l_dip(3), k_dip(3)
-      integer l_pop, k_pop, l_list, k_list
+      integer l_pop, k_pop, l_cpop, k_cpop, l_list, k_list
       integer l_iloc, k_iloc
 
 c     other local variables:
@@ -87,7 +87,10 @@ c     other local variables:
       external file_write_ga
 
       logical debug, master
-      logical oprint
+      logical oprint, have_iao(2), have_mbs
+      data have_iao(1), have_iao(2)/.false.,.false./
+      integer minbas
+      data have_mbs/.false./
 
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -97,6 +100,9 @@ c     other local variables:
 
       character*(19) pname
       character*(3) ltyp
+
+      character*(16) tag 
+      double precision atxyz(3), q_nuc, q_mol
 
 c     ==================================================================
 
@@ -304,7 +310,7 @@ c          save g_sc in g_sc0 to calculate the loc. transform later
 
            call ga_copy(g_sc, g_sc0)
 
-           if (loc_opt.eq.0) then
+           if (loc_opt.eq.0 .or. loc_opt.eq.2) then
 
              ltyp = 'occ'
              call pm_localization(rtdb, geom, ltyp, basis,
@@ -315,7 +321,9 @@ c          save g_sc in g_sc0 to calculate the loc. transform later
      &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
      &         dbl_mb(k_pop), int_mb(k_list))
 
-           else if (loc_opt.eq.1) then
+           end if
+
+           if (loc_opt.eq.1 .or. loc_opt.eq.2) then
 
              ltyp = 'vir'
              call pm_localization(rtdb, geom, ltyp, basis,
@@ -325,30 +333,6 @@ c          save g_sc in g_sc0 to calculate the loc. transform later
      &         dbl_mb(k_occ+(ispin-1)*nbf),
      &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
      &         dbl_mb(k_pop), int_mb(k_list))
-
-           else if (loc_opt.eq.2) then
-
-             ltyp = 'occ'
-             call pm_localization(rtdb, geom, ltyp, basis,
-     &         g_movecs(ispin), g_sc, g_sc0,
-     &         nocc, nvir, nmo, nbf, natoms,
-     &         dbl_mb(k_eval+(ispin-1)*nbf),
-     &         dbl_mb(k_occ+(ispin-1)*nbf),
-     &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
-     &         dbl_mb(k_pop), int_mb(k_list))
-
-             ltyp = 'vir'
-             call pm_localization(rtdb, geom, ltyp, basis,
-     &         g_movecs(ispin), g_sc, g_sc0,
-     &         nocc, nvir, nmo, nbf, natoms,
-     &         dbl_mb(k_eval+(ispin-1)*nbf),
-     &         dbl_mb(k_occ+(ispin-1)*nbf),
-     &         dbl_mb(k_c), dbl_mb(k_sc), int_mb(k_iloc),
-     &         dbl_mb(k_pop), int_mb(k_list))
-
-           else
-             call errquit(pname//': loc_opt out of range',loc_opt,
-     &         UNKNOWN_ERR)
 
            end if
 
@@ -415,6 +399,8 @@ c       =================
      &    errquit(pname//': Boys loc. not supported for open shell',
      &    nspin, INPUT_ERR)
 
+        ispin = 1
+
         if (loc_opt.gt.0) call
      &    errquit(pname//': Boys loc. not supported for virtuals',
      &    loc_opt, INPUT_ERR)
@@ -438,7 +424,7 @@ c        calculate dipole-AO times C (mo-coeffs), store in uc(i)
      $        nbf, 0, g_sc)) call errquit(pname//': sc',0, GA_ERR)
          do i = 1, 3
             call ga_dgemm('n', 'n', nbf, nmo, nbf, 
-     $           1.0d0, g_uc(i), g_movecs, 0.0d0, g_sc)
+     $           1.0d0, g_uc(i), g_movecs(ispin), 0.0d0, g_sc)
             call ga_copy_patch('n',g_sc,1,nbf,1,nmo,g_uc(i),1,nbf,1,nmo)
          end do
 
@@ -454,7 +440,7 @@ c       AO Overlap Matrix S:
 
 c       store S C in array uc(4)
         call ga_dgemm('n', 'n', nbf, nmo, nbf, 
-     $     1.0d0, g_smat, g_movecs(1), 0.0d0, g_uc(4))
+     $     1.0d0, g_smat, g_movecs(ispin), 0.0d0, g_uc(4))
 
         if (debug) write(luout,*) 'g_uc(4) done'
 c     
@@ -493,8 +479,8 @@ c        we can use g_sc as a temp array as it is not further used
 
          do i = 1,3
            call ga_zero(g_sc)
-           call ga_dgemm('t','n',nmo,nmo,nbf, 1.0d0, g_movecs, g_uc(i),
-     &        0.0d0, g_sc)
+           call ga_dgemm('t','n',nmo,nmo,nbf, 1.0d0, g_movecs(ispin),
+     &       g_uc(i), 0.0d0, g_sc)
            call ga_get_diagonal(g_sc, dbl_mb(k_dip(i)))
          end do
 
@@ -528,7 +514,7 @@ c        jochen: comment:
 c        the Boys localization routine was already available
 c        in nwchem
          call localizeFB(basis, dbl_mb(k_c), dbl_mb(k_sc), 
-     $        nloc, int_mb(k_iloc), nbf, nmo, g_movecs, g_uc)
+     $        nloc, int_mb(k_iloc), nbf, nmo, g_movecs(ispin), g_uc)
 
 c        calculate orbital centroids again and print information
 
@@ -539,8 +525,8 @@ c        calculate orbital centroids again and print information
 
          do i = 1,3
            call ga_zero(g_sc)
-           call ga_dgemm('t','n',nmo,nmo,nbf, 1.0d0, g_movecs,g_uc(i),
-     &        0.0d0, g_sc)
+           call ga_dgemm('t','n',nmo,nmo,nbf, 1.0d0, g_movecs(ispin),
+     &       g_uc(i), 0.0d0, g_sc)
            call ga_get_diagonal(g_sc, dbl_mb(k_dip(i)))
          end do
 
@@ -611,11 +597,22 @@ c        allocate memory
          if (.not. ma_push_get(mt_dbl, natoms, 'pop', l_pop, k_pop))
      &     call errquit(pname//': loc:pop', 0, MA_ERR)
 
+         if (.not. ma_push_get(mt_dbl, natoms*nspin,'cpop',
+     &     l_cpop,k_cpop))
+     &     call errquit(pname//': loc:cpop', 0, MA_ERR)
+
          if (.not. ma_push_get(mt_int, natoms, 'list', l_list,
      &     k_list)) call errquit(pname//': loc:list', 0, MA_ERR)
 
          if (.not. ga_create(MT_DBL, nbf, nmo, 'loc:sc0',
      &     nbf, 0, g_sc0)) call errquit(pname//' ibo: sc0',0, GA_ERR)
+
+c        initialize cumulative IAO populations with zeros
+         do i=1,natoms*nspin
+           dbl_mb(k_cpop+i-1)=0.0d0
+         enddo
+
+c        begin loop over spins
 
          do ispin = 1,nspin
 
@@ -646,49 +643,63 @@ c          the localization transformation later for this spin
            call ga_dgemm('n', 'n', nbf, nmo, nbf,
      $       1.0d0, g_smat, g_movecs(ispin), 0.0d0, g_sc0)
 
-           if (loc_opt.eq.0) then
+c          note: upon first run of the IBO loc., we need to create the
+c          set of IAOs and the minimal basis (minbas). In a subsequent
+c          run, this is not required again. the corresponsing variable
+c          have_iao(ispin) is initialized as .false. in the declarations
+c          block of this routine. The GA g_iao(ispin) is allocated in
+c          routine ibo_localization and deallocated here. Likewise,
+c          minbas is created in ibo_localization but needs to be
+c          destroyed here.
+
+           have_mbs = .false.
+           
+c          localize occupied MOs:
+
+           if (loc_opt.eq.0 .or. loc_opt.eq.2) then
              ltyp = 'occ'
+
              call ibo_localization(rtdb, geom, ltyp, basis,
+     &         g_smat,
      &         g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
      &         dbl_mb(k_eval+(ispin-1)*nbf),
      &         dbl_mb(k_occ+(ispin-1)*nbf),
      &         dbl_mb(k_c),
-     &         dbl_mb(k_pop), int_mb(k_list))
+     &         dbl_mb(k_pop),
+     &         dbl_mb(k_cpop+(ispin-1)*natoms),
+     &         int_mb(k_list),
+     &         have_iao(ispin), g_iao(ispin), have_mbs, minbas)
 
-           else if (loc_opt.eq.1) then
+             if (debug) write (luout,*)
+     &         pname//': back from ibo_localization (occ)'
+             
+           end if
+
+c          localize virtual MOs:
+
+           if(loc_opt.eq.1 .or. loc_opt.eq.2) then             
              ltyp = 'vir'
+
              call ibo_localization(rtdb, geom, ltyp, basis,
+     &         g_smat,
      &         g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
      &         dbl_mb(k_eval+(ispin-1)*nbf),
      &         dbl_mb(k_occ+(ispin-1)*nbf),
      &         dbl_mb(k_c),
-     &         dbl_mb(k_pop), int_mb(k_list))
+     &         dbl_mb(k_pop),
+     &         dbl_mb(k_cpop+(ispin-1)*natoms),
+     &         int_mb(k_list),
+     &         have_iao(ispin), g_iao(ispin), have_mbs, minbas)
 
-           else if(loc_opt.eq.2) then
-             ltyp = 'occ'
-             call ibo_localization(rtdb, geom, ltyp, basis,
-     &         g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
-     &         dbl_mb(k_eval+(ispin-1)*nbf),
-     &         dbl_mb(k_occ+(ispin-1)*nbf),
-     &         dbl_mb(k_c),
-     &         dbl_mb(k_pop), int_mb(k_list))
+             if (debug) write (luout,*)
+     &         pname//': back from ibo_localization (vir)'
 
-             ltyp = 'vir'
-             call ibo_localization(rtdb, geom, ltyp, basis,
-     &         g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
-     &         dbl_mb(k_eval+(ispin-1)*nbf),
-     &         dbl_mb(k_occ+(ispin-1)*nbf),
-     &         dbl_mb(k_c),
-     &         dbl_mb(k_pop), int_mb(k_list))
+           end if
 
-           else
-             call errquit(pname//': loc_opt out of range',loc_opt,
-     &         UNKNOWN_ERR)
-
-           end if ! loc_opt
-
-           if (debug) write (luout,*)
-     &       pname//': back from ibo_localization'
+c          destroy minimal basis (iao basis), it was created in
+c          routine ibo_localization
+           if (.not.bas_destroy(minbas))
+     &       call errquit(pname//'iao bas_destroy failed',0,BASIS_ERR)
 
 c          write transformation for this spin to scratch file
 c          (occ-occ transformation only)
@@ -724,12 +735,97 @@ c          (occ-occ transformation only)
 
            end if ! save lmotrans for occ MOs
 
-         end do ! ispin
+        end do                  ! ispin
+        
+c       Print IAO population-based atomic charges:
+        
+        if (.not. rtdb_get(rtdb, 'charge', mt_dbl, 1, q_mol))
+     &    q_mol = 0.0d0
+        
+        if(master .and. loc_opt.ne.1) then  
+          write(luout,'(/10x,a)') "   IAO-based populations    "
+          write(luout, '(10x,a)') "----------------------------"
+          
+          write(luout,'(/10x,a)') "Atom    #        Charge"
+          write(luout, '(10x,a)') "---------   ----------------"
+          
+          do i=1,natoms
+c           fetch nuclear charge for this atom
+            if (.not.geom_cent_get(geom, i, tag, atxyz, q_nuc)) 
+     &        call errquit (
+     &        pname//': cannot get atom info iao chg',1,
+     &        UNKNOWN_ERR)
 
-         if (.not. ga_destroy(g_smat)) call errquit(
-     &     pname//' ibo: error destroying g_smat',1, GA_ERR)
-         if (.not. ga_destroy(g_sc0)) call errquit(
-     &     pname//' ibo: error destroying g_sc0',1, GA_ERR)
+c           IAO atomic charges:
+            rtmp = -dbl_mb(k_cpop+i-1)
+            if (nspin.eq.1) rtmp = rtmp * 2.0d0
+            rtmp = rtmp + q_nuc
+            if (nspin.eq.2) rtmp = rtmp - dbl_mb(k_cpop+i-1+natoms)
+            write(luout, '(t11,a,t14,i6,t23,f10.3)') trim(tag),i, rtmp
+            dbl_mb(k_pop+i-1) = rtmp  
+          end do                ! i=1,natoms
+          write(luout, '(10x,a)') "----------------------------"
+          
+c         Now the IAO populations are in k_pop MA array.
+c         Check if total charge = population; print warning if not.
+c         Use q_nuc to store the total charge temporarily
+          
+          q_nuc = 0.0d0
+          do i=1,natoms 
+            q_nuc = q_nuc + dbl_mb(k_pop+i-1)
+          end do
+          write(luout, '(t11, a3, t23, f10.3/)') 'sum', q_nuc
+          
+          if (dabs(q_mol - q_nuc).gt.1e-8) then 
+            write(luout,'(/1x,a,1x,a/)')
+     &        "WARNING: sum of IAO-population based atomic",
+     &        "charges not equal to total mol. charge in RTDB"
+            write(luout,*) "mol charge:", q_mol
+            write(luout,*) "sum of atomic charges", q_nuc
+          end if
+        end if                  ! master
+
+c       save IAOs to an 'movecs' file in case we want to
+c       visualize them
+
+        alo(:) = 0
+        ahi(:) = 0
+        do ispin = 1,nspin
+          call ga_inquire (g_iao(ispin), info, alo(ispin), ahi(ispin))
+          if (debug) write(luout,*)
+     &      'g_iao dims:', alo(ispin), ahi(ispin)
+        end do
+        
+        if (nspin.eq.2 .and. ahi(1).ne.ahi(2)) then
+          if (master) then
+            write(luout,'(1x,a/1x,a/1x,a)')
+     &        'Warning: The IAO sets for the two spins do not have',
+     &        'the same column dimension. Unable to save iaos.movecs.',
+     &        'You probably want to check what went wrong !'
+          end if
+        else
+
+          call hnd_vec_write(rtdb,geom,basis,nbf,nclosed,nopen,
+     &      nvirt,scftyp,g_iao,dbl_mb(k_occ),
+     &      dbl_mb(k_eval),ahi(1), 'iaos.movecs')
+
+          write(tag,'(i0)') ahi(1)
+          if (master) write(luout,'(1x,a,a,a)')
+     &      'IAOs saved to file iaos.movecs (',trim(tag),' orbitals)'
+
+        end if
+        
+c       clean up arrays. g_iao(ispin) was allocated in routine
+c       ibo_localization
+
+        do ispin = 1,nspin
+          if (.not. ga_destroy(g_iao(ispin))) call errquit(
+     &      pname//': error destroying g_iao',ispin, GA_ERR)
+        end do ! ispin
+        if (.not. ga_destroy(g_smat)) call errquit(
+     &    pname//' ibo: error destroying g_smat',1, GA_ERR)
+        if (.not. ga_destroy(g_sc0)) call errquit(
+     &    pname//' ibo: error destroying g_sc0',1, GA_ERR)
 
        end if ! loctype
 

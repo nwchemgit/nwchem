@@ -3,7 +3,8 @@
 
 
 include ../../config/makefile.h
-     OBJ_OPTIMIZE = dft_aoints.o       wrt_dft_aoints.o int_1e_sifs.o \
+OBJ_OPTIMIZE =      nwc_sym_mod.o \
+     		    dft_aoints.o       wrt_dft_aoints.o int_1e_sifs.o \
                     int_so_sifs.o      int_2e_sifs.o    int_2e_sifs_a.o \
                     sifs_2e_task.o     int_2e_sifs_b.o  nadct_trace.o \
                     rdhcid.o           egrad_trace.o    rd1mat.o sif2ga.o \
@@ -11,7 +12,7 @@ include ../../config/makefile.h
                     d2geri_trace.o     dint_block_trc.o sequ.o \
                     sopgrdtrc.o	       asif2ga.o \
                     print_dint_block.o print_soblock.o  trc_soblock.o \
-                    int_mom_sifs.o     hdoverlap.o 
+                    int_mom_sifs.o     hdoverlap.o	sym_adapt.o
 
      LIBRARY = libnwc_columbus.a
 

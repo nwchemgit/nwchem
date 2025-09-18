@@ -97,30 +97,9 @@ void lu_mxm2( n, Lmatrix, mapL, m, colU, mapU, iscratch, scratch)
 
   DoublePrecision *buffer, *dptr, *in_buffer, *out_buffer;
   DoublePrecision *Uvec, *Lvec, t;
-  
-  /*
-    blas calls
-    */
 
-  extern void dcopy_(), daxpy_();
-  extern DoublePrecision ddot_();
   extern Integer mxmynd_();
-  extern void xerbla_();
-  extern void mapdif1_();
-  extern void gshellsort_();
-  extern Integer indxL();
 
-  /* 
-    mxsubs calls
-    */
-
-  extern Integer mxwrit_(),  mxread_();
-  extern Integer count_list();
-  extern Integer fil_mapvec_();
-  extern Integer ci_size_();
-  extern void zero_out();
-  extern Integer reduce_list2();
-  
   i = 0;
   me = mxmynd_();
 
@@ -360,7 +339,7 @@ void lu_mxm2( n, Lmatrix, mapL, m, colU, mapU, iscratch, scratch)
     if ( (me_indx % 2) ==  0 ) {
       rsize = osize * sizeof(DoublePrecision);
       if ( rsize != 0 ) {
-	rsize = mxwrit_( out_buffer, &rsize, &next_proc, &i );
+	rsize = mxwrit_( (DoublePrecision *)out_buffer, &rsize, &next_proc, &i );
       }
       
       indx = ( me_indx-i-1 ) % nproc;
@@ -374,7 +353,7 @@ void lu_mxm2( n, Lmatrix, mapL, m, colU, mapU, iscratch, scratch)
       
       rsize = isize*sizeof(DoublePrecision);
       if ( rsize != 0 ){
-	rsize = mxread_( in_buffer, &rsize, &last_proc, &i );
+	rsize = mxread_( (DoublePrecision *) in_buffer, &rsize, &last_proc, &i );
       }
     }
     else {
@@ -389,11 +368,11 @@ void lu_mxm2( n, Lmatrix, mapL, m, colU, mapU, iscratch, scratch)
       
       rsize = isize * sizeof(DoublePrecision);
       if ( rsize != 0 )
-	rsize = mxread_( in_buffer, &rsize, &last_proc, &i );
+	rsize = mxread_( (DoublePrecision *)in_buffer, &rsize, &last_proc, &i );
       
       rsize = osize * sizeof(DoublePrecision);
       if ( rsize != 0 ){
-	rsize = mxwrit_( out_buffer, &rsize, &next_proc, &i );
+	rsize = mxwrit_((DoublePrecision *)out_buffer, &rsize, &next_proc, &i );
       }
     }
     

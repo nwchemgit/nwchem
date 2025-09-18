@@ -30,7 +30,7 @@ c
       integer num_dirs          ! No. of known directives
 cc AJL/Begin/FDE
 c      parameter (num_dirs = 48)
-      parameter (num_dirs = 54)
+      parameter (num_dirs = 55)
 cc AJL/End
       character*12 dirs(num_dirs)
       character*255 test
@@ -96,7 +96,7 @@ c     xps variables
      $         'frozemb', 'frozemb_xc', 'frozemb_ts',
      $         'cgmin','nocgmin','tol2e','ri-scf','lock',
      $         'rodft','fukui','maxiter','vspec','xps','xdm',
-     $         'densmat','adft','freecdfit','end'/
+     $         'densmat','adft','freecdfit','imom','end'/
 c
 c Qin / cdft
       integer nconstr
@@ -151,7 +151,7 @@ c
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 
      $     3500, 3520, 3530,
      $     3600, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 4300,
-     $     4400, 4500, 4600, 4700, 4800, 9999) ind
+     $     4400, 4500, 4600, 4700, 4800, 4900, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -274,6 +274,8 @@ c
  1000 lmaxov = .true.
       if (.not. rtdb_put(rtdb, 'dft:max_ovl', mt_log, 1, lmaxov))
      &   call errquit('dft_input: rtdb_put failed', 1000, RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'dft:imom', mt_log, 1, .false.))
+     &  call errquit('dft_input: rtdb_put failed',1001, RTDB_ERR) 
 c
       goto 10
 c
@@ -1013,6 +1015,15 @@ c     Only meaningful with a CD basis available
       if (.not.rtdb_put(rtdb,'dft:freecdfit', mt_log, 1, .true.))
      &  call errquit('dft_input: rtdb_put failed',4800, RTDB_ERR)
       goto 10 
+c
+c     IMOM aka max_ovl with initial M.O.s
+c
+ 4900 continue
+      if (.not.rtdb_put(rtdb,'dft:imom', mt_log, 1, .true.))
+     &  call errquit('dft_input: rtdb_put failed',4900, RTDB_ERR) 
+      if (.not.rtdb_put(rtdb,'dft:max_ovl', mt_log, 1, .true.))
+     &  call errquit('dft_input: rtdb_put failed',4901, RTDB_ERR) 
+      goto 10
 c
  9999 continue
 c

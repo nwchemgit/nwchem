@@ -10,7 +10,8 @@
 #include <stdlib.h>
 #include "ga.h"
 
-extern int fortchar_to_string();
+extern int fortchar_to_string(const char *, int, char *, const int);
+
 
 /* Maximum number of open shells and corresponding maximum number 
    of spin functions for any possible multiplicity */
@@ -546,7 +547,7 @@ static void ReadArguments(argc, argv, ns, multi, print)
      */
 #endif
 
-#if (defined(CRAY) ||defined(WIN32))&& !defined(__crayx1) && !defined(__MINGW32__)
+#if (defined(CRAY) ||defined(WIN32)) && !defined(__MINGW32__)
 void FATR SELCI_COUPLE(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)
 #else
 void FATR selci_couple_(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)

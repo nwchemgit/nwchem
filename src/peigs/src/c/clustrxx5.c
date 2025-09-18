@@ -131,18 +131,10 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
   DoublePrecision tmp, *dscrat, *first_buf;
   
   
-  extern void xerbla_();
-  extern Integer idamax_(), mclock_(), succ_(), mxmynd_(), mxnprc_();
-  extern DoublePrecision dasum_(), dnrm2_(), ddot_(), dlarnd_();
-  extern void dlagtf_(), dlarnv_();
-  extern void printff_(), mgs_3();
-  extern void mgspnl_(), dscal_(), dlagts_();
-  extern Integer mxread_(), mxwrit_();
-  extern void dcopy_(), daxpy_();
-  extern Integer count_list ();
-  extern Integer inv_it3(), inverm_();
-  extern void mgs ();
-  extern void fil_dbl_lst ();
+  extern Integer mclock_(), succ_(), mxmynd_(), mxnprc_();
+  extern void printff_();
+  extern void mgspnl_();
+  extern Integer inverm_();
   
   /*
     Function Body

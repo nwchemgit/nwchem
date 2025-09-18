@@ -1,6 +1,6 @@
 
 /*$Id$*/
-#if (defined(CRAY) || defined(WIN32)) &&!defined(__crayx1)
+#if (defined(CRAY) || defined(WIN32))
 #define  context_pop_              CONTEXT_POP 
 #define  context_prefix_            CONTEXT_PREFIX 
 #define  context_push_              CONTEXT_PUSH 

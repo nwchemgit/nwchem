@@ -41,7 +41,7 @@ ifdef SUMO
 	$(RANLIB) $(LIBDIR)/libnwchem-sumo.a
 endif
 	/bin/rm -f nwchem.o stubs.o
-	$(INSTALL)
+	$(INSTALL_MSG)
 #
 # This to link only and avoid tedious subdir makes
 #
@@ -62,7 +62,7 @@ ifdef SUMO
 	$(RANLIB) $(LIBDIR)/libnwchem-sumo.a
 endif
 #	/bin/rm -f nwchem.o stubs.o
-	$(INSTALL)
+	$(INSTALL_MSG)
 
 ccalink:
 	@echo "NWCHEM_CORE_LIBS = $(LIBS)" > ./cca/makefile.h
@@ -79,7 +79,7 @@ ifeq ($(TARGET),SOLARIS)
 endif
 	$(LINK.f) -p -o nwchem_prof nwchem.o stubs.o -lnwctask $(LIBS)
 	/bin/rm -f nwchem.o stubs.o
-	$(INSTALL)
+	$(INSTALL_MSG)
 #
 # This for linking test version
 #
@@ -88,7 +88,7 @@ ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f nwchem_test
 endif
 	$(LINK.f) -o nwchem_test nwchem.o stubs.o -lnwctask $(LIBS)
-	$(INSTALL)
+	$(INSTALL_MSG)
 
 configure_ga:
 ifdef OLD_GA
@@ -104,7 +104,11 @@ endif
 libraries:
 	@for dir in $(SUBDIRS); do \
 		echo Making $@ in $$dir; \
-		$(MAKE)	-C $$dir || exit 1 ;  \
+		if [ $@  == "include_stamp" ] || [ $@  == "dependencies"  ]; then \
+		$(MAKE)	SKIP_COMPILERS=1 -C $$dir || exit 1  ; \
+		else \
+		$(MAKE)	-C $$dir || exit 1 ; \
+		fi \
 	done
 
 showdir: 
@@ -129,7 +133,8 @@ realclean:
 	-$(RM) $(LIBDIR)/*.a $(BINDIR)/*
 	-$(RM) *.db movecs fort.41 fort.44
 	-$(RM) util/util_version.F
-	@# -$(RM) 64_to_32 32_to_64 deps_stamp mpi_include.txt # This conversion is such a hassle that realclean should not force it.
+	-$(RM) libmpi.txt mpi_lib.txt mpi_include.txt ga_cppflags.txt  ga_ldflags.txt  ga_use_scalapack.txt oblas_ompcheck_done.txt peigs_check_done.txt
+	@# -$(RM) 64_to_32 32_to_64 deps_stamp # This conversion is such a hassle that realclean should not force it.
 
 .PHONY:	cleanF
 cleanF:
@@ -156,16 +161,16 @@ sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 	@$(MAKE) directories
 	@$(MAKE) clear_$@
 	for dir in $(SUBDIRS); do \
-		$(MAKE)	-C $$dir $@ || exit 1 ;  \
+		$(MAKE) SKIP_COMPILERS=1 QUICK_BUILD=1 -C $$dir $@ || exit 1 ;  \
 	done
 	touch $@
-ifndef QUICK_BUILD
 deps_stamp:
 	for dir in $(SUBDIRS); do \
-		$(MAKE)	-i -C $$dir dependencies include_stamp ;  \
+		if [ $@  == "include_stamp" ] || [ $@  == "dependencies"  ]; then \
+		$(MAKE)	-i SKIP_COMPILERS=1 -C $$dir dependencies include_stamp ;  \
+	 	fi \
 	done
 	touch $@
-endif
 clear_64_to_32:
 	-$(RM) 32_to_64
 
@@ -245,12 +250,12 @@ source:
 	cat stubs.F nwchem.F > source
 ifdef SUBDIRS
 	for dir in $(SUBDIRS); do \
-		$(MAKE)	-C $$dir $@ || exit 1 ;  \
+		echo TARGET is $@ ; $(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
 endif
 
 .PHONY:	install
-install: link
+install: all
 	@test $${INSTALL_PREFIX?Please set the environment variable INSTALL_PREFIX}
 	@echo install_prefix is $(INSTALL_PREFIX)
 	@mkdir -p $(INSTALL_PREFIX)/bin  $(INSTALL_PREFIX)/share

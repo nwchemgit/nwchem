@@ -8,7 +8,10 @@
 
 */
 
-void	Suggested_Param_Hamann();
-void	solve_Hamann();
+void	Suggested_Param_Hamann(int *, int *, int *, double *, double *, double *);
+void	solve_Hamann(int , int *, int *, double *, double *, double *,
+		     double  **, double  **, double  *, double  *, double  **,
+		     double  *, double  *, double  *, double  *, double  *, double  *, double  *,
+		     int *, double **, double **);
 
 #endif

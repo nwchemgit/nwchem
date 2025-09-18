@@ -1,0 +1,26 @@
+echo
+
+start
+
+geometry
+  O        0.000000    0.000000    0.117790
+  H        0.000000    0.755453   -0.471161
+  H        0.000000   -0.755453   -0.471161
+end
+
+basis spherical
+* library def2-qzvp
+end
+
+dft
+ xc mgga_c_cf22d 1. hyb_mgga_x_cf22d 1.
+ disp vdw 3
+ grid fine
+ print vdw
+end
+
+set dft:vdw_s6  1.
+set dft:vdw_s8  1d-5
+set dft:vdw_sr6 1.53
+#set dft:vdw_sr8 1.
+task dft

@@ -242,17 +242,10 @@ void pscale_( job, n, lb, ub, jjjlb, jjjub, abstol,
     *  External Procedures
     */
 
-   extern Integer      mxmynd_(), mxnprc_(), mxwrit_(), mxread_(), mxbrod_();
+   extern Integer      mxmynd_(), mxnprc_();
 
-   extern void     sort_();
-   extern void     dstebz_();
 
-   extern Integer  menode_();
-   extern Integer  neblw2_();
-   extern Integer  mapchk_();
-   extern void     xstop_(), pdiff(), pgexit();
    DoublePrecision dummy, tmp; 
-   extern DoublePrecision dlamch_();
    
 
 /*

@@ -75,9 +75,6 @@ void sonenrm_( n, matrixA, mapA, norm, iwork, work, info)
   
   extern Integer mxmynd_();
   
-  extern Integer fil_mapvec_();
-  extern Integer count_list();
-  extern void sonenrm();
   
   /*
     usual story about error handling

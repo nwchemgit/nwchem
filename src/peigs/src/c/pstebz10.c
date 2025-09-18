@@ -232,19 +232,9 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
     *  External Procedures
     */
 
-   extern Integer      mxmynd_(), mxnprc_(), mxwrit_(), mxread_(), mxbrod_();
+   extern Integer      mxmynd_(), mxnprc_();
 
-   extern void     sort_();
-   extern void     dstebz3_();
-
-   extern Integer  menode_();
-   extern Integer  neblw2_();
-   extern Integer  mapchk_();
-   extern void     xstop_(), pdiff(), pgexit();
    DoublePrecision eps, tmp;
-   extern void dsterf_();
-   extern void peigs_tldlfact();
-   extern DoublePrecision dlamch_();
 
    FILE *file;
    char filename[40];
@@ -497,7 +487,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      if ( nn_procs > 1) {
        isize = 2 * sizeof( Integer );
        itype = 15;
-       mxbrod_( i_work, proclist, &isize, &nn_procs, proclist, &itype );
+       mxbrod_( (int *)i_work, proclist, &isize, &nn_procs, proclist, &itype );
        
        nlow  = i_work[ 0 ];
        nhigh = i_work[ 1 ];

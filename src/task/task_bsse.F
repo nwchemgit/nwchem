@@ -434,6 +434,7 @@ c
 c:    multiplicity
 c:      density methods
       if ( theory(1:lentheo).eq.'dft' .or.
+     $     theory(1:lentheo).eq.'sodft'.or.
      $     theory(1:lentheo).eq.'tddft') then
         if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1, mult))
      $    call errquit('bsse_param: rtdb_put of mult failed',
@@ -441,6 +442,7 @@ c:      density methods
 c:      wavefuntion methods
 
       elseif( theory(1:lentheo).ne.'dft' .and.
+     $        theory(1:lentheo).ne.'sodft'.and.
      $        theory(1:lentheo).ne.'tddft') then
         if (.not. rtdb_put(rtdb,'scf:nopen', MT_INT, 1, mult-1))
      $    call errquit('bsse_param: rtdb_put of nopen failed',
@@ -905,6 +907,7 @@ c: take supermolecule total charge
 c: multiplicity
 c:    density methods
         if ( theory(1:lentheo).eq.'dft' .or.
+     $       theory(1:lentheo).eq.'sodft'.or.
      $       theory(1:lentheo).eq.'tddft') then
           if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1, m_spr))
      $      call errquit('bsse_energy: rtdb_get of mult failed',
@@ -912,6 +915,7 @@ c:    density methods
 c:   wavefuntion methods
 
         elseif( theory(1:lentheo).ne.'dft' .and.
+     $          theory(1:lentheo).ne.'sodft'.and.
      $          theory(1:lentheo).ne.'tddft') then
           if (.not. rtdb_get(rtdb,'scf:nopen', MT_INT, 1, m_spr))
      $      call errquit('bsse_energy: rtdb_get of nopen failed',
@@ -921,7 +925,11 @@ c:   wavefuntion methods
 
 c
 c: name of the original movecs
-        if(theory(1:lentheo).eq.'dft' .or.
+        if(theory(1:lentheo).eq.'sodft') then
+          vec_dbo= 'dft:output vectors'
+          vec_dbi= 'atomic'
+          call dft_forceatomic(rtdb)
+        elseif(theory(1:lentheo).eq.'dft' .or.
      $     theory(1:lentheo).eq.'tddft') then
           vec_dbo= 'dft:output vectors'
           vec_dbi= 'dft:input vectors'
@@ -966,6 +974,7 @@ c
         call bsse_param(rtdb, mmon(j), qmon(j), j_mon_name, input(i),
      $                  theory)
 c
+        if(theory(1:lentheo).eq.'sodft') call dft_forceatomic(rtdb)
 c:evaluate energy
         if (.not. task_energy_doit(rtdb,theory, mon_energy(i)))
      $    call 
@@ -1028,6 +1037,7 @@ c: multiplicity
 c:    density methods
 
         if ( theory(1:lentheo).eq.'dft' .or.
+     $        theory(1:lentheo).eq.'sodft'.or.
      $       theory(1:lentheo).eq.'tddft') then
 
           if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1, m_spr))
@@ -1037,6 +1047,7 @@ c:    density methods
 c:   wavefuntion methods
 
         elseif( theory(1:lentheo).ne.'dft' .and.
+     $         theory(1:lentheo).ne.'sodft'.and.
      $          theory(1:lentheo).ne.'tddft') then
 
           if (.not. rtdb_put(rtdb,'scf:nopen', MT_INT, 1, m_spr))

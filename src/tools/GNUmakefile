@@ -480,10 +480,14 @@ ifeq ($(SCALAPACK_LIB),)
     endif
 endif
 
+ifneq ($(USE_PEIGS),)
+    MAYBE_PEIGS = --enable-peigs
+endif
+
 ifeq ($(TARGET),$(findstring $(TARGET),MACX MACX64))
 #gtimeout from brew coreutils is required
 #  GTIMEOUT_YES=$(shell rm -f gtimeout.tmp ;/usr/local/bin/gtimeout  --version > gtimeout.tmp 2>&1; head -1 gtimeout.tmp | awk ' /GNU/ {print "Y";exit};{print "N"}')
-  GTIMEOUT_YES=$(shell /usr/local/bin/zgtimeout  --version 2>&1 | head -1  | awk ' /GNU/ {print "Y";exit};{print "N"}')
+  GTIMEOUT_YES := $(shell /usr/local/bin/zgtimeout  --version 2>&1 | head -1  | awk ' /GNU/ {print "Y";exit};{print "N"}')
   ifdef USE_GAGITHUB
   ifeq ($(GTIMEOUT_YES),N)
     gtimeout_fail:
@@ -536,9 +540,9 @@ ifdef USE_EISPACK
     MAYBE_EISPACK= --enable-eispack
 endif
     MAYBE_SYSVSHMEM= "ARMCI_DEFAULT_SHMMAX_UBOUND=131072"
-GOTCGWIN32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep CYGWIN32|cut -c22)
-GOTMINGW32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
-GOTMINGW64= $(shell gcc -dM -E -   </dev/null 2> /dev/null |grep MINGW64|cut -c21)
+GOTCGWIN32 := $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep CYGWIN32|cut -c22)
+GOTMINGW32 := $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
+GOTMINGW64 := $(shell gcc -dM -E -   </dev/null 2> /dev/null |grep MINGW64|cut -c21)
 ifeq ($(GOTCGWIN32),1)
 # weak pragmas not working with cygwin
    MAYBE_OFFLOAD += --disable-weak
@@ -558,9 +562,12 @@ endif
 ifeq ($(GNU_GE_8),true)
   FFLAGS_FORGA += -std=legacy
 endif
+ifeq ($(GCC_GE_14),true)
+  CFLAGS_FORGA += -std=gnu17
+endif
 #detect clang
-GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
-GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
+GOTCLANG := $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+GOTFREEBSD := $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
 ifeq ($(_FC),ifort)
   USE_FPICF=1
 endif
@@ -618,7 +625,7 @@ ifdef USE_GAGITHUB
 	GET_TOOLS=./get-tools-github
   ifdef USE_GA_RELEASE
     ifndef GA_RELEASE_NO
-      GA_RELEASE_NO=5.8.2
+      GA_RELEASE_NO=5.9.2
     endif
     GA_DIR=ga-$(GA_RELEASE_NO)
   else
@@ -629,7 +636,7 @@ ifdef USE_GAGITHUB
       GA_BRANCH = develop
     else
       GA_DIR0=ga-$(GA_BRANCH)
-      GA_DIR=$(shell echo $(GA_DIR0) | sed -e 's/\//_/g')
+      GA_DIR := $(shell echo $(GA_DIR0) | sed -e 's/\//_/g')
     endif
   endif
 else
@@ -685,8 +692,8 @@ endif
 BUILDDIR = build
 INSTALLDIR = install
 CONFIGURE_PATH = ../$(GA_DIR)/configure
-TOOLDIR = $(shell pwd)
-CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_ELPA) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_CXX) $(MAYBE_MPICXX) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_FFLAGS) $(MAYBE_CFLAGS) $(MAYBE_CXXFLAGS) $(MAYBE_OFFLOAD) $(MAYBE_SYSVSHMEM) $(MAYBE_EISPACK) $(UNSETFLAGS_FORGA)
+TOOLDIR := $(shell pwd)
+CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) $(MAYBE_PEIGS) --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_ELPA) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_CXX) $(MAYBE_MPICXX) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_FFLAGS) $(MAYBE_CFLAGS) $(MAYBE_CXXFLAGS) $(MAYBE_OFFLOAD) $(MAYBE_SYSVSHMEM) $(MAYBE_EISPACK) $(UNSETFLAGS_FORGA)
 SPACE :=
 SPACE +=
 STAMP_FC = $(subst /,-,$(subst $(SPACE),-,$(strip $(FC))).FC.stamp)
@@ -706,6 +713,7 @@ $(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a
 	${GA_PATH}/bin/ga-config --cppflags  > $(NWCHEM_TOP)/src/ga_cppflags.txt
 	${GA_PATH}/bin/ga-config --ldflags  > $(NWCHEM_TOP)/src/ga_ldflags.txt
 	${GA_PATH}/bin/ga-config --use_scalapack | awk ' /1/ {print "Y";exit};{print "N"}'  > $(NWCHEM_TOP)/src/ga_use_scalapack.txt
+	${GA_PATH}/bin/ga-config --use_peigs | awk ' /1/ {print "Y";exit};{print "N"}'  > $(NWCHEM_TOP)/src/ga_use_peigs.txt
 
 $(BUILDDIR)/.libs/libga.a:  $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
 	@echo ''
@@ -761,6 +769,7 @@ $(STAMP_DIR):
 
 clean:
 	@test -e $(BUILDDIR)/Makefile && { cd $(BUILDDIR) && $(MAKE) clean; } || echo "Not configured"
+	rm -f ../mpi_include.txt ../ga*txt
 
 realclean:
 	@rm -rf $(BUILDDIR) $(INSTALLDIR) *amp
@@ -770,6 +779,7 @@ cleanlibga:
 	cd ob && ar -x ../build/.libs/libga.a && rm -f ../build/.libs/libga.a && ar crv ../build/.libs/libga.a *.o && mkdir -p ../install/lib && cp ../build/.libs/libga.a ../install/lib
 	cd ..
 	rm -rf ob
+	rm -f ../mpi_include.txt ../ga*txt
 
 
 #

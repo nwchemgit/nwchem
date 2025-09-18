@@ -2,8 +2,9 @@
 #set -v
 arch=`uname -m`
 #SHORTVERSION=2021.11.001
-SHORTVERSION=2023.05.001
-VERSION=new_release_${SHORTVERSION}
+SHORTVERSION=2025.01.002
+#VERSION=new_release_${SHORTVERSION}
+VERSION=${SHORTVERSION}
 echo mpif90 is `which mpif90`
 if [ -f  elpa-${VERSION}.tar.gz ]; then
     echo "using existing"  elpa-${VERSION}.tar.gz
@@ -11,8 +12,10 @@ else
     rm -rf elpa*
 #    echo    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
 #    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
-    echo curl https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
-    curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+#    echo curl https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+#    curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+echo    curl -LJO https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${VERSION}/elpa-${VERSION}.tar.gz
+    curl -LJO https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${VERSION}/elpa-${VERSION}.tar.gz
 fi
 tar xzf elpa-${VERSION}.tar.gz
 ln -sf elpa-${VERSION} elpa
@@ -51,6 +54,7 @@ fi
 if [[ "$FC" = "ftn"  ]] ; then
     MPIF90="ftn"
     MPICC="cc"
+    MPICXX="CC"
 else
     if ! [ -x "$(command -v mpif90)" ]; then
 	echo
@@ -68,7 +72,11 @@ else
     fi
 fi
 if [[  -z "${FC}" ]]; then
-    FC=$($MPIF90 -show|cut -d " " -f 1)
+    if [[ ! -z ${PE_ENV} ]]; then
+	FC=ftn
+    else
+	FC=$($MPIF90 -show|cut -d " " -f 1)
+    fi
 fi
 
 if [[  -z "${BLAS_SIZE}" ]]; then
@@ -85,7 +93,11 @@ if [[   -z "${CC}" ]]; then
     CC=cc
 fi
 if [[   -z "${CXX}" ]]; then
-    CXX=c++
+    if [[ ! -z ${PE_ENV} ]]; then
+	CXX=CC
+    else
+	CXX=c++
+    fi
 fi
 if [[ ${FC} == flang ]] || [[ ${PE_ENV} == AOCC ]]; then
     GOTCLANG=1
@@ -106,6 +118,11 @@ if [[ ${FC_EXTRA} == gfortran ]] || [[ ${PE_ENV} == GNU ]] || [[ ${FC} == flang 
     let GFOVERSIONGT7=$(expr `${FC} -dumpversion | cut -f1 -d.` \> 7)
     if [[ ${GFOVERSIONGT7} == 1 ]]; then
 	MYFCFLAGS+=' -std=legacy '
+    fi
+    let GCCVERSIONGT14=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 14)
+    if [[ ${GCCVERSIONGT14} == 1 ]]; then
+	MYCFLAGS+=' -fPIE '
+	MYFCFLAGS+=' -fPIE '
     fi
   sixty4_int+=" --disable-mpi-module "
 fi
@@ -128,6 +145,8 @@ if [[ ${FC} == ifort ]] || [[ ${FC} == ifx ]] || [[ ${PE_ENV} == INTEL ]] ; then
 
 #    CPP="cpp -E"
 fi
+#set USE_MANUALCPP=1 on Crays
+if [[ ! -z ${PE_ENV} ]]; then export USE_MANUALCPP=1; fi
 if [[ ! -z "$MKLROOT"   ]] ; then
     if [[ ${BLAS_SIZE} == 8 ]]; then
 	SCALAPACK_FCFLAGS+=" -I${MKLROOT}/include/intel64/ilp64"
@@ -246,11 +265,13 @@ export SCALAPACK_FCFLAGS+="${MYLINK}"
 export LIBS="${MYLINK}"
 export    FC=$MPIF90
 export CC=$MPICC
+echo FC is $MPIF90 CC is $MPICC CXX is $MPICXX
  FC=$MPIF90 CC=$MPICC CXX=$MPICXX ../configure \
     $sixty4_int \
   CFLAGS="$MYCFLAGS" \
   FCFLAGS="$MYFCFLAGS" \
   --enable-option-checking=fatal \
+ --disable-openmp  \
  --disable-dependency-tracking \
  --disable-shared --enable-static  \
  --disable-c-tests \
@@ -264,13 +285,8 @@ unset SCALAPACK_FCFLAGS
 unset SCALAPACK_LDFLAGS
 echo mpif90 is `which mpif90`
 echo MPIF90 is "$MPIF90"
-if [[ "$USE_MANUALCPP" == 1 ]]; then
-    echo @@@@ MANUALCPP @@@
-    make FC="$SRCDIR/remove_xcompiler $SRCDIR/manual_cpp mpif90"   -j4
-else
-    make  FC=$MPIF90 CC=$MPICC CXX=$MPICXX -j4
-fi
-
+if [[ "$USE_MANUALCPP" == 1 ]]; then echo @@@@ MANUALCPP @@@; fi
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX -j4
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "Elpa compilation failed"

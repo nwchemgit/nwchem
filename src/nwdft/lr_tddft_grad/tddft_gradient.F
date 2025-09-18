@@ -169,7 +169,7 @@ c
 c     Init pstat
       call dft_pstat_init(rtdb)
 c      
-      call util_print_push
+c     call util_print_push
       call util_print_rtdb_load(rtdb,'tddft')
 c
 c     Print header
@@ -484,12 +484,12 @@ c cosmo-vem: Destroy global arrays
 c
         if (istep_cosmo_vem.eq.3) then
          if(rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem)) then
-          if (.not. ga_destroy(g_vem(1))) call errquit
-     $        ('hnd_coschg: could not destroy g_vem(1)', 0, ga_err)
-          if (.not. ga_destroy(g_vem(2))) call errquit
-     $        ('hnd_coschg: could not destroy g_vem(2)', 0, ga_err)
-          if (.not. ga_destroy(g_vem(3))) call errquit
-     $        ('hnd_coschg: could not destroy g_vem(3)', 0, ga_err)
+            call hnd_destroy_gvems(rtdb,g_vem)
+          istep_cosmo_vem=0
+          if (.not. rtdb_put
+     $         (rtdb,'cosmo:istep_cosmo_vem',mt_int,1,istep_cosmo_vem))
+     $  call errquit('tddft_grad: cannot put istep_cosmo_vem',
+     $         10,rtdb_err)
           call ga_sync()
          endif
         endif
@@ -499,7 +499,7 @@ c
 c <-- MN solvation models 
 c
       call dft_pstat_print
-      call util_print_pop
+c     call util_print_pop
       return
       end
 c $Id$

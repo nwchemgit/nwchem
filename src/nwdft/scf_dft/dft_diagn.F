@@ -3,6 +3,7 @@ cedo#define USE_ELPA 1
       subroutine dft_diagn(levelshifting,
      ,     nmo,ncanorg,
      .     g_fock,g_s,g_movecs,g_tmp,g_svecs,
+     ,     g_movecs_old,
      ,     evals,svals,nocc,homo,lumo,toll_s,
 c
 c MN solvation models -->
@@ -31,6 +32,7 @@ c
       integer g_s   ! [in]
       integer g_movecs   ! [in]
       integer g_svecs   ! [in]
+      integer g_movecs_old ! [in]
       integer nocc ! [in]
       double precision evals(*)   ! [out]
       double precision svals(*)   ! [in]
@@ -145,14 +147,12 @@ c
      &     call dft_tstamp(' calling diag ')
 
       if (odftps) call pstat_on(ps_diag)
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
       call dft_scaleig(g_fockt, g_fockt, evals,
      P     nocc) 
-#else
+#elif defined(PEIGS)
       call ga_diag_std(
      .     g_fockt,  g_fockt, evals)
-#endif
 #else 
       call ga_diag_std_seq(g_fockt, g_fockt, evals)
 #endif
@@ -197,7 +197,7 @@ c     of maximum overlap with previous iteration.
 c     
       if (lmaxov)then
          call dft_mxovl(ao_bas_han, evals,
-     &        g_movecst, g_movecs, g_s, g_fock,
+     &        g_movecst, g_movecs_old, g_s, g_fock,
      ,        nocc,oprint_conv_details,
      ,        homo,lumo)
       endif
@@ -242,6 +242,7 @@ c
       implicit none
 #include "dft_scaleig.fh"
 #include "global.fh"
+#include "errquit.fh"
       integer g_s,g_svecs
       double precision evals(*)
       integer nocc,i
@@ -251,7 +252,9 @@ c
       if(yev.eq.'v') then
          call ga_pdsyev(g_s, g_svecs, evals,nb)
       elseif(yev.eq.'x') then
-         call ga_pdsyevx(g_s, g_svecs, evals,nb)
+         call errquit(' dft:scaladiag=x no longer supported', 0,
+     c        CAPMIS_ERR)
+c         call ga_pdsyevx(g_s, g_svecs, evals,nb)
       elseif(yev.eq.'d') then
          call ga_pdsyevd(g_s, g_svecs, evals,nb)
 #ifdef USE_PDSYEVR
@@ -384,11 +387,15 @@ c     ma for complex diagonalizer
      &     call errquit('dft_scf:push_get failed', 13, MA_ERR)
 c
 c     call diagonalizer
+#if 1      
+      call zcopy(nbf_mo*nbf_mo,dcmplx(0.0, 0.0),0,DCpl_mb(ia),1)
+#else
       do i = 1, nbf_mo 
          do j = 1, nbf_mo
             DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=dcmplx(0.0, 0.0)
          enddo
       enddo
+#endif
       do i = 1, nbf_mo 
          call ga_get(g_fockso(1), 1,i, i,i, dbl_mb(ibuff),1)
          do j=1,i 

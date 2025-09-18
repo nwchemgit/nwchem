@@ -25,6 +25,7 @@
       integer rion(2),fion(2),nion,nion0
       real*8 unita(3,3),invunita(3,3),stress(3,3),energy
       real*8 cpu1,cpu2
+      integer max_retries, retry_delay_seconds
 
 *     **** external functions ****
       logical  task_gradient
@@ -100,13 +101,23 @@
 
       statebuffer(1:13) = "READY        "
 
+      if (.not. rtdb_get(rtdb, 'driver:socket_retries', mt_int, 1,
+     >                     max_retries)) then
+         max_retries = 30
+      end if
+      if (.not. rtdb_get(rtdb, 'driver:socket_delay', mt_int, 1,
+     >                     retry_delay_seconds)) then
+         retry_delay_seconds = 2
+      end if
+
       if (taskid.eq.MASTER) then
          write(luout,*)
          write(luout,*) "== i-PI Socket Client Driver =="
          write(luout,'(" Connected to    = ",A)') socket_ip
          write(luout,'(" Number of atoms =",I8)') nion
          write(luout,*)
-         call util_talker(ip,inet,ii-1,port,sock)
+         call util_talker(ip,inet,ii-1,port,sock,max_retries,
+     >   retry_delay_seconds)
          write(luout,*)
          !call nwpw_talker("127.0.0.1",9,port,sock)
       end if

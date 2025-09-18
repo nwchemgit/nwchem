@@ -1,0 +1,27 @@
+start
+title "ECP frequency test"
+
+echo
+geometry  noautoz
+    Cd  0.  0. -0.73
+    C   0.  0.  1.46
+    O   0.  0.  2.6
+ symmetry c2v
+end
+
+DFT
+  xc xpbe96 cpbe96
+  mult 3
+noprint "final vectors analysis" multipole
+end
+
+BASIS spherical
+  * library def2-tzvpp
+end
+
+ECP
+  Cd library def2-ecp
+end
+set int:txs:limxmem 28299536
+task dft optimize
+task dft freq

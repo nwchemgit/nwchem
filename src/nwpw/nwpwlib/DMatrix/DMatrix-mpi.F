@@ -68,6 +68,7 @@ c      real*8  B(ldb,*)
       integer request1(4),request2(4)
       integer bshift2(0:np_j)
 
+
       bshift     = 1
       bshift2(0) = 1
       do jj=1,np_j

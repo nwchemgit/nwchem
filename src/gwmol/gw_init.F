@@ -335,7 +335,7 @@ c
 c
       pars%fdstep = 0.0005d0
 
-#if defined(PARALLEL_DIAG) && defined(SCALAPACK)
+#if defined(SCALAPACK)
       call slexit
       call slexit2
       call slexit3

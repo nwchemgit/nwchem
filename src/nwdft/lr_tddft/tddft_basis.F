@@ -115,7 +115,6 @@ c
          call ga_sync()
          if (.not. ga_duplicate(g_2ceri, g_cdinv, 'CD 2cERInv'))
      &        call errquit(pname//'Error creating g_cdinv',0, GA_ERR)
-#if 1
          call dft_cholinv(g_2ceri,g_cdinv)
 #ifndef SCALAPACK            
 c
@@ -124,27 +123,6 @@ c
             call ga_zero(g_2ceri)
             call dft_get2eri(CD_bas_han, g_2ceri,.false.)
 #endif
-#else         
-         call ga_zero(g_cdinv)
-         lmiss = 1
-         info = 0
-         call ga_chol_seq(g_2ceri, g_cdinv, info)
-         if (info.ne.0)then
-           if (me.eq.0)then
-             write(LuOut,*)' Problem in performing a Cholesky '
-             write(LuOut,*)' decomposition of the 2-ctr ERI '
-             write(LuOut,*)' matrix using CD fitting basis. '
-             write(LuOut,*)' Attempting a diag/inverse. '
-           endif
-         endif
-         if (info.eq.0) then
-           g_tmpb = g_2ceri
-           call ga_copy(g_cdinv, g_tmpb)
-           call ga_inv_seq(g_tmpb, g_cdinv)
-         else
-           call dft_invdiag(g_2ceri, g_cdinv,nbf_cd)
-        endif
-#endif        
          if (IOLGC.and.(me.eq.0)) then
            lmiss = 0
            call dft_invio('CDI', g_cdinv, nbf_cd, 'WRITE', lmiss)

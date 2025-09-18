@@ -137,34 +137,9 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_in
   Integer clustr_size=-1, iii, jjj;
   
   DoublePrecision eps, xj1, xj2;
-  DoublePrecision xj, relgap(), delta1, delta2;
-  
-  Integer clustr_check();
-  extern Integer count_list();
-  extern Integer reduce_list2();
-  extern Integer menode_ ();  
-  extern Integer idamax_(), mxmynd_ (), mypid();
-  extern void fil_int_lst();
-  extern void fil_dbl_lst();
-  
-  /*
-    intrinsic DoublePrecision precision
-    */
-  
-  
-  /*
-    blas calls
-    */
-  
-  extern void dcopy_(), dscal_(), daxpy_();
-  extern DoublePrecision ddot_(), dasum_(), dnrm2_();
-  
-  /*
-    lapack calls
-    */
-  
-  extern DoublePrecision dlamch_();
-  extern void xerbla_(), dlagts_(), dlagtf_(), dlarnv_();
+  DoublePrecision xj, relgap(DoublePrecision, DoublePrecision), delta1, delta2;
+
+  extern Integer mxmynd_ (), mypid();
   
   me = mxmynd_ ();
   num_eig = m;
@@ -362,7 +337,7 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_in
   
   jjj =0;
   for ( iii = 0; iii < num_cls; iii++ ) {
-    printf(" cptr c1 %d cn  %d b1 %d bn %d \n", clustr_info[jjj], clustr_info[jjj+1], clustr_info[jjj+2], clustr_info[jjj+3]);
+    printf(" cptr c1 %d cn  %d b1 %d bn %d \n", (int)clustr_info[jjj], (int)clustr_info[jjj+1], (int)clustr_info[jjj+2], (int)clustr_info[jjj+3]);
     jjj += 4;
   }
   

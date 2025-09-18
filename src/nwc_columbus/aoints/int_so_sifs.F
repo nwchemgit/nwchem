@@ -1,7 +1,8 @@
       subroutine int_so_sifs(ibas, oskel, aoints, nbft, max1e, mem1,
      &  l1rec, n1max, 
      &  sifbuf, sifval, ninfo, info, clab, fcore, ibvtyp, ibitv,
-     &  ifmt1)
+     &  SymOrbval, cSOlab)
+      USE nwc_sym, ONLY: mxsym,mxbf
       implicit none
 #include "errquit.fh"
 #include "cint1cache.fh"
@@ -26,6 +27,7 @@ c
       integer ninfo
       integer info(ninfo)  ! not to be confused with NWChem info
       integer clab(2,max1e)
+      integer cSOlab(2,max1e)
       real*8 fcore
 
 c     
@@ -54,12 +56,12 @@ c
 c     sifs parameters
 c
       integer aoints, ierr
-      integer ifmt1, l1rec, n1max
+      integer l1rec, n1max
       integer ibvtyp
       integer ibitv
-      integer mxbf
+!      integer mxbf
 c     make sure this is compatible with columbus
-      parameter (mxbf=1000)
+!      parameter (mxbf=1000)
 c     header 1
       integer ntitle, nsym, nbas, mxenrgy
       parameter(ntitle=1,nsym=1,mxenrgy=1)
@@ -84,6 +86,10 @@ cgk provisional
       parameter (thresh=1d-12)
 cgk end
       integer numints, icart, kcart
+C LB
+      INTEGER :: nsoints ! number of symmetry orbital integrals
+      DOUBLE PRECISION :: SymOrbval(n1max)
+C LB
       
 c
 cgk debug
@@ -103,10 +109,11 @@ c
 c
 c     ----- save ocache logical variable -----
 c
-      if(type.eq.6 .or. type.eq.7 ) then
-         ocache_save=ocache
-         ocache     =.false.
-      endif
+c     LB type is never initialized, ocache never used
+      !if(type.eq.6 .or. type.eq.7 ) then
+      !   ocache_save=ocache
+      !   ocache     =.false.
+      !endif
 c     
 c     Get info about the basis sets
 c     
@@ -310,14 +317,20 @@ cgk end
 *       endif
         numtot=numtot+ibuf
 cgk debug
+         WRITE(*,*)"C LB, calling sym_1int 2"
+!         CALL sym_1int(ibuf,nsoints,
+!     &                 sifval, clab,
+!     &                 SymOrbval, cSOlab)
 *      WRITE(*,*)"int_so_sifs calling sifew1 2"
 *     write(*,*)'gk: nrec=', nrec
 *      write(*,*)'gk:  ibuf=', ibuf
 *     write(*,*)'gk:  numtot=', numtot
 *      WRITE(*,*)"last=",last,"ibvtyp=",ibvtyp
 cgk end
+!        call sifew1(aoints, info, 2, nsoints, last, 
         call sifew1(aoints, info, 2, ibuf, last, 
      &    itypea, itypeb, ibvtyp, 
+!     &    SymOrbval, cSOlab, fcore, ibitv, 
      &    sifval, clab, fcore, ibitv, 
      &    sifbuf, nrec, ierr)
         write(6,'(a,i10,1x,a,a)') 'Wrote ',numtot, integ_type, 
