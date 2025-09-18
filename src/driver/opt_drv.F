@@ -1135,8 +1135,15 @@ c
       if (.not.rtdb_get(rtdb,'driver:diagonal_hessian',
      $                   mt_log,1,diagonal_hessian))
      $   diagonal_hessian = .false.
-      if (.not. rtdb_get(rtdb,'driver:ofast_diag',mt_log,1,ofast_diag))
-     $     ofast_diag = .false.
+      if (modsad.eq.0) then
+         if (.not. rtdb_get(rtdb,'driver:ofast_diag',
+     M        mt_log,1,ofast_diag))
+     $        ofast_diag = .true.
+      else
+         if (.not. rtdb_get(rtdb,'driver:ofast_diag',
+     M        mt_log,1,ofast_diag))
+     $        ofast_diag = .false.
+      endif
       
 c
 c     Force sensible options
