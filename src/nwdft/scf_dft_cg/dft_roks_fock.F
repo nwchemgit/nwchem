@@ -351,7 +351,7 @@ c
         kfactor(1)=-0.5d0*xc_hfexch()
         kfactor(2)=0d0
         kfactor(3)=-0.5d0*xc_hfexch()
-        call fock_2e(geom, basis, nfock, jfactor, kfactor,
+        call fock_2e(rtdb, geom, basis, nfock, jfactor, kfactor,
      $     tol2e, oskel, iv_dens, iv_fock, .false.)
       else 
 c
@@ -380,8 +380,8 @@ c
         kfactor(1)=-0.5d0*xc_hfexch()
         kfactor(2)=0d0
         kfactor(3)=-0.5d0*xc_hfexch()
-        call fock_2e(geom, basis, nfock, jfactor, kfactor,
-     $     tol2e, oskel, iv_dens, g_tmp, .false.)
+        call fock_2e(rtdb, geom, basis, nfock, jfactor, kfactor,
+     $     tol2e, oskel, iv_dens, g_tmp, .false., .false.)
         call ga_dadd(1d0,iv_fock,1d0,g_tmp(1),iv_fock)
         if (nopen.gt.0) then
           call ga_dadd(1d0,iv_fock(2),1d0,g_tmp(2),iv_fock(2))
@@ -403,8 +403,8 @@ c
         kfactor(1)=0d0
         kfactor(2)=0d0
         kfactor(3)=0d0
-        call fock_2e(geom, basis, nfock, jfactor, kfactor,
-     $     tol2e, oskel, iv_dens, g_tmp, .false.)
+        call fock_2e(rtdb, geom, basis, nfock, jfactor, kfactor,
+     $     tol2e, oskel, iv_dens, g_tmp, .false., .true.)
         call ga_dadd(1d0,iv_fock,1d0,g_tmp(1),iv_fock)
         if (nopen.gt.0) then
           call ga_dadd(1d0,iv_fock(2),1d0,g_tmp(2),iv_fock(2))
@@ -444,8 +444,8 @@ c
       Exc(1) = 0.0d0
       Exc(2) = 0.0d0
       if (xc_gotxc()) then
-        call fock_xc(geom, nbf, basis, nfockxc, iv_dens(4), iv_fock(4),
-     +               Exc, nExc,.false.)
+        call fock_xc(rtdb,geom, nbf, basis, nfockxc, iv_dens(4), 
+     +               iv_fock(4),Exc, nExc,.false.)
 c     AOR begin
         call xc_xdm_init(rtdb,ixdm_v,ixdm_ml)
         if (.not. rtdb_put(rtdb,'dft:xdmsave', mt_log, 1, .false.)) 
