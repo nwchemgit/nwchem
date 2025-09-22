@@ -11,7 +11,7 @@ iterations 1000
 end
 
 
-geometry nocenter noautosym noautoz
+geometry  noautoz
   C        0.93300        0.53200       -1.40700
   H        1.44900        0.44900       -2.39500
   O        0.72500        1.63600       -0.86500
