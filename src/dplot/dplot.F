@@ -505,7 +505,7 @@ c           Read second density matrix from file
                if(.not.ao_rdm_read(File_Mat2,ao_bas_han,g_Dns2(1)))
      1         call errquit('DPlot: ao_rdm_read failed',1,0)
 #else
-            call ao_1prdm_read(nbf,g_dns(2),file_mat2)
+            call ao_1prdm_read(nbf,g_dns2(1),file_mat2)
 #endif
 c
 c              Compute the difference between the density matrices
