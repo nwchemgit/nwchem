@@ -12,6 +12,7 @@ c
       type(gw_params_t) :: pars
 c
       character(len=13), parameter :: pname = 'gw_analytic: '
+      character*255 gwevals
 c
       integer,dimension(2) :: nocc,nvir,npoles,nstates,mynpoles
 
@@ -45,6 +46,10 @@ c
       integer maxpoles,maxnpoles,isp,lSize
 
       logical ok
+
+      integer,parameter :: unitno = 66
+
+      logical,external :: movecs_write
 c
 c     -----------------------------------------------------------------
 c
@@ -88,6 +93,15 @@ c
       call dfill(ipol*nmo,0d0,dbl_mb(k_sigma),1)
 
       call gw_vxc(dbl_mb(k_sigma),nmo,pars)
+
+      if (pars%ncap) then
+        do isp=1,ipol
+          call daxpy(pars%nocc(isp),1d0,pars%vxddp(isp),0,
+     $               dbl_mb(k_sigma+(isp-1)*pars%nmo),1)
+          call daxpy(pars%nvir(isp),1d0,pars%vxddm(isp),0,
+     $               dbl_mb(k_sigma+(isp-1)*pars%nmo+pars%nocc(isp)),1)
+        enddo
+      endif
 
       pars%timer%vxc = pars%timer%vxc + util_wallsec() - timer
 c
@@ -135,6 +149,14 @@ c
         endif
         write(luout,*)
       endif
+
+      call gw_shift(dbl_mb(k_eold),dbl_mb(pars%k_evals),-efermi,
+     $              pars%nmo,nbf_ao,pars%ipol)
+      if(.not.movecs_write(pars%rtdb, ao_bas_han, movecs_out, 'dft',
+     $                       'W vals',nbf_ao,ipol,(/pars%nmo,pars%nmo/),
+     $                       dbl_mb(pars%k_occ), nbf_ao,
+     $                       dbl_mb(pars%k_evals),nbf_ao,pars%g_movecs))
+     $    call errquit('gw_analytic: could not save movecs',0,DISK_ERR)
 c
 c     Obtain eigenvalue difference
 c
@@ -185,25 +207,26 @@ c
       endif
 
 c
-      if (pars%evgw0.or.pars%evgw) then
-        call gw_scissor(dbl_mb(k_Enew),dbl_mb(k_Eold),pars%nmo,
+      call gw_scissor(dbl_mb(k_Enew),dbl_mb(k_Eold),pars%nmo,
      $                  pars%nocc,pars%nvir,pars%noqp,pars%nvqp,
      $                  pars%ipol,pars%me)
 
-        call ga_brdcst(1038,dbl_mb(k_enew),
-     $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
-        call ga_brdcst(1038,dbl_mb(k_sigma),
-     $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
+      call ga_brdcst(1038,dbl_mb(k_enew),
+     $     ma_sizeof(mt_dbl,pars%ipol*nmo,mt_byte),0)
+      call ga_brdcst(1038,dbl_mb(k_sigma),
+     $     ma_sizeof(mt_dbl,pars%ipol*nmo,mt_byte),0)
+
+      if (pars%evgw0.or.pars%evgw) then
 
         !
         ! Update Fermi energy
         !
         do i=1,ipol
-          lSize = k_enew + (i-1)*nbf_ao
+          lSize = k_enew + (i-1)*nmo
           efermi_new(i) = gw_efermi(dbl_mb(lSize),pars%nocc(i))
         enddo
         call gw_shift(dbl_mb(k_enew),dbl_mb(k_eold),efermi_new,
-     $                nbf_ao,pars%nmo,pars%ipol)
+     $                pars%nmo,pars%nmo,pars%ipol)
         efermi(:) = efermi(:) + efermi_new(:)
         call dcopy(pars%ipol*nmo,dbl_mb(k_eold),1,dbl_mb(k_enew),1)
 
@@ -213,6 +236,23 @@ c
           if (pars%evgw)  goto 100
         endif  
       endif
+
+      !
+      !  Save eigenvalues
+      !
+      if (main) then
+
+      call gw_shift(dbl_mb(k_enew),dbl_mb(k_eold),-efermi,nmo,nmo,ipol)
+      call util_file_name('gwevals',.false.,.false.,gwevals)
+      call util_file_name_resolve(gwevals,.false.)
+      open(unit=unitno,status='unknown',form='unformatted',file=gwevals)
+      do i=1,ipol
+        call swrite(unitno, dbl_mb(k_eold+(i-1)*nmo),nmo)
+      enddo
+      close(unit=unitno)
+
+      endif
+
 
  9050 format(10x,I3,6x,F8.3,6x,F6.3,6x,F8.3)
 c

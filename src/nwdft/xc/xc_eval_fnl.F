@@ -1855,15 +1855,32 @@ c
          if (.not. do_2nd .and..not. do_3rd) then
             call xc_xncap(tol_rho, xfac(72), rho,
      &           delrho, Amat, Cmat, nq, ipol,
-     &           Ex, qwght, ldew, func)
+     &           Ex, qwght, ldew, func, ' ')
          else if (.not. do_3rd) then
             call xc_xncap_d2(tol_rho, xfac(72), rho,
      &           delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
-     &           Ex, qwght, ldew, func)
+     &           Ex, qwght, ldew, func, ' ')
          else
             call xc_xncap_d3(tol_rho, xfac(72), rho,
      &           delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3,
-     &           nq, ipol, Ex, qwght, ldew, func)
+     &           nq, ipol, Ex, qwght, ldew, func, ' ')
+         endif
+      endif
+c
+
+      if (abs(xfac(87)).gt.eps)then
+         if (.not. do_2nd .and..not. do_3rd) then
+            call xc_xncap(tol_rho, xfac(87), rho,
+     &           delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght, ldew, func, 'r')
+         else if (.not. do_3rd) then
+            call xc_xncap_d2(tol_rho, xfac(87), rho,
+     &           delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &           Ex, qwght, ldew, func, 'r')
+         else
+            call xc_xncap_d3(tol_rho, xfac(87), rho,
+     &           delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3,
+     &           nq, ipol, Ex, qwght, ldew, func, 'r')
          endif
       endif
 c
