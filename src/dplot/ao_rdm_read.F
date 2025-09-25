@@ -48,7 +48,7 @@ c      end
 c
       character*(*) filename
       integer basis
-      integer g_dens(3)
+      integer g_dens
 c
       integer nbf
       integer l_ao_rdm,k_ao_rdm,ok
@@ -73,6 +73,8 @@ c
       ddblsize=MA_sizeof(MT_DBL,1,MT_BYTE)
       call ga_sync()
       ok = 0
+c     check g_dens
+      call ga_check_handle(g_dens, 'ao_dm_read:g_dens not allocated')
       if (ga_nodeid() .eq. 0) then
          open(unitno, status='old', form='unformatted', file=filename,
      $        err=1000)

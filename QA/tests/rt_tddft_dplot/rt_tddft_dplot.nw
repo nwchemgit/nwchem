@@ -1,0 +1,53 @@
+
+echo
+start both
+
+geometry "system" noautosym
+  O  0.00000000  -0.00001441  -0.34824012
+  H -0.00000000   0.76001092  -0.93285191
+  H  0.00000000  -0.75999650  -0.93290797
+end
+set geometry "system"
+
+basis spherical
+  * library 6-31G
+end
+
+dft
+ xc pbe0
+end
+
+task dft energy
+
+dplot                            
+  gaussian            
+  limitxyz
+  -10 10 101
+  -10 10 101
+  -10 10 101
+end
+
+rt_tddft
+  dt   0.2
+  tmax 0.6                 
+  tag  "driver"
+   field "driver"
+    type gaussian
+    polarization z
+    frequency 0.3768
+    center 393.3
+    width  64.8
+    max    0.0001
+  end
+
+  visualization
+    tstart     0.0
+    tend       0.6
+    treference 0.0
+    dplot
+ end
+
+ excite "system" with "driver"
+end
+
+task dft rt_tddft
