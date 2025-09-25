@@ -35,6 +35,8 @@ c     Preliminaries
       l_dens = -1               ! An invalid MA handle
 c
       inntsize = MA_sizeof(MT_INT,1,MT_BYTE)
+c     check g_dens
+      call ga_check_handle(g_dens, 'ao_1prmd_r: g_dens not allocated')
       call ga_sync()
       ok = 0
       if (ga_nodeid() .eq. 0) then
