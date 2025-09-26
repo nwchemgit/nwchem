@@ -141,16 +141,6 @@ c
             endif
             call util_flush(luout)
          endif
-         if (util_print('geometry',print_high)) then
-            if (.not. geom_print(geom)) 
-     $           call errquit('property: geom_print ?',0, GEOM_ERR)
-            call util_flush(luout)
-         endif
-         if (util_print('basis',print_high)) then
-            if (.not. bas_print(basis))
-     $           call errquit('property: bas_print ?',0, BASIS_ERR)
-            call util_flush(luout)
-         endif
       endif
 c
 c     Set up SCF and DFT stuff for shielding and spinspin CPHF
@@ -274,6 +264,18 @@ c
      $     call errquit('property: no ao basis ', 0, RTDB_ERR)
       if (.not. int_normalize(rtdb,basis))
      $     call errquit('property: int_normalize', 0, INT_ERR)
+      if (ga_nodeid().eq.0) then
+         if (util_print('geometry',print_high)) then
+            if (.not. geom_print(geom)) 
+     $           call errquit('property: geom_print ?',0, GEOM_ERR)
+            call util_flush(luout)
+         endif
+         if (util_print('basis',print_high)) then
+            if (.not. bas_print(basis))
+     $           call errquit('property: bas_print ?',0, BASIS_ERR)
+            call util_flush(luout)
+         endif
+      endif
 c
 c     call hondo property calculation routines
 c
