@@ -638,7 +638,7 @@ c      local variables
        pname = "bq_print_info"
 
        call util_print_get_level(printlevel)
-       oprint = (ga_nodeid().eq.0).and.(printlevel.le.print_medium)
+       oprint = (ga_nodeid().eq.0).and.(printlevel.ge.print_medium)
 
        if(.not.bq_check_handle(handle)) then
            call errquit(
@@ -932,7 +932,7 @@ c      local variables
        pname = "bq_print_info"
 
        call util_print_get_level(printlevel)
-       oprint = (ga_nodeid().eq.0).and.(printlevel.le.print_medium)
+       oprint = (ga_nodeid().eq.0).and.(printlevel.ge.print_medium)
 
        if(.not.bq_check_handle(handle)) then
            call errquit(
@@ -999,7 +999,7 @@ c      local variables
        pname = "bq_print_info"
 
        call util_print_get_level(printlevel)
-       oprint = (ga_nodeid().eq.0).and.(printlevel.le.print_medium)
+       oprint = (ga_nodeid().eq.0).and.(printlevel.ge.print_medium)
 
        if(.not.bq_check_handle(handle)) then
            call errquit(
