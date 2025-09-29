@@ -140,7 +140,6 @@ c
         lSize = lSize*max(pars%eviter,1)
         if (.not.ma_push_get(mt_dbl,lSize,'values',lValues,kValues))
      $    call errquit(pname//'failed to allocate values',0,MA_ERR)
-        lSize = lSize*max(pars%eviter,1)
         if (.not.ma_push_get(mt_dbl,lSize,'errors',lErrors,kErrors))
      $    call errquit(pname//'failed to allocate errors',0,MA_ERR)
       endif
@@ -219,6 +218,8 @@ c
 c      if (eviter.eq.0 .and. pars%ncap) then
 c        call dcopy(nmo*ipol,dbl_mb(kEmod),1,dbl_mb(kEref),1)
 c      endif
+c
+      call dcopy(nmo*ipol, dbl_mb(kEmod), 1, dbl_mb(kEref), 1)
 c
 c     Obtain Screened Coulomb matrices on imaginary axis
 c

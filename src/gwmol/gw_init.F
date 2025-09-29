@@ -138,9 +138,9 @@ c
      $                  pars%nvqp(1)))
      $  call errquit(pname//'failed to read nvqp',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:noqp_beta',mt_int,1,pars%noqp(2)))
-     $  call errquit(pname//'failed to read noqp',0,RTDB_ERR)
+     $  call errquit(pname//'failed to read noqp beta',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:nvqp_beta',mt_int,1,pars%nvqp(2)))
-     $  call errquit(pname//'failed to read nvqp',0,RTDB_ERR)
+     $  call errquit(pname//'failed to read nvqp beta',0,RTDB_ERR)
 c
       if (.not.rtdb_get(pars%rtdb,'gw:analyticw',mt_log,1,pars%anaw))
      $  call errquit(pname//'failed to read analyticw',0,RTDB_ERR)
@@ -246,7 +246,7 @@ c
         pars%nocc(i) = nocc
         pars%nvir(i) = nvir
         if (nocc+nvir.ne.pars%nmo)
-     $    call errquit(pname//'something went wrong',0,0)
+     $    call errquit(pname//'Nocc + Nvir /= NMO ',0,0)
       
 c
         if ((pars%noqp(i).gt.nocc).or.(pars%noqp(i).eq.-1)) 
@@ -255,12 +255,11 @@ c
         if (pars%noqp(i).lt.-1)
      $    call errquit(pname//'invalid number noqp specified',0,0)
 c
-        if ((pars%nvqp(i).gt.nvir).or.(pars%nvqp(i).eq.-1)) 
+        if ((pars%nvqp(i).gt.nvir).or.(pars%nvqp(i).le.-1)) 
      $     pars%nvqp(i) = nvir
 
-        if (pars%nvqp(i).lt.-1)
-     $    call errquit(pname//'invalid number nvqp specified',0,0)
-
+        ! If core option was passed, then start counting from the bottom
+        ! else, start counting from the top (Fermi level)
         if (pars%core) then
           pars%llmo(i) = pars%first
         else

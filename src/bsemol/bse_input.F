@@ -18,10 +18,11 @@ c
       character*255 test
       character(*), parameter :: pname = "bse_input: "
 c
-      integer, parameter :: num_dirs = 10
+      integer, parameter :: num_dirs = 13
       character*11 dirs(num_dirs)
       data dirs / 'method','tda','ncap','ncapr','singlet','triplet', 
-     &            'outwin', 'nroots', 'maxroots', 'end' /
+     &            'outwin', 'nroots', 'maxroots', 'skipgw', 'maxiter',
+     &            'nstart', 'end' /
 c
       integer ind, itemp
       double precision threshold, eta, temp
@@ -45,7 +46,8 @@ c
         call errquit(pname//'unknown directive', 0, INPUT_ERR)
       end if
 c
-      goto (100, 200, 300, 301, 400, 500, 600, 700, 800, 9999) ind
+      goto (100, 200, 300, 301, 400, 500, 600, 700, 800, 900, 1000,
+     &      1100, 9999) ind
 
       call errquit(pname//'unknown directive',ind, INPUT_ERR)
 c
@@ -137,6 +139,28 @@ c
       if(.not.rtdb_put(rtdb,'bse:nmax',mt_int,1,itemp))
      &  call errquit(pname//'rtdb_put failed', 800, RTDB_ERR)
       goto 10
+c
+c     Skip GW calculation
+c
+ 900  if(.not.rtdb_put(rtdb,'bse:skipgw',mt_log,1,.true.))
+     &  call errquit(pname//'rtdb_put failed', 900, RTDB_ERR)
+      goto 10
+c
+c     Maximum number of iterations
+c
+ 1000 if(.not.inp_i(itemp))
+     &  call errquit(pname//'could not read maxiter', 1000, INPUT_ERR)
+      if(.not.rtdb_put(rtdb,'bse:maxiter',mt_int,1,itemp))
+     &  call errquit(pname//'rtdb_put failed', 1000, RTDB_ERR)
+      goto 10
+c
+c     Size of starting space
+c
+ 1100 if(.not.inp_i(itemp))
+     &  call errquit(pname//'could not read nstart', 1100, INPUT_ERR)
+      if(.not.rtdb_put(rtdb,'bse:nspace', mt_int, 1, itemp))
+     &  call errquit(pname//'rtdb_put failed', 1100, RTDB_ERR)
+      goto 10 
 c
 c     normal termination
 c

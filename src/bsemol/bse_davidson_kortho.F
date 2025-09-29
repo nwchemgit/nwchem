@@ -15,6 +15,7 @@
       double precision rdum
       double precision v(npoles,n),kv(npoles,n),mkv(npoles,n)
       double precision vkv(n,n),eig(n),work(npoles,n)
+      double precision sqrtvkv(n,n)
 
       ! V**T  K  V
       call dgemm('t','n',n,n,npoles,1d0,v,npoles,kv,npoles,0d0,vkv,n)
@@ -39,7 +40,7 @@
       k = 1
   100 continue
       do i=k,m
-        if (eig(i).lt.1d-12) then
+        if (eig(i).lt.1d-9) then
           do j=i+1,n
             eig(j-1) = eig(j)
             vkv(:,j-1) = vkv(:,j)
@@ -50,7 +51,7 @@
         endif
       enddo
 
-      ! Obtain VKV^(1/2)
+      ! Obtain VKV^(-1/2)
       do i=1,m
         vkv(:,i) = vkv(:,i)/dsqrt(eig(i))
       enddo

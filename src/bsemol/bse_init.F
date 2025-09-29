@@ -24,7 +24,7 @@
       character(len=255) :: basisname, scftype, gwevals
       integer i, ilo, ihi, j, g_work
       integer nbf_temp, ipol_temp, nocc, nvir, nmo_temp(2)
-      logical ldum
+      logical ldum, skipgw
 
       logical int_normalize, int_norm_2c
       external int_normalize, int_norm_2c
@@ -83,6 +83,9 @@ c
      &    (pars%lanczos.and.(pars%analytic.or.pars%davidson)))
      &  call errquit(pname//'more than one method',4,INPUT_ERR)
 
+      if (.not.rtdb_get(pars%rtdb, 'bse:skipgw', mt_log, 1, skipgw))
+     &  call errquit(pname//'could not read skipgw',5, RTDB_ERR)
+
       ! Check wether we are computing singlet or triplet excitations
       if(.not.rtdb_get(pars%rtdb,'bse:singlet',mt_log,1,pars%singlet))
      &  call errquit(pname//'could not read from rtdb',1,RTDB_ERR)
@@ -95,30 +98,40 @@ c
 
       ! Check if we are doing Tamm-Dancoff approximation
       if(.not.rtdb_get(pars%rtdb,'bse:tda',mt_log,1,pars%tda))
-     &  call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
+     &  call errquit(pname//'could not read from rtdb',101,RTDB_ERR)
 
       ! Check if Output is restricted to an energy window
       if(.not.rtdb_get(pars%rtdb,'bse:dowindow',mt_log,1,pars%dowindow))
-     &  call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
+     &  call errquit(pname//'could not read from rtdb',105,RTDB_ERR)
       if(pars%dowindow) then
         if(.not.rtdb_get(pars%rtdb,'bse:elower',mt_dbl,1,pars%elower))
-     &    call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
+     &    call errquit(pname//'could not read from rtdb',108,RTDB_ERR)
         if(.not.rtdb_get(pars%rtdb,'bse:eupper',mt_dbl,1,pars%eupper))
-     &    call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
+     &    call errquit(pname//'could not read from rtdb',110,RTDB_ERR)
       endif
 
       ! Number of roots
       if(.not.rtdb_get(pars%rtdb,'bse:nroots',mt_int,1,pars%nroots))
-     &  call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
+     &  call errquit(pname//'could not read from rtdb',115,RTDB_ERR)
+
+      ! Starting space size
+      if(.not.rtdb_get(pars%rtdb, 'bse:nspace', mt_int, 1, pars%nspace))
+     &  call errquit(pname//'could not read from rtdb', 119, RTDB_ERR) 
 
       ! Maximum Number of roots
       if(.not.rtdb_get(pars%rtdb,'bse:nmax',mt_int,1,pars%nmax))
-     &  call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
-      if (pars%nmax.le.2*pars%nroots) then
-        call errquit(pname//'maxroots should be at least 2*nroots',
-     $               119,INPUT_ERR)
+     &  call errquit(pname//'could not read from rtdb',123,RTDB_ERR)
+      if ((pars%nmax.le.5*pars%nroots).and.pars%davidson) then
+        call errquit(pname//'maxroots should be at least 5*nroots',
+     &               126,INPUT_ERR)
       endif
+      if((pars%nroots*pars%nspace.gt.pars%nmax).and.pars%davidson)
+     &  call errquit(pname//'maxroots should be at least nroots*nspace',
+     &               130, INPUT_ERR) 
 
+      ! Maximum number of iterations
+      if(.not.rtdb_get(pars%rtdb,'bse:maxiter',mt_int,1,pars%maxiter))
+     &  call errquit(pname//'could not read from rtdb',134,RTDB_ERR)
       ! Get some info from DFT module
       call dft_rdinput(pars%rtdb)
       if (cdfit) then
@@ -258,6 +271,10 @@ c
 
       ! Read GW QP energies
       !if (.not.pars%ncap) then
+      if(skipgw) then
+        call dcopy(nbf_ao*pars%ipol,dbl_mb(pars%k_mf_evals),1,
+     &             dbl_mb(pars%k_gw_evals),1)
+      else   
         call util_file_name('gwevals',.false.,.false.,gwevals)
         call util_file_name_resolve(gwevals,.false.)
         if (pars%me.eq.0) then
@@ -270,7 +287,7 @@ c
         endif
         call ga_brdcst(mt_dbl,dbl_mb(pars%k_gw_evals),
      &                 ma_sizeof(mt_dbl,nbf_ao*pars%ipol,mt_byte),0)
-      !endif  
+      endif  
 
       !3-center ERIs 
       call int_init(pars%rtdb, 2, (/ao_bas_han, cd_bas_han/))

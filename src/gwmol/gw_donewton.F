@@ -34,7 +34,7 @@ C
         if (iter.eq.1) then
           xout = xin + 0.2d0*step
         else
-          xout = xin + 0.8d0*step
+          xout = xin + 0.7d0*step
         endif
 
       !
