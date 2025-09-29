@@ -31,6 +31,8 @@ c
 c
       logical movecs_read, movecs_read_header, atom_tag_check
       external movecs_read, movecs_read_header, atom_tag_check
+
+      logical,external :: movecs_write
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -46,8 +48,6 @@ c
 c
 c     -----------------------------------------------------------------
 c
-      zeta = 0.304121d0
-      aq2 = 2d0/9d0 * (1d0-zeta)**2
 
       pars%timer%init  = util_wallsec()
       pars%timer%total = pars%timer%init
@@ -70,6 +70,9 @@ c
 
       pars%me = ga_nodeid()
       pars%nprocs = ga_nnodes()
+
+      !oskel = .false.
+      !oadapt = .false.
 
 #ifdef USE_OPENMP
       pars%iMaxThreads = omp_get_max_threads()
@@ -135,9 +138,9 @@ c
      $                  pars%nvqp(1)))
      $  call errquit(pname//'failed to read nvqp',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:noqp_beta',mt_int,1,pars%noqp(2)))
-     $  call errquit(pname//'failed to read noqp',0,RTDB_ERR)
+     $  call errquit(pname//'failed to read noqp beta',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:nvqp_beta',mt_int,1,pars%nvqp(2)))
-     $  call errquit(pname//'failed to read nvqp',0,RTDB_ERR)
+     $  call errquit(pname//'failed to read nvqp beta',0,RTDB_ERR)
 c
       if (.not.rtdb_get(pars%rtdb,'gw:analyticw',mt_log,1,pars%anaw))
      $  call errquit(pname//'failed to read analyticw',0,RTDB_ERR)
@@ -236,7 +239,6 @@ c
         do j=1,pars%nmo
           if (dbl_mb(pars%k_occ+(i-1)*nbf_ao+j-1).gt.0.d0) then
             nocc = nocc + 1
-            cycle
           else
             nvir = nvir + 1
           endif
@@ -244,7 +246,7 @@ c
         pars%nocc(i) = nocc
         pars%nvir(i) = nvir
         if (nocc+nvir.ne.pars%nmo)
-     $    call errquit(pname//'something went wrong',0,0)
+     $    call errquit(pname//'Nocc + Nvir /= NMO ',0,0)
       
 c
         if ((pars%noqp(i).gt.nocc).or.(pars%noqp(i).eq.-1)) 
@@ -253,12 +255,11 @@ c
         if (pars%noqp(i).lt.-1)
      $    call errquit(pname//'invalid number noqp specified',0,0)
 c
-        if ((pars%nvqp(i).gt.nvir).or.(pars%nvqp(i).eq.-1)) 
+        if ((pars%nvqp(i).gt.nvir).or.(pars%nvqp(i).le.-1)) 
      $     pars%nvqp(i) = nvir
 
-        if (pars%nvqp(i).lt.-1)
-     $    call errquit(pname//'invalid number nvqp specified',0,0)
-
+        ! If core option was passed, then start counting from the bottom
+        ! else, start counting from the top (Fermi level)
         if (pars%core) then
           pars%llmo(i) = pars%first
         else
@@ -284,16 +285,23 @@ c
 c
  1001 format(2X,A12,F8.3,A3)
       if (pars%ncap) then
+        zeta = 0.304121d0
+        if ((xfac(87)).gt.1d-10) zeta=0.5d0
+        aq2 = 2d0/9d0 * (1d0-zeta)**2
         do i=1,ipol
           ehomo = dbl_mb(pars%k_evals+(i-1)*nbf_ao+pars%nocc(i)-1)
-          vxddp = -0.5d0*aq2*(1d0 + sqrt(1d0-4d0*ehomo/aq2))
-          vxddm = -0.5d0*aq2*(1d0 - sqrt(1d0-4d0*ehomo/aq2))
+          vxddp = -0.5d0*aq2*(1d0 + sqrt(1d0-4d0*ehomo/aq2))!*0.15d0
+          vxddm = -0.5d0*aq2*(1d0 - sqrt(1d0-4d0*ehomo/aq2))!*0.15d0
           pars%vxddp(i) = vxddp
           pars%vxddm(i) = vxddm
           if (pars%me.eq.0) then
             write(luout,1001) ' v_x^{DD+}: ',vxddp*ha2ev, ' eV'
             write(luout,1001) ' v_x^(DD-): ',vxddm*ha2ev, ' eV'
           endif
+          call daxpy(pars%nocc(i),1d0,vxddp,0,
+     $               dbl_mb(pars%k_evals+(i-1)*nbf_ao),1)
+          call daxpy(pars%nvir(i),1d0,vxddm,0,
+     $               dbl_mb(pars%k_evals+(i-1)*nbf_ao+pars%nocc(i)),1)
         enddo
       endif
 c
