@@ -21,7 +21,10 @@
      &     rtdb_put(rtdb,'bse:elower',mt_dbl,1,0d0) .and.
      &     rtdb_put(rtdb,'bse:upper',mt_dbl,1,0d0) .and.
      &     rtdb_put(rtdb,'bse:nroots',mt_int,1,10) .and.
-     &     rtdb_put(rtdb,'bse:nmax',mt_int,1,100) .and.
+     &     rtdb_put(rtdb,'bse:nmax',mt_int,1,200) .and.
+     &     rtbd_put(rtdb,'bse:skipgw',mt_log,1,.false.) .and.
+     &     rtdb_put(rtdb,'bse:maxiter',mt_int,1,100) .and.
+     &     rtdb_put(rtdb,'bse:nspace',mt_int,1,4) .and. 
      &     rtdb_put(rtdb,'bse:init',mt_log,1,.true.)
 
       if (.not.ok)

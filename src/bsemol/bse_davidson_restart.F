@@ -1,6 +1,6 @@
       subroutine bse_davidson_restart(ntrials,nroots,npoles,g_x,g_y,
-     $                                g_ym,g_s,g_ks,g_mks,lvkv,vkv,
-     $                                map,nblocks)
+     $                                g_ym,g_s,g_ks,g_mks,g_trials,
+     $                                lvkv,vkv,map,nblocks)
 
       implicit none
 #include "global.fh"
@@ -9,7 +9,7 @@
 
       integer ntrials,nroots,npoles,nblocks
       integer g_x,g_y,g_ym,g_s,g_ks,g_mks,lvkv,vkv
-      integer map(nblocks),grid(2)
+      integer map(nblocks),grid(2),g_trials
 
       logical stat
 
@@ -20,11 +20,11 @@
 
       ! Copy current solutions
       call ga_copy_patch('n',g_x,1,npoles,1,ntrials,
-     $                       g_s,1,npoles,1,ntrials)
-      call ga_copy_patch('n',g_y,1,npoles,1,ntrials,
-     $                       g_ks,1,npoles,1,ntrials)
-      call ga_copy_patch('n',g_ym,1,npoles,1,ntrials,
-     $                       g_mks,1,npoles,1,ntrials)
+     $                       g_trials,1,npoles,1,ntrials)
+!      call ga_copy_patch('n',g_y,1,npoles,1,ntrials,
+!     $                       g_ks,1,npoles,1,ntrials)
+!      call ga_copy_patch('n',g_ym,1,npoles,1,ntrials,
+!     $                       g_mks,1,npoles,1,ntrials)
 
       ! Destroy current solutions
       stat = ga_destroy(g_x).and.ga_destroy(g_y).and.ga_destroy(g_ym)
@@ -44,12 +44,12 @@
      $   call errquit('bse_davidson_restar: failed create',1,GA_ERR)
 
       ! Copy back solutions
-      call ga_copy_patch('n',g_s,1,npoles,1,ntrials,
-     $                       g_x,1,npoles,1,ntrials)
-      call ga_copy_patch('n',g_ks,1,npoles,1,ntrials,
-     $                       g_y,1,npoles,1,ntrials)
-      call ga_copy_patch('n',g_mks,1,npoles,1,ntrials,
-     $                       g_ym,1,npoles,1,ntrials)
+!      call ga_copy_patch('n',g_s,1,npoles,1,ntrials,
+!     $                       g_x,1,npoles,1,ntrials)
+!      call ga_copy_patch('n',g_ks,1,npoles,1,ntrials,
+!     $                       g_y,1,npoles,1,ntrials)
+!      call ga_copy_patch('n',g_mks,1,npoles,1,ntrials,
+!     $                       g_ym,1,npoles,1,ntrials)
 
       ! Destroy working vectors
       stat = ga_destroy(g_s).and.ga_destroy(g_ks).and.ga_destroy(g_mks)
@@ -65,9 +65,9 @@
      $   call errquit('bse_davidson_restar: failed create',2,GA_ERR)
 
       ! Copy current solutions
-      call ga_copy(g_x,g_s)
-      call ga_copy(g_y,g_ks)
-      call ga_copy(g_ym,g_mks)
+!      call ga_copy(g_x,g_s)
+!      call ga_copy(g_y,g_ks)
+!      call ga_copy(g_ym,g_mks)
 
       ! Reallocate VKV
       if(.not.ma_chop_stack(lvkv))

@@ -8,6 +8,7 @@
         integer          :: ipol
 	logical          :: main, odft
 c
+        integer          :: maxiter, nspace
         integer          :: natoms
         integer          :: nmo, nri
 	integer          :: nocc(2),nvir(2),npoles(2),mynpoles(2)
