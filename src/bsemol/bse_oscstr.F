@@ -9,7 +9,7 @@
 #include "rtdb.fh"
 #include "sym.fh"
 #include "util.fh"
-#include "util_parms.fh"
+#include "util_params.fh"
 #include "inp.fh"
       type(bse_params_t) :: pars
 
@@ -191,9 +191,10 @@
         call ga_transpose(g_td(1), g_tdtot(1))
         if(pars%ipol.gt.1) call ga_transpose(g_td(2), g_tdtot(2))
 
-        if(pars%davdison) then
-          call ga_copy_patch('n',pars%g_amb,1,pars%npoles(1),ipole,ipole,
-     &                         g_y(1),1,pars%npoles(1),1,1)
+        if(pars%davidson) then
+           call ga_copy_patch('n',pars%g_amb,1,pars%npoles(1),
+     I          ipole,ipole,
+     &          g_y(1),1,pars%npoles(1),1,1)
           if(pars%ipol.gt.1) then
             call ga_copy_patch('n',pars%g_amb, pars%npoles(1)+1, npoles,
      &                          ipole, ipole, g_y(2), 1, pars%npoles(2),
