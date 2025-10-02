@@ -784,7 +784,7 @@ c      call pspw_qmmm_init(rtdb)
            icount_shift = icount_shift + 1
            end do
   100      continue
-#if defined(FUJITSU) || defined(__crayx1) || defined(GCC46)
+#if 1
            backspace 31
 #endif
          else
