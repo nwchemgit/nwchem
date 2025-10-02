@@ -250,25 +250,30 @@ if [[ "$os" == "Linux" ]]; then
 	fi
 	if [[ "$FC" == "amdflang" ]]; then
 	    $MYSUDO apt-get install -y wget gnupg2 coreutils dialog tzdata
+	    $MYSUDO mkdir --parents --mode=0755 /etc/apt/keyrings
 	    rocm_version=7.0.1
-	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
-	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  $MYSUDO apt-key add - \
-		&& break ; \
-	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ; done
-	    echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | $MYSUDO tee /etc/apt/sources.list.d/rocm.list
+#	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
+#	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | gpg --dearmor |  $MYSUDO tee /etc/apt/keyrings/rocm.gpg > /dev/null \
+#		&& break ; \
+#	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ; done
+	    $MYSUDO gpg --no-tty --keyserver hkp://keyserver.ubuntu.com:80  --recv-keys 9386B48A1A693C5C
+	    $MYSUDO gpg --no-tty --export --armor 9386B48A1A693C5C | $MYSUDO gpg --no-tty --dearmor -o  /etc/apt/keyrings/rocm.gpg
+	    echo 'deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/'$rocm_version'/ jammy main' | $MYSUDO tee /etc/apt/sources.list.d/rocm.list
 	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	    $MYSUDO apt-get  update -y && $MYSUDO apt-get -y install rocm-llvm openmp-extras \
             && break ; \
 	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ; done
+	    $MYSUDO update-alternatives --install /opt/rocm rocm /opt/rocm-$rocm_version 100
+	    $MYSUDO update-alternatives --set rocm /opt/rocm-$rocm_version
 	    export PATH=/opt/rocm/bin:$PATH
 	    export LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
-	    amdflang -v ; if [[ $? != 0 ]]; then echo "amdflang install failed"; exit 1; fi
-	    amdclang -v
+	    amdflang --version ; if [[ $? != 0 ]]; then echo "amdflang install failed"; exit 1; fi
+	    amdclang --version
 	fi
 	if [[ "$FC" == "nvfortran" ]]; then
 	    $MYSUDO apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
-	    nv_major=24
-	    nv_minor=11
+	    nv_major=25
+	    nv_minor=9
 	    nverdot="$nv_major"."$nv_minor"
 	    nverdash="$nv_major"-"$nv_minor"
 	    arch_dpkg=`dpkg --print-architecture`
