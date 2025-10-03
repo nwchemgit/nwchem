@@ -218,13 +218,6 @@ jobs:
             use_openmp: 2
           - os: ubuntu-latest
             experimental: true
-            mpi_impl: mpich
-            armci_network: MPI-TS
-            nwchem_modules: "tce"
-            fc: flang
-            cc: clang
-          - os: ubuntu-latest
-            experimental: true
             mpi_impl: intel
             armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
@@ -265,6 +258,14 @@ jobs:
             fc: ifx
             cc: icx
             use_libxc: 1
+          - os: macos-latest
+            experimental: true
+            mpi_impl: mpich
+            armci_network: MPI-TS
+            nwchem_modules: "all"
+            fc: flang
+            blas: "build_openblas"
+            blas_size: 8
           - os: macos-latest
             experimental: true
             mpi_impl: openmpi
@@ -383,13 +384,6 @@ jobs:
             nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump nwc_columbus"
             fc: gfortran
             cc: gcc
-          - os: ubuntu-latest
-            experimental: true
-            mpi_impl: mpich
-            armci_network: MPI-TS
-            nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump nwc_columbus"
-            fc: flang
-            cc: clang
           - os: ubuntu-latest
             experimental: true
             mpi_impl: intel

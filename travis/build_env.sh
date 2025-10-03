@@ -12,6 +12,10 @@ dist="ubuntu"
 arch=`uname -m`
 env | grep FC || true
 env | grep CC || true
+if [[ "$os" == "Darwin" ]]; then
+    IONEAPI_ROOT=~/apps/oneapi
+else
+    IONEAPI_ROOT=/opt/intel/oneapi
 if test -f "/usr/lib/os-release"; then
     dist=$(grep ID= /etc/os-release |grep -v VERSION |head -1 |cut -c4-| sed 's/\"//g')
 fi
@@ -29,10 +33,6 @@ if [ -z "$DISTR" ] ; then
     DISTR=$dist
 fi
 echo DISTR is "$DISTR"
-if [[ "$os" == "Darwin" ]]; then
-    IONEAPI_ROOT=~/apps/oneapi
-else
-    IONEAPI_ROOT=/opt/intel/oneapi
 fi
 	if [[ "$os" == "Darwin" ]]; then
 	    if [ -z $XCODE_VERSION ]; then
@@ -65,6 +65,11 @@ fi
 	 export PATH=$HOMEBREW_CELLAR/../opt/gcc@"$mygccver"/bin:$PATH
 	 echo gfortran is $(gfortran -v)
 	 echo gfortran-"$mygccver" is $(gfortran-"$mygccver" -v)
+     fi
+     if [[ "$FC" == "flang" ]]; then
+	 echo installing flang
+	 HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install flang || true
+	 echo flang is $(flang --version)
      fi
      if [[ "$CC" != gcc ]] && [[ "$CC" == gcc* ]]; then
 	 #install non default gfortran, ie gcc-9
@@ -138,6 +143,7 @@ fi
      if [[ "$MPI_IMPL" != "build_mpich" ]]; then
 	 #check mpi install
 	 if [[ "$MPI_IMPL" == "mpich" ]]; then
+	     export MPICH_FC=$FC
 	     echo 'mpi90 -show' $("$HOMEBREW_PREFIX"/opt/mpich/bin/mpif90 -show)
 	 fi
 	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
@@ -242,56 +248,32 @@ if [[ "$os" == "Linux" ]]; then
 	    $MYSUDO ./llvm.sh $llvm_ver
 	    $MYSUDO apt-get install -y flang-$llvm_ver
 	fi
-	if [[ "$FC" == "flang" ]]; then
-	    if [[ "USE_AOMP" == "Y" ]]; then
-		aomp_major=19
-		aomp_minor=0-3
-		wget -nv https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
-		$MYSUDO dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
-		export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
-		export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
-		ls -lrt /usr/lib | grep aomp ||true
-	    else
-		aocc_major=4
-		aocc_minor=1
-		aocc_patch=0
-		aocc_version=${aocc_major}.${aocc_minor}.${aocc_patch}
-		aocc_dir=aocc-${aocc_major}-${aocc_minor}
-		aocc_file=aocc-compiler-${aocc_version}
-#		curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
-		tries=0 ; until [ "$tries" -ge 10 ] ; do \
-                curl -sS -LJO https://download.amd.com/developer/eula/aocc/${aocc_dir}/${aocc_file}.tar \
-                && break ; \
-                tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
-		tar xf ${aocc_file}.tar
-		./${aocc_file}/install.sh
-		source setenv_AOCC.sh
-		pwd
-	    fi
-	    flang -v
-	    which flang
-	fi
 	if [[ "$FC" == "amdflang" ]]; then
 	    $MYSUDO apt-get install -y wget gnupg2 coreutils dialog tzdata
-	    rocm_version=6.2.4
-	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
-	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  $MYSUDO apt-key add - \
-		&& break ; \
-	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ; done
-	    echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | $MYSUDO tee /etc/apt/sources.list.d/rocm.list
+	    $MYSUDO mkdir --parents --mode=0755 /etc/apt/keyrings
+	    rocm_version=7.0.1
+#	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
+#	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | gpg --dearmor |  $MYSUDO tee /etc/apt/keyrings/rocm.gpg > /dev/null \
+#		&& break ; \
+#	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ; done
+	    $MYSUDO gpg --no-tty --keyserver hkp://keyserver.ubuntu.com:80  --recv-keys 9386B48A1A693C5C
+	    $MYSUDO gpg --no-tty --export --armor 9386B48A1A693C5C | $MYSUDO gpg --no-tty --dearmor -o  /etc/apt/keyrings/rocm.gpg
+	    echo 'deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/'$rocm_version'/ jammy main' | $MYSUDO tee /etc/apt/sources.list.d/rocm.list
 	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	    $MYSUDO apt-get  update -y && $MYSUDO apt-get -y install rocm-llvm openmp-extras \
             && break ; \
 	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ; done
+	    $MYSUDO update-alternatives --install /opt/rocm rocm /opt/rocm-$rocm_version 100
+	    $MYSUDO update-alternatives --set rocm /opt/rocm-$rocm_version
 	    export PATH=/opt/rocm/bin:$PATH
 	    export LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
-	    amdflang -v ; if [[ $? != 0 ]]; then echo "amdflang install failed"; exit 1; fi
-	    amdclang -v
+	    amdflang --version ; if [[ $? != 0 ]]; then echo "amdflang install failed"; exit 1; fi
+	    amdclang --version
 	fi
 	if [[ "$FC" == "nvfortran" ]]; then
 	    $MYSUDO apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
-	    nv_major=24
-	    nv_minor=11
+	    nv_major=25
+	    nv_minor=9
 	    nverdot="$nv_major"."$nv_minor"
 	    nverdash="$nv_major"-"$nv_minor"
 	    arch_dpkg=`dpkg --print-architecture`
