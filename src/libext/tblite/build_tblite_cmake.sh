@@ -233,6 +233,10 @@ rm -rf _build
 echo compiling TBlite stack with FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DWITH_OpenMP=$DOOPENMP -DCMAKE_INSTALL_PREFIX="../.." -DWITH_TESTS=OFF -DWITH_API=OFF -DWITH_APP=OFF -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_IGNORE_PATH="/usr/local" -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DCMAKE_C_FLAGS="$C_FLAGS"
 
 FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DWITH_OpenMP=$DOOPENMP -DCMAKE_INSTALL_PREFIX="../.." -DWITH_TESTS=OFF -DWITH_API=OFF -DWITH_APP=OFF -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_IGNORE_PATH="/usr/local" -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS"  -DCMAKE_C_FLAGS="$C_FLAGS"
+cd _build/_deps/mctc-lib-src
+wget https://github.com/edoapra/mctc-lib/commit/94861075f1ac37786aa6426600e96c06df604a30.patch
+patch -p1 -s -N < 94861075f1ac37786aa6426600e96c06df604a30.patch ||true
+cd ../../../
 $CMAKE --build _build --parallel 4
 status=$?
 if [ $status -ne 0 ]; then
