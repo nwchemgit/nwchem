@@ -16,7 +16,6 @@ c
       if(dim1.lt.128) then
          call ga_diag_std_seq(g_fock,  g_evecs, evals)
       else
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
 C#ifdef USE_ELPA
 C      call ga_evp_real(g_fock, g_evecs, evals,nb, mout)
@@ -31,9 +30,8 @@ C#else
       call ga_pdsyevd(g_fock, g_evecs, evals, nb)
 #endif
 C#endif
-#else
+#elif defined(PEIGS)
       call ga_diag_std(g_fock, g_evecs, evals)
-#endif
 #else
       call ga_diag_std_seq(g_fock, g_evecs, evals)
 #endif
