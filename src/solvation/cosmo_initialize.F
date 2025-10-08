@@ -546,6 +546,12 @@ c
         else
           write(Luout,9972)"*** invalid ***"
         endif
+c
+c     ----- potential correction -----
+c
+        if(cosmo_ptcor) then
+           write(luout,9973)
+        endif
       endif
 
 c
@@ -755,6 +761,7 @@ c
 c
 c <-- MN solvation models
 c
+ 9973 format(' charge correction applied to potential')
  9972 format(' surface charge correction     = ',a)
  9971 format(' Cosmo: York-Karplus, doi: 10.1021/jp992097l')
  9970 format(' Cosmo: Klamt-Schuurmann, doi: 10.1039/P29930000799')
