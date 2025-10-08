@@ -1,23 +1,3 @@
-      subroutine fudgeit(rtdb)
-      implicit none
-#include "cscf.fh"
-#include "mafdecls.fh"
-#include "global.fh"
-#include "geom.fh"
-#include "rtdb.fh"
-c
-      integer rtdb
-      integer g_over, g_sc
-      integer ga_create_atom_blocked
-c
-      g_over = ga_create_atom_blocked(geom, basis, 'tmp')
-      call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
-      call ga_matpow(g_over, -0.5d0, 1d-12)
-      call ga_dgemm('n', 'n', nbf, nmo, nbf, 
-     $     1.0d0, g_over, g_movecs, 0.0d0, g_sc)
-      
-
-      end
 c
 c     =================================================================
 c      
@@ -584,8 +564,8 @@ c
                      end do
                   end if
                end if
+               call ga_sync
             end do
-            call ga_sync
          end do
       end do
 c

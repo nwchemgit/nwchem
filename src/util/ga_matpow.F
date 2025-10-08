@@ -127,12 +127,10 @@ C
          EndDo
       EndIf
 C
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
          call ga_pdsygv(g_v, g_junk, g_ev, dbl_mb(eval_idx),0)
-#else
+#elif defined(PEIGS)
       Call GA_Diag( G_V, G_Junk, G_EV, Dbl_MB(Eval_Idx))
-#endif
 #else
       Call GA_Diag_Seq( G_V, G_Junk, G_EV, Dbl_MB(Eval_Idx))
 #endif
@@ -141,12 +139,10 @@ C
      $   Call ErrQuit('GA_MatPow: Unable to free metric', 0, GA_ERR)
 C
 #else /* defined(USE_GEN_DIAG) */
-#if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
       call ga_pdsyev(g_v, g_ev, dbl_mb(eval_idx),0)
-#else
+#elif defined(PEIGS)
       Call GA_Diag_Std( G_V, G_EV, Dbl_MB(Eval_Idx))
-#endif
 #else
       Call GA_Diag_Std_Seq( G_V, G_EV, Dbl_MB(Eval_Idx))
 #endif
