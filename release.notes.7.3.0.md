@@ -16,8 +16,9 @@ The change log below is relative to the 7.3.0 code base.
 NEW FUNCTIONALITY
 -----
 
-   * New  solvation cavity construction approach based on the solvent-excluding surface (SES),
+   * Solvation: new cavity construction approach based on the solvent-excluding surface (SES),
      using the GEPOL algorithm
+   * Solvation: added .cosmo file generation to be used by COSMO-RS and COSMO-SAC 
    * ...
 
 BUG FIXES/ENHANCEMENTS
@@ -25,6 +26,7 @@ BUG FIXES/ENHANCEMENTS
 
    * port to GNU 15 compiler
    * port to LLVM Flang 21 compiler
+   * port to Intel OneAPI 2025 compiler
    * enhancement to the socket driver
    * removed dependence from PeIGS library (that can only be installed when USE_PEIGS=Y)
    * IBO code improvements
