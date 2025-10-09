@@ -564,8 +564,8 @@ c
                      end do
                   end if
                end if
-               call ga_sync
             end do
+            call ga_sync
          end do
       end do
 c
