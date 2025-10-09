@@ -85,6 +85,7 @@
       iproc = ga_nodeid()
       nproc = ga_nnodes()
       ijshell = 0
+      call ga_sync()
       do jshell = 1,nshell_j
          do ishell = 1,nshell_i
             if(mod(ijshell,nproc).eq.iproc)then
@@ -118,6 +119,7 @@
       if(.not.MA_pop_stack(l_buf))
      $   call errquit('int_dip_ga:pop failed',0, MA_ERR)
 !
+      call ga_sync()
       if (do_mirr) then
          g_x=g_x_org
          call util_mirrmerge(g_x_mirr,g_x)
