@@ -421,6 +421,7 @@ c
       double precision u21
       integer nrot, set, pair, neven, x, natoms
       integer maxat, nlist
+      integer ilo,ihi,jlo,jhi
 *............................   these should be dynamically allocated ?
       parameter (maxat = nw_max_atom)
       integer list(maxat)
@@ -448,6 +449,8 @@ c
 c
       dprev = 0.0d0
       gamma_max = 0.0d0
+      call ga_distribution(g_uc(1), ga_nodeid(),
+     I          ilo, ihi, jlo, jhi)
       do iter = 1, 100
          call ga_sync
          nrot = 0
@@ -456,11 +459,15 @@ c     Analyze convergence by forming functional
 c
          d = 0.0d0
          dmax = 0.0d0
-         do ss = 1+ga_nodeid(), nloc, ga_nnodes()
+         if (ilo.gt.0 .and. ihi.le.ihi) then
+cold         do ss = 1+ga_nodeid(), nloc, ga_nnodes()
+         do ss = 1, nloc
             s = iloc(ss)
-            call ga_get(g_c,  1, nbf, s, s, c(1,1), 1)
+c     if g_uxc.s belongs to ga_nodeid, do
+            if(s.ge.jlo.and.s.le.jhi) then
+            call ga_get(g_c,  ilo, ihi, s, s, c(1,1), 1)
             do x = 1, 3
-               call ga_get(g_uc(x), 1, nbf, s, s,uc(1,1,x), 1)
+               call ga_get(g_uc(x), ilo, ihi, s, s,uc(1,1,x), 1)
             end do
             qs = 0.0d0
             do x = 1, 3
@@ -472,7 +479,10 @@ c
             end do
             dmax = max(dmax, qs)
             d = d + qs
+            endif
          end do
+         endif
+         call ga_sync
 c
 #ifdef NWCHEM_USE_GOP_ABSMAX
          call ga_dgop(1, gamma_max, 1, 'absmax')
@@ -502,17 +512,21 @@ c     Loop over pairs with as much parallelism as possible
 c
          neven = nloc + mod(nloc,2)
          do set = 1, neven-1
-            do pair = 1+ga_nodeid(), neven/2, ga_nnodes()
+         if (ilo.gt.0 .and. ihi.le.ihi) then
+cold            do pair = 1+ga_nodeid(), neven/2, ga_nnodes()
+            do pair = 1, neven/2
                call localize_pairs(neven, set, pair, ss, tt)
                if (tt .le. nloc) then
                   s = iloc(ss)
+c     if g_uxc.s belongs to ga_nodeid, do
+                  if(s.ge.jlo.and.s.le.jhi) then
                   t = iloc(tt)
 *                  write(6,*) nloc, neven, set, pair, ss, tt, s, t
-                  call ga_get(g_c,  1, nbf, s, s, c(1,1), 1)
-                  call ga_get(g_c,  1, nbf, t, t, c(1,2), 1)
+                  call ga_get(g_c,ilo, ihi, s, s, c(1,1), 1)
+                  call ga_get(g_c,ilo, ihi, t, t, c(1,2), 1)
                   do x = 1, 4
-                     call ga_get(g_uc(x), 1, nbf, s, s,uc(1,1,x), 1)
-                     call ga_get(g_uc(x), 1, nbf, t, t,uc(1,2,x), 1)
+                     call ga_get(g_uc(x),ilo,ihi, s, s,uc(1,1,x), 1)
+                     call ga_get(g_uc(x),ilo,ihi, t, t,uc(1,2,x), 1)
                   end do
 c     
 c     Form rotation information
@@ -554,8 +568,8 @@ c
 c     Do the rotation of C and UC
 c     
                      call drot(nbf, c(1,1), 1, c(1,2), 1, cosg, sing)
-                     call ga_put(g_c,  1, nbf, s, s, c(1,1), 1)
-                     call ga_put(g_c,  1, nbf, t, t, c(1,2), 1)
+                     call ga_put(g_c,ilo, ihi, s, s, c(1,1), 1)
+                     call ga_put(g_c,ilo, ihi, t, t, c(1,2), 1)
                      do x = 1, 4
                         call drot(nbf,uc(1,1,x), 1,uc(1,2,x), 1, 
      $                       cosg, sing)
@@ -563,11 +577,13 @@ c
                         call ga_put(g_uc(x), 1, nbf, t, t,uc(1,2,x), 1)
                      end do
                   end if
+               endif
                end if
-            end do
+            end do ! do pair
+            endif
             call ga_sync
-         end do
-      end do
+         end do ! do set
+      end do ! do iter
 c
  1000 continue
 c

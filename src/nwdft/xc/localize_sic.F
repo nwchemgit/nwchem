@@ -69,8 +69,8 @@ c
          if (nocc.gt.0) then
            do x= 1, 4
              if (.not. ga_create(MT_DBL, nbf, nbf, 'uc',
-     $             nbf, 1, g_uc(x))) call errquit('g_uc_loc_sic',x,
-     &       GA_ERR)
+     $             nbf, 0, g_uc(x))) call errquit('g_uc_loc_sic',x,
+     &             GA_ERR)
            end do
 c
            call int_dip_ga(AO_bas_han, AO_bas_han, g_uc(1), g_uc(2),

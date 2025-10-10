@@ -5,11 +5,11 @@ cd $NWCHEM_TOP/src/nwpw/nwpwlib/nwpwxc/
 rm -f dftd3.tgz
 wget https://www.chemie.uni-bonn.de/grimme/de/software/dft-d3/dftd3.tgz
 cd $NWCHEM_TOP/src/libext/openblas
-VERSION=0.3.27
+VERSION=0.3.29
 rm -rf OpenBLAS*gz
 curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz
 cd $NWCHEM_TOP/src/libext/scalapack
-COMMIT=782e739f8eb0e7f4d51ad7dd23fc1d03dc99d240
+COMMIT=a23c2cdc6586c427686f6097ae66bb54ef693571
 rm -f scalapack-$COMMIT.zip
 curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip -o scalapack-$COMMIT.zip
 #caching
