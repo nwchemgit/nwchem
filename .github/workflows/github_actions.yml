@@ -36,19 +36,6 @@ jobs:
           - "tce"
         fc:
           - gfortran
-        exclude:
-          - os: macos-latest
-            mpi_impl: mpich
-            nwchem_modules: "tinyqmpw python"
-          - os: macos-latest
-            mpi_impl: mpich
-            nwchem_modules: "qmandpw qmd"
-          - os: ubuntu-24.04-arm
-            mpi_impl: mpich
-            nwchem_modules: "tinyqmpw python"
-          - os: ubuntu-24.04-arm
-            mpi_impl: mpich
-            nwchem_modules: "qmandpw qmd"
         include:
           - os: ubuntu-latest
             experimental: true
