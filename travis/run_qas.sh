@@ -35,13 +35,13 @@ if [[ ! -z "$USE_OPENMP" ]]; then
     export OMP_NUM_THREADS="$USE_OPENMP"
     export OMP_STACKSIZE=32M
 fi
-if [[ "$arch" == "aarch64" ]] || [[ "$os" == "Darwin" &&   "$BUILD_MPICH" == 1 ]] || [[ "$os" == "Darwin" && "$ARMCI_NETWORK" == MPI-PT ]]   ; then
+if [[ "$os" == "Darwin" &&   "$BUILD_MPICH" == 1 ]] || [[ "$os" == "Darwin" && "$ARMCI_NETWORK" == MPI-PT ]]   ; then
     nprocs=1
 fi    
 env|egrep MP
  do_largeqas=1
 
- if [[ "$CACHE_HIT" == "N" ]] || [[ "$EXTRA_BUILD" == "1" ]] || [[ ! -z "$USE_SIMINT" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "ppc64le" ]] || [[ "$arch" == "riscv64" ]]; then
+ if [[ "$CACHE_HIT" == "N" ]] || [[ "$EXTRA_BUILD" == "1" ]] || [[ ! -z "$USE_SIMINT" ]] ||  [[ "$arch" == "ppc64le" ]] || [[ "$arch" == "riscv64" ]]; then
      do_largeqas=0
  fi
 
