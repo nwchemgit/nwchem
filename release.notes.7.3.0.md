@@ -26,10 +26,10 @@ BUG FIXES/ENHANCEMENTS
 
    * port to GNU 15 compiler
    * port to LLVM Flang 21 compiler
-   * port to Intel OneAPI 2025 compiler
-   * enhancement to the socket driver
+   * port to Intel OneAPI 2025 compiler [PR#1116](https://github.com/nwchemgit/nwchem/pull/1116)
+   * enhancement to the socket driver [PR#1145](https://github.com/nwchemgit/nwchem/pull/1145)
    * removed dependence from PeIGS library (that can only be installed when USE_PEIGS=Y)
-   * IBO code improvements
+   * IBO code improvements [PR#1065](https://github.com/nwchemgit/nwchem/pull/1065)
    
    
    
@@ -49,4 +49,4 @@ GITHUB ISSUES ADDRESSED
    * [task bsse not compatible with sodft](https://github.com/nwchemgit/nwchem/issues/1049)
    * [ECP atom label incorrectly applied](https://github.com/nwchemgit/nwchem/issues/1037)
    * [Dead URL in contrib/getfiles.nwchem for dftd3.tgz](https://github.com/nwchemgit/nwchem/issues/1011)
-   
+   * [pspw_md QA fails on arm64 MacOS with gfortran-12 and clang-15](https://github.com/nwchemgit/nwchem/issues/970)
