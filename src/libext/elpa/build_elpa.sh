@@ -15,7 +15,14 @@ else
 #    echo curl https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
 #    curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
 echo    curl -LJO https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${VERSION}/elpa-${VERSION}.tar.gz
+    tries=1 ; until [ "$tries" -ge 6 ] ; do
+		  if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
     curl -LJO https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${VERSION}/elpa-${VERSION}.tar.gz
+    # check tar.gz integrity
+    echo check tar.gz integrity
+		  gzip -t elpa-${VERSION}.tar.gz >&  /dev/null
+		  if [ $? -eq 0 ]; then echo "download successful"; break ;  fi
+		  tries=$((tries+1)) ;  done
 fi
 tar xzf elpa-${VERSION}.tar.gz
 ln -sf elpa-${VERSION} elpa
