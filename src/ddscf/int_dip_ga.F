@@ -279,6 +279,7 @@ c      end do
       double precision buf(jlo:jhi,6,ilo:ihi)
       integer i, j
       do i = ilo,ihi
+#if 0
          do j = jlo, jhi
             call ga_put(g_xx,i,i,j,j,buf(j,1,i),1)
             call ga_put(g_xy,i,i,j,j,buf(j,2,i),1)
@@ -287,6 +288,14 @@ c      end do
             call ga_put(g_yz,i,i,j,j,buf(j,5,i),1)
             call ga_put(g_zz,i,i,j,j,buf(j,6,i),1)
          end do
+#else
+            call ga_put(g_xx,jlo,jhi,i,i,buf(jlo,1,i),1)
+            call ga_put(g_xy,jlo,jhi,i,i,buf(jlo,2,i),1)
+            call ga_put(g_xz,jlo,jhi,i,i,buf(jlo,3,i),1)
+            call ga_put(g_yy,jlo,jhi,i,i,buf(jlo,4,i),1)
+            call ga_put(g_yz,jlo,jhi,i,i,buf(jlo,5,i),1)
+            call ga_put(g_zz,jlo,jhi,i,i,buf(jlo,6,i),1)
+#endif
       end do
       end
 
