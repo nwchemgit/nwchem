@@ -13,7 +13,7 @@ C
 
 
 C     == In/out ==
-      type(rt_params_t) params
+      type(rt_params_t), intent(inout) :: params
 
 C     == Parameters ==
       character(*), parameter :: pname = "rt_tddft_init_rtdb: "

@@ -263,9 +263,6 @@ C     (charge density fitting for Coulomb part of Fock matrix)
          integer          :: n3c_int
          integer          :: l_3cwhat, k_3cwhat !int
          integer          :: n3c_dbl
-         integer          :: iwhat_max
-         integer          :: n_semi_bufs
-         integer          :: fd
 
          
 C     (matrix sizes)

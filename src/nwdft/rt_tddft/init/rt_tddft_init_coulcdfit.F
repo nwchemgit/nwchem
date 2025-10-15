@@ -19,7 +19,7 @@ C
 
 
 C     == In/out ==
-      type(rt_params_t) params  !cdfit params stored in here
+      type(rt_params_t), intent(inout) :: params  !cdfit params stored in here
 
       
 C     == Parameters ==
@@ -163,9 +163,6 @@ C
       params%k_3cwhat = k_3cwhat
       params%l_3cwhat = l_3cwhat
       params%n3c_dbl = n3c_dbl
-      params%iwhat_max = iwhat_max
-      params%n_semi_bufs = n_semi_bufs
-      params%fd = fd
 
       
       end subroutine rt_tddft_init_coulcdfit
