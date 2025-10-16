@@ -88,6 +88,14 @@ env|egrep MP
 		;;
 	esac
 	;;
+    ARMCI)
+        case "$os" in
+# fixes segfault for bse_ethene in ga_copy_patch...ARMCII_Iov_op_datatype
+            Linux)
+                ulimit -s unlimited
+		;;
+	esac
+	;;
  esac
 if [[ "$MPI_IMPL" == "openmpi" ]]; then
 export MPIRUN_NPOPT=" --allow-run-as-root -mca mpi_yield_when_idle 0 --oversubscribe -np "
