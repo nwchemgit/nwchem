@@ -1,0 +1,45 @@
+title "ethene BSE"
+memory total 2000 mb
+start
+
+set lindep:n_dep 0
+
+geometry
+H 0.000000 0.923274 1.238289
+H 0.000000 -0.923274 1.238289
+H 0.000000 0.923274 -1.238289
+H 0.000000 -0.923274 -1.238289
+C 0.000000 0.000000 0.668188
+C 0.000000 0.000000 -0.668188
+end
+
+basis "ao basis" spherical bse
+ * library aug-cc-pvtz
+end
+
+basis "ri basis" spherical bse
+ * library aug-cc-pvtz-rifit
+end
+
+dft
+  direct
+  xc pbe0
+  tolerances acccoul 10
+  convergence energy 1d-8
+  grid fine
+end
+
+gw
+  evgw 5
+  method analytic
+  states alpha occ -1 vir -1
+end
+
+task gw
+
+bse
+ nroots 12
+ method davidson
+end
+
+task bse

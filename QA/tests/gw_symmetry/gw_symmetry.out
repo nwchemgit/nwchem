@@ -1,5 +1,5 @@
- argument  1 = gw_symmetry.nw
-  NWChem w/ OpenMP: maximum threads =    8
+ argument  1 = /people/meji656/calculations/bse/QA/gw_symmetry.nw
+  NWChem w/ OpenMP: maximum threads =    1
 
 
 
@@ -53,7 +53,7 @@ task dft gw
                                          
 
 
-             Northwest Computational Chemistry Package (NWChem) 7.2.0
+             Northwest Computational Chemistry Package (NWChem) 7.3.0
              --------------------------------------------------------
 
 
@@ -61,7 +61,7 @@ task dft gw
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2022
+                              Copyright (c) 1994-2025
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -86,21 +86,21 @@ task dft gw
            Job information
            ---------------
 
-    hostname        = WE41476
-    program         = nwchem
-    date            = Wed Jul 12 13:50:26 2023
+    hostname        = dc005
+    program         = /qfs/people/meji656/software/nwchem.bse/bin/LINUX64/nwchem
+    date            = Thu Oct 16 10:35:32 2025
 
-    compiled        = Wed_Jul_12_13:50:03_2023
-    source          = /Users/meji656/Sources/nwchem_bse
-    nwchem branch   = 7.2.0
-    nwchem revision = nwchem_on_git-4850-g011c901253
-    ga revision     = 5.8.0
-    use scalapack   = T
-    input           = gw_symmetry.nw
+    compiled        = Thu_Oct_16_10:07:15_2025
+    source          = /qfs/people/meji656/software/nwchem.bse
+    nwchem branch   = 7.3.0
+    nwchem revision = v7.2.0-beta1-1624-g0dc011d0a0
+    ga revision     = 5.9.2
+    use scalapack   = F
+    input           = /people/meji656/calculations/bse/QA/gw_symmetry.nw
     prefix          = gw_symmetry.
     data base       = ./gw_symmetry.db
     status          = startup
-    nproc           =        1
+    nproc           =        7
     time left       =     -1s
 
 
@@ -108,10 +108,10 @@ task dft gw
            Memory information
            ------------------
 
-    heap     =   65535996 doubles =    500.0 Mbytes
-    stack    =   65536001 doubles =    500.0 Mbytes
-    global   =  131072000 doubles =   1000.0 Mbytes (distinct from heap & stack)
-    total    =  262143997 doubles =   2000.0 Mbytes
+    heap     =     65535998 doubles =      500.0 Mbytes
+    stack    =     65535995 doubles =      500.0 Mbytes
+    global   =    131072000 doubles =     1000.0 Mbytes (distinct from heap & stack)
+    total    =    262143993 doubles =     2000.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -462,33 +462,32 @@ task dft gw
      6 a1          7 t2          8 t2          9 t2         10 t2      
     11 t2         12 t2         13 a1         14 t2         15 t2      
 
-  WARNING: movecs_in_org=atomic not equal to movecs_in=./gw_symmetry.movecs
-   Time after variat. SCF:      0.3
-   Time prior to 1st pass:      0.3
+   Time after variat. SCF:      0.4
+   Time prior to 1st pass:      0.4
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       65.53            65532636
-          Stack Space remaining (MW):       65.54            65535396
+           Heap Space remaining (MW):       65.53            65532638
+          Stack Space remaining (MW):       65.54            65535388
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -40.4526766257 -5.40D+01  2.73D-03  1.58D-01     0.6
- d= 0,ls=0.0,diis     2    -40.4605212533 -7.84D-03  1.18D-03  2.13D-02     0.8
- d= 0,ls=0.0,diis     3    -40.4604458885  7.54D-05  6.05D-04  2.16D-02     1.1
- d= 0,ls=0.0,diis     4    -40.4630635417 -2.62D-03  2.24D-05  6.66D-06     1.3
- d= 0,ls=0.0,diis     5    -40.4630646869 -1.15D-06  2.13D-06  1.39D-07     1.6
- d= 0,ls=0.0,diis     6    -40.4630647071 -2.03D-08  7.01D-08  1.45D-10     1.9
+ d= 0,ls=0.0,diis     1    -40.4526766257 -5.40D+01  2.73D-03  1.58D-01     0.5
+ d= 0,ls=0.0,diis     2    -40.4605212533 -7.84D-03  1.18D-03  2.13D-02     0.5
+ d= 0,ls=0.0,diis     3    -40.4604458885  7.54D-05  6.05D-04  2.16D-02     0.6
+ d= 0,ls=0.0,diis     4    -40.4630635417 -2.62D-03  2.24D-05  6.66D-06     0.6
+ d= 0,ls=0.0,diis     5    -40.4630646869 -1.15D-06  2.13D-06  1.39D-07     0.7
+ d= 0,ls=0.0,diis     6    -40.4630647071 -2.03D-08  7.01D-08  1.45D-10     0.7
 
 
-         Total DFT energy =      -40.463064707119
-      One electron energy =      -79.987919842739
-           Coulomb energy =       32.854590174254
+         Total DFT energy =      -40.463064707118
+      One electron energy =      -79.987919842738
+           Coulomb energy =       32.854590174255
     Exchange-Corr. energy =       -6.837400210970
  Nuclear repulsion energy =       13.507665172336
 
  Numeric. integr. density =       10.000008758007
 
-     Total iterative time =      1.5s
+     Total iterative time =      0.3s
 
 
 
@@ -523,11 +522,11 @@ task dft gw
 
      1   1 0 0     -0.000000     -0.000000     -0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000      0.000000
-     1   0 0 1     -0.000000     -0.000000     -0.000000      0.000000
+     1   0 0 1      0.000000      0.000000      0.000000      0.000000
 
      2   2 0 0     -6.283208     -5.939937     -5.939937      5.596666
-     2   1 1 0      0.000000      0.000000      0.000000      0.000000
-     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   1 1 0     -0.000000     -0.000000     -0.000000      0.000000
+     2   1 0 1     -0.000000     -0.000000     -0.000000      0.000000
      2   0 2 0     -6.283208     -5.939937     -5.939937      5.596666
      2   0 1 1     -0.000000     -0.000000     -0.000000      0.000000
      2   0 0 2     -6.283208     -5.939937     -5.939937      5.596666
@@ -626,18 +625,18 @@ task dft gw
 
                  Memory Information
                  ------------------
-          Available GA per process is           999.9 MBs
+          Available GA per process is          1000.0 MBs
           Available stack per process is        500.0 MBs
           Available heap per process is         499.9 MBs
 
           Peak memory in Initialization
-              Peak GA per process is                  1.1 MBs
+              Peak GA per process is                  0.2 MBs
               Peak stack per process is               0.1 MBs
-              Peak heap per process is                1.2 MBs
+              Peak heap per process is                0.5 MBs
               Memory not in MA per process            0.0 MBs
 
           Peak memory in AFF Calculation
-              Peak GA per process is                  2.5 MBs
+              Peak GA per process is                  0.4 MBs
               Peak stack per process is               1.3 MBs
               Peak heap per process is                0.0 MBs
               Memory not in MA per process            1.3 MBs
@@ -657,25 +656,25 @@ task dft gw
                   Alpha Orbitals
           State     Energy (eV)     Error (eV)
           -----------------------------------
-@GW         5        -13.866           0.000
+@GW         5        -13.864           0.003
 
-   Applying  -4.4168 eV scissor-shift to rest of particle states
+   Applying  -4.4144 eV scissor-shift to rest of particle states
 
 
      GW Timing Statistics
    ------------------------
    Init.   :          0.1s
-     ERIs  :          0.3s
+     ERIs  :          0.1s
      Distr.:          0.0s
-     Vxc   :          0.2s
+     Vxc   :          0.0s
    Sigma_x :          0.0s
    RPA     :          0.0s
    Wmn     :          0.0s
    Sigma_c :          0.0s
-   GW total:          0.5s
+   GW total:          0.2s
 
 
- Task  times  cpu:        2.4s     wall:        2.4s
+ Task  times  cpu:        0.6s     wall:        0.6s
 
 
                                 NWChem Input Module
@@ -784,7 +783,7 @@ task dft gw
 
  Loading old vectors from job with title :
 
-GW Methane Td
+W vals
 
 
       Symmetry analysis of molecular orbitals - initial
@@ -800,28 +799,28 @@ GW Methane Td
      6 a1          7 t2          8 t2          9 t2         10 t2      
     11 t2         12 t2         13 t2         14 t2         15 t2      
 
-   Time after variat. SCF:      2.5
-   Time prior to 1st pass:      2.5
+   Time after variat. SCF:      0.9
+   Time prior to 1st pass:      0.9
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       65.53            65532636
-          Stack Space remaining (MW):       65.54            65535396
+           Heap Space remaining (MW):       65.53            65532638
+          Stack Space remaining (MW):       65.54            65535388
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -40.4630647077 -5.40D+01  1.34D-08  1.68D-12     3.5
- d= 0,ls=0.0,diis     2    -40.4630647077 -2.15D-12  7.98D-09  3.73D-12     4.4
+ d= 0,ls=0.0,diis     1    -40.4630647076 -5.40D+01  1.34D-08  1.68D-12     1.0
+ d= 0,ls=0.0,diis     2    -40.4630647076  2.13D-13  7.98D-09  3.73D-12     1.1
 
 
-         Total DFT energy =      -40.463064707739
-      One electron energy =      -79.987938823681
-           Coulomb energy =       32.854611046058
-    Exchange-Corr. energy =       -6.837402102452
+         Total DFT energy =      -40.463064707584
+      One electron energy =      -79.987938823837
+           Coulomb energy =       32.854611046046
+    Exchange-Corr. energy =       -6.837402102129
  Nuclear repulsion energy =       13.507665172336
 
- Numeric. integr. density =       10.000008760592
+ Numeric. integr. density =       10.000008760422
 
-     Total iterative time =      1.9s
+     Total iterative time =      0.3s
 
 
 
@@ -854,15 +853,15 @@ GW Methane Td
      -   - - -        -----         -----         ----         -------
      0   0 0 0     -0.000000     -5.000000     -5.000000     10.000000
 
-     1   1 0 0     -0.000000     -0.000000     -0.000000      0.000000
-     1   0 1 0     -0.000000     -0.000000     -0.000000      0.000000
-     1   0 0 1     -0.000000     -0.000000     -0.000000      0.000000
+     1   1 0 0      0.000000      0.000000      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000      0.000000
+     1   0 0 1      0.000000      0.000000      0.000000      0.000000
 
      2   2 0 0     -6.283210     -5.939938     -5.939938      5.596666
-     2   1 1 0     -0.000000     -0.000000     -0.000000      0.000000
-     2   1 0 1     -0.000000     -0.000000     -0.000000      0.000000
+     2   1 1 0      0.000000      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000      0.000000
      2   0 2 0     -6.283210     -5.939938     -5.939938      5.596666
-     2   0 1 1     -0.000000     -0.000000     -0.000000      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000      0.000000
      2   0 0 2     -6.283210     -5.939938     -5.939938      5.596666
 
   
@@ -873,18 +872,18 @@ GW Methane Td
 
                  Memory Information
                  ------------------
-          Available GA per process is           999.9 MBs
+          Available GA per process is          1000.0 MBs
           Available stack per process is        500.0 MBs
           Available heap per process is         499.9 MBs
 
           Peak memory in Initialization
-              Peak GA per process is                  1.1 MBs
+              Peak GA per process is                  0.2 MBs
               Peak stack per process is               0.1 MBs
-              Peak heap per process is                1.2 MBs
+              Peak heap per process is                0.5 MBs
               Memory not in MA per process            0.0 MBs
 
           Peak memory in AFF Calculation
-              Peak GA per process is                  2.5 MBs
+              Peak GA per process is                  0.4 MBs
               Peak stack per process is               1.3 MBs
               Peak heap per process is                0.0 MBs
               Memory not in MA per process            1.3 MBs
@@ -904,25 +903,25 @@ GW Methane Td
                   Alpha Orbitals
           State     Energy (eV)     Error (eV)
           -----------------------------------
-@GW         5        -13.866           0.000
+@GW         5        -13.864           0.003
 
-   Applying  -4.4168 eV scissor-shift to rest of particle states
+   Applying  -4.4144 eV scissor-shift to rest of particle states
 
 
      GW Timing Statistics
    ------------------------
    Init.   :          0.0s
-     ERIs  :          0.2s
+     ERIs  :          0.0s
      Distr.:          0.0s
-     Vxc   :          0.5s
+     Vxc   :          0.1s
    Sigma_x :          0.0s
    RPA     :          0.0s
    Wmn     :          0.0s
    Sigma_c :          0.0s
-   GW total:          0.8s
+   GW total:          0.2s
 
 
- Task  times  cpu:        2.8s     wall:        2.8s
+ Task  times  cpu:        0.5s     wall:        0.5s
 
 
                                 NWChem Input Module
@@ -944,9 +943,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        29	        62
 	current total bytes		         0	         0
-	maximum total bytes		  32636240	  32078504
-	maximum total K-bytes		     32637	     32079
-	maximum total M-bytes		        33	        33
+	maximum total bytes		  31929024	  32078520
+	maximum total K-bytes		     31930	     32079
+	maximum total M-bytes		        32	        33
 
 
                                      CITATION
@@ -982,24 +981,25 @@ MA usage statistics:
 
                                       AUTHORS
                                       -------
-  E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, D. Mejia-Rodriguez,
-       A. Kunitsa, N. P. Bauman, A. Panyala, W. A. de Jong, T. P. Straatsma,
-   H. J. J. van Dam, D. Wang, T. L. Windus, J. Hammond, J. Autschbach, A. Woods,
-    K. Bhaskaran-Nair, J. Brabec, K. Lopata, S. A. Fischer, S. Krishnamoorthy,
-     M. Jacquelin, W. Ma, M. Klemm, O. Villa, Y. Chen, V. Anisimov, F. Aquino,
+        E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, D. Mejia-Rodriguez,
+        N. P. Bauman, A. Panyala, R. J. Harrison, M. Valiev, W. A. de Jong,
+       T. P. Straatsma, H. J. J. van Dam, D. Wang, T. L. Windus, J. Hammond,
+     J. Autschbach, R. de P. Soares, A. Kunitsa, K. Bhaskaran-Nair, J. Brabec,
+      K. Lopata, S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, R. Goswami,
+       A. Woods, W. Ma, M. Klemm, O. Villa, Y. Chen, V. Anisimov, F. Aquino,
      S. Hirata, M. T. Hackler, E. Hermes, L. Jensen, J. E. Moore, J. C. Becca,
       V. Konjkov, T. Risthaus, M. Malagoli, A. Marenich, A. Otero-de-la-Roza,
         J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan,
-        A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr, M. Dupuis,
-     D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
-     B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis,
-     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
-   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
-    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
-   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
-   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+        A. Fonari, M. J. Williamson, J. R. Rehr, M. Dupuis, D. Silverstein,
+    D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
+        A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer,
+     M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl,
+   J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski,
+     J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel,
+   M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. C. Hess,
+         J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
    R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                A. T. Wong, Z. Zhang.
 
- Total times  cpu:        5.2s     wall:        5.2s
+ Total times  cpu:        1.3s     wall:        1.3s

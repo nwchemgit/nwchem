@@ -577,6 +577,9 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np gw_symmetry
 let "myexit+=$?"
+# BSE
+./runtests.mpi.unix procs $np bse_ethene
+let "myexit+=$?"
 # x2c
 ./runtests.mpi.unix procs $np x2c-h2se
 let "myexit+=$?"
