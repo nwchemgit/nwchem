@@ -15,127 +15,95 @@
       integer g_x, g_y, g_z
       integer nshell_i, nshell_j
       integer ishell, jshell, iproc, nproc, mscratch, max1e
-      integer ijshell, ilo, ihi, jlo, jhi
+      integer ilo, ihi, jlo, jhi
       integer l_buf, l_scr
       integer k_buf, k_scr
       logical do_mirr
       logical util_mirrmat
       external util_mirrmat
-      integer g_x_mirr,g_y_mirr,g_z_mirr
-      integer g_x_org,g_y_org,g_z_org
+      integer g(3)
+      integer i0,i1,j0,j1
+      integer iptr0,iptr1,jptr0,jptr1
 !
       double precision center(3)
 !
       call dfill(3, 0.0d0, center, 1)
 !
+      g(1)=g_x
+      g(2)=g_y
+      g(3)=g_z
       call ga_sync()
       call ga_zero(g_x)
       call ga_zero(g_y)
       call ga_zero(g_z)
-      g_x_mirr=0
-      g_y_mirr=0
-      g_z_mirr=0
-      do_mirr=util_mirrmat(1,g_x,g_x_mirr,
-     D     .false., .true.)
-      do_mirr=do_mirr.and.util_mirrmat(1,g_y,g_y_mirr,
-     D     .false., .true.)
-      do_mirr=do_mirr.and.util_mirrmat(1,g_z,g_z_mirr,
-     D     .false., .true.)
-      if(do_mirr) then
-         g_x_org=g_x
-         g_x=g_x_mirr
-         g_y_org=g_y
-         g_y=g_y_mirr
-         g_z_org=g_z
-         g_z=g_z_mirr
-            
-      else
-         if(g_x_mirr.ne.0) then
-            if(.not.ga_destroy(g_x_mirr))call errquit(
-     $           'could not destroy mirrx handle',1, GA_ERR)
-         endif
-         if(g_y_mirr.ne.0) then
-            if(.not.ga_destroy(g_y_mirr))call errquit(
-     $           'could not destroy mirry handle',1, GA_ERR)
-         endif
-      endif
 
       if(oscfps) call pstat_on(ps_int_dip)
 !
 !     grab basis set info type stuff
 !
-      if(.not.bas_numcont(ibas,nshell_i))call errquit
-     $  ('int_dip_ga: bas_numcont failed for ibas',ibas, BASIS_ERR)
-      if(.not.bas_numcont(jbas,nshell_j))call errquit
-     $  ('int_dip_ga: bas_numcont failed for jbas',jbas, BASIS_ERR)
+      call ga_distribution(g_x,ga_nodeid(),i0,i1,j0,j1)
+       write(6,'(i5,a,5i5)')
+     I ga_nodeid(),'DDISTRIB',g_x,i0,i1,j0,j1
+      if (i0.gt.0 .and. i0.le.i1) then
+         if(.not.bas_numcont(ibas,nshell_i))call errquit
+     $        ('int_dip_ga: bas_numcont failed for ibas',ibas,BASIS_ERR)
+         if(.not.bas_numcont(jbas,nshell_j))call errquit
+     $        ('int_dip_ga: bas_numcont failed for jbas',jbas,BASIS_ERR)
 !
 ! allocate temp. arrays
 !
-      call int_mem_dipole(max1e,mscratch,ibas,jbas,1)
+         call int_mem_dipole(max1e,mscratch,ibas,jbas,1)
 !
-      if(.not.MA_push_get(MT_DBL,max1e,'int_dip_ga:buf',l_buf,k_buf))
-     $  call errquit('int_dip_ga: ma failure',max1e, MA_ERR)
-      if(.not.MA_push_get(MT_DBL,mscratch,'int_dip_ga:scr',
-     $   l_scr,k_scr))
-     $  call errquit('int_dip_ga: ma failure',mscratch, MA_ERR)
+         if(.not.MA_push_get(MT_DBL,max1e,'int_dip_ga:buf',l_buf,k_buf))
+     $        call errquit('int_dip_ga: ma failure',max1e, MA_ERR)
+         if(.not.MA_push_get(MT_DBL,mscratch,'int_dip_ga:scr',
+     $        l_scr,k_scr))
+     $        call errquit('int_dip_ga: ma failure',mscratch, MA_ERR)
 
 !
 !     loop over shells
 !
-      iproc = ga_nodeid()
-      nproc = ga_nnodes()
-      ijshell = 0
-      call ga_sync()
-      do jshell = 1,nshell_j
-         do ishell = 1,nshell_i
-            if(mod(ijshell,nproc).eq.iproc)then
+         iproc = ga_nodeid()
+         do jshell = 1,nshell_j
+            do ishell = 1,nshell_i
                if(.not.bas_cn2bfr(ibas,ishell,ilo,ihi))
      $              call errquit('int_dip_ga:bas_cn2bfr ?', ibas,
-     &       BASIS_ERR)
+     &              BASIS_ERR)
                if(.not.bas_cn2bfr(jbas,jshell,jlo,jhi))
      $              call errquit('int_dip_ga:bas_cn2bfr ?', jbas,
-     &       BASIS_ERR)
-
-!
+     &              BASIS_ERR)
+               iptr0=max(i0,ilo)
+               iptr1=min(i1,ihi)
+               jptr0=max(j0,jlo)
+               jptr1=min(j1,jhi)
+               if(iptr1.ge.iptr0.and.jptr1.ge.jptr0) then
 !     get the integrals we want
 !
-!               call int_mpole(ibas, ishell, jbas, jshell,
-               call int_mpole(jbas, jshell, ibas, ishell,
-     $              1,
-     $              center,
-     $              mscratch, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
-!
+                  call int_mpole(jbas, jshell, ibas, ishell,
+     $                 1,
+     $                 center,
+     $                 mscratch, dbl_mb(k_scr), max1e,
+     D                 dbl_mb(k_buf))
+!     
 !     bung integrals into global array
 !
-               call int_dip_put_in_g(g_x, g_y, g_z, ilo,ihi,jlo,jhi,
-     $              dbl_mb(k_buf+(ihi-ilo+1)*(jhi-jlo+1)))
-            endif
-            ijshell=ijshell+1
+                  call int_mpole_put_in_g(g, 3,
+     L                 ilo,ihi,jlo,jhi,
+     P                 iptr0,iptr1,jptr0,jptr1,
+     $                 dbl_mb(k_buf+(ihi-ilo+1)*(jhi-jlo+1)))
+               endif
+            enddo
          enddo
-      enddo
 !
-      if(.not.MA_pop_stack(l_scr))
+         if(.not.MA_pop_stack(l_scr))
+     $        call errquit('int_dip_ga:pop failed',0, MA_ERR)
+         if(.not.MA_pop_stack(l_buf))
      $   call errquit('int_dip_ga:pop failed',0, MA_ERR)
-      if(.not.MA_pop_stack(l_buf))
-     $   call errquit('int_dip_ga:pop failed',0, MA_ERR)
-!
+
+      endif 
       call ga_sync()
-      if (do_mirr) then
-         g_x=g_x_org
-         call util_mirrmerge(g_x_mirr,g_x)
-         if(.not.ga_destroy(g_x_mirr))call errquit(
-     $        'could not destroy g_x_mirr handle',1, GA_ERR)
-         g_y=g_y_org
-         call util_mirrmerge(g_y_mirr,g_y)
-         if(.not.ga_destroy(g_y_mirr))call errquit(
-     $        'could not destroy g_y_mirr handle',1, GA_ERR)
-         g_z=g_z_org
-         call util_mirrmerge(g_z_mirr,g_z)
-         if(.not.ga_destroy(g_z_mirr))call errquit(
-     $        'could not destroy g_x_mirr handle',1, GA_ERR)
-      endif
-      call ga_sync()
-!
+
+c      if (.true.) then
       if (util_print('multipole', print_debug)) then
           call ga_print(g_x)
           call ga_print(g_y)
@@ -162,6 +130,25 @@ c      do i = ilo,ihi
          end do
 c      end do
       end
+      subroutine int_mpole_put_in_g(g,
+     M     mult_size,
+     L     ilo,ihi,jlo,jhi,
+     1     iptr0, iptr1, jptr0, jptr1,
+     B     buf)
+      implicit none
+#include "global.fh"
+      integer mult_size,mult
+      integer g(mult_size)
+      integer ilo,ihi,jlo,jhi
+      integer iptr0, iptr1, jptr0, jptr1
+      double precision buf(ilo:ihi,mult_size,jlo:jhi)
+      integer i, j
+      do j = jptr0, jptr1
+         do mult=1,mult_size
+            call ga_put(g(mult),iptr0,iptr1,j,j,buf(iptr0,mult,j),1)
+         end do
+      end do
+      end
 
       subroutine int_qdr_ga(ibas, jbas, g_xx, g_xy, g_xz,
      1                                  g_yy, g_yz, g_zz)
@@ -184,6 +171,10 @@ c      end do
       integer ijshell, ilo, ihi, jlo, jhi
       integer l_buf, l_scr
       integer k_buf, k_scr
+      integer g(6)
+      integer i0,i1,j0,j1
+      integer iptr0,iptr1,jptr0,jptr1
+      
 !
       double precision center(3)
 !
@@ -191,17 +182,27 @@ c      end do
 !
       call ga_sync()
 
+      g(1)=g_xx
+      g(2)=g_xy
+      g(3)=g_xz
+      g(4)=g_yy
+      g(5)=g_yz
+      g(6)=g_zz
       call ga_zero(g_xx)
       call ga_zero(g_xy)
       call ga_zero(g_xz)
       call ga_zero(g_yy)
       call ga_zero(g_yz)
       call ga_zero(g_zz)
-
+      call ga_distribution(g_xx,ga_nodeid(),i0,i1,j0,j1)
+c      if(ga_nodeid().eq.0) write(6,'(a,4i5)')
+       write(6,'(i5,a,5i5)')
+     I ga_nodeid(),'QDISTRIB',g_xx,i0,i1,j0,j1
       if(oscfps) call pstat_on(ps_int_dip)
 !
 !     grab basis set info type stuff
 !
+      if (i0.gt.0 .and. i0.le.i1) then
       if(.not.bas_numcont(ibas,nshell_i))call errquit
      $  ('int_qdr_ga: bas_numcont failed for ibas',ibas, BASIS_ERR)
       if(.not.bas_numcont(jbas,nshell_j))call errquit
@@ -220,29 +221,34 @@ c      end do
 !     loop over shells
 !
       iproc = ga_nodeid()
-      nproc = ga_nnodes()
       ijshell = 0
       do jshell = 1,nshell_j
          do ishell = 1,nshell_i
-            if(mod(ijshell,nproc).eq.iproc)then
+!            if(mod(ijshell,nproc).eq.iproc)then
                if(.not.bas_cn2bfr(ibas,ishell,ilo,ihi))
      $              call errquit('int_qdr_ga:bas_cn2bfr ?', ibas,
      &       BASIS_ERR)
                if(.not.bas_cn2bfr(jbas,jshell,jlo,jhi))
      $              call errquit('int_qdr_ga:bas_cn2bfr ?', jbas,
      &       BASIS_ERR)
+               iptr0=max(i0,ilo)
+               iptr1=min(i1,ihi)
+               jptr0=max(j0,jlo)
+               jptr1=min(j1,jhi)
+               if(iptr1.ge.iptr0.and.jptr1.ge.jptr0) then
 !
 !     get the integrals we want
 !
-               call int_mpole(ibas, ishell, jbas, jshell,
+               call int_mpole(jbas, ishell, ibas, jshell,
      $              2,
      $              center,
      $              mscratch, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
 !
 !     bung integrals into global array
 !
-               call int_qdr_put_in_g(g_xx, g_xy, g_xz,
-     $              g_yy, g_yz, g_zz, ilo,ihi,jlo,jhi,
+               call int_mpole_put_in_g(g,6,
+     $              ilo,ihi,jlo,jhi,
+     P              iptr0,iptr1,jptr0,jptr1,
      $              dbl_mb(k_buf+(ihi-ilo+1)*(jhi-jlo+1)*4))
             endif
             ijshell=ijshell+1
@@ -252,11 +258,13 @@ c      end do
       if(.not.MA_pop_stack(l_scr))
      $   call errquit('int_qdr_ga:pop failed',0, MA_ERR)
       if(.not.MA_pop_stack(l_buf))
-     $   call errquit('int_qdr_ga:pop failed',0, MA_ERR)
+     $     call errquit('int_qdr_ga:pop failed',0, MA_ERR)
+      endif
 !
       call ga_sync()
 !
       if (util_print('multipole', print_debug)) then
+c      if (.true.)  then
           call ga_print(g_xx)
           call ga_print(g_xy)
           call ga_print(g_xz)
