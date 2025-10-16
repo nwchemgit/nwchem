@@ -16,7 +16,7 @@
       integer lW,kW
       integer maxpoles,maxnpoles,totnpoles,nri
 
-      integer indeces(pars%nroots),ntrials,g_trials,npoles,ndim
+      integer ntrials,g_trials,npoles,ndim
       integer g_x,g_y,g_ym,g_s,g_ks,g_mks,g_w,g_kw,g_mkw,off1
       integer g_wia,g_tmp,info,lwork,kwork,idum,mdim,k_trials
       integer k_x,k_y,k_ym,k_s,k_ks,k_mks,k_w,k_kw,k_mkw,k_r,l_r
@@ -156,7 +156,7 @@
       ! Get guess vectos
       if(pars%me.eq.0) 
      $  call bse_davidson_guess(pars,dbl_mb(k_dia),g_trials,npoles,
-     $                          ntrials)
+     $                          ntrials,pars%nroots)
       call ga_brdcst(mt_dbl,dbl_mb(k_dia),
      $                           ma_sizeof(mt_dbl,npoles,mt_byte),0)
       do isp=1,pars%ipol

@@ -1,5 +1,5 @@
       subroutine bse_davidson_guess(pars,diagonal,g_trials,npoles,
-     $                              ntrials)
+     $                              ntrials,nroots)
       
       implicit none
 
@@ -9,7 +9,7 @@
 #include "cdft.fh"
 
       type(bse_params_t) :: pars
-      integer npoles,ntrials,g_trials
+      integer npoles,ntrials,nroots,g_trials
       double precision diagonal(npoles)
       double precision amb(npoles)
 
@@ -103,13 +103,14 @@
 
       ! Start the guess vector
       write(LuOut,*)
-      write(LuOut,9000) ntrials
+      write(LuOut,9000) nroots
       write(LuOut,9020)
       write(LuOut,9010)
       write(LuOut,9020)
       do itrial=1,ntrials
         ipole = indeces(itrial)
         call ga_put(g_trials,ipole,ipole,itrial,itrial,1d0,1)
+        if(itrial.gt.nroots) cycle
 
         ! Print information
         if (ipole.le.pars%npoles(1)) then
