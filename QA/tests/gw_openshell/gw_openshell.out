@@ -1,4 +1,4 @@
- argument  1 = /people/meji656/calculations/bse/QA/gw_openshell.nw
+ argument  1 = /data/edo/nwchem/nwchem_bse-pull//QA/tests/gw_openshell/gw_openshell.nw
   NWChem w/ OpenMP: maximum threads =    1
 
 
@@ -86,21 +86,21 @@ task dft gw
            Job information
            ---------------
 
-    hostname        = dc006
-    program         = /qfs/people/meji656/software/nwchem.bse/bin/LINUX64/nwchem
-    date            = Thu Oct 16 10:35:25 2025
+    hostname        = mica
+    program         = /data/edo/nwchem/nwchem_bse-pull//bin/LINUX64/nwchem
+    date            = Thu Oct 16 12:25:05 2025
 
-    compiled        = Thu_Oct_16_10:07:15_2025
-    source          = /qfs/people/meji656/software/nwchem.bse
+    compiled        = Thu_Oct_16_12:11:32_2025
+    source          = /data/edo/nwchem/nwchem_bse-pull/
     nwchem branch   = 7.3.0
-    nwchem revision = v7.2.0-beta1-1624-g0dc011d0a0
+    nwchem revision = v7.2.0-beta1-1593-g3a8d752956
     ga revision     = 5.9.2
-    use scalapack   = F
-    input           = /people/meji656/calculations/bse/QA/gw_openshell.nw
+    use scalapack   = T
+    input           = /data/edo/nwchem/nwchem_bse-pull//QA/tests/gw_openshell/gw_openshell.nw
     prefix          = gw_openshell.
     data base       = ./gw_openshell.db
     status          = startup
-    nproc           =        7
+    nproc           =        1
     time left       =     -1s
 
 
@@ -108,10 +108,10 @@ task dft gw
            Memory information
            ------------------
 
-    heap     =     65535998 doubles =      500.0 Mbytes
-    stack    =     65535995 doubles =      500.0 Mbytes
+    heap     =     65535996 doubles =      500.0 Mbytes
+    stack    =     65536001 doubles =      500.0 Mbytes
     global   =    131072000 doubles =     1000.0 Mbytes (distinct from heap & stack)
-    total    =    262143993 doubles =     2000.0 Mbytes
+    total    =    262143997 doubles =     2000.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -640,64 +640,64 @@ task dft gw
  HOMO         =      -0.154097
  LUMO         =       0.070838
 
-   Time after variat. SCF:      0.5
+   Time after variat. SCF:      0.7
 
       3 Center 2 Electron Integral Information
       ----------------------------------------
           Maximum number of 3-center 2e- integrals is:          529984.
             This is reduced with Schwarz screening to:          367500.
-            Incore requires a per proc buffer size of:           57037.
+            Incore requires a per proc buffer size of:          327517.
           Minimum dble words available (all nodes) is:       131065476
-                   This is reduced (for later use) to:       130826784
-                      proc 0 Suggested buffer size is:           57037
-                         Max Suggested buffer size is:           57037
+                   This is reduced (for later use) to:       130794336
+                      proc 0 Suggested buffer size is:          327517
+                         Max Suggested buffer size is:          327517
                               no. integral batches is:            1000
 
           Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:      0.5
+   Time prior to 1st pass:      0.7
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       65.53            65530110
-          Stack Space remaining (MW):       65.54            65535316
+           Heap Space remaining (MW):       65.53            65530108
+          Stack Space remaining (MW):       65.54            65535324
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -168.9657539772 -2.32D+02  1.39D-02  1.93D-01     0.6
+ d= 0,ls=0.0,diis     1   -168.9657539780 -2.32D+02  1.39D-02  1.93D-01     1.6
                                                      1.31D-02  1.92D-01
- d= 0,ls=0.0,diis     2   -168.6178260793  3.48D-01  1.00D-02  1.13D+00     0.8
+ d= 0,ls=0.0,diis     2   -168.6178261291  3.48D-01  1.00D-02  1.13D+00     2.5
                                                      9.06D-03  1.06D+00
- d= 0,ls=0.0,diis     3   -169.0613313228 -4.44D-01  1.36D-03  7.44D-03     0.9
+ d= 0,ls=0.0,diis     3   -169.0613313213 -4.44D-01  1.36D-03  7.44D-03     3.5
                                                      1.32D-03  8.46D-03
- d= 0,ls=0.0,diis     4   -169.0630054773 -1.67D-03  9.29D-04  4.19D-03     1.1
+ d= 0,ls=0.0,diis     4   -169.0630054782 -1.67D-03  9.29D-04  4.19D-03     4.5
                                                      5.76D-04  3.46D-03
- d= 0,ls=0.0,diis     5   -169.0646959497 -1.69D-03  1.55D-04  1.38D-04     1.2
+ d= 0,ls=0.0,diis     5   -169.0646959497 -1.69D-03  1.55D-04  1.38D-04     5.5
                                                      1.31D-04  1.63D-04
   Resetting Diis
- d= 0,ls=0.0,diis     6   -169.0647672024 -7.13D-05  4.96D-05  7.61D-06     1.4
+ d= 0,ls=0.0,diis     6   -169.0647672024 -7.13D-05  4.96D-05  7.61D-06     6.5
                                                      5.91D-05  7.90D-06
- d= 0,ls=0.0,diis     7   -169.0647730165 -5.81D-06  5.03D-05  2.16D-06     1.6
+ d= 0,ls=0.0,diis     7   -169.0647730165 -5.81D-06  5.03D-05  2.16D-06     7.5
                                                      1.81D-05  8.25D-07
- d= 0,ls=0.0,diis     8   -169.0647729684  4.81D-08  1.78D-05  2.36D-06     1.7
+ d= 0,ls=0.0,diis     8   -169.0647729683  4.81D-08  1.78D-05  2.36D-06     8.4
                                                      2.14D-05  3.64D-06
- d= 0,ls=0.0,diis     9   -169.0647741451 -1.18D-06  9.22D-06  5.57D-07     1.9
+ d= 0,ls=0.0,diis     9   -169.0647741451 -1.18D-06  9.22D-06  5.57D-07     9.4
                                                      4.55D-06  2.30D-07
- d= 0,ls=0.0,diis    10   -169.0647743526 -2.08D-07  9.00D-06  4.08D-08     2.0
+ d= 0,ls=0.0,diis    10   -169.0647743526 -2.08D-07  9.00D-06  4.08D-08    10.4
                                                      8.19D-06  2.42D-08
- d= 0,ls=0.0,diis    11   -169.0647744288 -7.62D-08  2.13D-06  7.37D-09     2.2
+ d= 0,ls=0.0,diis    11   -169.0647744288 -7.62D-08  2.13D-06  7.37D-09    11.4
                                                      1.35D-06  1.44D-09
- d= 0,ls=0.0,diis    12   -169.0647744339 -5.12D-09  7.95D-07  7.61D-10     2.4
+ d= 0,ls=0.0,diis    12   -169.0647744339 -5.12D-09  7.95D-07  7.61D-10    12.4
                                                      6.20D-07  8.83D-10
 
 
-         Total DFT energy =     -169.064774433940
-      One electron energy =     -355.358774131041
-           Coulomb energy =      144.394070494508
-    Exchange-Corr. energy =      -21.408449296065
+         Total DFT energy =     -169.064774433938
+      One electron energy =     -355.358774140560
+           Coulomb energy =      144.394070505297
+    Exchange-Corr. energy =      -21.408449297333
  Nuclear repulsion energy =       63.308378498658
 
- Numeric. integr. density =       22.999999950860
+ Numeric. integr. density =       22.999999950854
 
-     Total iterative time =      1.9s
+     Total iterative time =     11.7s
 
 
 
@@ -781,24 +781,20 @@ task dft gw
           Available heap per process is         500.0 MBs
 
           Peak memory in Initialization
-              Peak GA per process is                  0.4 MBs
+              Peak GA per process is                  2.7 MBs
               Peak stack per process is               0.0 MBs
-              Peak heap per process is                0.7 MBs
+              Peak heap per process is                2.9 MBs
               Memory not in MA per process            0.0 MBs
 
           Peak memory in CDGW Calculation
-              Peak GA per process is                  0.5 MBs
+              Peak GA per process is                  3.4 MBs
               Peak stack per process is               0.6 MBs
-              Peak heap per process is                0.7 MBs
+              Peak heap per process is                1.9 MBs
               Memory not in MA per process            0.0 MBs
 
           Computing 2-center integrals
           Computing Inverse Cholesky factor
           Computing 3-center integrals
-   Transform ERIs
-   Distribute ERIs
-   Read inverse
-   Orthogonalize ERIs
           Computing Vxc
           Computing Sigma_x
           Computing W(iw) on the imaginary grid
@@ -807,45 +803,48 @@ task dft gw
                   Alpha Orbitals
           State     Energy (eV)     Error (eV)
           -----------------------------------
-@GW         8        -14.686           0.011
+@GW         8        -14.622           0.000
 @GW         9        -13.641           0.004
-@GW        10        -12.639           0.005
+@GW        10        -12.648           0.005
 @GW        11        -10.354           0.002
-@GW        12         -8.452           0.002
+@GW        12         -8.453           0.002
 @GW        13          3.960           0.003
 @GW        14          3.965           0.005
 @GW        15          5.443           0.002
-@GW        16         10.121           0.004
-@GW        17         12.171           0.004
+@GW        16         10.094           0.004
+@GW        17         12.237           0.004
 
                    Beta Orbitals
           State     Energy (eV)     Error (eV)
           -----------------------------------
-@GW         7        -17.771           0.002
-@GW         8        -14.839           0.005
-@GW         9        -13.398           0.002
-@GW        10        -11.673           0.002
+@GW         7        -17.756           0.002
+@GW         8        -14.841           0.005
+@GW         9        -13.401           0.002
+@GW        10        -11.674           0.002
 @GW        11        -10.239           0.002
 @GW        12          1.142           0.002
-@GW        13          4.403           0.002
-@GW        14          4.180           0.005
-@GW        15          5.570           0.002
-@GW        16         10.106           0.003
+@GW        13          4.416           0.002
+@GW        14          4.181           0.005
+@GW        15          5.574           0.003
+@GW        16         10.343           0.017 *
+
+  * Result did not converge
+
 
      GW Timing Statistics
    ------------------------
-   Init.   :          0.1s
-     ERIs  :          0.0s
+   Init.   :          0.0s
+     ERIs  :          0.1s
      Distr.:          0.0s
-     Vxc   :          0.1s
+     Vxc   :          0.8s
    Vmo     :          0.0s
-   iW      :          0.2s
+   iW      :          0.5s
    I_n     :          0.0s
-   R_n     :          0.1s
-   GW total:          0.5s
+   R_n     :          0.3s
+   GW total:          1.8s
 
 
- Task  times  cpu:        2.6s     wall:        2.6s
+ Task  times  cpu:       13.8s     wall:       13.8s
 
 
                                 NWChem Input Module
@@ -865,11 +864,11 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        28	        62
+	maximum number of blocks	        28	        57
 	current total bytes		         0	         0
-	maximum total bytes		  20744656	  30269048
-	maximum total K-bytes		     20745	     30270
-	maximum total M-bytes		        21	        31
+	maximum total bytes		  23306336	  30269032
+	maximum total K-bytes		     23307	     30270
+	maximum total M-bytes		        24	        31
 
 
                                      CITATION
@@ -909,13 +908,13 @@ MA usage statistics:
         N. P. Bauman, A. Panyala, R. J. Harrison, M. Valiev, W. A. de Jong,
        T. P. Straatsma, H. J. J. van Dam, D. Wang, T. L. Windus, J. Hammond,
      J. Autschbach, R. de P. Soares, A. Kunitsa, K. Bhaskaran-Nair, J. Brabec,
-      K. Lopata, S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, R. Goswami,
-       A. Woods, W. Ma, M. Klemm, O. Villa, Y. Chen, V. Anisimov, F. Aquino,
-     S. Hirata, M. T. Hackler, E. Hermes, L. Jensen, J. E. Moore, J. C. Becca,
-      V. Konjkov, T. Risthaus, M. Malagoli, A. Marenich, A. Otero-de-la-Roza,
-        J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan,
-        A. Fonari, M. J. Williamson, J. R. Rehr, M. Dupuis, D. Silverstein,
-    D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
+    K. Lopata, S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, A. Woods, W. Ma,
+          M. Klemm, O. Villa, Y. Chen, V. Anisimov, F. Aquino, S. Hirata,
+    M. T. Hackler, E. Hermes, L. Jensen, J. E. Moore, J. C. Becca, V. Konjkov,
+      T. Risthaus, M. Malagoli, A. Marenich, A. Otero-de-la-Roza, J. Mullin,
+        P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari,
+     M. J. Williamson, J. R. Rehr, M. Dupuis, D. Silverstein, D. M. A. Smith,
+            J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
         A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer,
      M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl,
    J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski,
@@ -926,4 +925,4 @@ MA usage statistics:
    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                A. T. Wong, Z. Zhang.
 
- Total times  cpu:        2.9s     wall:        2.9s
+ Total times  cpu:       14.2s     wall:       14.2s
