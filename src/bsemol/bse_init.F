@@ -311,9 +311,6 @@ c
      $    ('bse_init: failed to destroy g_work',0, GA_ERR)
       enddo
 
-      ! Get dipole in CIS basis
-      call bse_dipole(pars)
-
       !Clean previous grid
       call grid_cleanup(.false.)
 

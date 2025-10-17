@@ -19,17 +19,6 @@
      $    call errquit(pname//'failed to destroy g_movecs',0,GA_ERR)
        enddo
 
-       do i=1,3
-         if(.not.ga_destroy(pars%g_dipa(i)))
-     $    call errquit(pname//'failed to destroy g_dipa',0,GA_ERR)
-       enddo
-       if (ipol.gt.1) then
-         do i=1,3
-         if(.not.ga_destroy(pars%g_dipb(i)))
-     $    call errquit(pname//'failed to destroy g_dipa',0,GA_ERR)
-         enddo
-       endif
-
        ok = ma_chop_stack(pars%l_mf_evals)
        if (.not.ok)
      &   call errquit(pname//'could not chop stack',0,MA_ERR) 
