@@ -389,6 +389,19 @@ C
 C
 C     Load into rtdb
 C
+c     set variables to avoid being unitialized (and later trash rtdb)
+      this_field%filename = "fname"
+      this_field%polarization = "pol"
+      this_field%spin = "sp"
+      this_field%max = 0d0
+      this_field%frequency = 0d0
+      this_field%width = 0d0
+      this_field%center = 0d0
+      this_field%start = 0d0
+      this_field%phase = 0d0
+      this_field%theta = 0d0
+      this_field%phi = 0d0
+c
       this_field%name = field_name
       this_field%type = type
 
@@ -442,7 +455,6 @@ C
       else
          call errquit (pname//"invalid type: "//trim(type), 0, 0)
       endif
-         
 
 C     XXX REFACTOR THIS
       if (type .ne. "file") then

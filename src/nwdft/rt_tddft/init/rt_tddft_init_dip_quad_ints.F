@@ -16,7 +16,7 @@ C
 
 
 C     == Inputs ==
-      type(rt_params_t), intent(in) :: params
+      type(rt_params_t), intent(inout) :: params
       
 
 C     == Parameters ==
@@ -122,7 +122,7 @@ C
 
 
 C     == Inputs ==
-      type(rt_params_t), intent(in) :: params
+      type(rt_params_t), intent(inout) :: params
       
 
 C     == Parameters ==
