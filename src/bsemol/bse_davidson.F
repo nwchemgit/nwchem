@@ -101,9 +101,6 @@
      $                ga_duplicate(g_x,g_s,'s').and. 
      $                ga_duplicate(g_x,g_ks,'ks').and. 
      $                ga_duplicate(g_x,g_mks,'mks').and. 
-     $                ga_duplicate(g_x,g_w,'w').and. 
-     $                ga_duplicate(g_x,g_kw,'kw').and. 
-     $                ga_duplicate(g_x,g_mkw,'mkw').and. 
      $                ga_duplicate(g_x,g_trials,'trials')
       if(.not.stat) call errquit('ga create failed',103,GA_ERR)
       call ga_zero(g_y)
@@ -111,10 +108,21 @@
       call ga_zero(g_s)
       call ga_zero(g_ks)
       call ga_zero(g_mks)
+      call ga_zero(g_trials)
+
+      ! W, K*W, and M*K*W are fixed to nroots columns
+      g_w = ga_create_handle()
+      call ga_set_data(g_w, 2, (/npoles, pars%nroots/), mt_dbl)
+      call ga_set_array_name(g_w, 'w')
+      call ga_set_tiled_irreg_proc_grid(g_w, int_mb(k_map),
+     $       (/pars%nblocks, 1/), (/ga_nnodes(), 1/))
+      stat = ga_allocate(g_w)
+      stat = stat .and. ga_duplicate(g_w, g_kw, 'kw') .and. 
+     $                  ga_duplicate(g_w, g_mkw, 'mkw')
+      if(.not.stat) call errquit('Could not allocate g_w', 0, GA_ERR)
       call ga_zero(g_w)
       call ga_zero(g_kw)
       call ga_zero(g_mkw)
-      call ga_zero(g_trials)
 
       g_wia = ga_create_handle()
       call ga_set_data(g_wia,1,npoles,mt_dbl)
