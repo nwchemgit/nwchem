@@ -184,9 +184,9 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
 #	    if  [[ ${FC} == gfortran ]]  ; then
 		if [[ "$MPI_IMPL" == "mpich" ]]; then
 		    export MPICH_FC=$FC
-		    if [[ "$arch" != "aarch64" ]]; then
-			export BUILD_MPICH=1
-		    fi
+#		    if [[ "$arch" != "aarch64" ]]; then
+#			export BUILD_MPICH=1
+#		    fi
 		fi
 		if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c clang` == 0 ]] && [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] && [[ "$(expr `${CC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
 		    if [[ "$os" == "Linux" ]] && [[ "$arch" == "x86_64" ]]; then
