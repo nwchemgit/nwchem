@@ -31,6 +31,7 @@ check_file () {
 	grep -s 'l DFT energy' $file |tail
 	echo ============================================================
 	grep -s 'Total PSPW energy' $file |tail
+	grep -s -B 3 "Root   1 singlet b1u"  $file |grep E-0
     fi
 }
     
@@ -46,6 +47,7 @@ check_file h2o2-response
 check_file pspw
 check_file pspw_md
 check_file aump2
+check_file bse_ethene
 # stuff for OpenBLAS issues on macos
 echo 'looking for cgemm_incopy.o'
 find $TRAVIS_BUILD_DIR/src/libext -name cgemm_incopy.o
