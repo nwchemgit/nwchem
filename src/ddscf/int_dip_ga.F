@@ -42,8 +42,8 @@
 !     grab basis set info type stuff
 !
       call ga_distribution(g_x,ga_nodeid(),i0,i1,j0,j1)
-       write(6,'(i5,a,5i5)')
-     I ga_nodeid(),'DDISTRIB',g_x,i0,i1,j0,j1
+cdbg       write(6,'(i5,a,5i5)')
+cdbg     I ga_nodeid(),'DDISTRIB',g_x,i0,i1,j0,j1
       if (i0.gt.0 .and. i0.le.i1) then
          if(.not.bas_numcont(ibas,nshell_i))call errquit
      $        ('int_dip_ga: bas_numcont failed for ibas',ibas,BASIS_ERR)
@@ -196,8 +196,8 @@ c      end do
       call ga_zero(g_zz)
       call ga_distribution(g_xx,ga_nodeid(),i0,i1,j0,j1)
 c      if(ga_nodeid().eq.0) write(6,'(a,4i5)')
-       write(6,'(i5,a,5i5)')
-     I ga_nodeid(),'QDISTRIB',g_xx,i0,i1,j0,j1
+cdbg       write(6,'(i5,a,5i5)')
+cdbg     I ga_nodeid(),'QDISTRIB',g_xx,i0,i1,j0,j1
       if(oscfps) call pstat_on(ps_int_dip)
 !
 !     grab basis set info type stuff
