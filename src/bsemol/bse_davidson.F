@@ -106,6 +106,15 @@
      $                ga_duplicate(g_x,g_mkw,'mkw').and. 
      $                ga_duplicate(g_x,g_trials,'trials')
       if(.not.stat) call errquit('ga create failed',103,GA_ERR)
+      call ga_zero(g_y)
+      call ga_zero(g_ym)
+      call ga_zero(g_s)
+      call ga_zero(g_ks)
+      call ga_zero(g_mks)
+      call ga_zero(g_w)
+      call ga_zero(g_kw)
+      call ga_zero(g_mkw)
+      call ga_zero(g_trials)
 
       g_wia = ga_create_handle()
       call ga_set_data(g_wia,1,npoles,mt_dbl)
@@ -114,6 +123,7 @@
      $                pars%nblocks,ga_nnodes())
       stat = stat.and.ga_allocate(g_wia)
       if(.not.stat) call errquit('ga create failed',110,GA_ERR)
+      call ga_zero(g_wia)
 
 
       ! obtain "old" eigenvalue difference to build W
@@ -170,7 +180,8 @@
       do isp=1,pars%ipol
         if(.not.ga_create(mt_dbl,nri*pars%nvir(isp),pars%nvir(isp),
      $          'g_erivv',0,pars%nvir(isp),g_tmp))
-     $  call errquit('could not create GA',0,GA_ERR)
+     $        call errquit('could not create GA',0,GA_ERR)
+       call ga_zero(g_tmp)
         call ga_copy_patch('n',pars%g_erivv(isp),1,nri,1,
      $                      pars%nvir(isp)*pars%nvir(isp),
      $                      g_tmp,1,nri*pars%nvir(isp),1,
@@ -499,6 +510,8 @@
      $                 pars%g_apb)
       stat = ga_create(mt_dbl,npoles,pars%nroots,'Y',0,pars%nroots,
      $                 pars%g_amb)
+      call ga_zero(pars%g_apb)
+      call ga_zero(pars%g_amb)
       if(.not.stat) call errquit('failed to creare GA',484,GA_ERR)
       call nga_copy_patch('n',g_x,(/1,1/),(/npoles,pars%nroots/),
      $                 pars%g_apb,(/1,1/),(/npoles,pars%nroots/))

@@ -30,6 +30,7 @@
       npoles1 = nocc(1)*nvir(1)
       npoles2 = nocc(2)*nvir(2)
 
+      call ga_zero(kv)
       call ga_copy(vec,kv)
 
       if (pars%tda .and. (sgn.eq.-1d0)) return
@@ -44,15 +45,19 @@
         if(.not.ga_create(mt_dbl,pars%nvir(isp),pars%nocc(isp),'g_tmp1',
      $                    0,pars%nocc(isp),g_tmp1))
      $    call errquit('bse_kvec: ga_create failed',42,GA_ERR)
+        call ga_zero(g_tmp1)
         if(.not.ga_create(mt_dbl,nri,pars%nvir(isp),'g_tmp2',
      $                    nri,0,g_tmp2))
      $    call errquit('bse_kvec: ga_create failed',45,GA_ERR)
+        call ga_zero(g_tmp2)
         if(.not.ga_create(mt_dbl,nri*pars%nvir(isp),1,'g_tmp3',
      $                    0,1,g_tmp3))
      $    call errquit('bse_kvec: ga_create failed',48,GA_ERR)
+        call ga_zero(g_tmp3)
         if(.not.ga_create(mt_dbl,pars%npoles(isp),1,'g_tmp4',
      $                    0,1,g_tmp4))   
      $    call errquit('bse_kvec: ga_create failed',48,GA_ERR)
+        call ga_zero(g_tmp4)
 
         call nga_access_block_grid(vec,subscript,k_vec,ld2)
         call ga_distribution(pars%g_erivv(isp),pars%me,ilo,ihi,jlo,jhi)
@@ -88,7 +93,7 @@
         call ga_release_update(g_tmp3,ilo,ihi,1,1)
         call nga_release_block_grid(vec,subscript)
       enddo
-
+      call ga_sync()
 
       if (.not.ma_push_get(mt_dbl,nri*ntrials,'tmp1',l_tmp1,k_tmp1))
      $  call errquit('bse_davidson_kvec: MA push failed',73,MA_ERR)
