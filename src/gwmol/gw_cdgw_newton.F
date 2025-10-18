@@ -40,7 +40,7 @@
       integer nclusters, clusters(pars%nmo),myll,myul
       integer llqp,ulqp,icluster
       double precision upper,lower,resupper,reslower,const
-      double precision values(25),errors(25),radius
+      double precision values(100),errors(100),radius
 
 
       main = pars%me .eq. 0
@@ -110,9 +110,11 @@
 
           if (eviter.lt.3) then
             if (myul.lt.ulqp) then
-              Eout = Enew(llmo+iqp,isp) + 0.001d0
+              !Eout = Enew(llmo+iqp,isp) + 0.001d0
+              Eout = Eout + 0.001d0
             elseif (myll.gt.llqp) then
-              Eout = Enew(llmo+iqp-2,isp) - 0.001d0
+              !Eout = Enew(llmo+iqp-2,isp) - 0.001d0
+              Eout = Eout - 0.001d0
             endif
           endif
 
@@ -207,6 +209,7 @@ c
 
           ! Save last energy
           Enew(llmo+iqp-1,isp)  = Eout
+          Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X
 
           ! check convergence info
           if (converged) then

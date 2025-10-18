@@ -484,6 +484,7 @@ c      if (.not.ga_create(mt_dbl,nri,npairs,erilabel,nri,0,eri))
       enddo
 
       ok = ma_chop_stack(l_tmp)
+      ok = ma_chop_stack(lmap)
 
       call ga_distribution(eri,me,ld,ld,polelo,polehi)
 

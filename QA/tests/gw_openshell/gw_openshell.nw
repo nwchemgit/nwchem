@@ -24,35 +24,18 @@ end
 dft
  odft
  mult 2
- xc pbe96
+ xc pbe0
  direct
  grid fine nodisk
- tolerances accCoul 14
+ tolerances accCoul 12
  convergence energy 1d-8
  noprint "final vectors analysis"
 end
 
 gw
- eta 0.001
  method cdgw
- solver newton 20
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
- convergence 0.001 ev
-end
-
-task dft gw
-
-dft
- noscf
-end
-
-gw
- eta 0.001
- solver newton 20
- states alpha occ 5 vir 5
- states beta occ 5 vir 5
- convergence 0.001 ev
 end
 
 task dft gw

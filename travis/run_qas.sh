@@ -35,7 +35,7 @@ if [[ ! -z "$USE_OPENMP" ]]; then
     export OMP_NUM_THREADS="$USE_OPENMP"
     export OMP_STACKSIZE=32M
 fi
-if [[ "$os" == "Darwin" &&   "$BUILD_MPICH" == 1 ]] || [[ "$os" == "Darwin" && "$ARMCI_NETWORK" == MPI-PT ]]   ; then
+if [[ "$os" == "Darwin" && "$ARMCI_NETWORK" == MPI-PT ]]   ; then
     nprocs=1
 fi    
 env|egrep MP
@@ -88,6 +88,14 @@ env|egrep MP
 		;;
 	esac
 	;;
+    ARMCI)
+        case "$os" in
+# fixes segfault for bse_ethene in ga_copy_patch...ARMCII_Iov_op_datatype
+            Linux)
+                ulimit -s unlimited
+		;;
+	esac
+	;;
  esac
 if [[ "$MPI_IMPL" == "openmpi" ]]; then
 export MPIRUN_NPOPT=" --allow-run-as-root -mca mpi_yield_when_idle 0 --oversubscribe -np "
@@ -131,6 +139,9 @@ fi
          if [[ ! $(grep -i gw $TRAVIS_BUILD_DIR/src/stubs.F| awk '/gw_input/') ]]; then
   	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ritddft_h2o ritddft_co
              cd $TRAVIS_BUILD_DIR/QA && NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries.bse/ ./runtests.mpi.unix procs $nprocs gw_closedshell gw_openshell gw_symmetry
+         fi
+         if [[ ! $(grep -i bse $TRAVIS_BUILD_DIR/src/stubs.F| awk '/bse_input/') ]]; then
+             cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs bse_ethene
          fi
          if [[ ! $(grep -i dplot $TRAVIS_BUILD_DIR/src/stubs.F| awk '/dplot_input/') ]]; then
   	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs rt_tddft_dplot

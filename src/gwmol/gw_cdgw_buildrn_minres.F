@@ -60,7 +60,7 @@ C
       logical main, ok, parallel_diag, skip
       logical, external :: is_near
 
-      double precision, parameter :: shift = 0.0001d0
+      double precision, parameter :: shift = 0.00005d0
       double complex :: w, R1, dR1
       double complex :: ieta
 

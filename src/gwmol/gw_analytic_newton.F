@@ -33,7 +33,7 @@
       integer nclusters, clusters(pars%nmo), myll, myul
       integer llqp, ulqp, icluster
       double precision upper, lower, resupper, reslower, const
-      double precision values(20), errors(20), radius, maxradius
+      double precision values(100), errors(100), radius, maxradius
 c
       !
       ! Initialize variables
@@ -60,7 +60,7 @@ c     !
       if (eviter.gt.4) then 
         maxradius = 0.010d0
       else
-        maxradius = 0.1d0
+        maxradius = 0.030d0
       endif
 
 c     !
@@ -71,9 +71,6 @@ c     !
 
       do isp=1,pars%ipol
         warning = .false.
-
-        totalqp = pars%noqp(isp) + pars%nvqp(isp)
-        if (totalqp.lt.1) cycle
 
         totalqp = pars%noqp(isp) + pars%nvqp(isp)
         if (totalqp.lt.1) cycle
@@ -139,16 +136,18 @@ c     !
 
           if (eviter.lt.10) then
             if (myul.lt.ulqp) then
-              Eout = Enew(llmo+iqp,isp) + 0.002d0
+c              Eout = Enew(llmo+iqp,isp) + 0.002d0
+               Eout = Eout + 0.001d0
             elseif (myll.gt.llqp) then
-              Eout = Enew(llmo+iqp-2,isp) - 0.002d0
+c              Eout = Enew(llmo+iqp-2,isp) - 0.002d0
+               Eout = Eout - 0.001d0
             endif
           endif
 
           bracket = .false.
           const = Eold(llmo+iqp-1,isp) + Sigma_X - sigmaold
-          lower = 1d100
-          upper = -1d100
+          lower = -1d100
+          upper = 1d100
 
 c         Compute Screened-Coulomb matrix elements
           timer = util_wallsec()          
@@ -164,7 +163,7 @@ c         Compute Galiitski-Migdal correlation energy
           endif
 
 c        
-          do iter=1,pars%qpiter+5
+          do iter=1,pars%qpiter+15
             timer2 = util_wallsec()
 
             Ein = Eout

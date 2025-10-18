@@ -30,8 +30,12 @@ C
       !
       !take full newton step for large enough z
       !
-      if (z.gt.0.4d0 .and. z.le.1d0 ) then 
-        xout = xin + step
+      if (z.gt.0.6d0 .and. z.le.1d0 ) then 
+        if (iter.eq.1) then
+          xout = xin + 0.2d0*step
+        else
+          xout = xin + 0.7d0*step
+        endif
 
       !
       ! when we have bracketed the solution, the
@@ -51,7 +55,11 @@ C
       ! Take an scaled Newton step for small Z
       !
       elseif (z.gt.0.1d0) then
-        xout = xin + 0.60d0*step
+        if (iter.eq.1) then
+          xout = xin + 0.10d0*step
+        else 
+          xout = xin + 0.30d0*step
+        endif
 
       !
       ! If Z is greater than 1.0 or very small we have to suspect
@@ -59,7 +67,8 @@ C
       ! steepest decent step 
       !
       else
-        xout = xin + radius*fx
+c        xout = xin + radius*fx
+        xout = xin + sign(0.002d0,fx)
 
       endif
 

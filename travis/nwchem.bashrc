@@ -28,6 +28,7 @@ fi
 echo NWCHEM_TOP is $NWCHEM_TOP
 #TARBALL=https://github.com/nwchemgit/nwchem/releases/download/v7.0.0-beta1/nwchem-7.0.0-release.revision-5bcf0416-src.2019-11-01.tar.bz2
 export USE_MPI=y
+export MPICH_INTERFACE_HOSTNAME=localhost # fix for Mpich interface errors
 if [[ "$FC" == "flang" ]]; then
      export BUILD_MPICH=1
 fi
@@ -184,9 +185,9 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
 #	    if  [[ ${FC} == gfortran ]]  ; then
 		if [[ "$MPI_IMPL" == "mpich" ]]; then
 		    export MPICH_FC=$FC
-		    if [[ "$arch" != "aarch64" ]]; then
-			export BUILD_MPICH=1
-		    fi
+#		    if [[ "$arch" != "aarch64" ]]; then
+#			export BUILD_MPICH=1
+#		    fi
 		fi
 		if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c clang` == 0 ]] && [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] && [[ "$(expr `${CC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
 		    if [[ "$os" == "Linux" ]] && [[ "$arch" == "x86_64" ]]; then

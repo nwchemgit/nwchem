@@ -16,7 +16,7 @@ c (c) Battelle, PNNL, 2002.
       write(LuOut,*)
       write(LuOut,*) title
       write(LuOut,9000)
-      do k = 0,mdim/6
+      do k = 0,(mdim-1)/6
         write(LuOut,*)
         write(LuOut,9010) (j,j=k*6+1,min(mdim,k*6+6))
         do i=1,ndim

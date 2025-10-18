@@ -35,11 +35,8 @@ end
 
 gw
  core
- eta 0.01
  method cdgw
  states alpha occ 7
- solver newton 15
- convergence 0.001 ev
 end
 
 task dft gw
@@ -52,27 +49,8 @@ end
 gw
  core
  first 4
- eta 0.01
- method cdgw 128
- solver newton 15
+ method cdgw
  states alpha occ 4
- convergence 0.001 ev
-end
-
-task dft gw
-
-dft
- noscf
-end
-
-unset gw:first
-
-gw
- core
- eta 0.01
- solver newton 15
- states alpha occ 7
- convergence 0.001 ev
 end
 
 task dft gw

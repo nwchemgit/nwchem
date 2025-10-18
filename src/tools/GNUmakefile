@@ -769,6 +769,7 @@ $(STAMP_DIR):
 
 clean:
 	@test -e $(BUILDDIR)/Makefile && { cd $(BUILDDIR) && $(MAKE) clean; } || echo "Not configured"
+	rm -f build install
 	rm -f ../mpi_include.txt ../ga*txt
 
 realclean:

@@ -308,16 +308,7 @@ c
          write(LuOut,*) ' B matrix '
          call output(x, 1, ncart, 1, nzvar, ncart, nzvar, 1)
       endif
-      call dgemm('t', 'n', nzvar, nzvar, ncart, 1d0,  
-     $     x, ncart, x, ncart, 0d0, y, nzvar) ! BT.B -> y ... should symmetrize
-      do i = 1, nzvar
-         do j = 1, nzvar
-            ij = i + (j-1)*nzvar
-            ji = j + (i-1)*nzvar
-            y(ij) = 0.5d0*(y(ij) + y(ji))
-            y(ji) = y(ij)
-         end do
-      end do
+      call dsyrk('u', 't', nzvar, ncart, 1d0, x, ncart, 0d0, y, nzvar)
       call dsyev('v', 'u', nzvar, y, nzvar, e, z, ndim**2, info)
       if (info .ne. 0) call errquit('geom_binvr: dsyev failed', info,
      &       MEM_ERR)

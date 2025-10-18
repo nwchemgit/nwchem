@@ -433,6 +433,13 @@ sync
       set overall_status = 1
       continue
     fi
+    # delete @GW lines for BSE tests
+    if [[ `grep -c 'NWChem BSE Module' ${STUB}.out` > 0 ]] ; then
+	rm -f sort.new
+	cat ${STUB}.ok.out.nwparse |grep -v @GW > sort.new && mv sort.new ${STUB}.ok.out.nwparse
+	rm -f sort.new
+	cat ${STUB}.out.nwparse |grep -v @GW > sort.new && mv sort.new ${STUB}.out.nwparse
+    fi
     #check if output is from EOMCCSD, since EOMCCSD output is non-deterministic
     if [[ `grep -c EOMCCSD ${STUB}.out.nwparse` > 0 ]] ; then
 	rm -f sort.new

@@ -93,6 +93,7 @@ c
      $                 pars%g_movecs(isp),pars%g_movecs(isp),0d0,
      $                 g_dens(isp))
         if (odftps) call pstat_off(ps_dgemm)
+        call ga_symmetrize(g_dens(isp))
       enddo
 c
       nscr = 2*nbf_ao_mxnbf_ce**2
@@ -131,7 +132,7 @@ c
       if (.not.ma_push_get(mt_dbl,2*nbf_ao,'vxc temp',l_tmp,k_tmp))
      $  call errquit(pname//'failed to allocate temp',0,MA_ERR) 
       do isp=1,ipol
-        if (oskel)
+        if (oskel) 
      $    call sym_symmetrize(geom, ao_bas_han, .false., g_vxc(isp))
         call ga_dgemm('n','n',nbf_ao,nmo,nbf_ao,1.0d0,g_vxc(isp),
      $                 pars%g_movecs(isp),0.0d0,g_dens(isp))

@@ -1646,6 +1646,7 @@ c       Clean scratch space
         if (nodezero) call util_flush(LuOut)
 c
         endif  ! gmh
+
 c
       enddo   ! outer loop over roots
 c
