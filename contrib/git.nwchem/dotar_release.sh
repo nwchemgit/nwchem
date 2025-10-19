@@ -40,8 +40,8 @@ patch -p1  < ../contrib/git.nwchem/use6432y.patch
 # do  make 64_to_32
 export BLAS_SIZE=4
 export USE_TBLITE=1
-export NWCHEM_MODULES=all\ python\ gwmol\ xtb
-make nwchem_config NWCHEM_MODULES=all\ python\ xtb
+export NWCHEM_MODULES=all\ python\ gwmol\ xtb\ bsemol
+make nwchem_config NWCHEM_MODULES=all\ python\ xtb\ bsemol
 export EACCSD=1
 export IPCCSD=1
 export CCSDTQ=1
