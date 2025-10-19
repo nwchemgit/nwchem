@@ -19,7 +19,7 @@ on:
         options:
           - master
           - hotfix/7.2.0
-          - release-7-3
+          - release-7-3-0
           - hotfix/7.3.0
 
 jobs:
