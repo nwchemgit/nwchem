@@ -9,6 +9,7 @@ branch=$3
 echo " input arguments "
 echo " version = $release_version"
 echo " input_date = $input_date"
+echo " branch = $branch"
 #Vx=7
 #Vy=2
 #Vz=3
