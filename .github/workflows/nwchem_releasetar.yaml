@@ -11,6 +11,16 @@ on:
         options:
           - nightly
           - 7.3.0
+      branch:
+        description: 'branch of NWChem repository'
+        required: true
+        default: 'master'
+        type: choice
+        options:
+          - master
+          - hotfix/7.2.0
+          - release-7-3
+          - hotfix/7.3.0
 
 jobs:
   do_tar:
@@ -21,7 +31,7 @@ jobs:
           sudo apt-get install -y curl make perl bash bzip2 tar gzip openmpi-bin
       - name: grab script
         run: |
-	  env|grep GITHUB
+          env|grep GITHUB
           curl -LJO https://raw.githubusercontent.com/$GITHUB_REPOSITORY_OWNER/nwchem/$GITHUB_REF_NAME/contrib/git.nwchem/dotar_release.sh
           chmod +x ./dotar_release.sh
       - name: generate date
@@ -33,7 +43,7 @@ jobs:
           echo "tmpdir_name=temp.${{ env.input_date }}" >>  $GITHUB_ENV
       - name: run script
         run: |
-          ./dotar_release.sh ${{ github.event.inputs.nwchem_version }} ${{ env.input_date }}
+          ./dotar_release.sh ${{ github.event.inputs.nwchem_version }} ${{ env.input_date }} ${{ github.event.inputs.branch }}
       - name: check tempdir
         run: |
           ls -lrt ${{ env.tmpdir_name }}/*tar*
