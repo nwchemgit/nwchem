@@ -21,6 +21,7 @@ jobs:
           sudo apt-get install -y curl make perl bash bzip2 tar gzip openmpi-bin
       - name: grab script
         run: |
+	  env|grep GITHUB
           curl -LJO https://raw.githubusercontent.com/$GITHUB_REPOSITORY_OWNER/nwchem/$GITHUB_REF_NAME/contrib/git.nwchem/dotar_release.sh
           chmod +x ./dotar_release.sh
       - name: generate date
