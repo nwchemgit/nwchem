@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 #arg #1 release name
 #arg #2 input_date
-if [ $# != 2 ]; then echo need 2 arguments: version and date \(format: YYYY-MM-DD\) ; exit 123 ;fi
+#arg #3 branch
+if [ $# != 3 ]; then echo need 3 arguments: version, date \(format: YYYY-MM-DD\) and branch ; exit 123 ;fi
 release_version=$1
 input_date=$2
+branch=$3
 echo " input arguments "
 echo " version = $release_version"
 echo " input_date = $input_date"
