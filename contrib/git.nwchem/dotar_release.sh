@@ -20,14 +20,13 @@ export USE_MPI=y
 TOPDIR=nwchem-"$release_version"
 echo TOPDIR is $TOPDIR
 #BRANCH=release-"$Vx"-"$Vy"-"$Vz"
-BRANCH=hotfix/release-7-2-0
 #TOPDIR=nwchem
 #BRANCH=master
 # need to change BRANCH for patch releases
 rm -rf temp.$input_date
 mkdir -p temp.$input_date
 cd temp.$input_date
-git clone --depth 1 --shallow-submodules -b $BRANCH https://github.com/nwchemgit/nwchem $TOPDIR
+git clone --depth 1 --shallow-submodules -b $branch https://github.com/nwchemgit/nwchem $TOPDIR
 cd $TOPDIR/src/tools
 rm -f *.tar.*
 ./get-tools-github
