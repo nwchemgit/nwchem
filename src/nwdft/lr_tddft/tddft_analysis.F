@@ -42,6 +42,7 @@ c
 #include "rtdb.fh"
 #include "sym.fh"
 #include "util.fh"
+#include "util_params.fh"
 #include "msgids.fh"
 #include "stdio.fh"
 #include "dra.fh"
@@ -108,6 +109,8 @@ c
       integer g_smat           ! GA handle for AO overlap matrix
       integer g_corr           ! GA handle for alpha-beta MO correlation matrix
       integer g_work
+      integer g_work2, g_work3
+      integer g_qdrxx, g_qdrxy, g_qdrxz, g_qdryy, g_qdryz, g_qdrzz
 c
       integer g_x1(2)          ! GA handle for X matrix of 1 root
       integer g_y1(2)          ! GA handle for Y matrix of 1 root
@@ -181,6 +184,8 @@ c     are hardwired here:
       logical debug, fakegiao, lquad, status
       logical grid_clinit, xc_gotxc
       external grid_clinit, xc_gotxc
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
       double precision zero, one, two, three, half, third
       parameter (zero = 0d0, one=1d0, two=2d0, three=3d0,
@@ -200,6 +205,13 @@ c
       logical lstores2
       double precision s2_tmp(nroots)
       integer ioserr
+
+      double precision omega_norm1,omega_norm2,sigma_h,sigma_e,dhtoe
+      double precision dexc,cov,pcc
+      double precision dcd1, dcd2, dcd3
+      double precision xe(3),xe_exp_2,xe2_exp
+      double precision xh(3),xh_exp_2,xh2_exp
+      double precision xhxe_exp
 c
 c     MN solvation models --> 
 c
@@ -349,11 +361,33 @@ c        == Create and get the dipole matrix element ga: g_dipole ==
      $        call errquit(pname//'ga_create failed g_dipole',0, GA_ERR)
             call ga_zero(g_dipole(icomp))
          end do ! icomp
+
+         status = ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_qdrxx',
+     $       nbf_ao, 0, g_qdrxx)
+         status = ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_qdrxy',
+     $       nbf_ao, 0, g_qdrxy)
+         status = ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_qdrxz',
+     $       nbf_ao, 0, g_qdrxz)
+         status = ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_qdryy',
+     $       nbf_ao, 0, g_qdryy)
+         status = ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_qdryz',
+     $       nbf_ao, 0, g_qdryz)
+         status = ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_qdrzz',
+     $       nbf_ao, 0, g_qdrzz)
+
 c     
 c        == Compute the dipole integrals for the 3 components ==
          call int_dip_ga(ao_bas_han, ao_bas_han,
      $        g_dipole(1), g_dipole(2), g_dipole(3))
+         call int_qdr_ga(ao_bas_han, ao_bas_han, g_qdrxx, g_qdrxy,
+     $                   g_qdrxz, g_qdryy, g_qdryz, g_qdrzz)
 c
+         call ga_add(1d0,g_qdrxx,1d0,g_qdryy,g_qdrxx)
+         call ga_add(1d0,g_qdrxx,1d0,g_qdrzz,g_qdrxx)
+         if(.not.(ga_destroy(g_qdrxy).and.ga_destroy(g_qdrxz).and.
+     $            ga_destroy(g_qdryz).and.ga_destroy(g_qdryy).and.
+     $            ga_destroy(g_qdrzz)))
+     $    call errquit('tddft_analysis: deallocate quadrupole',0,GA_ERR)
        end if
 c
        if (cdspectrum .or. oscstr) then
@@ -555,14 +589,18 @@ c ----------------------------------
 c Get alpha-beta orbital correlation
 c ----------------------------------
 c
+      if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,
+     1    'AO overlap',-1,-1,g_ovlp))
+     2    call errquit('tddft_analysis: failed to create g_ovlp',0,
+     &       GA_ERR)
+      call ga_zero(g_ovlp)
+      call int_1e_ga(ao_bas_han,ao_bas_han,g_ovlp,'overlap',oskel)
+      if (oskel) call sym_symmetrize(geom,ao_bas_han,.false.,g_ovlp)
+
       if (ipol.eq.2) then
         if (.not.ga_create(mt_dbl,nmo(1),nmo(2),
      1    'MO correlation',-1,-1,g_corr))
      2    call errquit('tddft_analysis: failed to create g_corr',0,
-     &       GA_ERR)
-        if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,
-     1    'AO overlap',-1,-1,g_ovlp))
-     2    call errquit('tddft_analysis: failed to create g_ovlp',0,
      &       GA_ERR)
         if (.not.ga_create(mt_dbl,nbf_ao,nmo(2),'work',-1,-1,g_work))
      1    call errquit('tddft_analysis: failed to create g_work',0,
@@ -570,10 +608,6 @@ c
         if (.not.ma_push_get(mt_dbl,nmo(1)*nmo(2),'corr',
      1    l_corr,k_corr)) call errquit
      2    ('tddft_analysis: failed to allocate corr',0, MA_ERR)
-        call ga_zero(g_ovlp)
-        call int_1e_ga(ao_bas_han,ao_bas_han,g_ovlp,'overlap',oskel)
-        if (oskel) call sym_symmetrize
-     1    (geom,ao_bas_han,.false.,g_ovlp)
         call ga_dgemm('N','N',nbf_ao,nmo(2),nbf_ao,1.0d0,
      1    g_ovlp,g_movecs(2),0.0d0,g_work)
         call ga_dgemm('T','N',nmo(1),nmo(2),nbf_ao,1.0d0,
@@ -586,6 +620,11 @@ c
      1    call ga_print(g_corr)
         call ga_get(g_corr,1,nmo(1),1,nmo(2),dbl_mb(k_corr),nmo(1))
       endif
+
+      if(.not.ga_duplicate(g_ovlp, g_work2, 'g_work'))
+     $  call errquit('tddft_analysis: failed to allocate work',0,GA_ERR)
+      if(.not.ga_duplicate(g_ovlp, g_work3, 'g_work'))
+     $  call errquit('tddft_analysis: failed to allocate work',0,GA_ERR)
 c
 c ------------
 c Tamm-Dancoff
@@ -1202,6 +1241,70 @@ c
 
         endif ! .not.tda 
 c
+c       excitonic indicators
+c
+        if(ipol.gt.1)
+     &    call ga_add(1d0,g_tdtot(1),1d0,g_tdtot(2),g_tdtot(1))
+
+        call ga_dgemm('n','n',nbf_ao,nbf_ao,nbf_ao,1d0,g_tdtot(1),
+     &                 g_ovlp, 0d0, g_work2)
+        call ga_dgemm('n','t',nbf_ao,nbf_ao,nbf_ao,1d0,g_work2,
+     &                 g_tdtot(1),0d0,g_work3)
+        omega_norm1 = ga_ddot(g_work3, g_ovlp)
+        xe(1) = ga_ddot(g_work3, g_dipole(1))/omega_norm1
+        xe(2) = ga_ddot(g_work3, g_dipole(2))/omega_norm1
+        xe(3) = ga_ddot(g_work3, g_dipole(3))/omega_norm1
+        xe_exp_2 = xe(1)**2 + xe(2)**2 + xe(3)**2
+        xe2_exp = ga_ddot(g_work3, g_qdrxx)/omega_norm1
+
+        call ga_dgemm('t','n',nbf_ao,nbf_ao,nbf_ao,1d0,g_tdtot(1),
+     &                 g_ovlp, 0d0, g_work2)
+        call ga_dgemm('n','n',nbf_ao,nbf_ao,nbf_ao,1d0,g_work2,
+     &                 g_tdtot(1),0d0,g_work3)
+        omega_norm2 = ga_ddot(g_work3, g_ovlp)
+        xh(1) = ga_ddot(g_work3, g_dipole(1))/omega_norm2
+        xh(2) = ga_ddot(g_work3, g_dipole(2))/omega_norm2
+        xh(3) = ga_ddot(g_work3, g_dipole(3))/omega_norm2
+        xh_exp_2 = xh(1)**2 + xh(2)**2 + xh(3)**2
+        xh2_exp = ga_ddot(g_work3, g_qdrxx)/omega_norm2 
+
+        xhxe_exp = 0d0
+        call ga_dgemm('n','n',nbf_ao,nbf_ao,nbf_ao,1d0,g_tdtot(1),
+     $                 g_dipole(1),0d0,g_work2)
+        call ga_dgemm('n','t',nbf_ao,nbf_ao,nbf_ao,1d0,g_work2,
+     $                 g_tdtot(1),0d0,g_work3)
+        xhxe_exp = xhxe_exp + ga_ddot(g_work3,g_dipole(1))/
+     $             sqrt(omega_norm1*omega_norm2)
+        call ga_dgemm('n','n',nbf_ao,nbf_ao,nbf_ao,1d0,g_tdtot(1),
+     $                 g_dipole(2),0d0,g_work2)
+        call ga_dgemm('n','t',nbf_ao,nbf_ao,nbf_ao,1d0,g_work2,
+     $                 g_tdtot(1),0d0,g_work3)
+        xhxe_exp = xhxe_exp + ga_ddot(g_work3,g_dipole(2))/
+     $             sqrt(omega_norm1*omega_norm2)
+        call ga_dgemm('n','n',nbf_ao,nbf_ao,nbf_ao,1d0,g_tdtot(1),
+     $                 g_dipole(3),0d0,g_work2)
+        call ga_dgemm('n','t',nbf_ao,nbf_ao,nbf_ao,1d0,g_work2,
+     $                 g_tdtot(1),0d0,g_work3)
+        xhxe_exp = xhxe_exp + ga_ddot(g_work3,g_dipole(3))/
+     $             sqrt(omega_norm1*omega_norm2)
+
+        sigma_h = dsqrt(xh2_exp - xh_exp_2)
+        sigma_e = dsqrt(xe2_exp - xe_exp_2)
+
+        dhtoe   = dsqrt((xe(1)-xh(1))**2 +
+     $                  (xe(2)-xh(2))**2 +
+     $                  (xe(3)-xh(3))**2)
+        dexc    = dsqrt(xe2_exp + xh2_exp - 2d0*xhxe_exp)
+        cov     = xhxe_exp - xe(1)*xh(1) - xe(2)*xh(2) - xe(3)*xh(3)
+        pcc     = cov/sigma_e/sigma_h
+        dcd1    = dhtoe + dabs(sigma_h - sigma_e)
+        dcd2    = dhtoe - 0.5d0*(sigma_e + sigma_h)
+        dcd3    = dhtoe + dexc
+
+        if(ipol.gt.1)
+     &    call ga_add(1d0,g_tdtot(1),-1d0,g_tdtot(2),g_tdtot(1))
+
+c
 c       write out the transition density matrix
 c
         if (ltransden) then
@@ -1263,6 +1366,16 @@ c
      2                        tmom(8),tmom(9),tmom(10),
      2                        osc_str(1),osc_str(2),osc_str(3),
      2                        osc_str_tot
+c
+            write(luout,*)
+            write(luout,9400) sigma_e*cau2ang
+            write(luout,9410) sigma_h*cau2ang
+            write(luout,9420) dhtoe*cau2ang
+            write(luout,9430) dexc*cau2ang
+            write(luout,9460) dcd1*cau2ang
+            write(luout,9470) dcd2*cau2ang
+            write(luout,9480) dcd3*cau2ang
+            write(luout,9450) pcc
 
 c
 c           ------------------------
@@ -1665,6 +1778,8 @@ c       Clean up arrays used for CD spectra
         end do
         if (.not.ga_destroy(g_dipmag)) call
      &     errquit(pname//'ga_destroy failed g_dipmag',0,GA_ERR)
+        if(.not.ga_destroy(g_qdrxx))
+     &    call errquit(pname//'ga_destroy quadrupole',0,GA_ERR)
       end if
       
       if (cdspectrum .and. lgiao) then
@@ -1737,6 +1852,16 @@ c
      & f8.4,' Debye')
  9254 format(5x,'Total Ground State Dipole Moment = ',
      & f8.4,' Debye')
+ 9400 format(5x,'     sigma_e = ',f8.4, ' Angstrom')
+ 9410 format(5x,'     sigma_h = ',f8.4, ' Angstrom')
+ 9420 format(5x,'    |d_h->e| = ',f8.4, ' Angstrom')
+ 9430 format(5x,'       d_exc = ',f8.4, ' Angstrom')
+ 9460 format(5x,'       d_CD1 = ',f8.4, ' Angstrom')
+ 9470 format(5x,'       d_CD2 = ',f8.4, ' Angstrom')
+ 9480 format(5x,'       d_CD3 = ',f8.4, ' Angstrom')
+ 9450 format(5x,'Pearson C.C. = ',f8.4)
+ 9440 format(5x,'Exciton norm = ',f8.4)
+
 c
 c -----------
 c Target root
@@ -1980,6 +2105,13 @@ c
         if (.not.ga_destroy(g_tdtot(i))) call errquit
      2    ('tddft_analysis: failed to destroy g_tdtot',0, GA_ERR)
       enddo
+c
+      if (.not.ga_destroy(g_ovlp)) call errquit
+     2    ('tddft_analysis: failed to destroy g_ovlp',0, GA_ERR)
+      if (.not.ga_destroy(g_work2)) call errquit
+     2    ('tddft_analysis: failed to destroy g_ovlp',0, GA_ERR)
+      if (.not.ga_destroy(g_work3)) call errquit
+     2    ('tddft_analysis: failed to destroy g_ovlp',0, GA_ERR)
 c
       return
       end
