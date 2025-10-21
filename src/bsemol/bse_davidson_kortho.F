@@ -17,6 +17,7 @@
       double precision vkv(n,n),eig(n),work(npoles,n)
       double precision sqrtvkv(n,n)
 
+
       ! V**T  K  V
       call dgemm('t','n',n,n,npoles,1d0,v,npoles,kv,npoles,0d0,vkv,n)
       call ga_dgop((/14/),vkv,n*n,'+')
@@ -36,20 +37,35 @@
      $  call errquit('bse_kortho: failed to deallocate work',199,MA_ERR)
 
       ! Remove small eigenpairs
-      m = n
-      k = 1
-  100 continue
-      do i=k,m
-        if (eig(i).lt.1d-9) then
-          do j=i+1,n
-            eig(j-1) = eig(j)
-            vkv(:,j-1) = vkv(:,j)
-          enddo
-          m = m - 1
-          k = i
-          goto 100
-        endif
+      m = 0
+      do i=n,1,-1
+        if(eig(i).lt.1d-10) exit
+        m = m + 1
       enddo
+
+      if(m.ne.n) then
+        j = 1
+        do i=n-m+1,n
+          eig(j) = eig(i)
+          vkv(:,j) = vkv(:,i)
+          j = j + 1
+        enddo
+      endif  
+        
+c      m = n
+c      k = 1
+c  100 continue
+c      do i=k,m
+c        if (eig(i).lt.1d-9) then
+c          do j=i+1,n
+c            eig(j-1) = eig(j)
+c            vkv(:,j-1) = vkv(:,j)
+c          enddo
+c          m = m - 1
+c          k = i
+c          goto 100
+c        endif
+c      enddo
 
       ! Obtain VKV^(-1/2)
       do i=1,m

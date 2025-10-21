@@ -239,7 +239,7 @@ cdbg     I ga_nodeid(),'QDISTRIB',g_xx,i0,i1,j0,j1
 !
 !     get the integrals we want
 !
-               call int_mpole(jbas, ishell, ibas, jshell,
+               call int_mpole(jbas, jshell, ibas, ishell,
      $              2,
      $              center,
      $              mscratch, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
