@@ -48,7 +48,7 @@
       parameter (thresh=5.0d-2)
       double precision xe(3), xh(3), xe2_exp, xh2_exp, xe_exp_2
       double precision xh_exp_2, xhxe_exp, dhtoe, dexc, sigma_h, sigma_e
-      double precision omega_norm, cov, pcc, dcd
+      double precision omega_norm, cov, pcc, dcd1, dcd2, dcd3
       spin(1)='alpha'
       spin(2)='beta '
 
@@ -191,7 +191,7 @@
         call ga_transpose(g_td(1), g_tdtot(1))
         if(pars%ipol.gt.1) call ga_transpose(g_td(2), g_tdtot(2))
 
-        if(pars%davidson) then
+        if(.not.pars%tda) then
            call ga_copy_patch('n',pars%g_amb,1,pars%npoles(1),
      I          ipole,ipole,
      &          g_y(1),1,pars%npoles(1),1,1)
@@ -278,7 +278,9 @@
         dexc    = dsqrt(xe2_exp + xh2_exp - 2d0*xhxe_exp)
         cov     = xhxe_exp - xe(1)*xh(1) - xe(2)*xh(2) - xe(3)*xh(3)
         pcc     = cov/sigma_e/sigma_h
-        dcd     = dhtoe - 0.5d0*(sigma_e + sigma_h)
+        dcd1    = dhtoe + dabs(sigma_h - sigma_e)
+        dcd2    = dhtoe - 0.5d0*(sigma_e + sigma_h)
+        dcd3    = dhtoe + dexc
 
         if (ltransden) then
           call util_file_name('tdens',.false.,.false.,fn_transden)
@@ -369,12 +371,13 @@
           endif
 
           write(luout,*)
-          write(luout,9340) omega_norm
           write(luout,9300) sigma_e*cau2ang
           write(luout,9310) sigma_h*cau2ang
           write(luout,9320) dhtoe*cau2ang
           write(luout,9330) dexc*cau2ang
-          write(luout,9360) dcd*cau2ang
+          write(luout,9360) dcd1*cau2ang
+          write(luout,9370) dcd2*cau2ang
+          write(luout,9380) dcd3*cau2ang
           write(luout,9350) pcc
 
 
@@ -506,7 +509,9 @@
  9310 format(5x,'     sigma_h = ',f8.4, ' Angstrom')
  9320 format(5x,'    |d_h->e| = ',f8.4, ' Angstrom')
  9330 format(5x,'       d_exc = ',f8.4, ' Angstrom')
- 9360 format(5x,'        d_CD = ',f8.4, ' Angstrom')
+ 9360 format(5x,'       d_CD1 = ',f8.4, ' Angstrom')
+ 9370 format(5x,'       d_CD2 = ',f8.4, ' Angstrom')
+ 9380 format(5x,'       d_CD3 = ',f8.4, ' Angstrom')
  9350 format(5x,'Pearson C.C. = ',f8.4)
  9340 format(5x,'Exciton norm = ',f8.4)
 

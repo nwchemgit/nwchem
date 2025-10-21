@@ -121,7 +121,7 @@ c
       ! Maximum Number of roots
       if(.not.rtdb_get(pars%rtdb,'bse:nmax',mt_int,1,pars%nmax))
      &  call errquit(pname//'could not read from rtdb',123,RTDB_ERR)
-      if ((pars%nmax.le.5*pars%nroots).and.pars%davidson) then
+      if ((pars%nmax.lt.5*pars%nroots).and.pars%davidson) then
         call errquit(pname//'maxroots should be at least 5*nroots',
      &               126,INPUT_ERR)
       endif

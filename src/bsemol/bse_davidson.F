@@ -203,7 +203,7 @@
       idavidson = 0
 
       ! Restarts should land here
-    1 continue
+c    1 continue
 
       ! K-orthogonalization
       call bse_davidson_kvec(pars,g_trials,g_wia,g_x,npoles,
@@ -252,7 +252,7 @@
       call nga_release_block_grid(g_x,(/pars%me,0/))
 
       ! Starting vectors
-      call ga_copy(g_trials,g_x)
+    1 call ga_copy(g_trials,g_x)
       call bse_davidson_kvec(pars,g_x,g_wia,g_y,npoles,
      $                       ntrials,pars%singlet,1d0)
       call bse_davidson_kvec(pars,g_y,g_wia,g_ym,npoles,
@@ -459,6 +459,16 @@
      $    dbl_mb(k_tmp3),dbl_mb(vkv),dbl_mb(k_tmp4),myld+myld2,
      $    ndim,mdim,.false.)
 
+        ! All trial vectors were linearly-dependent
+        ! restart calculation with current best guess
+        if (mdim.lt.1) then
+          nrestart = min(ntrials, pars%nroots*pars%nspace)
+          call bse_davidson_restart(ntrials,nrestart,npoles,
+     $          g_x,g_y,g_ym,g_s,g_ks,g_mks,g_trials,l_vkv,vkv,
+     $          int_mb(k_map),pars%nblocks)
+          goto 1
+        endif
+
         if(pars%ipol.eq.1) then
           call dcopy(mdim*myld,dbl_mb(k_tmp1),1,dbl_mb(k_w),1)
           call dcopy(mdim*myld,dbl_mb(k_tmp2),1,dbl_mb(k_kw),1)
@@ -489,15 +499,6 @@
         call nga_release_update_block_grid(g_kw,(/pars%me,0/))
         call nga_release_update_block_grid(g_mkw,(/pars%me,0/))
 
-        ! All trial vectors were linearly-dependent
-        ! restart calculation with current best guess
-        if (mdim.lt.3) then
-          nrestart = min(ntrials, pars%nroots*pars%nspace)
-          call bse_davidson_restart(ntrials,nrestart,npoles,
-     $          g_x,g_y,g_ym,g_s,g_ks,g_mks,g_trials,l_vkv,vkv,
-     $          int_mb(k_map),pars%nblocks)
-          goto 1
-        endif
 
         ndim = mdim
 
