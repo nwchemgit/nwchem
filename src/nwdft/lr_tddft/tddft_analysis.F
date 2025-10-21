@@ -614,8 +614,8 @@ c
      1    g_movecs(1),g_work,0.0d0,g_corr)
         if (.not.ga_destroy(g_work)) call errquit
      1    ('tddft_analysis: failed to destroy g_work',0, GA_ERR)
-        if (.not.ga_destroy(g_ovlp)) call errquit
-     1    ('tddft_analysis: failed to destroy g_ovlp',0, GA_ERR)
+!        if (.not.ga_destroy(g_ovlp)) call errquit
+!     1    ('tddft_analysis: failed to destroy g_ovlp',0, GA_ERR)
         if (util_print('excited state',print_debug))
      1    call ga_print(g_corr)
         call ga_get(g_corr,1,nmo(1),1,nmo(2),dbl_mb(k_corr),nmo(1))
