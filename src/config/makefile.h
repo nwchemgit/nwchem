@@ -1365,6 +1365,8 @@ ifeq ($(TARGET),MACX64)
             FOPTIONS+=-fno-backslash
             ifeq ($(FLANG_NEW),true)
 #            FOPTIONS+=-fstack-arrays
+	       FOPTIMIZE = -O3 -ffast-math
+	       FDEBUG = -O2 -g
             endif
 	else
         ifeq ($(V),-1)
