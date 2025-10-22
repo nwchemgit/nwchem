@@ -352,7 +352,13 @@ if [[ "$?" != "0" ]]; then
     cat $(find . -name *log)
     exit 1
 fi
-make V=0 -j3 scalapack/fast
+GOTFREEBSD=$(uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
+MYMAKE=make
+if [[  "${GOTFREEBSD}" == 1 ]]; then
+    MAKEJ="MAKE_NB_JOBS=1"
+    MYMAKE=gmake
+fi
+$MYMAKE V=0 -j3 scalapack/fast
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "compilation failed"
