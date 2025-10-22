@@ -22,5 +22,7 @@
           tail -2000  QA/testoutputs/ritddft_h2o.out || true; fi
           if [[ -f QA/testoutputs/ritddft_co.out ]]; then \
           tail -2000  QA/testoutputs/ritddft_co.out || true; fi
+          if [[ -f QA/testoutputs/ritddft_pyridine.out ]]; then \
+          tail -2000  QA/testoutputs/ritddft_pyridine.out || true; fi
           if [[ -f QA/testoutputs/pspw_md.out ]]; then \
           grep 'PSPW energy'  QA/testoutputs/pspw_md.out || true; fi
