@@ -19,7 +19,7 @@ NEW FUNCTIONALITY
    * Solvation: new cavity construction approach based on the solvent-excluding surface (SES),
      using the GEPOL algorithm
    * Solvation: added .cosmo file generation to be used by COSMO-RS and COSMO-SAC 
-   * ...
+   * Bethe-Salpeter Equation
 
 BUG FIXES/ENHANCEMENTS
 -----
