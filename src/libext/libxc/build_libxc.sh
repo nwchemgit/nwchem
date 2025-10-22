@@ -89,6 +89,8 @@ if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ == 2) && (CMAKE_VER_MIN < 24))); th
 fi
 
 cd libxc
+ls -lrt ../mylibxc_cmake.patch
+patch -p1  < ../mylibxc_cmake.patch
 # patch pk09 to avoid compiler  memory problems
 #patch -p0 -N < ../pk09.patch
 mkdir -p build

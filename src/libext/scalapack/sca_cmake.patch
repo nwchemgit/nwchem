@@ -1,0 +1,39 @@
+diff --git a/BLACS/INSTALL/CMakeLists.txt b/BLACS/INSTALL/CMakeLists.txt
+index c75773c..acbb743 100644
+--- a/BLACS/INSTALL/CMakeLists.txt
++++ b/BLACS/INSTALL/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.8)
++cmake_minimum_required(VERSION 3.26...4.0)
+ project(INSTALL C Fortran)
+ 
+ add_executable(xintface Fintface.f Cintface.c)
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index bdd42da..47ccc9a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,13 +1,8 @@
+-cmake_minimum_required(VERSION 3.9)
++cmake_minimum_required(VERSION 3.26...4.0)
+ 
+ project(SCALAPACK VERSION 2.2.2 LANGUAGES C Fortran)
+-
+-# Configure the warning and code coverage suppression file
+-configure_file(
+-  "${SCALAPACK_SOURCE_DIR}/CMAKE/CTestCustom.cmake.in"
+-  "${SCALAPACK_BINARY_DIR}/CTestCustom.cmake"
+-  COPYONLY
+-)
++set(CMAKE_C_STANDARD 17)
++set(CMAKE_C_EXTENSIONS OFF)
+ 
+ # Add the CMake directory for custon CMake modules
+ set(CMAKE_MODULE_PATH "${SCALAPACK_SOURCE_DIR}/CMAKE" ${CMAKE_MODULE_PATH})
+diff --git a/TESTING/CMakeLists.txt b/TESTING/CMakeLists.txt
+index ae69afc..9242ddd 100644
+--- a/TESTING/CMakeLists.txt
++++ b/TESTING/CMakeLists.txt
+@@ -1,2 +1,1 @@
+-add_subdirectory(LIN)
+-add_subdirectory(EIG)
++cmake_minimum_required(VERSION 3.26...4.0)
