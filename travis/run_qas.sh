@@ -51,7 +51,7 @@ env|egrep MP
  if [[ "$os" == "Darwin" && "NWCHEM_MODULES" == "tce" ]]; then
     do_largeqas=0
  fi
- if [[ "$os" == "Darwin" && "FC" == "flang" ]]; then
+ if [[ "$os" == "Darwin" && "$FC" == "flang" ]]; then
     do_largeqas=0
  fi
  if [[ ! -z "$USE_INTERNALBLAS" ]]; then
@@ -111,6 +111,7 @@ if [[ -d "$TRAVIS_BUILD_DIR/.cachedir/files/libraries" ]]; then
  echo === ls binaries cache ===
  ls -lrt $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/ || true
 fi
+ echo do_largeqas "$do_largeqas"
  echo =========================
  if [[ -z "$TRAVIS_HOME" ]]; then
      echo 'no using sleep loop'
