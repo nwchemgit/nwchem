@@ -143,6 +143,8 @@ VERSION=2.1.0
 COMMIT=5bad7487f496c811192334640ce4d3fc5f88144b
 COMMIT=782e739f8eb0e7f4d51ad7dd23fc1d03dc99d240
 COMMIT=a23c2cdc6586c427686f6097ae66bb54ef693571
+#COMMIT=bd1768b91262b4cdc7dd5f87b373b9b18eda4636
+#COMMIT=b935167ca4d244735abc04a3cd4f6d56699702a0
 rm -rf scalapack 
 if [[ -f "scalapack-$COMMIT.tar.gz" ]]; then
     echo "using existing"  "scalapack-$COMMIT.tar.gz"
@@ -163,6 +165,7 @@ ln -sf scalapack-*$COMMIT scalapack
 #curl -L http://www.netlib.org/scalapack/scalapack-${VERSION}.tgz -o scalapack.tgz
 #tar xzf scalapack.tgz
 cd scalapack
+patch -p1 < ../sca_cmake.patch
 # macos accelerate does not contain dcombossq
 if [[  ! -z "$USE_INTERNALBLAS" ]]; then
     export USE_DCOMBSSQ=1
@@ -338,6 +341,9 @@ if [[ "$arch" == "i686" ]] || [[ "$arch" == "x86_64" ]]; then
 fi
 echo " $MPIF90 -show is " `$MPIF90 -show`
 echo LDFLAGS is $LDFLAGS
+echo CMAKE is $CMAKE
+echo cmake is $(which cmake)
+echo cmake V $(cmake --version)
 if [[ ${FC} == nvfortran ]] ; then
     echo compiling with CC="$MPICC"  FC=$FC MPIF90=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" -DCMAKE_Fortran_FLAGS_RELWITHDEBINFO="-O2 -g -DNDEBUG  $Fortran_FLAGS"  $CMAKE_EXTRA  -DMPI_Fortran_COMPILE_OPTIONS="$Fortran_FLAGS"
     CC="$MPICC"  FC=$FC MPIF90=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wdev ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" -DCMAKE_Fortran_FLAGS_RELWITHDEBINFO="-O2 -g -DNDEBUG  $Fortran_FLAGS" $CMAKE_EXTRA -DMPI_Fortran_COMPILE_OPTIONS="$Fortran_FLAGS"
@@ -352,7 +358,13 @@ if [[ "$?" != "0" ]]; then
     cat $(find . -name *log)
     exit 1
 fi
-make V=0 -j3 scalapack/fast
+GOTFREEBSD=$(uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
+MYMAKE=make
+if [[  "${GOTFREEBSD}" == 1 ]]; then
+    MAKEJ="MAKE_NB_JOBS=1"
+    MYMAKE=gmake
+fi
+$MYMAKE V=0 -j3 scalapack/fast
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "compilation failed"
