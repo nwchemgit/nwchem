@@ -9,6 +9,10 @@
 #
 mysimpwd=`pwd`
 source ../../../libext/libext_utils/cmake.sh
+ls -lrt /tmp/cmakepath_$(id -u).txt
+cat /tmp/cmakepath_$(id -u).txt
+export PATH=$(cat /tmp/cmakepath_$(id -u).txt):$PATH
+echo PATH is $PATH
 cd $mysimpwd
 if  [ -z "$(command -v python3)" ]; then
     echo python3 not installed
