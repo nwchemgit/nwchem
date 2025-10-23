@@ -6,7 +6,11 @@ declare -a LIST_MPICWRAP
 LIST_MPICWRAP=( 'mpicc' 'mpicc'    'mpiicc'  'mpiicc' 'mpixlc_r' 'mpixlc' 'mpicc' 'mpifcc' 'mpifccpx' 'mpicc-mpich-mp' 'mpicc-mpich-mp' 'mpicc-openmpi-mp' 'mpicc-openmpi-mp')
 export LIST_MPICWRAP
 myscalapwd=`pwd`
-source ../libext_utils/cmake.sh
+source ../libext_utils/cmake.sh 
+ls -lrt /tmp/cmakepath_$(id -u).txt
+cat /tmp/cmakepath_$(id -u).txt
+export PATH=$(cat /tmp/cmakepath_$(id -u).txt):$PATH
+echo PATH is $PATH
 cd $myscalapwd
 
 if [[ -z "${MPIF90}" ]]; then

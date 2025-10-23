@@ -2,11 +2,11 @@ get_cmake_release(){
     UNAME_S=$(uname -s)
     CPU=$(uname -m)
     CMAKE_VER=3.26.0
-    echo pwd is `pwd`
+    echo pwd is `pwd` > /tmp/cmake.log
     orgdir=`pwd`
     cmake_instdir=$1
-    echo "Parameter #1 is $1"
-    echo cmake_instdir is $cmake_instdir
+    echo "Parameter #1 is $1" >> /tmp/cmake.log
+    echo cmake_instdir is $cmake_instdir >> /tmp/cmake.log
     rm -f cmake-${CMAKE_VER}.tar.gz
     if [[ ${UNAME_S} == "Linux" ]]; then
 	if [[ ${CPU} == "x86_64" ||  ${CPU} == "aarch64" || ${CPU} == "i686" ]] ; then
@@ -17,7 +17,12 @@ get_cmake_release(){
 		CMAKE_CPU=${CPU}
 	    fi
 	    CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
-	    CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}.tar.gz
+            echo `pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin
+	    echo returning `pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin >> /tmp/cmake.log
+	    rm -f /tmp/cmakepath_$(id -u).txt
+	    echo `pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin > /tmp/cmakepath_$(id -u).txt
+	    echo new CMAKE is $CMAKE >> /tmp/cmake.log
+	    	    CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}.tar.gz
 	else
 	        get_cmake_master
 	fi
@@ -29,14 +34,17 @@ get_cmake_release(){
 	return 1
     fi
     if [ -f ${CMAKE} ]; then
-	echo using existing ${CMAKE_VER} Cmake
+	echo using existing ${CMAKE_VER} Cmake >> /tmp/cmake.log
     else
 	curl -L ${CMAKE_URL} -o cmake-${CMAKE_VER}.tar.gz
 	tar xzf cmake-${CMAKE_VER}.tar.gz
 	if [[ ${UNAME_S} == "Darwin" ]] ; then
 	    CMAKE=`pwd`/cmake-${CMAKE_VER}-macos-universal/CMake.app/Contents/bin/cmake
+	    rm -f /tmp/cmakepath_$(id -u).txt
+	    echo `pwd`/cmake-${CMAKE_VER}-macos-universal/CMake.app/Contents/bin > /tmp/cmakepath_$(id -u).txt
 	else
 	    CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
+	    echo `pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin
 	fi
     fi
     cd $orgdir
@@ -46,7 +54,7 @@ get_cmake_release(){
 get_cmake_master(){
     CMAKE_COMMIT=09dd52c9d2684e933a3e013abc4f6848cb1befbf
     if [[ -f "cmake-$CMAKE_COMMIT.zip" ]]; then
-	echo "using existing"  "cmake-$CMAKE_COMMIT.zip"
+	echo "using existing"  "cmake-$CMAKE_COMMIT.zip" >> /tmp/cmake.log
     else
 	curl -L https://gitlab.kitware.com/cmake/cmake/-/archive/$CMAKE_COMMIT.zip -o cmake-$CMAKE_COMMIT.zip
     fi
@@ -61,6 +69,8 @@ get_cmake_master(){
     make -j4
     make -j4 install
     CMAKE=`pwd`/../bin/cmake
+    rm -f /tmp/cmakepath_$(id -u).txt
+    echo `pwd`/../bin > /tmp/cmakepath_$(id -u).txt
     ${CMAKE} -version
     cd ../..
     return 0
