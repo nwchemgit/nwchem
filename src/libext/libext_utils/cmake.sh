@@ -1,7 +1,7 @@
 get_cmake_release(){
     UNAME_S=$(uname -s)
     CPU=$(uname -m)
-    CMAKE_VER=3.24.0
+    CMAKE_VER=3.26.0
     echo pwd is `pwd`
     orgdir=`pwd`
     cmake_instdir=$1
