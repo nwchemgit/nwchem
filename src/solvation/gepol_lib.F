@@ -467,7 +467,8 @@ c     &           ,ASS1,LPR)
 C 
 C Read COOR File
 c      CALL READCOOR(COOF,NATOM,LABEL,GHOST,LPR)
-c Atom coordinates from arguments and not from file
+c     Atom coordinates from arguments and not from file
+      ghost=.false.
        do i=1,natom
             xe(i)=xyzatm(1,i)
             ye(i)=xyzatm(2,i)
@@ -1031,7 +1032,8 @@ C     ------------------------------------------------------------------
 
       NP=0
 
-C begin
+C     begin
+      nejci=0
       NTRIAN=4**(NDIV-1)
       FNDIV=60*NTRIAN
 
@@ -1053,6 +1055,7 @@ C  It determines which spheres are linked to sphere I
       IF(IUSE(J).GE.3) THEN
 
       IF(I.NE.J)THEN
+         if(j.ge.mc) call errquit('gepol: fix mc size',j,0)
 
       DIJ2=(XEI-XE(J))*(XEI-XE(J))+
      &     (YEI-YE(J))*(YEI-YE(J))+
@@ -1060,7 +1063,8 @@ C  It determines which spheres are linked to sphere I
       SRE2=(REI+RE(J))*(REI+RE(J))
 
           IF(DIJ2.LT.SRE2) THEN
-            IIJ=IIJ+1
+             IIJ=IIJ+1
+             if(iij.ge.mc) call errquit('gepol: fix mc size',iij,0)
             IJE(IIJ)=J
             NEJCI=IIJ
           END IF
@@ -1068,7 +1072,6 @@ C  It determines which spheres are linked to sphere I
       END IF
       END IF
       END DO
-
 C 
 C It selects one main triangle.
       NSUP=0
@@ -1093,7 +1096,7 @@ C
 C It fixes if the secondary triangle is inside or outside.
       L1=UN3
       DO N3=L1,NEJCI
-      UN3=N3
+         UN3=N3
       N4=IJE(N3)
       DD=(XSM-XE(N4))*(XSM-XE(N4))+
      &   (YSM-YE(N4))*(YSM-YE(N4))+
@@ -1121,6 +1124,7 @@ c
 c In case we want all secondary triangles
       if(.not.rgrp) then
         NP=NP+1
+        if(np.ge.mv) call errquit('gepol: fix mv size',np,0)
         XP(NP)=XSL+XEI
         YP(NP)=YSL+YEI
         ZP(NP)=ZSL+ZEI
@@ -1201,7 +1205,7 @@ C     --------------------------------------------------------------
       COMMON/PUN/ITO(MV),ISO(MV),ISA(MV),XP(MV),YP(MV),ZP(MV),AP(MV)
      
       DIMENSION TIT(20)
-
+      FDR=0e0
       IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine PRIVEC '
       WRITE(6,'(A/1X,A)')' Printing vectors in file:',VECF
 
@@ -1593,7 +1597,10 @@ C     ---------------------------------------------------------------------
       COMMON/PUN/ITO(MV),ISO(MV),ISA(MV),XP(MV),YP(MV),ZP(MV),AP(MV)
 
       IF(LPR)WRITE(6,'(/A)')' ===> Start Subroutine VOLARE '
-
+      REJ=0e0
+      XEJ=0e0
+      YEJ=0e0
+      ZEJ=0e0
       STOT=0.0E0
       VOL=0.0E0
 
