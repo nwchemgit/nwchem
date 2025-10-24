@@ -6,11 +6,7 @@ declare -a LIST_MPICWRAP
 LIST_MPICWRAP=( 'mpicc' 'mpicc'    'mpiicc'  'mpiicc' 'mpixlc_r' 'mpixlc' 'mpicc' 'mpifcc' 'mpifccpx' 'mpicc-mpich-mp' 'mpicc-mpich-mp' 'mpicc-openmpi-mp' 'mpicc-openmpi-mp')
 export LIST_MPICWRAP
 myscalapwd=`pwd`
-source ../libext_utils/cmake.sh 
-ls -lrt /tmp/cmakepath_$(id -u).txt
-cat /tmp/cmakepath_$(id -u).txt
-export PATH=$(cat /tmp/cmakepath_$(id -u).txt):$PATH
-echo PATH is $PATH
+source ../libext_utils/cmake.sh
 cd $myscalapwd
 
 if [[ -z "${MPIF90}" ]]; then
@@ -82,6 +78,8 @@ if [[ -z "${CMAKE}" ]]; then
     if [[ -z "$(command -v cmake)" ]]; then
 	cmake_instdir=../libext_utils
 	get_cmake_release $cmake_instdir
+	echo PATH is $PATH
+	echo @@@@
 	status=$?
 	if [ $status -ne 0 ]; then
 	    echo cmake required to build scalapack
@@ -100,6 +98,8 @@ echo CMAKE_VER is ${CMAKE_VER_MAJ} ${CMAKE_VER_MIN}
 if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ == 3) && (CMAKE_VER_MIN < 24))); then
     cmake_instdir=../libext_utils
     get_cmake_release $cmake_instdir
+    echo PATH is $PATH
+    echo zzzz
     status=$?
     if [ $status -ne 0 ]; then
 	echo cmake required to build scalapack
