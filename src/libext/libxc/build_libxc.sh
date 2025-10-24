@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 #set -x
 source ../libext_utils/cmake.sh
-source ../libext_utils/cmake.sh 
-ls -lrt /tmp/cmakepath_$(id -u).txt
-cat /tmp/cmakepath_$(id -u).txt
-export PATH=$(cat /tmp/cmakepath_$(id -u).txt):$PATH
 echo PATH is $PATH
 
 check_tgz() {
@@ -82,8 +78,11 @@ fi
 CMAKE_VER_MAJ=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
 CMAKE_VER_MIN=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f2)
 echo CMAKE_VER is ${CMAKE_VER_MAJ} ${CMAKE_VER_MIN}
-if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ == 2) && (CMAKE_VER_MIN < 24))); then
+if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ == 3) && (CMAKE_VER_MIN < 24))); then
+    cmake_instdir=../libext_utils
     get_cmake_release  $cmake_instdir
+    echo PATH is $PATH
+    echo @@@@
     status=$?
     if [ $status -ne 0 ]; then
 	echo cmake required to build scalapack

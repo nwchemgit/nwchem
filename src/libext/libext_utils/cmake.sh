@@ -2,11 +2,10 @@ get_cmake_release(){
     UNAME_S=$(uname -s)
     CPU=$(uname -m)
     CMAKE_VER=3.26.0
-    echo pwd is `pwd` > /tmp/cmake.log
     orgdir=`pwd`
     cmake_instdir=$1
-    echo "Parameter #1 is $1" >> /tmp/cmake.log
-    echo cmake_instdir is $cmake_instdir >> /tmp/cmake.log
+    echo "Parameter #1 is $1"
+    echo cmake_instdir is $cmake_instdir
     rm -f cmake-${CMAKE_VER}.tar.gz
     if [[ ${UNAME_S} == "Linux" ]]; then
 	if [[ ${CPU} == "x86_64" ||  ${CPU} == "aarch64" || ${CPU} == "i686" ]] ; then
@@ -16,35 +15,31 @@ get_cmake_release(){
 	    else
 		CMAKE_CPU=${CPU}
 	    fi
-	    CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
-            echo `pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin
-	    echo returning `pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin >> /tmp/cmake.log
-	    rm -f /tmp/cmakepath_$(id -u).txt
-	    echo `pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin > /tmp/cmakepath_$(id -u).txt
-	    echo new CMAKE is $CMAKE >> /tmp/cmake.log
-	    	    CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}.tar.gz
+	    export CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
+	    export PATH=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin:$PATH
+	    CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}.tar.gz
 	else
 	        get_cmake_master
 	fi
     elif [[ ${UNAME_S} == "Darwin" ]] ; then
 	cd $cmake_instdir
-	CMAKE=`pwd`/cmake-${CMAKE_VER}-macos-universal/CMake.app/Contents/bin/cmake
+	export CMAKE=`pwd`/cmake-${CMAKE_VER}-macos-universal/CMake.app/Contents/bin/cmake
+	export PATH=`pwd`/cmake-${CMAKE_VER}-macos-universal/CMake.app/Contents/bin:$PATH
 	CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-macos-universal.tar.gz
     else
 	return 1
     fi
     if [ -f ${CMAKE} ]; then
-	echo using existing ${CMAKE_VER} Cmake >> /tmp/cmake.log
+	echo using existing ${CMAKE_VER} Cmake 
     else
 	curl -L ${CMAKE_URL} -o cmake-${CMAKE_VER}.tar.gz
 	tar xzf cmake-${CMAKE_VER}.tar.gz
 	if [[ ${UNAME_S} == "Darwin" ]] ; then
-	    CMAKE=`pwd`/cmake-${CMAKE_VER}-macos-universal/CMake.app/Contents/bin/cmake
-	    rm -f /tmp/cmakepath_$(id -u).txt
-	    echo `pwd`/cmake-${CMAKE_VER}-macos-universal/CMake.app/Contents/bin > /tmp/cmakepath_$(id -u).txt
+	    export CMAKE=`pwd`/cmake-${CMAKE_VER}-macos-universal/CMake.app/Contents/bin/cmake
+	    export PATH=`pwd`/cmake-${CMAKE_VER}-macos-universal/CMake.app/Contents/bin:$PATH
 	else
-	    CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
-	    echo `pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin
+	    export CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
+	    export PATH=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin:$PATH
 	fi
     fi
     cd $orgdir
@@ -68,9 +63,8 @@ get_cmake_master(){
     fi
     make -j4
     make -j4 install
-    CMAKE=`pwd`/../bin/cmake
-    rm -f /tmp/cmakepath_$(id -u).txt
-    echo `pwd`/../bin > /tmp/cmakepath_$(id -u).txt
+    export CMAKE=`pwd`/../bin/cmake
+    export PATH=`pwd`/../bin:$PATH
     ${CMAKE} -version
     cd ../..
     return 0
