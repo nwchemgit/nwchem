@@ -26,6 +26,27 @@ jobs:
   do_tar:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          show-progress:
+          fetch-depth: 200
+      - name: check if tag exists
+        run: |
+          echo "checking if branch" ${{ github.event.inputs.branch }} "exists"
+          ls -lart
+          env
+          if ! git ls-remote --exit-code --heads \
+          origin \
+          refs/heads/${{ github.event.inputs.branch }}
+          then
+              echo branch is not there
+              git checkout -b ${{ github.event.inputs.branch }}
+              git push origin  ${{ github.event.inputs.branch }}
+          else
+              echo branch is there
+          fi
+          cd $HOME
       - name: install pkg
         run: |
           sudo apt-get install -y curl make perl bash bzip2 tar gzip openmpi-bin

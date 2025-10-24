@@ -26,7 +26,7 @@ echo TOPDIR is $TOPDIR
 rm -rf temp.$input_date
 mkdir -p temp.$input_date
 cd temp.$input_date
-git clone --depth 1 --shallow-submodules -b $branch https://github.com/nwchemgit/nwchem $TOPDIR
+git clone --depth 1 --shallow-submodules -b $branch https://github.com/$GITHUB_REPOSITORY_OWNER/nwchem $TOPDIR
 cd $TOPDIR/src/tools
 rm -f *.tar.*
 ./get-tools-github
