@@ -5,8 +5,7 @@ set -e
     export OMPI_MCA_plm_rsh_agent=ssh
     export OMPI_MCA_btl=self,tcp
     export OMPI_MCA_osc=^ucx
-    export OMPI_MCA_btl_tcp_if_include=lo
-    export OMPI_MCA_btl=self,tcp
+#    export OMPI_MCA_btl_tcp_if_include=lo
 # source env. variables
 if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
     TRAVIS_BUILD_DIR=$(pwd)
