@@ -47,13 +47,15 @@ get_cmake_release(){
 }
 
 get_cmake_master(){
-    CMAKE_COMMIT=09dd52c9d2684e933a3e013abc4f6848cb1befbf
+    CMAKE_COMMIT=v3.26.6
     if [[ -f "cmake-$CMAKE_COMMIT.zip" ]]; then
 	echo "using existing"  "cmake-$CMAKE_COMMIT.zip" >> /tmp/cmake.log
     else
-	curl -L https://gitlab.kitware.com/cmake/cmake/-/archive/$CMAKE_COMMIT.zip -o cmake-$CMAKE_COMMIT.zip
+	curl -L https://github.com/Kitware/CMake/archive/refs/tags/$CMAKE_COMMIT.zip -o cmake-$CMAKE_COMMIT.zip
     fi
+    rm -rf CMake*
     unzip -n -q cmake-$CMAKE_COMMIT.zip
+    ln -sf CMake* cmake-$CMAKE_COMMIT
     mkdir -p  cmake-$CMAKE_COMMIT/build
     cd cmake-$CMAKE_COMMIT/build
     if [[ -x "$(command -v cmake)" ]]; then
