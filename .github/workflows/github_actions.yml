@@ -25,7 +25,7 @@ jobs:
         experimental: [false]
         mpi_impl:
           - openmpi
-          - mpich
+          - build_mpich
         armci_network:
           - MPI-TS
         xcode_version:
@@ -241,7 +241,7 @@ jobs:
             use_libxc: 1
           - os: macos-latest
             experimental: true
-            mpi_impl: mpich
+            mpi_impl: build_mpich
             armci_network: MPI-TS
             nwchem_modules: "all"
             fc: flang
@@ -428,7 +428,7 @@ jobs:
             xcode_version: 15.0.1
           - os: macos-latest
             experimental: true
-            mpi_impl: mpich
+            mpi_impl: build_mpich
             armci_network: MPI-TS
             nwchem_modules: "all"
             fc: gfortran-14
