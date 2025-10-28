@@ -10,6 +10,8 @@ fi
 os=`uname`
 dist="ubuntu"
 arch=`uname -m`
+export MPICH_FC=$FC
+export OMPI_FC=$FC
 env | grep FC || true
 env | grep CC || true
 if [[ "$os" == "Darwin" ]]; then
@@ -143,7 +145,6 @@ fi
      if [[ "$MPI_IMPL" != "build_mpich" ]]; then
 	 #check mpi install
 	 if [[ "$MPI_IMPL" == "mpich" ]]; then
-	     export MPICH_FC=$FC
 	     echo 'mpi90 -show' $("$HOMEBREW_PREFIX"/opt/mpich/bin/mpif90 -show)
 	 fi
 	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
