@@ -49,6 +49,7 @@ if [[ "$FC" == "nvfortran" ]]; then
      export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/latest/compilers/lib:$LD_LIBRARY_PATH
      export FC=nvfortran
      export MPICH_FC=nvfortran
+     export OMPI_FC=nvfortran
 fi
 if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
     if [[ "$os" == "Darwin" ]]; then
@@ -185,6 +186,7 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
 #	    if  [[ ${FC} == gfortran ]]  ; then
 		if [[ "$MPI_IMPL" == "mpich" ]]; then
 		    export MPICH_FC=$FC
+		    export OMPI_FC=$FC
 #		    if [[ "$arch" != "aarch64" ]]; then
 #			export BUILD_MPICH=1
 #		    fi
