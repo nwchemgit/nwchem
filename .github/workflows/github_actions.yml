@@ -244,7 +244,7 @@ jobs:
             use_libxc: 1
           - os: macos-latest
             experimental: true
-            mpi_impl: openmpi
+            mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "all"
             fc: flang
