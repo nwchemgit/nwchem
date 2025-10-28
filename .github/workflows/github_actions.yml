@@ -36,6 +36,9 @@ jobs:
           - "tce"
         fc:
           - gfortran
+        exclude:
+          - os: macos-latest
+            mpi_impl: mpich
         include:
           - os: ubuntu-latest
             experimental: true
@@ -241,7 +244,7 @@ jobs:
             use_libxc: 1
           - os: macos-latest
             experimental: true
-            mpi_impl: mpich
+            mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "all"
             fc: flang
@@ -428,7 +431,7 @@ jobs:
             xcode_version: 15.0.1
           - os: macos-latest
             experimental: true
-            mpi_impl: mpich
+            mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "all"
             fc: gfortran-14
