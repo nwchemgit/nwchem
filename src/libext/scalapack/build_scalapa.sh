@@ -240,10 +240,18 @@ if [[  -z "$MPICH_FC"   ]] ; then
     export MPICH_FC="$FC"
 fi
 echo MPICH_FC is "$MPICH_FC"
+if [[  -z "$OMPI_FC"   ]] ; then
+    export OMPI_FC="$FC"
+fi
+echo OMPI_FC is "$OMPI_FC"
 if [[  -z "$MPICH_CC"   ]] ; then
     export MPICH_CC="$CC"
 fi
 echo MPICH_CC is "$MPICH_CC"
+if [[  -z "$OMPI_CC"   ]] ; then
+    export OMPI_CC="$CC"
+fi
+echo OMPI_CC is "$OMPI_CC"
 echo $(${MPICC} -show)
 #Intel MPI
 if [[  -z "$I_MPI_F90"   ]] ; then
