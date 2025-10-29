@@ -22,12 +22,14 @@ fi
 cd $TRAVIS_BUILD_DIR/src
 #FDOPT="-O0 -g"
 export MPICH_FC=$FC
+export OMPI_FC=$FC
 if [[ "$arch" == "aarch64" ]]; then 
     if [[ "$FC" == "flang" ]]  ; then
         FOPT="-O2  -ffast-math"
     elif [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
 	export USE_FPICF=1
 	export MPICH_FC=nvfortran
+	export OMPI_FC=nvfortran
 	env|egrep FC
 	nvfortran -V
     else
@@ -63,6 +65,7 @@ else
         if [[ "$FC" == "nvfortran" ]]; then
 	    export USE_FPICF=1
             export MPICH_FC=nvfortran
+            export OMPI_FC=nvfortran
 	    nvfortran -V
 	fi
     fi

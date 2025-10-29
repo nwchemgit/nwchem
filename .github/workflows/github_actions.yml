@@ -36,6 +36,9 @@ jobs:
           - "tce"
         fc:
           - gfortran
+        exclude:
+          - os: macos-latest
+            mpi_impl: mpich
         include:
           - os: ubuntu-latest
             experimental: true
@@ -252,7 +255,7 @@ jobs:
             mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
-            fc: gfortran-12
+            fc: gfortran-13
             cc: gcc
             use_libxc: 1
             xcode_version: 15.3
@@ -261,7 +264,7 @@ jobs:
             mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw python"
-            fc: gfortran-13
+            fc: gfortran-14
             use_libxc: 1
             xcode_version: 15.2
           - os: ubuntu-22.04
@@ -301,7 +304,7 @@ jobs:
             mpi_impl: openmpi
             armci_network: MPI-PR
             nwchem_modules: "qmandpw qmd"
-            fc: gfortran-12
+            fc: gfortran-13
             xcode_version: 15.0.1
           - os: macos-latest
             experimental: true
@@ -315,16 +318,16 @@ jobs:
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
-            nwchem_modules: "tinyqmpw"
-            fc: gfortran-12
-            cc: gcc-12
+            nwchem_modules: "tinyqmpw python"
+            fc: gfortran-14
+            cc: gcc-14
             xcode_version: 15.4
           - os: macos-latest
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
-            fc: gfortran-13
+            fc: gfortran-14
             blas: "accelerate"
             blas_size: 4
           - os: ubuntu-22.04
@@ -411,28 +414,9 @@ jobs:
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
-            nwchem_modules: "nwdft driver solvation"
-            fc: gfortran
-            cc: gcc
-            blas: "brew_openblas"
-            blas_size: 4
-          - os: macos-15
-            experimental: true
-            mpi_impl: openmpi
-            armci_network: MPI-TS
-            nwchem_modules: "nwdft driver solvation"
-            fc: gfortran
-            cc: gcc
-            blas: "brew_openblas"
-            blas_size: 4
-            xcode_version: 15.0.1
-          - os: macos-latest
-            experimental: true
-            mpi_impl: mpich
-            armci_network: MPI-TS
             nwchem_modules: "all"
-            fc: gfortran-14
-            cc: gcc-14
+            fc: gfortran-15
+            cc: gcc-15
             blas: "build_openblas"
             blas_size: 8
       fail-fast: false

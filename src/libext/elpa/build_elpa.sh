@@ -175,6 +175,17 @@ echo MPICH_CC is "$MPICH_CC"
 if [[  -z "$MPICH_CXX"   ]] ; then
     export MPICH_CXX="$CXX"
 fi
+if [[  -z "$OMPI_FC"   ]] ; then
+    export OMPI_FC="$FC"
+fi
+echo OMPI_FC is "$OMPI_FC"
+if [[  -z "$OMPI_CC"   ]] ; then
+    export OMPI_CC="$CC"
+fi
+echo OMPI_CC is "$OMPI_CC"
+if [[  -z "$OMPI_CXX"   ]] ; then
+    export OMPI_CXX="$CXX"
+fi
 #Intel MPI
 if [[  -z "$I_MPI_F90"   ]] ; then
     export I_MPI_F90="$FC"
