@@ -95,7 +95,8 @@ fi
 CMAKE_VER_MAJ=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
 CMAKE_VER_MIN=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f2)
 echo CMAKE_VER is ${CMAKE_VER_MAJ} ${CMAKE_VER_MIN}
-if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ == 3) && (CMAKE_VER_MIN < 24))); then
+echo CMAKE_VERSION_REQUIRED is ${CMAKE_VER_REQ_MAJ} ${CMAKE_VER_REQ_MIN}
+if ((CMAKE_VER_MAJ < ${CMAKE_VER_REQ_MAJ})) || (((CMAKE_VER_MAJ == ${CMAKE_VER_REQ_MAJ}) && (CMAKE_VER_MIN < ${CMAKE_VER_REQ_MIN}))); then
     cmake_instdir=../libext_utils
     get_cmake_release $cmake_instdir
     echo PATH is $PATH
