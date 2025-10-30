@@ -1,7 +1,11 @@
+export CMAKE_VERSION_REQUIRED=3.26.0
+CMAKE_VER_REQ_MAJ=$(echo ${CMAKE_VERSION_REQUIRED}|cut -d . -f 1)
+CMAKE_VER_REQ_MIN=$(echo ${CMAKE_VERSION_REQUIRED}|cut -d . -f 2)
+
 get_cmake_release(){
     UNAME_S=$(uname -s)
     CPU=$(uname -m)
-    CMAKE_VER=3.26.0
+    CMAKE_VER=${CMAKE_VERSION_REQUIRED}
     orgdir=`pwd`
     cmake_instdir=$1
     echo "Parameter #1 is $1"
