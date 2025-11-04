@@ -193,7 +193,9 @@ c
 	external  mynodes, numnodes
 #endif
 #ifdef TCGMSG
- 	external nodeid, nnodes
+        integer util_mpicommsize,util_mpicommrank
+        external util_mpicommsize,util_mpicommrank
+cold 	external nodeid, nnodes
 #endif
 #ifdef UNIPROC
       ienv(1) = 0
@@ -218,8 +220,10 @@ c
       ENDIF
 #endif
 #ifdef TCGMSG
-      ienv(1) = nodeid()
-      ienv(2) = nnodes()
+cold      ienv(1) = nodeid()
+cold      ienv(2) = nnodes()
+      ienv(1)=util_mpicommrank()
+      ienv(2)=util_mpicommsize()
 #endif
 #ifdef iPSC_NATIVE
       ienv(1) = mynode ()

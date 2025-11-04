@@ -765,6 +765,24 @@ echo 'Please check the final gradient values for correctness.'
 let "myexit+=$?"
 
 echo 'the following tests are know to be numerically unstable'
+./runtests.mpi.unix procs $np water/waterm_md
+let "myexit+=$?"
+./runtests.mpi.unix procs $np water/waterm_pme
+let "myexit+=$?"
+./runtests.mpi.unix procs $np ethanol/ethanol_md
+let "myexit+=$?"
+./runtests.mpi.unix procs $np ethanol/ethanol_ti
+let "myexit+=$?"
+./runtests.mpi.unix procs $np prep/aal
+let "myexit+=$?"
+./runtests.mpi.unix procs $np prep/bpx
+let "myexit+=$?"
+./runtests.mpi.unix procs $np prep/caa
+let "myexit+=$?"
+./runtests.mpi.unix procs $np prep/fsc
+let "myexit+=$?"
+./runtests.mpi.unix procs $np trypsin/trypsin_md
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np qmmm_opt0
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_scan_h2o
