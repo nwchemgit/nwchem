@@ -59,17 +59,10 @@ c
       integer m2, mmax,nmax, iii, nele
 c     
       EXTERNAL          LSTCNT
-#ifdef PEIGS
       EXTERNAL          MXNPRC, MXMYND
       INTEGER           MXNPRC, MXMYND
       NAPROC = MXNPRC()
       ME     = MXMYND()
-#else
-      integer util_mpicommsize,util_mpicommrank
-      external util_mpicommsize,util_mpicommrank
-      naproc=util_mpicommsize()
-      me=util_mpicommrank()
-#endif
  
       INFO = 0
 c     
