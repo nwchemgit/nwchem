@@ -7,12 +7,13 @@ c************************************************************************
 #include "errquit.fh"
       INTEGER icontext
       integer nprow, npcol, myrow, mycol
-      integer nnodes, nodeid, nproc, me
+#include "nwfft3d.fh"
+      integer nproc, me
       integer icontext1, icontext2
       common /xparms/nprow,npcol,myrow,mycol
 
-      nproc = nnodes()
-      me = nodeid()
+      me = util_mpicommrank()
+      nproc = util_mpicommsize()
       nprow = 1
       npcol = nproc
 c obtain system default and map to a row

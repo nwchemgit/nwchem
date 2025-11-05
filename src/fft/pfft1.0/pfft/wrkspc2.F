@@ -56,17 +56,21 @@ c
       integer nelebk
       INTEGER           NAPROC, ME, N1MAX, N2MAX, I
       INTEGER           LSTCNT
-      integer           max
-      INTEGER           MXNPRC, MXMYND
       integer m2, mmax,nmax, iii, nele
-      intrinsic         max
 c     
       EXTERNAL          LSTCNT
+#ifdef PEIGS
       EXTERNAL          MXNPRC, MXMYND
-*-----------------------------------------------------------------------
-c     
+      INTEGER           MXNPRC, MXMYND
       NAPROC = MXNPRC()
       ME     = MXMYND()
+#else
+      integer util_mpicommsize,util_mpicommrank
+      external util_mpicommsize,util_mpicommrank
+      naproc=util_mpicommsize()
+      me=util_mpicommrank()
+#endif
+ 
       INFO = 0
 c     
 c     computes the large number of panels that is stored on map1(1:n3) and
