@@ -94,8 +94,7 @@ c     Create parallel processes and initialize IPC layer
 c
       call pbeginf()
 
-C     #ifdef PEIGS
-#if 1
+#ifdef PEIGS
 c
 c     MXINIT is needed by PeIGS and PFFT to initialize
 c     the communication fabric they use.

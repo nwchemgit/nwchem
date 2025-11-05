@@ -228,4 +228,7 @@ fi
 	   fi
        fi
      fi
+     if [[ ! $(grep -i ine\ md_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/md_input/') ]]; then
+         cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs water/water_pme
+     fi
  fi
