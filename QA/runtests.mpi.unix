@@ -243,9 +243,11 @@ do
      md_test_run=0
   fi
 #MV
-
+  sync
   if [ ! -f $TESTDIR/$INPUTFILE ]; then
-    echo failed: cannot access $TESTDIR/$INPUTFILE
+      echo failed: cannot access $TESTDIR/$INPUTFILE
+      echo directory content
+      printf "$(ls -lrt $TESTDIR) \n"
     overall_status=1
     continue
   fi
