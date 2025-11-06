@@ -1,0 +1,3 @@
+        integer util_mpicommsize,util_mpicommrank
+        external util_mpicommsize,util_mpicommrank
+	

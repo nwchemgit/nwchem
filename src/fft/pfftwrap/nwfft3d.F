@@ -68,8 +68,9 @@ c *** local variables
 c       integer isize
 c       parameter (isize=128*128*128)
 c       integer iwork(isize)
-c	double precision work(isize)
-       integer nodeid,nnodes,me,nproc
+c     double precision work(isize)
+#include "nwfft3d.fh"
+       integer me,nproc
 #ifdef ESSLFFT
       data iESSL /0/
       save iESSL
@@ -82,8 +83,12 @@ c	double precision work(isize)
       data computedMap /0/
       save computedMap
 *
-      me = nodeid()
-      nproc = nnodes()
+      me = util_mpicommrank()
+      nproc = util_mpicommsize()
+      if(nproc.eq.0) then
+         write(0,*) ' error me nproc ',me,nproc
+         call errquit(" error ",0,0)
+      endif
       isign=idir
       if(isign.lt.-1) isign=-1
 

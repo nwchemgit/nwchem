@@ -640,7 +640,13 @@ c	The obvious "mynode" function, for those tired of using the
 c	'env' vector all the time.
 c
 #include "mxsubs.h"
+#ifdef PEIGS
         mxmynd = me
+#else
+        integer util_mpicommrank
+        external util_mpicommrank
+        mxmynd = util_mpicommrank()
+#endif
         return
         end
 
@@ -650,7 +656,13 @@ c	The obvious "numprocs" function, for those tired of using the
 c	'env' vector all the time.
 c
 #include "mxsubs.h"
+#ifdef PEIGS
         mxnprc = nproc
+#else
+        external util_mpicommsize
+        integer util_mpicommsize
+        mxnprc = util_mpicommsize()
+#endif
         return
         end
 c
