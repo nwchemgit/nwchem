@@ -194,6 +194,8 @@ endif
 	      banner.o util_print.o util_module_avail.o \
               util_version.o util_nwchem_version.o util_ga_version.o \
               util_nwchem_paper.o util_nwchem_srcdir.o utilc_nwchem_srcdir.o \
+              utilc_mpic2f.o \
+              util_mpic2f.o \
               mk_fit_xf.o \
               int_2c_ga.o \
               ma_solve.o \
