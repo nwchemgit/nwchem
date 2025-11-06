@@ -11,6 +11,9 @@ on:
         options:
           - nightly
           - 7.3.0
+          - 7.3.1
+          - 7.3.2
+          - 7.3.3
       branch:
         description: 'branch of NWChem repository'
         required: true
