@@ -10,6 +10,7 @@ on:
         type: choice
         options:
           - nightly
+          - 7.2.4
           - 7.3.0
           - 7.3.1
           - 7.3.2
@@ -21,9 +22,9 @@ on:
         type: choice
         options:
           - master
-          - hotfix/7.2.0
+          - hotfix/release-7-2-0
           - release-7-3-0
-          - hotfix/7.3.0
+          - hotfix/release-7-3-0
 
 jobs:
   do_tar:
