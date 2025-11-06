@@ -751,7 +751,7 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np H2COWat_VEMExc_CISHF
 let "myexit+=$?"
-./runtests.mpi.unix procs $np p2ta-vem
+./runtests.mpi.unix procs $np p2ta-vem-ri
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np bsse_sodft
 let "myexit+=$?"
