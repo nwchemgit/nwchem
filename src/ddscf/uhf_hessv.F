@@ -14,6 +14,7 @@
 #include "util.fh"
 
 c     
+      integer rtdb
       double precision acc      ! [input] required accuracy of products
       integer g_x               ! [input] handle to input vectors
       integer g_ax              ! [input] handle to output products
@@ -23,9 +24,13 @@ c
       integer ilo(2),ihi(2)
 c
       logical oprint, olprint
+      integer scf_get_rtdb
+      external scf_get_rtdb
 c
       oprint = util_print("hessv",print_high)
       olprint = oprint .and. (ga_nodeid().eq.0)
+
+      rtdb = scf_get_rtdb()
 c
 c     Multiply a set of vectors by the level-shifted UHF hessian.
 c     
@@ -70,7 +75,7 @@ c
  200  continue
 c
       if (pflg .gt. 1)then 
-         call uhf_hessv_2e(acc, g_x, g_ax, nvec)
+         call uhf_hessv_2e(rtdb, acc, g_x, g_ax, nvec)
       endif
 c
       if (oprint) then
@@ -161,7 +166,7 @@ c
       enddo
 c
       end
-      subroutine uhf_hessv_2e(acc, g_x, g_ax, nvec)
+      subroutine uhf_hessv_2e(rtdb, acc, g_x, g_ax, nvec)
       implicit none
 #include "errquit.fh"
 #include "cuhf.fh"
@@ -172,6 +177,7 @@ c
 #include "rtdb.fh"
 #include "bgj.fh"
 c     
+      integer rtdb
       double precision acc      ! [input] required accuracy of products
       integer g_x               ! [input] handle to input vectors
       integer g_ax              ! [input] handle to output products
@@ -289,7 +295,7 @@ c
 c
       nfock = 4*nvec
 c
-      call fock_2e(geom, basis, nfock, jfac, kfac,
+      call fock_2e(rtdb, geom, basis, nfock, jfac, kfac,
      $     tol2e_local, oskel_local, g_dens, g_fock, .false.)
 c
 c     Again, note that this is NOT what you want except for

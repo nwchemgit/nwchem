@@ -3,7 +3,7 @@ c  Evaluate electronic energy expectation value
 c  This follows closely "mcscf_fock"
 c
 c
-       subroutine mcscf_etrace( geom, basis, nbf, nclosed, nact,
+       subroutine mcscf_etrace( rtdb, geom, basis, nbf, nclosed, nact,
      $                          oact, oskel, tol2e, dm1, dm2,
      $                          g_movecs, g_coul, eone, etwo, ecore )
 *
@@ -18,7 +18,7 @@ c
 #include "bas.fh"
 #include "util.fh"
 #include "geom.fh"
-       integer geom, basis                            ! [input] Geometry and basis handles
+       integer rtdb, geom, basis                      ! [input] Geometry and basis handles
        integer nbf                                    ! [input] Number of basis functions
        integer nclosed                                ! [input] Number of closed shells
        integer nact                                   ! [input] Number of open shells
@@ -71,7 +71,7 @@ c Two-electron component of the AO Fock matrices
 c
        iv_dens(1) = g_cdens
        iv_fock(1) = g_ifock
-       call fock_2e( geom, basis, nset, jfac, kfac, tol2e, oskel,
+       call fock_2e(rtdb, geom, basis, nset, jfac, kfac, tol2e, oskel,
      $               iv_dens, iv_fock, .false. )
 c
 c  Symmetrize Fock AO components
@@ -195,7 +195,7 @@ c$$$c Two-electron component of the AO Fock matrices
 c$$$c
 c$$$       iv_dens(1) = g_cdens
 c$$$       iv_fock(1) = g_ifock
-c$$$       call fock_2e( geom, basis, nset, jfac, kfac, tol2e, oskel,
+c$$$       call fock_2e(rtdb, geom, basis, nset, jfac, kfac, tol2e, oskel,
 c$$$     $               iv_dens, iv_fock, .false. )
 c$$$c
 c$$$c  Symmetrize Fock AO components

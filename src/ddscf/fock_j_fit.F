@@ -62,20 +62,19 @@ c
       double precision ddum
       logical IOLGC, old_incore, old_direct
 c
-      if (bgj_print() .gt. 0)
+      if (bgj_print(rtdb) .gt. 0)
      &     write(*,*)'--------Entered fock_j_fit-------------'
-      rtdb = bgj_get_rtdb_handle()
 c      write(*,*)'nmat rtdb geom',nmat,rtdb,geom
 c
 c     Get fock_j_fit variables
 c
       if (.not. rtdb_get(rtdb, 'fock_j:derfit', mt_log, 1,
      &     derfit)) then
-         if (bgj_print() .gt. 0)
+         if (bgj_print(rtdb) .gt. 0)
      &      write(*,*)'*** fock_j_fit: derfit not set: setting to false'
          derfit = .false.       !!!
       endif
-      if (bgj_print() .gt. 0)
+      if (bgj_print(rtdb) .gt. 0)
      &     write(*,*)'fock_j_fit: derfit =',derfit
 c
 c     Initialize J matrices
@@ -143,7 +142,7 @@ c
       direct = old_direct
       incore = old_incore
 c
-      if (bgj_print() .gt. 0) then
+      if (bgj_print(rtdb) .gt. 0) then
          do imat = 1, nmat
             write(*,*)'Fitted J matrix',imat
             call ga_print(g_j(imat))

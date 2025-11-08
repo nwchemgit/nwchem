@@ -339,7 +339,7 @@ c
       endif
 c
 #if 0
-      if (bgj_print() .gt. 1) then
+      if (bgj_print(rtdb) .gt. 1) then
       write(6,*) 'xc_cpks_coeff: prho out'
       call output(prho, 1, nq, 1, ipol*npert, nq, ipol*npert, 1)
       if (grad) then

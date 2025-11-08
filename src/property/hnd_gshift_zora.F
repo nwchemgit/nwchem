@@ -102,7 +102,7 @@ c     Making C1 geometry and store it on rtdb
 c
 c     If DFT get part of the exact exchange defined
       xfac = 1.0d0
-      if (use_theory.eq.'dft') xfac = bgj_kfac()
+      if (use_theory.eq.'dft') xfac = bgj_kfac(rtdb)
       nind_jk=12
 c ------- using different settings (j,k)  03-14-11--- START
       do ifld = 1,nind_jk
@@ -384,13 +384,13 @@ c
 c     Note: Just the exchange: jfac = 0.d0 (see above)
 
       if (.not.cam_exch) then
-         call shell_fock_build(geom, basis,0,3*npol*2,
+         call shell_fock_build(rtdb, geom, basis,0,3*npol*2,
      $                         jfac,kfac,tol2e,
      &                         g_d1,  ! input
      &                         g_fock,! output
      &                         .false.)
       else
-         call shell_fock_build_cam(geom, basis,0,3*npol*2,
+         call shell_fock_build_cam(rtdb, geom, basis,0,3*npol*2,
      $                             jfac,kfac,tol2e,
      &                             g_d1,  ! input
      &                             g_fock,! output
@@ -531,7 +531,7 @@ c +++++ Test: getting Coulomb and Exchange contrib separate --- START
      &                 npol)
 c +++++ Test: getting Coulomb and Exchange contrib separate --- END
       else
-       call new_giao_2e(geom,basis,nbf,tol2e,
+       call new_giao_2e(rtdb, geom,basis,nbf,tol2e,
      &                 g_dens, !  in: e-denstiy 
      &                 g_fock, ! out: fock matrix
      &                 xfac,

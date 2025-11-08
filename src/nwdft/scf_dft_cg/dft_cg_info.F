@@ -31,8 +31,8 @@ c
       integer mult
       integer cd_basis
 c
-c     hf_job = .not. bgj_have_xc()
-c     if (bgj_print() .gt. 0)
+c     hf_job = .not. bgj_have_xc(rtdb)
+c     if (bgj_print(rtdb) .gt. 0)
 c    &     write(*,*)'*** scf_get_info: hf_job ',hf_job
 c
 c     if (.not. rtdb_cget(rtdb, 'title', 1, title))
@@ -188,7 +188,7 @@ c
 c     Determine no. of open and closed shells ... default is to run closed
 c     shell unless told otherwise
 c     
-c     if (bgj_print() .gt. 0)
+c     if (bgj_print(rtdb) .gt. 0)
 c    &   write(*,*)'*** !!! more stuff to check in scf_get_info.F !!!'
 c     if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
 c    +     call errquit('task: no task input for theory?',0, INPUT_ERR)

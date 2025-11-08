@@ -15,7 +15,7 @@ C> Fock matrices. The Fock matrices may be symmetric or anti-symmetric.
 C> The latter occurs, for example, when the Fock matrix is the
 C> imaginary part of a matrix.
 C>
-      subroutine shell_fock_build(geom,basis, nder, ndens,
+      subroutine shell_fock_build(rtdb, geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
 c
 c Took oactive out for the time being, but will probably need to
@@ -34,6 +34,7 @@ c
 #include "prop.fh"
 #include "stdio.fh"
 c
+      integer rtdb
       integer basis  !< [Input] The basis set handle
       integer nder   !< [Input] The number of derivatives
                      !< - nder = 0: Energy
@@ -205,7 +206,7 @@ c
       call nga_reorder(g_fock, .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
 c
-      call newfock(
+      call newfock(rtdb,
      $     basis, nder, ndens, nfock,
      $     g_dens, g_fock,
      $     dbl_mb(k_d_ij), dbl_mb(k_d_kl), dbl_mb(k_d_ik),  
@@ -243,7 +244,7 @@ c     Check the theory type to make sure dft is active
 c     in addition to checking xc_active()
 c
       if(use_theory.eq.'dft'.and.xc_gotxc().and.nder.eq.0)then
-         call xc_newfock(geom,basis,jfac,kfac,nbf,
+         call xc_newfock(rtdb, geom,basis,jfac,kfac,nbf,
      &        nder, ndens, nfock, g_fock,g_dens)
       endif
 c
@@ -256,7 +257,7 @@ c
       return
       end
 c
-      subroutine newfock(
+      subroutine newfock(rtdb,
      $     basis, nder, ndens, nfock,
      $     g_dens, g_fock,
      $     d_ij,  d_kl,  d_ik,  d_jl,  d_il,  d_jk, 
@@ -278,6 +279,7 @@ c
 #include "bas.fh"
 #include "rtdb.fh"
 c
+      integer rtdb
       integer basis             ! [input] familiar handles
       integer nder              ! [input] No. of derivatives (0 = energy)
       integer ndens             ! [input] No. of density matrices (for UHF)
@@ -366,9 +368,6 @@ c
      $     nbh_il,  nbh_jk
       integer cache_hitmiss(2,6)
       integer cache_hit,cache_miss
-      integer bgj_get_rtdb_handle
-      external bgj_get_rtdb_handle
-      integer rtdb_out
       integer jj
       logical skipk
 c     
@@ -398,9 +397,8 @@ c     replicated DM and Fock Matrix
 c
 c     turned off for nbf gt 3000 since becomes a memory hog
 c
-      rtdb_out=bgj_get_rtdb_handle()
       dorepon=.true.
-      if (.not.rtdb_get(rtdb_out,'fock:mirrmat',mt_log,1,dorepon)) then
+      if (.not.rtdb_get(rtdb,'fock:mirrmat',mt_log,1,dorepon)) then
          dorepon=nbf.lt.3000
       endif
 
@@ -1235,16 +1233,16 @@ c        end if
       end do
 c
       end
-      subroutine xc_newfock(geom,basis,jfac,kfac,nbf,
+      subroutine xc_newfock(rtdb,geom,basis,jfac,kfac,nbf,
      %     nder, ndens, nfock,g_fock,g_dens)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
-#include "bgj.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "util.fh"
 #include "stdio.fh"
+      integer rtdb
       integer geom
       integer basis
       double precision jfac(*),kfac(*),tdum,Exc(2)
@@ -1259,8 +1257,6 @@ c
       integer i
       logical oprint
       integer ilo(3),ihi(3)
-      logical dm3d
-      integer rtdb_out
       integer ga_create3d_atom_blocked
       external ga_create3d_atom_blocked
 c
@@ -1270,9 +1266,6 @@ c
      ,        ' ndens ',ndens
          call util_flush(luout)
       endif
-      rtdb_out=bgj_get_rtdb_handle()
-      if (.not.rtdb_get(rtdb_out,'dft:dm3d',mt_log,1,dm3d)) 
-     D     dm3d=.true.
 #if 0
       dims(1) = nfock
       dims(2) = nbf
@@ -1298,13 +1291,8 @@ c      write(6,123) ga_nodeid(),' gxc distr ihi',ihi
       Exc(1) = 0.0d0
       Exc(2) = 0.0d0
       nExc = 1
-      if(dm3d) then
-         call fock_xc_dm3d(geom, nbf,basis,
-     ,        ndens,  g_dens, g_xc,Exc,nExc,.true.)
-      else
-         call fock_xc(geom, nbf,basis,
-     ,        ndens,  g_dens, g_xc,Exc,nExc,.true.)
-      endif
+      call fock_xc(rtdb,geom, nbf,basis,
+     ,             ndens,  g_dens, g_xc,Exc,nExc,.true.)
       call ga_add(1.0d0, g_xc, 1.0d0, g_fock,
      &     g_fock)
       if (oprint) then

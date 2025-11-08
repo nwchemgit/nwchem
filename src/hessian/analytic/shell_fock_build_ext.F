@@ -232,7 +232,8 @@ c
       return
       end
 
-      subroutine shell_fock_build2(g_fock,     ! out: Fock    matrices
+      subroutine shell_fock_build2(rtdb,
+     &                             g_fock,     ! out: Fock    matrices
      &                             g_dens,     ! in : density matrices
      &                             geom,       ! in : geom  handle
      &                             basis,      ! in : basis handle
@@ -274,6 +275,7 @@ c     case II: antisymmetric density matrix. note that jfac for this
 c     case is zero, i.e. there is no Coulomb term because there is
 c     no density. However, there are still exchange contributions from
 c     HF exchange. For pure DFT we just skip the call to save CPU time.
+      integer rtdb
       integer geom,basis,
      &        nbf,
      &        npol,imul,nmul,ncomp,nblock,nvec,nder,
@@ -323,8 +325,8 @@ c --- FA-12-02-13 -------------- END
 c     initialize jfacs and kfacs (will go into the uhf_fock_setup)
 c     If DFT get part of the exact exchange defined
 c      xc_xfac = 1.0d0
-c      if (use_theory.eq.'dft') xc_xfac = bgj_kfac() 
-      xc_xfac  = bgj_kfac()       
+c      if (use_theory.eq.'dft') xc_xfac = bgj_kfac(rtdb) 
+      xc_xfac  = bgj_kfac(rtdb)       
       dims(1)  = nblock*npol*nvec
       dims(2)  = nbf
       dims(3)  = nbf

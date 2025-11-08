@@ -1,4 +1,4 @@
-      subroutine dft_roks_hessv_2e( basis, geom, nbf, nmo, nclosed,
+      subroutine dft_roks_hessv_2e(rtdb, basis, geom, nbf, nmo, nclosed,
      $                      nopen, g_movec, oskel, g_x, acc, g_ax )
 C     $Id$
       implicit none
@@ -12,7 +12,7 @@ C     $Id$
 c     
 c     Return the ROKS orbital 2e-Hessian vector product, g_ax = A * g_x
 c     
-      integer basis, geom       ! basis & geom handle
+      integer rtdb, basis, geom       ! basis & geom handle
       integer nbf, nclosed, nopen ! Basis size and occupation
       integer nmo               ! No. of linearly dependent MOs
       integer g_movec           ! MO coefficients
@@ -41,7 +41,7 @@ c
       integer dims(3), chnk(3)
       integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
       integer g_dd, g_ff
-      integer rtdb, calc_type
+      integer calc_type
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -252,7 +252,7 @@ c
 c
       if(util_print('dft timings', print_high))
      &      time1_2e=util_cpusec()   ! start 2e build time
-      call fock_2e( geom, basis, nfock, jfac, kfac,
+      call fock_2e(rtdb, geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, iv_dens, iv_fock,.false.)
       if(util_print('dft timings', print_high))
      &      time2_2e=util_cpusec()   ! end 2e build time
@@ -277,7 +277,6 @@ c       Swap the calc_type to get fock_xc to do the CPHF LHS at this
 c       point. Keep the original setting to restore original state
 c       at the end.
 c
-        rtdb = bgj_get_rtdb_handle()
         if (.not. rtdb_get(rtdb, 'fock_xc:calc_type', mt_int, 1,
      &     calc_type)) then
            calc_type = 1
@@ -299,7 +298,7 @@ c
      &      rodft = .false.   ! query the rtdb for the type of calculation
 
         if(xc_got2nd().and. (.not. rodft)) then
-           call fock_xc(geom, nbf, basis, jfock, g_dd, g_ff,
+           call fock_xc(rtdb,geom, nbf, basis, jfock, g_dd, g_ff,
      +                  Exc, nExc,.true.)
         end if
 c

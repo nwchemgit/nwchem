@@ -254,7 +254,7 @@ c
       nfock = ndens*n3xyz
       if (scftype .eq. 'UHF') call uhf_fock_setup(g_dens2,g_rhs,
      *   jfac,kfac,ndens,nfock,nbf,otwoprint)
-      call shell_fock_build (geom,basis, 1, ndens, jfac, kfac,
+      call shell_fock_build(rtdb, geom,basis, 1, ndens, jfac, kfac,
      *   tol2e, g_dens2, g_rhs,.true.)
       if (scftype .eq. 'UHF') call uhf_fock_finish(g_dens2,g_rhs,
      *   jfac,kfac,ndens,nfock,nbf,otwoprint)

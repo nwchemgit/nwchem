@@ -1,4 +1,5 @@
-      subroutine rohf_hessv_xx( basis, geom, nbf, nmo, nclosed, nopen, 
+      subroutine rohf_hessv_xx( rtdb, basis, geom, 
+     &     nbf, nmo, nclosed, nopen, 
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
@@ -10,7 +11,7 @@ C     $Id$
 #include "rtdb.fh"
 #include "bgj.fh"
 c     
-      integer basis, geom
+      integer rtdb, basis, geom
       integer nbf, nmo, nclosed, nopen
       integer pflg
       integer g_movecs
@@ -32,7 +33,8 @@ c
       endif
  200  continue
       if (pflg .gt. 1) then
-         call rohf_hessv_2e( basis, geom, nbf, nmo, nclosed, nopen,
+         call rohf_hessv_2e( rtdb, basis, geom, 
+     &        nbf, nmo, nclosed, nopen,
      $        g_movecs, oskel, g_x, acc, ! was min(1d-6,acc)
      $        g_ax )
       endif

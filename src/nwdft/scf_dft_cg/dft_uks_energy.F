@@ -68,7 +68,7 @@ c
      $     call errquit('dft_uks_energy: invalid vector length',0,
      $                  GA_ERR)
       cphf_uhf = .false.
-      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
+      if (.not. rtdb_get(rtdb, 
      &     'cphf_solve:cphf_uhf', mt_log, 1, cphf_uhf)) then
          cphf_uhf = .false.
       endif
@@ -180,7 +180,7 @@ c
         kfac(2)=xc_hfexch()
         kfac(3)=0d0
         kfac(4)=xc_hfexch()
-        call fock_2e(geom, basis, nfock, jfac, kfac, tol2e,
+        call fock_2e(rtdb, geom, basis, nfock, jfac, kfac, tol2e,
      $     oskel, d, f, .false.)
       else ! for attenuated calculations
 c
@@ -205,8 +205,8 @@ c
         do ifock = 1,nfock
          call ga_zero(g_tmp(ifock))
         end do
-        call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
-     &     oskel, d, g_tmp, .false.)
+        call fock_2e(rtdb, geom, basis, nfock, jfac, kfac, tol2e, 
+     &     oskel, d, g_tmp, .false., .false.)
         do ifock = 1,nfock
          call ga_dadd(1d0,f(ifock),1d0,g_tmp(ifock),f(ifock))
         end do 
@@ -225,8 +225,8 @@ c
         do ifock = 1,nfock
          call ga_zero(g_tmp(ifock))
         end do
-        call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
-     &     oskel, d, g_tmp, .false.)
+        call fock_2e(rtdb, geom, basis, nfock, jfac, kfac, tol2e, 
+     &     oskel, d, g_tmp, .false., .false.)
         do ifock = 1,nfock
          call ga_dadd(1d0,f(ifock),1d0,g_tmp(ifock),f(ifock))
         end do
@@ -259,7 +259,7 @@ c
       if(util_print('dft timings', print_high))
      &      time1_xc=util_cpusec()   ! start xc build time
       if (xc_gotxc()) then
-        call fock_xc(geom, nbf, basis, 4*2, d, f(5), Exc, nExc, 
+        call fock_xc(rtdb,geom, nbf, basis, 4*2, d, f(5), Exc, nExc, 
      &             .false.)
       endif
       if(util_print('dft timings', print_high))

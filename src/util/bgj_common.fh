@@ -1,9 +1,0 @@
-c
-c     $Id$
-c
-c     Common block used "behind the scenes" by BGJ
-c
-      integer
-     &     bgj_rtdb
-      common /bgj/
-     &     bgj_rtdb

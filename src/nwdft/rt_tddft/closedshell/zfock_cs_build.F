@@ -12,7 +12,8 @@ C
 C     All quantities are in the atomic orbital (AO) basis.
 C
       
-      subroutine zfock_cs_build (params, g_zdens, energies, g_zfock)
+      subroutine zfock_cs_build (rtdb, params, g_zdens, 
+     &                           energies, g_zfock)
       implicit none
       
 #include "errquit.fh"
@@ -29,6 +30,7 @@ C
 
       
 C     == Inputs ==
+      integer, intent(in)           :: rtdb
       type(rt_params_t), intent(in) :: params
       integer, intent(in)           :: g_zdens
 
@@ -161,7 +163,7 @@ C     == Standard coul + standard exch ==
          energies%xc(1) = ener2
          energies%xc(2) = 0d0
 
-         call zfock_cs_exchim (params, g_densim, ener1, g_v1)
+         call zfock_cs_exchim (rtdb, params, g_densim, ener1, g_v1)
          call ga_add (1d0, g_v1, 1d0, g_fockim, g_fockim)
          energies%xc(1) = energies%xc(1) + ener1
          
