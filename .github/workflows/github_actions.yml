@@ -458,7 +458,7 @@ jobs:
           fi
         shell: bash
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           show-progress:
           fetch-depth: 200
