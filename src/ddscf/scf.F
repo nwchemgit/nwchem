@@ -14,6 +14,7 @@ C$Id$
 #include "cscf.fh"
 #include "case.fh"
 #include "frozemb.fh"
+#include "stdio.fh"
 c
 c     ROHF module.
 c
@@ -85,13 +86,14 @@ c
 c     Print info
 c 
       if (ga_nodeid().eq.0 .and. oprint) then
-         call util_print_centered(6, 'NWChem SCF Module', 40, .true.)
-         write(6,*)
-         write(6,*)
+         call util_print_centered(luout, 'NWChem SCF Module', 40,
+     $                            .true.)
+         write(luout,*)
+         write(luout,*)
          if (title .ne. ' ') then
-            call util_print_centered(6, title, 40, .false.)
-            write(6,*)
-            write(6,*)
+            call util_print_centered(luout, title, 40, .false.)
+            write(luout,*)
+            write(luout,*)
          endif
 c
          if(.not. geom_systype_get(geom,itype))
@@ -102,7 +104,7 @@ c
          if (.not. geom_ncent(geom, natoms)) call errquit
      $        ('scf: geom_ncent failed', 0, GEOM_ERR)
 c
-         write(6,1) trans(1:inp_strlen(trans)), nbf
+         write(luout,1) trans(1:inp_strlen(trans)), nbf
  1       format(/
      $        '  ao basis        = "',a,'"'/
      $        '  functions       = ', i5)
@@ -111,23 +113,23 @@ c
             if (.not. bas_name(riscf_basis, name, ri_trans))
      $           call errquit('scf: bas_name?', 0,
      &       BASIS_ERR)
-            write(6,11) ri_trans(1:inp_strlen(ri_trans)), nff
+            write(luout,11) ri_trans(1:inp_strlen(ri_trans)), nff
  11         format(
      $           '  ri basis        = "',a,'"'/
      $           '  ri functions    = ', i5)
          endif
-         write(6,12) natoms
+         write(luout,12) natoms
  12      format('  atoms           = ', i5)
          if (scftype .eq. 'UHF') then
-            write(6,121) nalpha, nbeta
+            write(luout,121) nalpha, nbeta
  121        format('  alpha electrons = ', i5/
      $           '  beta  electrons = ', i5)
          else
-            write(6,122) nclosed, nopen
+            write(luout,122) nclosed, nopen
  122        format('  closed shells   = ', i5/
      $           '  open shells     = ', i5)
          endif
-         write(6,123)
+         write(luout,123)
      $        charge, scftype,
      $        movecs_in(1:inp_strlen(movecs_in)),
      $        movecs_out(1:inp_strlen(movecs_out)), oskel, oadapt
@@ -138,14 +140,14 @@ c
      $        '  output vectors  = ', a/
      $        '  use symmetry    = ', l1/
      $        '  symmetry adapt  = ', l1)
-         if (olock) write(6,124) olock
+         if (olock) write(luout,124) olock
  124     format('  lock orbitals   = ', l1)
          if (util_print('basis summary', print_default)) then
             if (.not.bas_summary_print(basis))
      &           call errquit('scf: basis summary print failed',911,
      &       BASIS_ERR)
          else
-            write(6,*)
+            write(luout,*)
          endif
          if (oadapt .and. util_print('char table', print_high)) then
             call sym_print_char_table(geom)
@@ -153,7 +155,7 @@ c
          if (oadapt .and. util_print('basis sym', print_default)) then
             call sym_bas_irreps(basis, .true., nbf_per_ir)
          endif
-         call util_flush(6)
+         call util_flush(luout)
       endif
 c
 c     Print out other info as requested by user
@@ -162,17 +164,17 @@ c
          if (util_print('geometry',print_high)) then
             if (.not. geom_print(geom))
      $        call errquit('scf: geom_print', 0, GEOM_ERR)
-            write(6,*)
+            write(luout,*)
          endif
          if (util_print('symmetry', print_debug)) then
             call sym_print_all(geom, .true., .true., .true., 
      $           .true., .true.)
-            write(6,*)
+            write(luout,*)
          endif
          if (util_print('basis', print_high)) then
             if (.not. bas_print(basis)) 
      $           call errquit('scf: bas_print', 0, BASIS_ERR)
-            write(6,*)
+            write(luout,*)
          endif
          if (util_print('basis labels',print_high) .and.
      $        ga_nodeid().eq.0) then
@@ -181,9 +183,9 @@ c
          if (util_print('geombas', print_debug)) then
             if (.not. gbs_map_print(basis)) 
      $           call errquit('scf:gmp', 0, BASIS_ERR)
-            write(6,*)
+            write(luout,*)
          endif
-         call util_flush(6)
+         call util_flush(luout)
       endif
 c
 c     Get and check the Coulomb Attenuation Method (CAM) parameters
@@ -208,10 +210,10 @@ c
      $           call errquit('scf: failed getting converged energy',0,
      &       RTDB_ERR)
             if (ga_nodeid().eq.0 .and. oprint) then
-               write(6,1101) energy
+               write(luout,1101) energy
  1101          format(/'  The SCF is already converged '//,
      $              '         Total SCF energy =', f20.12/)
-               call util_flush(6)
+               call util_flush(luout)
             endif
             goto 3131
          endif
@@ -225,14 +227,14 @@ c
      &       UNKNOWN_ERR)
         if (ga_nodeid().eq.0 .and. oprint) then
           if (nriscf.eq.1) then
-            call util_print_centered(6, 'RI hessian', 40, .true.)
+            call util_print_centered(luout, 'RI hessian', 40, .true.)
           else if (nriscf.eq.2) then
-            call util_print_centered(6, 'RISCF', 40, .true.)
+            call util_print_centered(luout, 'RISCF', 40, .true.)
           else if (nriscf.eq.3) then
-            call util_print_centered(6, 'preconverge with RISCF', 40, 
-     $           .true.)
+            call util_print_centered(luout, 'preconverge with RISCF',
+     $           40, .true.)
           endif
-          write(6,*)
+          write(luout,*)
         endif
       endif
 c
@@ -248,7 +250,7 @@ c
 c
 c     Form intial guess vectors
 c
-      if (ga_nodeid().eq.0 .and. oprint) write(6,711) util_wallsec()
+      if (ga_nodeid().eq.0 .and. oprint) write(luout,711) util_wallsec()
  711  format(/' Forming initial guess at ',f9.1,'s'/)
 c      call scf_vectors_guess(rtdb)
 c
@@ -266,7 +268,7 @@ c     Here branch to the appropriate wavefunction type ... returns
 c     true if happily converged, false otherwise (e.g., if restart
 c     is needed or problems encountered).
 c
-      if (ga_nodeid().eq.0 .and. oprint) write(6,712) util_wallsec()
+      if (ga_nodeid().eq.0 .and. oprint) write(luout,712) util_wallsec()
  712  format(/' Starting SCF solution at ',f9.1,'s'/)
 c
 c     frozen embedding 
@@ -289,9 +291,9 @@ c     reconverge with exact energy/gradient if requested
 c
       if (nriscf.eq.3) then
         if (ga_nodeid().eq.0 .and. oprint) then
-          call util_print_centered(6,
+          call util_print_centered(luout,
      $         'switching to exact energy/gradient', 40, .true.)
-          write(6,*)
+          write(luout,*)
         endif
         nriscf = 1
         if (scftype .eq. 'UHF') then

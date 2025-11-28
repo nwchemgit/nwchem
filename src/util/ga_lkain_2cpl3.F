@@ -95,11 +95,11 @@ c     after the preconditioner has been applied to the residual
      &                            converge_precond))
      &  converge_precond = .false.
       
-      if (debug) write (6,*) 'ga_lkain_2cpl3 omega =',omega
-      if (debug) write (6,*) 'ga_lkain_2cpl3 limag =',limag
-      if (debug) write (6,*) 'ga_lkain_2cpl3 lifetime,gamwidth',
+      if (debug) write (luout,*) 'ga_lkain_2cpl3 omega =',omega
+      if (debug) write (luout,*) 'ga_lkain_2cpl3 limag =',limag
+      if (debug) write (luout,*) 'ga_lkain_2cpl3 lifetime,gamwidth',
      &   lifetime,gamwidth
-      if (debug) write (6,*) 'ga_lkain_2cpl3 converge_precond',
+      if (debug) write (luout,*) 'ga_lkain_2cpl3 converge_precond',
      &   converge_precond
 c
       if (lifetime) call errquit('ga_lkain_2cpl3 called with damping',
@@ -130,14 +130,14 @@ c     length if we have two components, otherwise not:
       maxsub = (maxsub/nvec)*nvec
 c     
       if (oprint .and. ga_nodeid().eq.0) then
-        write(6,1) n2, nvec, maxsub, tol, util_wallsec()
+        write(luout,1) n2, nvec, maxsub, tol, util_wallsec()
     1   format(//,'Iterative solution of linear equations',/,
      $     '  No. of variables', i9,/,
      $     '  No. of equations', i9,/,
      $     '  Maximum subspace', i9,/,
      $     '       Convergence', 1p,d9.1,/,
      $     '        Start time', 0p,f9.1,/)
-        call util_flush(6)
+        call util_flush(luout)
       end if
 c     
       do ipm = 1,ncomp
@@ -187,8 +187,8 @@ c     the number of components
       call ga_sync()
 c     
       if (oprint .and. ga_nodeid().eq.0) then
-        write(6,2)
-        call util_flush(6)
+        write(luout,2)
+        call util_flush(luout)
     2   format(/
      $     '   iter   nsub   residual    time ',/,
      $     '   ----  ------  --------  --------- ')
@@ -219,7 +219,9 @@ c
 c ... jochen: call product routine with initial or intermediate
 c       solution vector: g_x and g_Ax MUST have two components here
         
-        if (debug) write (6,*) 'calling product from ga_lkain_2cpl'
+        if (debug) then
+          write (luout,*) 'calling product from ga_lkain_2cpl'
+        endif
 
         call product(acc, 
      &               g_x   , g_Ax, 
@@ -228,7 +230,9 @@ c       solution vector: g_x and g_Ax MUST have two components here
      &               lifetime, gamwidth, ncomp)
 
         call ga_sync()
-        if (debug) write (6,*) 'returning product from ga_lkain_2cpl'
+        if (debug) then
+          write (luout,*) 'returning product from ga_lkain_2cpl'
+        endif
 
 c       g_r is zeroed below so we should make sure to do the same
 c       with g_r2 here
@@ -282,8 +286,8 @@ c       before or after the call to the preconditioner
          rmax = max(rmax1, rmax2)  
       
         if (oprint .and. ga_nodeid().eq.0) then
-          write(6,3) iter, nsub+nvec, rmax, util_wallsec()
-          call util_flush(6)
+          write(luout,3) iter, nsub+nvec, rmax, util_wallsec()
+          call util_flush(luout)
     3     format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
         end if
 
@@ -365,7 +369,7 @@ c
         call ga_dgemm('n','n',n2,nvec,nsub,-1.0d0,
      &                g_Ay,g_c,1.0d0,g_r2)
         if (odebug) then
-          write(6,*) ' The update in the complement '
+          write(luout,*) ' The update in the complement '
           call ga_print(g_r2)
         end if
 c       
@@ -389,7 +393,7 @@ c       copy components of g_r2 into g_r before adding g_r to  g_x
 
         call ga_sync()
         if (odebug) then
-          write(6,*) ' The update in the subspace '
+          write(luout,*) ' The update in the subspace '
           call ga_print(g_r2)
         end if
 c       
@@ -619,13 +623,15 @@ c     after the preconditioner has been applied to the residual
      &                            converge_precond))
      &  converge_precond = .false.
       
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp omega =',omega
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp limag =',limag
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp lifetime =',lifetime
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp gamwidth =',gamwidth
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp ncomp =', ncomp
-      if (debug) write (6,*) 'ga_lkain_2cpl3 converge_precond',
+      if (debug) then
+        write (luout,*) 'ga_lkain_2cpl_damp omega =',omega
+        write (luout,*) 'ga_lkain_2cpl_damp limag =',limag
+        write (luout,*) 'ga_lkain_2cpl_damp lifetime =',lifetime
+        write (luout,*) 'ga_lkain_2cpl_damp gamwidth =',gamwidth
+        write (luout,*) 'ga_lkain_2cpl_damp ncomp =', ncomp
+        write (luout,*) 'ga_lkain_2cpl3 converge_precond',
      &   converge_precond
+      endif
 c
 c     exit if this is the wrong routine to call (lifetime switch
 c     must be set)
@@ -679,7 +685,7 @@ c ========= to be removed ============ start
       n4 = n
       if (ncomp.gt.1 .or. lifetime) n4 = 2* n
       if (lifetime .and. ncomp.gt.1) n4 = 4 * n
-      if (debug) write (6,*) 'n1n2n3n4',n,n2,n3,n4
+      if (debug) write (luout,*) 'n1n2n3n4',n,n2,n3,n4
 c ========= to be removed ============ end
 
       maxsub = mmaxsub          ! So don't modify input scalar arg
@@ -687,14 +693,14 @@ c ========= to be removed ============ end
       maxsub = (maxsub/nvec)*nvec
 c     
       if (oprint .and. ga_nodeid().eq.0) then
-        write(6,1) n4, nvec, maxsub, tol, util_wallsec()
+        write(luout,1) n4, nvec, maxsub, tol, util_wallsec()
     1   format(//,'Iterative solution of linear equations',/,
      $     '  No. of variables', i9,/,
      $     '  No. of equations', i9,/,
      $     '  Maximum subspace', i9,/,
      $     '       Convergence', 1p,d9.1,/,
      $     '        Start time', 0p,f9.1,/)
-        call util_flush(6)
+        call util_flush(luout)
       end if
 c     
       do ipm = 1,ncomp
@@ -762,8 +768,8 @@ c     all necessary components simultaneously
       call ga_sync()
 c     
       if (oprint .and. ga_nodeid().eq.0) then
-        write(6,2)
-        call util_flush(6)
+        write(luout,2)
+        call util_flush(luout)
     2   format(/
      $     '   iter   nsub   residual    time ',/,
      $     '   ----  ------  --------  --------- ')
@@ -840,7 +846,7 @@ c       even if only one of them is used
             enddo ! end-loop-ipm
          endif ! end-if-debug
         
-        if (debug) write (6,*)
+        if (debug) write (luout,*)
      &     'calling product from ga_lkain_2cpl_damp'
         call product(acc, g_x, g_Ax,  g_x_im, g_Ax_im, omega, limag,
      &     lifetime, gamwidth, ncomp)
@@ -892,7 +898,7 @@ c     &          write(*,*) 'FA-STOP-convergence at 3rd iter'
 c               stop
 c             endif              
 
-        if (debug) write (6,*)
+        if (debug) write (luout,*)
      &     'returning product from ga_lkain_2cpl_damp'
 
 c       g_r is zeroed below so we should make sure to do the same
@@ -1023,14 +1029,14 @@ c ---- FA-03-12-14 --- END
         endif
 c ---------- FA-12-03-13 ----- START
           if (debug1) then
-           write(6,4) iter, nsub+nvec, rmax, util_wallsec()
-           call util_flush(6)
+           write(luout,4) iter, nsub+nvec, rmax, util_wallsec()
+           call util_flush(luout)
     4      format('FA-chk: ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
           endif
 c ---------- FA-12-03-13 ----- END         
         if (oprint .and. ga_nodeid().eq.0) then
-          write(6,3) iter, nsub+nvec, rmax, util_wallsec()
-          call util_flush(6)
+          write(luout,3) iter, nsub+nvec, rmax, util_wallsec()
+          call util_flush(luout)
     3     format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
         end if
         
@@ -1068,7 +1074,7 @@ c FA-03-12-14 ---- START
         endif
 c FA-03-12-14 ---- END  
 
-        if (debug) write (6,*) 'lkain3_damp: back from precond'
+        if (debug) write (luout,*) 'lkain3_damp: back from precond'
                 
 c       Copy the vectors to the subspace work area
 c   
@@ -1373,7 +1379,7 @@ c
      &   ('lkain_2cpl: destroy r2',6, GA_ERR)
 
       if (debug) then
-        write (6,*) 'ga_lkain_2cpl3_damp: solution vectors:'
+        write (luout,*) 'ga_lkain_2cpl3_damp: solution vectors:'
         call ga_print(g_x(1))
         if (ncomp.gt.1) call ga_print(g_x(2))
         if (lifetime) then

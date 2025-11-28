@@ -25,6 +25,7 @@ c Date             : 03-15-12
 #include "global.fh"
 #include "util.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 
       integer g_x               ! [input/output] Initial guess/solution
       integer g_b               ! [input] Right-hand side vectors
@@ -91,7 +92,7 @@ c       understand these choices.
       endif
 
       if (oprint .and. ga_nodeid().eq.0) then
-         write(6,1) n, nvec, maxsub, maxiter, tol, util_wallsec()
+         write(luout,1) n, nvec, maxsub, maxiter, tol, util_wallsec()
  1       format(//,'Iterative solution of linear equations',/,
      $        '  No. of variables', i9,/,
      $        '  No. of equations', i9,/,
@@ -99,7 +100,7 @@ c       understand these choices.
      $        '        Iterations', i9,/,
      $        '       Convergence', 1p,d9.1,/,
      $        '        Start time', 0p,f9.1,/)
-         call util_flush(6)
+         call util_flush(luout)
       end if
 
       if (.not. ga_create(MT_DBL, n, maxsub, 'lkain: Y', 
@@ -136,8 +137,8 @@ c       understand these choices.
       call ga_zero(g_r)
 
       if (oprint .and. ga_nodeid().eq.0) then
-         write(6,2)
-         call util_flush(6)
+         write(luout,2)
+         call util_flush(luout)
  2       format(/
      $        '   iter   nsub   residual    time',/,
      $        '   ----  ------  --------  ---------')
@@ -238,8 +239,8 @@ c ======== visualize output to product ============ END
 
          call ga_maxelt(g_r, rmax)
          if (oprint .and. ga_nodeid().eq.0) then
-            write(6,3) iter, nsub+nvec, rmax, util_wallsec()
-            call util_flush(6)
+            write(luout,3) iter, nsub+nvec, rmax, util_wallsec()
+            call util_flush(luout)
  3          format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1)
          end if
          if (rmax .lt. tol) then
@@ -300,13 +301,13 @@ c
 c     Form and add the correction, in parts, onto the solution
          call ga_dgemm('n','n',n,nvec,nsub,-1.0d0,g_Ay,g_c,1.0d0,g_r)
          if (odebug) then
-            write(6,*) ' The update in the complement '
+            write(luout,*) ' The update in the complement '
             call ga_print(g_r)
          end if
          call ga_add(1.0d0, g_r, 1.0d0, g_x, g_x)
          call ga_dgemm('n','n',n,nvec,nsub,1.0d0,g_y,g_c,0.0d0,g_r)
          if (odebug) then
-            write(6,*) ' The update in the subspace '
+            write(luout,*) ' The update in the subspace '
             call ga_print(g_r)
          end if
          call ga_add(1.0d0, g_r, 1.0d0, g_x, g_x)
