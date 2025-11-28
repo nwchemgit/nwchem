@@ -491,7 +491,7 @@ c       understand these choices.
       endif
 c
       if (oprint .and. ga_nodeid().eq.0) then
-         write(6,1) n, nvec, maxsub, maxiter, tol, util_wallsec()
+         write(luout,1) n, nvec, maxsub, maxiter, tol, util_wallsec()
  1       format(//,'Iterative solution of linear equations',/,
      $        '  No. of variables', i9,/,
      $        '  No. of equations', i9,/,

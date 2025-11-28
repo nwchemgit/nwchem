@@ -107,11 +107,11 @@ c     after the preconditioner has been applied to the residual
      &                            converge_precond))
      &  converge_precond = .false.
       
-      if (debug) write (6,*) 'ga_lkain_2cpl3 omega =',omega
-      if (debug) write (6,*) 'ga_lkain_2cpl3 limag =',limag
-      if (debug) write (6,*) 'ga_lkain_2cpl3 lifetime,gamwidth',
+      if (debug) write (luout,*) 'ga_lkain_2cpl3 omega =',omega
+      if (debug) write (luout,*) 'ga_lkain_2cpl3 limag =',limag
+      if (debug) write (luout,*) 'ga_lkain_2cpl3 lifetime,gamwidth',
      &   lifetime,gamwidth
-      if (debug) write (6,*) 'ga_lkain_2cpl3 converge_precond',
+      if (debug) write (luout,*) 'ga_lkain_2cpl3 converge_precond',
      &   converge_precond
 
       if (lifetime) call errquit('ga_lkain_2cpl3 called with damping',
@@ -142,14 +142,14 @@ c     length if we have two components, otherwise not:
       maxsub = (maxsub/nvec)*nvec
 c     
       if (oprint .and. ga_nodeid().eq.0) then
-        write(6,1) n2, nvec, maxsub, tol, util_wallsec()
+        write(luout,1) n2, nvec, maxsub, tol, util_wallsec()
     1   format(//,'Iterative solution of linear equations',/,
      $     '  No. of variables', i9,/,
      $     '  No. of equations', i9,/,
      $     '  Maximum subspace', i9,/,
      $     '       Convergence', 1p,d9.1,/,
      $     '        Start time', 0p,f9.1,/)
-        call util_flush(6)
+        call util_flush(luout)
       end if
 c     
       do ipm = 1,ncomp
@@ -235,8 +235,8 @@ c         write(6,*) ' attempt reading restart '
       end if  ! solver_restart
 c     
       if (oprint .and. ga_nodeid().eq.0) then
-        write(6,2)
-        call util_flush(6)
+        write(luout,2)
+        call util_flush(luout)
     2   format(/
      $     '   iter   nsub   residual    time ',/,
      $     '   ----  ------  --------  --------- ')
@@ -267,7 +267,9 @@ c
 c ... jochen: call product routine with initial or intermediate
 c       solution vector: g_x and g_Ax MUST have two components here
         
-        if (debug) write (6,*) 'calling product from ga_lkain_2cpl'
+        if (debug) then
+            write (luout,*) 'calling product from ga_lkain_2cpl'
+        endif
 
         call product(acc, 
      &               g_x   , g_Ax, 
@@ -275,7 +277,9 @@ c       solution vector: g_x and g_Ax MUST have two components here
      &               omega, limag,
      &               lifetime, gamwidth, ncomp)
 
-        if (debug) write (6,*) 'returning product from ga_lkain_2cpl'
+        if (debug) then
+            write (luout,*) 'returning product from ga_lkain_2cpl'
+        endif
 
 c       g_r is zeroed below so we should make sure to do the same
 c       with g_r2 here
@@ -325,8 +329,8 @@ c       JEM: Putting rmax into rtdb
      $                 RTDB_ERR) 
 
         if (oprint .and. ga_nodeid().eq.0) then
-          write(6,3) iter, nsub+nvec, rmax, util_wallsec()
-          call util_flush(6)
+          write(luout,3) iter, nsub+nvec, rmax, util_wallsec()
+          call util_flush(luout)
     3     format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
         end if
 
@@ -749,14 +753,16 @@ c     after the preconditioner has been applied to the residual
       if (.not. rtdb_get(rtdb, 'aoresponse:precond',    mt_log, 1,
      &                            converge_precond))
      &  converge_precond = .false.
-      
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp omega =',omega
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp limag =',limag
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp lifetime =',lifetime
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp gamwidth =',gamwidth
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp ncomp =', ncomp
-      if (debug) write (6,*) 'ga_lkain_2cpl3 converge_precond',
+
+      if (debug) then
+        write (luout,*) 'ga_lkain_2cpl_damp omega =',omega
+        write (luout,*) 'ga_lkain_2cpl_damp limag =',limag
+        write (luout,*) 'ga_lkain_2cpl_damp lifetime =',lifetime
+        write (luout,*) 'ga_lkain_2cpl_damp gamwidth =',gamwidth
+        write (luout,*) 'ga_lkain_2cpl_damp ncomp =', ncomp
+        write (luout,*) 'ga_lkain_2cpl3 converge_precond',
      &   converge_precond
+      endif
 c
 c     exit if this is the wrong routine to call (lifetime switch
 c     must be set)
@@ -832,14 +838,14 @@ c       ... jochen: do a sanity check on the array dimensions
       endif     
     
       if (oprint .and. ga_nodeid().eq.0) then
-        write(6,1) n1, nvec, maxsub, tol, util_wallsec()
+        write(luout,1) n1, nvec, maxsub, tol, util_wallsec()
     1   format(//,'Iterative solution of linear equations',/,
      $     '  No. of variables', i9,/,
      $     '  No. of equations', i9,/,
      $     '  Maximum subspace', i9,/,
      $     '       Convergence', 1p,d9.1,/,
      $     '        Start time', 0p,f9.1,/)
-        call util_flush(6)
+        call util_flush(luout)
       end if
 c     
       do ipm = 1,ncomp
@@ -887,8 +893,8 @@ c
       enddo                     ! ipm = 1,ncomp
      
       if (oprint .and. ga_nodeid().eq.0) then
-        write(6,2)
-        call util_flush(6)
+        write(luout,2)
+        call util_flush(luout)
     2   format(/
      $     '   iter   nsub   residual    time ',/,
      $     '   ----  ------  --------  --------- ')
@@ -928,7 +934,7 @@ c       even if only one of them is used
             enddo ! end-loop-ipm
          endif ! end-if-debug
         
-        if (debug) write (6,*)
+        if (debug) write (luout,*)
      &     'calling product from ga_lkain_2cpl_damp'
         call product(acc, 
      &               g_x,      ! in  : x
@@ -963,7 +969,7 @@ c       even if only one of them is used
              enddo ! end-loop-ipm
            endif ! end-if-debug  
 
-        if (debug) write (6,*)
+        if (debug) write (luout,*)
      &     'returning product from ga_lkain_2cpl_damp'
         
         do ipm = 1,ncomp
@@ -1043,8 +1049,8 @@ c     &   write(*,*) 'FA AFT get_precond_rmax'
 
 c -------- printout per iteration -------------- START
         if (oprint .and. ga_nodeid().eq.0) then
-          write(6,3) iter, nsub+nvec, rmax, util_wallsec()
-          call util_flush(6)
+          write(luout,3) iter, nsub+nvec, rmax, util_wallsec()
+          call util_flush(luout)
     3     format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
         end if
 c -------- printout per iteration -------------- END
@@ -1443,13 +1449,15 @@ c     after the preconditioner has been applied to the residual
      &                            converge_precond))
      &  converge_precond = .false.
       
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp omega =',omega
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp limag =',limag
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp lifetime =',lifetime
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp gamwidth =',gamwidth
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp ncomp =', ncomp
-      if (debug) write (6,*) 'ga_lkain_2cpl3 converge_precond',
+      if (debug) then
+         write (luout,*) 'ga_lkain_2cpl_damp omega =',omega
+         write (luout,*) 'ga_lkain_2cpl_damp limag =',limag
+         write (luout,*) 'ga_lkain_2cpl_damp lifetime =',lifetime
+         write (luout,*) 'ga_lkain_2cpl_damp gamwidth =',gamwidth
+         write (luout,*) 'ga_lkain_2cpl_damp ncomp =', ncomp
+         write (luout,*) 'ga_lkain_2cpl3 converge_precond',
      &   converge_precond
+      endif
 c
 c     exit if this is the wrong routine to call (lifetime switch
 c     must be set)
@@ -1516,19 +1524,19 @@ c ++++++ added for solve_zlineq_KAIN1 +++ END
 c ------- create (zre,zim) ---------- END
     
       if (oprint .and. ga_nodeid().eq.0) then
-        write(6,1) n1, nvec, maxsub, tol, util_wallsec()
+        write(luout,1) n1, nvec, maxsub, tol, util_wallsec()
     1   format(//,'Iterative solution of linear equations',/,
      $     '  No. of variables', i9,/,
      $     '  No. of equations', i9,/,
      $     '  Maximum subspace', i9,/,
      $     '       Convergence', 1p,d9.1,/,
      $     '        Start time', 0p,f9.1,/)
-        call util_flush(6)
+        call util_flush(luout)
       end if
      
       if (oprint .and. ga_nodeid().eq.0) then
-        write(6,2)
-        call util_flush(6)
+        write(luout,2)
+        call util_flush(luout)
     2   format(/
      $     '   iter   nsub   residual    time ',/,
      $     '   ----  ------  --------  --------- ')
@@ -1660,7 +1668,7 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++ START
 c ========== complex linear solver iteration =========
 c +++++++++++++++++++++++++++++++++++++++++++++++++ START
       do iter = 1, maxiter       
-        if (debug) write (6,*)
+        if (debug) write (luout,*)
      &     'calling product from ga_lkain_2cpl_damp'
 c Note.- product=rohf_hessv3_cmplx,uhf_hessv3_cmplx
           if (debug1) then
@@ -1688,7 +1696,7 @@ c Note.- product=rohf_hessv3_cmplx,uhf_hessv3_cmplx
      &               ncomp,    ! in  : nr. components
      &               iter)
 
-        if (debug) write (6,*)
+        if (debug) write (luout,*)
      &     'returning product from ga_lkain_2cpl_damp'
 
           p1=nsub+1
@@ -1813,13 +1821,13 @@ c -------- printout per iteration -------------- START
         if (oprint .and. ga_nodeid().eq.0) then
 
           if (debug1) then
-           write(6,4) iter, nsub+nvec, rmax, util_wallsec()
-           call util_flush(6)
+           write(luout,4) iter, nsub+nvec, rmax, util_wallsec()
+           call util_flush(luout)
     4      format('FA-chk: ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
           endif     
 
-          write(6,3) iter, nsub+nvec, rmax, util_wallsec()
-          call util_flush(6)
+          write(luout,3) iter, nsub+nvec, rmax, util_wallsec()
+          call util_flush(luout)
     3     format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
         end if
 c -------- printout per iteration -------------- END
@@ -2680,13 +2688,15 @@ c     after the preconditioner has been applied to the residual
      &                            converge_precond))
      &  converge_precond = .false.
       
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp omega =',omega
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp limag =',limag
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp lifetime =',lifetime
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp gamwidth =',gamwidth
-      if (debug) write (6,*) 'ga_lkain_2cpl_damp ncomp =', ncomp
-      if (debug) write (6,*) 'ga_lkain_2cpl3 converge_precond',
+      if (debug) then
+        write (luout,*) 'ga_lkain_2cpl_damp omega =',omega
+        write (luout,*) 'ga_lkain_2cpl_damp limag =',limag
+        write (luout,*) 'ga_lkain_2cpl_damp lifetime =',lifetime
+        write (luout,*) 'ga_lkain_2cpl_damp gamwidth =',gamwidth
+        write (luout,*) 'ga_lkain_2cpl_damp ncomp =', ncomp
+        write (luout,*) 'ga_lkain_2cpl3 converge_precond',
      &   converge_precond
+      endif
 c
 c     exit if this is the wrong routine to call (lifetime switch
 c     must be set)
@@ -2739,19 +2749,19 @@ c ------- create (zre,zim) ---------- START
 c ------- create (zre,zim) ---------- END
     
       if (oprint .and. ga_nodeid().eq.0) then
-        write(6,1) n1, nvec, maxsub, tol, util_wallsec()
+        write(luout,1) n1, nvec, maxsub, tol, util_wallsec()
     1   format(//,'Iterative solution of linear equations',/,
      $     '  No. of variables', i9,/,
      $     '  No. of equations', i9,/,
      $     '  Maximum subspace', i9,/,
      $     '       Convergence', 1p,d9.1,/,
      $     '        Start time', 0p,f9.1,/)
-        call util_flush(6)
+        call util_flush(luout)
       end if
      
       if (oprint .and. ga_nodeid().eq.0) then
-        write(6,2)
-        call util_flush(6)
+        write(luout,2)
+        call util_flush(luout)
     2   format(/
      $     '   iter   nsub   residual    time ',/,
      $     '   ----  ------  --------  --------- ')
@@ -2884,7 +2894,7 @@ c ========== complex linear solver iteration =========
 c +++++++++++++++++++++++++++++++++++++++++++++++++ START
 
       do iter = 1, maxiter
-        if (debug) write (6,*)
+        if (debug) write (luout,*)
      &     'calling product from ga_lkain_2cpl_damp'
 c Note.- product=rohf_hessv3_cmplx,uhf_hessv3_cmplx
 
@@ -2913,7 +2923,7 @@ c Note.- product=rohf_hessv3_cmplx,uhf_hessv3_cmplx
      &               gamwidth, ! in  :
      &               ncomp)    ! in  : nr. components
 
-        if (debug) write (6,*)
+        if (debug) write (luout,*)
      &     'returning product from ga_lkain_2cpl_damp'
 
           p1=nsub+1
@@ -3035,8 +3045,8 @@ c        then skip iter=1 to avoid storing repeteadly the last block.
         endif ! end-if-write-block
 c -------- printout per iteration -------------- START
         if (oprint .and. ga_nodeid().eq.0) then
-          write(6,3) iter, nsub+nvec, rmax, util_wallsec()
-          call util_flush(6)
+          write(luout,3) iter, nsub+nvec, rmax, util_wallsec()
+          call util_flush(luout)
     3     format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
         end if
 c -------- printout per iteration -------------- END
@@ -5886,6 +5896,7 @@ c           located in ga_it2.F
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+#include "stdio.fh"
       integer g_a, g_b, g_x
       double precision tol
 c
@@ -5940,7 +5951,7 @@ c
       do i = 0, nsing-1
          if (dbl_mb(k_val+i) .lt. tol) then
             if (ga_nodeid() .eq. 0 .and. oprint) then
-              write(6,*) ' neglecting ', i+1, dbl_mb(k_val+i)
+              write(luout,*) ' neglecting ', i+1, dbl_mb(k_val+i)
             endif
             dbl_mb(k_val+i) = 0.0d0
          else
