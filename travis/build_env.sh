@@ -218,6 +218,12 @@ if [[ "$os" == "Linux" ]]; then
 	    if [[ "$USE_LIBXC" == "-1" ]]; then
 		pkg_extra+=" libxc-dev"
 	    fi
+	    if [[ "$BUILD_PLUMED" == "1" ]]; then
+		if [[ "${FC}" == *"-"* ]]; then
+		    gccver=$(echo ${FC} | cut -d - -f 2)
+		    pkg_extra+="gcc-${gccver} libstdc++-${gccver}-dev g++-${gccver}"
+		fi
+	    fi
 	    echo "BLAS_ENV is" $BLAS_ENV
 	    if [[ "$BLAS_ENV" == lib*openblas* ]]; then
 		pkg_extra+=" $BLAS_ENV"
