@@ -12,6 +12,7 @@ C$Id$
 #include "cscf.fh"
 #include "geom.fh"
 #include "bas.fh"
+#include "stdio.fh"
 c
 c     Compute UHF wavefunction .
 c
@@ -80,16 +81,16 @@ c
 c
       if (ga_nodeid().eq.0 .and. (oprint .or. .not.converged)) then
          if (.not. converged) then
-            write(6,*)
-            call util_print_centered(6,
+            write(luout,*)
+            call util_print_centered(luout,
      $           'Calculation failed to converge', 20, .true.)
-            write(6,*)
+            write(luout,*)
          end if
-         write(6,2) scftype, energy, eone, etwo, enrep  
+         write(luout,2) scftype, energy, eone, etwo, enrep
          if (abs(ecosmo).gt.0.0d0) then
-           write(6,3) ecosmo
+           write(luout,3) ecosmo
          endif
-         write(6,4) sz, sz*(sz+1), s2, uhf_time
+         write(luout,4) sz, sz*(sz+1), s2, uhf_time
  2       format(//
      $        '       Final ',a4,' results '/
      $        '       ------------------ '//
@@ -104,7 +105,7 @@ c
      $        '                 Sz(Sz+1) =', f12.4/
      $        '                      S^2 =', f12.4//
      $        '        Time for solution =', f9.1,'s'//)
-         call util_flush(6)
+         call util_flush(luout)
          call ecce_print1('total energy', mt_dbl, energy, 1)
          call ecce_print1('one-electron energy', mt_dbl, eone, 1)
          call ecce_print1('two-electron energy', mt_dbl, etwo, 1)
@@ -134,14 +135,14 @@ C
       endif
       if (ga_nodeid() .eq. 0) then
          if (util_print('final evals', print_default)) then
-            call util_print_centered(6,'Final alpha eigenvalues',
+            call util_print_centered(luout,'Final alpha eigenvalues',
      $           20,.true.)
             call output(dbl_mb(k_eval), 1, nprint, 1, 1, nmo, 1, 1)
-            write(6,*)
-            call util_print_centered(6,'Final beta eigenvalues',
+            write(luout,*)
+            call util_print_centered(luout,'Final beta eigenvalues',
      $           20,.true.)
             call output(dbl_mb(k_eval+nbf), 1, nprint, 1, 1, nmo, 1, 1)
-            call util_flush(6)
+            call util_flush(luout)
          end if
       endif
       if (util_print('final vectors analysis', print_default)) then
@@ -164,10 +165,10 @@ C
       endif
       if (ga_nodeid() .eq. 0) then
          if (util_print('final vectors', print_debug)) then
-            write(6,*)
-            call util_print_centered(6,'Final MO vectors',40,.true.)
-            write(6,*)
-            call util_flush(6)
+            write(luout,*)
+            call util_print_centered(luout,'Final MO vectors',40,.true.)
+            write(luout,*)
+            call util_flush(luout)
          end if
       end if
       if (util_print('final vectors', print_debug)) then
@@ -240,6 +241,7 @@ C     $Id$
 #include "cscfps.fh"
 #include "util.fh"
 #include "cscf.fh"
+#include "stdio.fh"
 c     
 c     Solve the UHF equations using a hybrid NR/PCG method
 c     
@@ -282,7 +284,7 @@ c
 C      external uhf_hessv, uhf_hessv_precond
 c     
       
-      if (ga_nodeid().eq.0) call util_flush(6)
+      if (ga_nodeid().eq.0) call util_flush(luout)
 c     
 c     Allocate global arrays.  Gradient, search direction
 c     and work space for the PCG routine.
@@ -309,9 +311,9 @@ c
       tlastwrite = util_wallsec()
 c     
       if (ga_nodeid().eq.0.and. oprint_parm) then
-         write(6,1) gnorm_tol, maxiter, tol2e
-         if (ouser_changed_conv) write(6,11) shifts, nr_gswitch
-         write(6,111)
+         write(luout,1) gnorm_tol, maxiter, tol2e
+         if (ouser_changed_conv) write(luout,11) shifts, nr_gswitch
+         write(luout,111)
  1       format(//,
      $        1x,'----------------------------------------------',/
      $        1x,'        Quadratically convergent UHF',//,
@@ -328,7 +330,7 @@ c
      $        1x,'NR  enabled at maxg       :',9x,f10.3)
  111     format(
      $        1x,'----------------------------------------------',/)
-         call util_flush(6)
+         call util_flush(luout)
       end if
 c
       ododiag = .true.
@@ -388,11 +390,11 @@ c     go back to top of loop
 c     
                if (oprint_vecs) then
                   if (ga_nodeid() .eq. 0) then
-                     write(6,*)
-                     call util_print_centered(6,
+                     write(luout,*)
+                     call util_print_centered(luout,
      $                    'Intermediate MO vectors',40,.true.)
-                     write(6,*)
-                     call util_flush(6)
+                     write(luout,*)
+                     call util_flush(luout)
                   end if
                   call ga_print(g_movecs)
                   call ga_print(g_movecs(2))
@@ -413,7 +415,7 @@ c
 c     
 c     End SCF minimisation
 c     
-      if (ga_nodeid().eq.0) call util_flush(6)
+      if (ga_nodeid().eq.0) call util_flush(luout)
 c
       if (.not.noscf) then  ! bypass for noscf
 c     
@@ -442,7 +444,7 @@ c
       if (.not. ga_destroy(g_work)) call errquit
      $     ('uhf_nr_solve: ga_destroy work', 0, GA_ERR)
 c     
-      if (ga_nodeid().eq.0) call util_flush(6)
+      if (ga_nodeid().eq.0) call util_flush(luout)
       call ga_sync()
 c     
       uhf_nr_solve = converged
@@ -800,10 +802,10 @@ c
       call ga_maxelt(g_b_coul, errmaxb)
       if (max(errmaxa,errmaxb).gt.1d-4) then
          if (ga_nodeid().eq.0) then
-            write(6,77) errmaxa,errmaxb
+            write(luout,77) errmaxa,errmaxb
  77         format(' Warning: spatial symmetry breaking in UHF: ',
      $           1p,2d9.2)
-            call util_flush(6)
+            call util_flush(luout)
          endif
       endif
 c
@@ -937,9 +939,9 @@ c       Coulomb, alpha spin MOs
           dbl_mb(k_eps(1)+imo-1) = dbl_mb(k_eps(1)+imo-1)
      &      + dbl_mb(k_diag+imo-1)
         end do
-        if (master) write(6,*) 'V(C) alfa MOs'
+        if (master) write(luout,*) 'V(C) alfa MOs'
         do imo=1,nbf
-          if (master) write (6,*) imo, dbl_mb(k_eps(1)+imo-1)
+          if (master) write (luout,*) imo, dbl_mb(k_eps(1)+imo-1)
         end do
 c
 c       Coulomb, beta spin MOs
@@ -960,9 +962,9 @@ c       Coulomb, beta spin MOs
           dbl_mb(k_eps(2)+imo-1) = dbl_mb(k_eps(2)+imo-1)
      &      + dbl_mb(k_diag+imo-1)
         end do
-        if (master) write(6,*) 'V(C) beta MOs'
+        if (master) write(luout,*) 'V(C) beta MOs'
         do imo=1,nbf
-          if (master) write (6,*) imo, dbl_mb(k_eps(2)+imo-1)
+          if (master) write (luout,*) imo, dbl_mb(k_eps(2)+imo-1)
         end do
 c        
 c       XC, alfa spin MOs
@@ -971,9 +973,9 @@ c       XC, alfa spin MOs
         call two_index_transf(g_a_exch, g_vecs(1), g_vecs(1),
      &    g_tmp(1), g_tmp(2))
         call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
-        if (master) write(6,*) 'V(XC) alfa MOs'
+        if (master) write(luout,*) 'V(XC) alfa MOs'
         do imo=1,nbf
-          if (master) write (6,*) imo, -dbl_mb(k_diag+imo-1)
+          if (master) write (luout,*) imo, -dbl_mb(k_diag+imo-1)
         end do
         do imo = 1,nbf
           dbl_mb(k_eps(1)+imo-1) = dbl_mb(k_eps(1)+imo-1)
@@ -986,9 +988,9 @@ c       XC, beta spin MOs
         call two_index_transf(g_b_exch, g_vecs(2), g_vecs(2),
      &    g_tmp(1), g_tmp(2))
         call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
-        if (master) write(6,*) 'V(XC) beta MOs'
+        if (master) write(luout,*) 'V(XC) beta MOs'
         do imo=1,nbf
-          if (master) write (6,*) imo, -dbl_mb(k_diag+imo-1)
+          if (master) write (luout,*) imo, -dbl_mb(k_diag+imo-1)
         end do
         do imo = 1,nbf
           dbl_mb(k_eps(2)+imo-1) = dbl_mb(k_eps(2)+imo-1)
@@ -997,9 +999,9 @@ c       XC, beta spin MOs
       end if ! epsana
 c
       if (odebug .and. ga_nodeid().eq.0) then
-         write(6,*) ' coulomb energies', e_a_coul, e_b_coul
-         write(6,*) ' exchang energies', e_a_exch, e_b_exch
-         call util_flush(6)
+         write(luout,*) ' coulomb energies', e_a_coul, e_b_coul
+         write(luout,*) ' exchang energies', e_a_exch, e_b_exch
+         call util_flush(luout)
       endif
       if (odebug) then
          call ga_print(g_a_coul)
@@ -1065,9 +1067,9 @@ c       T, alfa spin MOs
         call two_index_transf(g_a_hcore, g_vecs(1), g_vecs(1),
      &    g_tmp(1), g_tmp(2))
         call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
-        if (master) write(6,*) 'T alfa MOs'
+        if (master) write(luout,*) 'T alfa MOs'
         do imo=1,nbf
-          if (master) write (6,*) imo, dbl_mb(k_diag+imo-1)
+          if (master) write (luout,*) imo, dbl_mb(k_diag+imo-1)
         end do
 c       T, beta spin MOs
         call ga_zero(g_tmp(1))
@@ -1075,9 +1077,9 @@ c       T, beta spin MOs
         call two_index_transf(g_a_hcore, g_vecs(2), g_vecs(2),
      &    g_tmp(1), g_tmp(2))
         call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
-        if (master) write(6,*) 'T beta MOs'
+        if (master) write(luout,*) 'T beta MOs'
         do imo=1,nbf
-          if (master) write (6,*) imo, dbl_mb(k_diag+imo-1)
+          if (master) write (luout,*) imo, dbl_mb(k_diag+imo-1)
         end do
       end if ! epsana
 cc If spin polarised ECP, split g_hcore
@@ -1103,9 +1105,9 @@ c       alfa spin MOs
         call two_index_transf(g_a_hcore, g_vecs(1), g_vecs(1),
      &    g_tmp(1), g_tmp(2))
         call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
-        if (master) write(6,*) 'T+V(nuc) alfa MOs'
+        if (master) write(luout,*) 'T+V(nuc) alfa MOs'
         do imo=1,nbf
-          if (master) write (6,*) imo, dbl_mb(k_diag+imo-1)
+          if (master) write (luout,*) imo, dbl_mb(k_diag+imo-1)
           dbl_mb(k_eps(1)+imo-1) = dbl_mb(k_eps(1)+imo-1)
      &      + dbl_mb(k_diag+imo-1)
         end do
@@ -1116,16 +1118,16 @@ c       beta spin MOs
         call two_index_transf(g_b_hcore, g_vecs(2), g_vecs(2),
      &    g_tmp(1), g_tmp(2))
         call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
-        if (master) write(6,*) 'T+V(nuc) beta MOs'
+        if (master) write(luout,*) 'T+V(nuc) beta MOs'
         do imo=1,nbf
-          if (master) write (6,*) imo, dbl_mb(k_diag+imo-1)
+          if (master) write (luout,*) imo, dbl_mb(k_diag+imo-1)
           dbl_mb(k_eps(2)+imo-1) = dbl_mb(k_eps(2)+imo-1)
      &      + dbl_mb(k_diag+imo-1)
         end do
-        if (master) write (6,'(//1x,a)')
+        if (master) write (luout,'(//1x,a)')
      &    'spin MO energies with T + V(nuc) + V(C) + V(XC)'
         do imo = 1,nbf
-          if (master) write (6,*) imo,
+          if (master) write (luout,*) imo,
      &       dbl_mb(k_eps(1)+imo-1) ,  dbl_mb(k_eps(2)+imo-1)
         end do
       end if ! epsana      
@@ -1139,7 +1141,7 @@ c     check if we are doing dft (e.g. cphf case)
      &        INPUT_ERR)
          if (theory.eq.'hyb') theory = 'dft'
          if(theory.ne.'dft') then
-            if(master) write(6,*) ' UHF theory ',theory
+            if(master) write(luout,*) ' UHF theory ',theory
             call errquit('uhf_energy not compatible with COSMO',0,
      C           CAPMIS_ERR)
          endif
@@ -1237,10 +1239,10 @@ c ... jochen: full MO energies, with all additional contributions
          call ga_get_diagonal(cuhf_g_falpha,dbl_mb(k_eps(1)))
          call ga_get_diagonal(cuhf_g_fbeta,dbl_mb(k_eps(2)))
          
-         if (master) write (6,'(//1x,a)')
+         if (master) write (luout,'(//1x,a)')
      &     'spin MO energies with all contributions (COSMO, etc.)'
          do imo = 1,nbf
-           if (master) write (6,*) imo,
+           if (master) write (luout,*) imo,
      &       dbl_mb(k_eps(1)+imo-1) ,  dbl_mb(k_eps(2)+imo-1)
          end do
 
@@ -1257,7 +1259,7 @@ c        shorter variable names
          na = nalpha
          nb = nbeta
 
-         if (master) write(6,'(/1x,a/)')
+         if (master) write(luout,'(/1x,a/)')
      &     'Some ERIs, Mulliken notation [1 1* | 2 2*]'
 
 c        ------------------------------------------------------         
@@ -1282,13 +1284,13 @@ c        Fock 2e matrix from alfa HOMO-1 density
          
          call ga_get(f(2), na-1, na-1, na-1, na-1, rtemp,1)
  1001    format(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)
-         if (master) write(6,1001) na-1,na-1,na-1,na-1,rtemp
+         if (master) write(luout,1001) na-1,na-1,na-1,na-1,rtemp
 
          call ga_get(f(2), na, na, na, na, rtemp,1)
-         if (master) write(6,1001) na-1,na-1,na,na,rtemp
+         if (master) write(luout,1001) na-1,na-1,na,na,rtemp
          
          call ga_get(f(2), na+1, na+1, na+1, na+1, rtemp,1)
-         if (master) write(6,1001) na-1,na-1,na+1,na+1,rtemp
+         if (master) write(luout,1001) na-1,na-1,na+1,na+1,rtemp
 
          call two_index_transf(f(1), g_vecs(2), g_vecs(2),
      $     d(2), f(2))
@@ -1296,10 +1298,10 @@ c        Fock 2e matrix from alfa HOMO-1 density
          call ga_sync()
          
          call ga_get(f(2), nb, nb, nb, nb, rtemp,1)
-         if (master) write(6,1001) na-1,na-1,nb,nb,rtemp
+         if (master) write(luout,1001) na-1,na-1,nb,nb,rtemp
          
          call ga_get(f(2), nb+1, nb+1, nb+1, nb+1, rtemp,1)
-         if (master) write(6,1001) na-1,na-1,nb+1,nb+1,rtemp            
+         if (master) write(luout,1001) na-1,na-1,nb+1,nb+1,rtemp
 
 c        ------------------------------------------------------         
 c        Fock 2e matrix from alfa HOMO density
@@ -1322,13 +1324,13 @@ c        Fock 2e matrix from alfa HOMO density
          call ga_sync()
          
          call ga_get(f(2), na-1, na-1, na-1, na-1, rtemp,1)
-         if (master) write(6,1001) na,na,na-1,na-1,rtemp
+         if (master) write(luout,1001) na,na,na-1,na-1,rtemp
          
          call ga_get(f(2), na, na, na, na, rtemp,1)
-         if (master) write(6,1001) na,na,na,na,rtemp
+         if (master) write(luout,1001) na,na,na,na,rtemp
          
          call ga_get(f(2), na+1, na+1, na+1, na+1, rtemp,1)
-         if (master) write(6,1001) na,na,na+1,na+1,rtemp
+         if (master) write(luout,1001) na,na,na+1,na+1,rtemp
 
          call two_index_transf(f(1), g_vecs(2), g_vecs(2),
      $     d(2), f(2))
@@ -1336,10 +1338,10 @@ c        Fock 2e matrix from alfa HOMO density
          call ga_sync()
          
          call ga_get(f(2), nb, nb, nb, nb, rtemp,1)
-         if (master) write(6,1001) na,na,nb,nb,rtemp
+         if (master) write(luout,1001) na,na,nb,nb,rtemp
          
          call ga_get(f(2), nb+1, nb+1, nb+1, nb+1, rtemp,1)
-         if (master) write(6,1001) na,na,nb+1,nb+1,rtemp         
+         if (master) write(luout,1001) na,na,nb+1,nb+1,rtemp         
 
          
 c        ------------------------------------------------------
@@ -1363,13 +1365,13 @@ c        Fock 2e matrix from alfa LUMO density
          call ga_sync()
          
          call ga_get(f(2), na-1, na-1, na-1, na-1, rtemp,1)
-         if (master) write(6,1001) na+1,na+1,na-1,na-1,rtemp         
+         if (master) write(luout,1001) na+1,na+1,na-1,na-1,rtemp         
 
          call ga_get(f(2), na, na, na, na, rtemp,1)
-         if (master) write(6,1001) na+1,na+1,na,na,rtemp         
+         if (master) write(luout,1001) na+1,na+1,na,na,rtemp         
 
          call ga_get(f(2), na+1, na+1, na+1, na+1, rtemp,1)
-         if (master) write(6,1001) na+1,na+1,na+1,na+1,rtemp         
+         if (master) write(luout,1001) na+1,na+1,na+1,na+1,rtemp         
 
          call two_index_transf(f(1), g_vecs(2), g_vecs(2),
      $     d(2), f(2))
@@ -1377,10 +1379,10 @@ c        Fock 2e matrix from alfa LUMO density
          call ga_sync()
          
          call ga_get(f(2), nb, nb, nb, nb, rtemp,1)
-         if (master) write(6,1001) na+1,na+1,nb,nb,rtemp
+         if (master) write(luout,1001) na+1,na+1,nb,nb,rtemp
          
          call ga_get(f(2), nb+1, nb+1, nb+1, nb+1, rtemp,1)
-         if (master) write(6,1001) na+1,na+1,nb+1,nb+1,rtemp             
+         if (master) write(luout,1001) na+1,na+1,nb+1,nb+1,rtemp             
 
 
 c        ------------------------------------------------------
@@ -1410,11 +1412,11 @@ c        Fock 2e matrix from SYMMETRIZED alfa HOMO-HOMO-1 product
 
          rtemp = zero
          call ga_get(f(2), na-1, na-1, na, na, rtemp,1)
-         if (master) write(6,1001) na,na-1,na,na-1,rtemp
+         if (master) write(luout,1001) na,na-1,na,na-1,rtemp
          
          rtemp = zero
          call ga_get(f(2), na, na, na-1, na-1, rtemp,1)
-         if (master) write(6,1001) na-1,na,na-1,na,rtemp
+         if (master) write(luout,1001) na-1,na,na-1,na,rtemp
 
 
 c        ------------------------------------------------------
@@ -1442,11 +1444,11 @@ c        Fock 2e matrix from SYMMETRIZED alfa LUMO-HOMO-1 product
          
          rtemp = zero
          call ga_get(f(2), na-1, na-1, na+1, na+1, rtemp,1)
-         if (master) write(6,1001) na+1,na-1,na+1,na-1,rtemp         
+         if (master) write(luout,1001) na+1,na-1,na+1,na-1,rtemp         
 
          rtemp = zero
          call ga_get(f(2), na+1, na+1, na-1, na-1, rtemp,1)
-         if (master) write(6,1001) na-1,na+1,na-1,na+1,rtemp  
+         if (master) write(luout,1001) na-1,na+1,na-1,na+1,rtemp  
          
 c        ------------------------------------------------------
 c        Fock 2e matrix from SYMMETRIZED alfa LUMO-HOMO product
@@ -1475,11 +1477,11 @@ c        Fock 2e matrix from SYMMETRIZED alfa LUMO-HOMO product
 
          rtemp = zero
          call ga_get(f(2), na, na, na+1, na+1, rtemp,1)
-         if (master) write(6,1001) na+1,na,na+1,na,rtemp
+         if (master) write(luout,1001) na+1,na,na+1,na,rtemp
 
          rtemp = zero
          call ga_get(f(2), na+1, na+1, na, na, rtemp,1)
-         if (master) write(6,1001) na,na+1,na,na+1,rtemp
+         if (master) write(luout,1001) na,na+1,na,na+1,rtemp
 
 
 c        ------------------------------------------------------
@@ -1509,11 +1511,11 @@ c        Fock 2e matrix from SYMMETRIZED beta LUMO-HOMO product
 
          rtemp = zero
          call ga_get(f(2), nb, nb, nb+1, nb+1, rtemp,1)
-         if (master) write(6,1001) nb+1,nb,nb+1,nb,rtemp
+         if (master) write(luout,1001) nb+1,nb,nb+1,nb,rtemp
 
          rtemp = zero
          call ga_get(f(2), nb+1, nb+1, nb, nb, rtemp,1)
-         if (master) write(6,1001) nb,nb+1,nb,nb+1,rtemp
+         if (master) write(luout,1001) nb,nb+1,nb,nb+1,rtemp
          
          
 c        ------------------------------------------------------
@@ -1613,7 +1615,7 @@ c     DIM energy term
       end if
 c
       if (odebug .and. ga_nodeid().eq.0) then
-         write(6,*) ' eone, etwo, enrep, energy ',
+         write(luout,*) ' eone, etwo, enrep, energy ',
      $        eone, etwo, enrep, energy
       endif
 c
@@ -1660,6 +1662,7 @@ c
 #include "util.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
       integer rtdb
       integer g_grad
       integer g_work
@@ -1732,10 +1735,10 @@ c
       if (lshift .lt. min_shift) then
          lshift = min_shift + 2.0d0
          if (ga_nodeid().eq.0 .and. oprint_conv) then
-            write(6,3131) lshift
+            write(luout,3131) lshift
  3131       format('  Setting level-shift to ', f6.2,
      $           ' to force positive preconditioner')
-            call util_flush(6)
+            call util_flush(luout)
          end if
       end if
 c
@@ -1766,9 +1769,9 @@ c
                odisable_nr = .true.
                maxiter = maxiter + 10
                if (ga_nodeid() .eq. 0 .and. oprint_conv) then
-                  write(6,22) maxiter
+                  write(luout,22) maxiter
  22               format(/' Disabled NR: increased maxiter to ',i3/)
-                  call util_flush(6)
+                  call util_flush(luout)
                endif
                goto 30
             else
@@ -1780,9 +1783,9 @@ c
                endif
             endif
             if (ga_nodeid() .eq. 0 .and. oprint_conv) then
-               write(6,2) lshift
+               write(luout,2) lshift
  2             format(' Increased level shift to ', f8.2)
-               call util_flush(6)
+               call util_flush(luout)
             endif
             goto 20
          endif
@@ -1945,6 +1948,7 @@ C$Id$
 #include "cscfps.fh"
 #include "cscf.fh"
 #include "cuhf.fh"
+#include "stdio.fh"
       logical oaufbau
       logical oprint
 c
@@ -2038,18 +2042,18 @@ c
       end do
 c
       if (oprint .and. ga_nodeid().eq.0) then
-         write(6,*)
-         write(6,*)
-         call util_print_centered(6, 'Alpha-spin eigenvalues',
+         write(luout,*)
+         write(luout,*)
+         call util_print_centered(luout, 'Alpha-spin eigenvalues',
      $        20, .true.)
          call output(dbl_mb(k_eval), 1, min(nalpha+5,nmo), 
      $        1, 1, nmo, 1, 1)
-         write(6,*)
-         call util_print_centered(6, 'Beta-spin eigenvalues',
+         write(luout,*)
+         call util_print_centered(luout, 'Beta-spin eigenvalues',
      $        20, .true.)
          call output(dbl_mb(k_eval+nbf), 1, min(nalpha+5,nmo), 
      $        1, 1, nmo, 1, 1)
-         call util_flush(6)
+         call util_flush(luout)
       end if
 c
       if (.not. ga_destroy(g_u))
@@ -2124,6 +2128,7 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
+#include "stdio.fh"
       integer rtdb
 c
 c     Analyze the UHF wavefunction.  Optionally print the mulliken
@@ -2178,31 +2183,31 @@ c
 c
       if (oprintmulliken) then
          if (ga_nodeid() .eq. 0) then
-            write(6,*)
-            call util_print_centered(6,
+            write(luout,*)
+            call util_print_centered(luout,
      $           'Mulliken analysis of the total density', 20,.true.)
          endif
          call mull_pop(geom, basis, g_dens, g_over, 'total')
 c
          if (ga_nodeid() .eq. 0) then
-            write(6,*)
-            call util_print_centered(6,
+            write(luout,*)
+            call util_print_centered(luout,
      $           'Mulliken analysis of the alpha density', 20,.true.)
          endif
          call mull_pop(geom, basis, g_adens, g_over, 'alpha')
 c     
          if (nbeta .gt. 0) then
             if (ga_nodeid() .eq. 0) then
-               write(6,*)
-               call util_print_centered(6,
+               write(luout,*)
+               call util_print_centered(luout,
      $              'Mulliken analysis of the beta density', 
      $              20,.true.)
             endif
             call mull_pop(geom, basis, g_bdens, g_over, 'beta')
 c
             if (ga_nodeid() .eq. 0) then
-               write(6,*)
-               call util_print_centered(6,
+               write(luout,*)
+               call util_print_centered(luout,
      $              'Mulliken analysis of the spin density', 
      $              20,.true.)
             endif
@@ -2235,14 +2240,14 @@ c
       enddo
 c
       if (oprintmultipole .and. ga_nodeid().eq.0) then
-         write(6,*)
-         call util_print_centered(6,
+         write(luout,*)
+         call util_print_centered(luout,
      $     'Multipole analysis of the density wrt the origin',
      $      30, .true.)
-         write(6,*)
-         write(6,*) '    L   x y z        total         alpha',
+         write(luout,*)
+         write(luout,*) '    L   x y z        total         alpha',
      $                 '         beta         nuclear'
-         write(6,*) '    -   - - -        -----         -----',
+         write(luout,*) '    -   - - -        -----         -----',
      $                 '         ----         -------'
          ind = 0
          do ltotal = 0, lmax
@@ -2250,13 +2255,13 @@ c
                do l = ltotal-k, 0, -1
                   m = ltotal - k - l
                   ind = ind + 1
-                  write(6,12) ltotal, k, l, m, totalmoments(ind),
+                  write(luout,12) ltotal, k, l, m, totalmoments(ind),
      $                 alphamoments(ind), betamoments(ind),
      $                 nuclmoments(ind)
  12               format(4x,i2,2x,3i2,4f14.6)
                enddo
             enddo
-            write(6,*)
+            write(luout,*)
          enddo
       endif
 c

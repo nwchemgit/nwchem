@@ -23,6 +23,7 @@ c          florida, gainesville
 c.......................................................................
 C$Id$
       implicit none
+#include "stdio.fh"
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
       double precision z(rowdim,coldim), zero
@@ -38,7 +39,7 @@ C$Id$
             if (z(i,j).ne.zero) go to 15
  10      continue
  11   continue
-      write (6,3000)
+      write (luout,3000)
  3000 format (/' zero matrix'/)
       go to 3
  15   continue
@@ -49,13 +50,13 @@ C$Id$
       last = min(colhi,collow+kcol-1)
       do 2 begin = collow,colhi,kcol
 *         write (6,1000) (column,i,i = begin,last)
-         write (6,1000) (i,i = begin,last)
+         write (luout,1000) (i,i = begin,last)
          do 1 k = rowlow,rowhi
             do 4 i=begin,last
                if (z(k,i).ne.zero) go to 5
  4          continue
             go to 1
- 5          write (6,2000) ctl,k,(z(k,i), i = begin,last)
+ 5          write (luout,2000) ctl,k,(z(k,i), i = begin,last)
  1       continue
          last = min(last+kcol,colhi)
  2    continue
@@ -100,6 +101,7 @@ c          florida, gainesville
 c.......................................................................
 C$Id$
       implicit none
+#include "stdio.fh"
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
       double complex z(rowdim,coldim), zero
@@ -115,7 +117,7 @@ C$Id$
             if (z(i,j).ne.zero) go to 15
  10      continue
  11   continue
-      write (6,3000)
+      write (luout,3000)
  3000 format (/' zero matrix'/)
       go to 3
  15   continue
@@ -126,13 +128,13 @@ C$Id$
       last = min(colhi,collow+kcol-1)
       do 2 begin = collow,colhi,kcol
 *         write (6,1000) (column,i,i = begin,last)
-         write (6,1000) (i,i = begin,last)
+         write (luout,1000) (i,i = begin,last)
          do 1 k = rowlow,rowhi
             do 4 i=begin,last
                if (z(k,i).ne.zero) go to 5
  4          continue
             go to 1
- 5          write (6,2000) ctl,k,(z(k,i), i = begin,last)
+ 5          write (luout,2000) ctl,k,(z(k,i), i = begin,last)
  1       continue
          last = min(last+kcol,colhi)
  2    continue
@@ -177,6 +179,7 @@ c          florida, gainesville
 c.......................................................................
 C$Id$
       implicit none
+#include "stdio.fh"
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
       double precision z(rowdim,coldim), zero
@@ -192,7 +195,7 @@ C$Id$
             if (z(i,j).ne.zero) go to 15
  10      continue
  11   continue
-      write (6,3000)
+      write (luout,3000)
  3000 format (/' zero matrix'/)
       go to 3
  15   continue
@@ -203,13 +206,13 @@ C$Id$
       last = min(colhi,collow+kcol-1)
       do 2 begin = collow,colhi,kcol
 *         write (6,1000) (column,i,i = begin,last)
-         write (6,1000) (i,i = begin,last)
+         write (luout,1000) (i,i = begin,last)
          do 1 k = rowlow,rowhi
             do 4 i=begin,last
                if (z(k,i).ne.zero) go to 5
  4          continue
             go to 1
- 5          write (6,2000) ctl,k,(z(k,i), i = begin,last)
+ 5          write (luout,2000) ctl,k,(z(k,i), i = begin,last)
  1       continue
          last = min(last+kcol,colhi)
  2    continue
@@ -254,6 +257,7 @@ c          florida, gainesville
 c.......................................................................
 C$Id$
       implicit none
+#include "stdio.fh"
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
       integer z(rowdim,coldim), zero
@@ -269,7 +273,7 @@ C$Id$
             if (z(i,j).ne.zero) go to 15
  10      continue
  11   continue
-      write (6,3000)
+      write (luout,3000)
  3000 format (/' zero matrix'/)
       go to 3
  15   continue
@@ -280,13 +284,13 @@ C$Id$
       last = min(colhi,collow+kcol-1)
       do 2 begin = collow,colhi,kcol
 *         write (6,1000) (column,i,i = begin,last)
-         write (6,1000) (i,i = begin,last)
+         write (luout,1000) (i,i = begin,last)
          do 1 k = rowlow,rowhi
             do 4 i=begin,last
                if (z(k,i).ne.zero) go to 5
  4          continue
             go to 1
- 5          write (6,2000) ctl,k,(z(k,i), i = begin,last)
+ 5          write (luout,2000) ctl,k,(z(k,i), i = begin,last)
  1       continue
          last = min(last+kcol,colhi)
  2    continue
