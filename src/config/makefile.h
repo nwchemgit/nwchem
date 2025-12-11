@@ -287,6 +287,14 @@ endif
 # their header files are needed for dependency analysis of
 # other NWChem modules
 ifdef USE_INTERNALBLAS
+    ifneq ($(or $(BLASOPT),$(LAPACK_LIB),$(BLAS_LIB)),)
+        $(info     )
+        $(info You must unset)
+        $(info BLASOPT ,LAPACK_LIB and BLAS_LIB)
+        $(info when using USE_INTERNALBLAS )
+        $(info )
+        $(error )
+    endif
     NW_CORE_SUBDIRS += blas lapack
 endif
 ifdef USE_LIBXC
@@ -305,10 +313,10 @@ ifdef BUILD_OPENBLAS
     NW_CORE_SUBDIRS += libext
 
     #bail out if BLASOPT or LAPACK_LIB or BLAS_LIB are defined by user
-    ifneq ($(or $(BLASOPT),$(LAPACK_LIB),$(BLAS_LIB)),)
+    ifneq ($(or $(BLASOPT),$(LAPACK_LIB),$(BLAS_LIB),$(USE_INTERNALBLAS)),)
         $(info     )
         $(info You must unset)
-        $(info BLASOPT ,LAPACK_LIB and BLAS_LIB)
+        $(info USE_INTERNALBLAS, BLASOPT ,LAPACK_LIB and BLAS_LIB)
         $(info when using BUILD_OPENBLAS )
         $(info )
         $(error )
