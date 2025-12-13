@@ -69,6 +69,7 @@ end
 
 cosmo
  do_gasphase f
+ do_cosmo_ks
  cavity ses
  ndiv xfine
 end

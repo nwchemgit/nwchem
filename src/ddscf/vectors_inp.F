@@ -5,6 +5,7 @@ C     $Id$
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
       integer rtdb
       character*(*) module
 c     
@@ -252,13 +253,13 @@ c
 c     
       return
 c     
-10000 write(6,10001)
+10000 write(luout,10001)
 10001 format(/' vectors [[input] filename|atomic|hcore] '
      $     /'         [output  filename] [lock]'
      $     /'         [swap [alpha|beta] pair_list]'
      $     /'         [reorder pair_list]'
      $     /'         [rotate geometry filename]'/)
-      call util_flush(6)
+      call util_flush(luout)
       call errquit('vectors_input: invalid format', 0, INPUT_ERR)
 c     
       end

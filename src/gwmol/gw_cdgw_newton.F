@@ -121,7 +121,8 @@
           call ga_zero(pars%g_sols)
           bracket = .false.
           rms6 = 1d100
-          const = Eref(llmo+iqp-1,isp) + Sigma_X - sigmaold
+c          const = Eref(llmo+iqp-1,isp) + Sigma_X - sigmaold
+          const = Eold(llmo+iqp-1,isp) + Sigma_X - sigmaold
           lower = -1d100
           upper = 1d100
 c        

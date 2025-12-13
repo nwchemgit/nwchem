@@ -6,6 +6,7 @@ C$Id$
 #include "global.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
+#include "stdio.fh"
       integer n                 ! Matrix dimension
       integer nroot             ! No. of eigen vectors sought
       integer maxiter           ! Maximum no. of iterations
@@ -161,16 +162,16 @@ c
       enddo
 c
       if (oprint .and. ga_nodeid().eq.0) then
-         write(6,1) tol, prod_acc
+         write(luout,1) tol, prod_acc
  1       format(/,12x,'----- iterative diag (tol:',1p,e8.1,' prod-acc:',
      $        e8.1,') -----'/)
-         write(6,2) 
+         write(luout,2) 
  2       format(
      $        7x, ' iter nsub  cur root   eigenvalue      residual',
      $        '    time'/
      $        7x, ' ---- ---- ---- ---- --------------- -----------',
      $        ' -------')
-         call util_flush(6)
+         call util_flush(luout)
       endif
 c     
       test_tol = 0.5d0
@@ -195,9 +196,9 @@ c               write(*,*)"i,j,aa,ss", i,j, aa(i,j), ss(i,j)
             enddo
          enddo
          if (odebug .and. ga_nodeid().eq.0) then
-            write(6,*) ' ga_iter_diag: Reduced space matrix'
+            write(luout,*) ' ga_iter_diag: Reduced space matrix'
             call output(aa, 1, nsub, 1, nsub, maxdim, nsub, 1)
-            write(6,*) ' ga_iter_diag: Reduced space overlap'
+            write(luout,*) ' ga_iter_diag: Reduced space overlap'
             call output(ss, 1, nsub, 1, nsub, maxdim, nsub, 1)
          endif
 c     
@@ -207,9 +208,9 @@ c
          if (info .ne. 0) call errquit
      $        ('ga_iter_diag: rsg failed', info, CALC_ERR)
          if (odebug .and. ga_nodeid().eq.0) then
-            write(6,*) ' ga_iter_diag: Reduced space eigenvectors'
+            write(luout,*) ' ga_iter_diag: Reduced space eigenvectors'
             call output(yy, 1, nsub, 1, nsub, maxdim, nsub, 1)
-            write(6,*) ' ga_iter_diag: Reduced space eigenvalues'
+            write(luout,*) ' ga_iter_diag: Reduced space eigenvalues'
             call output(ee, 1, nsub, 1, 1, nsub, 1, 1)
          endif
          call dcopy(nroot, ee, 1, eval, 1)
@@ -241,7 +242,7 @@ c     Print
 c     
          if (oprint .and. ga_nodeid().eq.0) then
             do iroot = 1, nroot
-               write(6,3) iter, nsub, cur_root, iroot, eval(iroot),
+               write(luout,3) iter, nsub, cur_root, iroot, eval(iroot),
      $              rnorm(iroot), tcgtime()
  3             format(7x,4i5,1p,e16.9,e12.4,0p,f8.1)
                call ga_copy_patch('n',g_x,1,n,iroot,iroot,g_tmp,1,n,1,1)
@@ -249,7 +250,7 @@ c
 c               call ga_get(g_x, 1, n, iroot, iroot, vout(1), 21)
 c               call output(vout, 1, 3, 1, 7, 3, 7, 1)
             enddo
-            call util_flush(6)
+            call util_flush(luout)
          endif
 c     
 c     Determine the next vector to update
@@ -280,9 +281,9 @@ c
 c     
          if (iter.eq.maxiter) then
             if (ga_nodeid() .eq. 0) then
-               write(6,*) ' ga_iter_diag: exceeded max iters ... ',
+               write(luout,*) ' ga_iter_diag: exceeded max iters ... ',
      $              'aborting solve'
-               call util_flush(6)
+               call util_flush(luout)
             endif
             goto 1000
          endif

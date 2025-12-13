@@ -13,6 +13,7 @@ C     $Id$
 #include "util.fh"
 #include "cscf.fh"
 #include "cosmo.fh"
+#include "stdio.fh"
 c     
 c     Solve the ROHF equations using DIIS
 c     
@@ -69,7 +70,7 @@ c
 c
       odbug=.false.
       if(odbug) then
-         write(6,*) 'in rohf_diis_solve ... with node id =',
+         write(luout,*) 'in rohf_diis_solve ... with node id =',
      $              ga_nodeid()
       endif
 c
@@ -81,8 +82,8 @@ c   Print info
 c
       nodezero = ga_nodeid().eq.0
       if (nodezero.and. oprint_parm) then
-         write(6,1) gnorm_tol, maxiter, tol2e, mxdiisbas
-         write(6,111)
+         write(luout,1) gnorm_tol, maxiter, tol2e, mxdiisbas
+         write(luout,111)
  1       format(//,
      $        1x,'----------------------------------------------',/
      $        1x,'               DIIS ROHF',//,
@@ -92,7 +93,7 @@ c
      $        1x,'DIIS subspace             :',9x,i4,/)
  111     format(
      $        1x,'----------------------------------------------',/)
-         call util_flush(6)
+         call util_flush(luout)
       endif
 c     
 c     Allocate global arrays.  
@@ -174,21 +175,22 @@ c
         call rohf_errvec( g_fock, g_movecs, g_over, g_xorth,
      $                    g_tmp, g_tmp2, g_err )
         call ga_maxelt( g_err, diis_emax )
+        call ga_sync()
 c
 c   Print energy
 c
         if(iter.eq.1) then
            if(cosmo_on.and.cosmo_phase.eq.1) then
-              if(nodezero) write(6,909)
+              if(nodezero) write(luout,909)
            else
-              if(nodezero) write(6,910)
+              if(nodezero) write(luout,910)
            endif
         endif
  909    format(2x,'   COSMO gas phase')
  910    format(2x,'   COSMO solvation phase')
 c
         if(nodezero) then
-           write(6,911) iter, ndiis, energy, gnorm, diis_emax
+           write(luout,911) iter, ndiis, energy, gnorm, diis_emax
         endif
  911    format(5x,i5,i3,5x,f20.12,5x,2e10.2)
 c
@@ -216,7 +218,7 @@ c
 c     End SCF minimisation
 c     
  333  continue
-      if (nodezero) call util_flush(6)
+      if (nodezero) call util_flush(luout)
 c     
 c     *ALWAYS* return canonical MOs ... do not do aufbau
 c     
@@ -257,19 +259,19 @@ c
          egas      =energy
          cosmo_phase = 2
          if(odbug) then
-            write(6,*) 'gas_phase done, do sol-phase now ...'
+            write(luout,*) 'gas_phase done, do sol-phase now ...'
          endif
          call ga_sync()
          go to 1000
       elseif(cosmo_on.and.cosmo_phase.eq.2) then
          esol      =energy
          if(nodezero) then
-            write(6,*) '                 COSMO solvation results'
-            write(6,*) '                 -----------------------'
-            write(6,*) 
-            write(6,912) egas
-            write(6,913) esol
-            write(6,914) (egas-esol),(egas-esol)*627.509451d+00
+            write(luout,*) '                 COSMO solvation results'
+            write(luout,*) '                 -----------------------'
+            write(luout,*) 
+            write(luout,912) egas
+            write(luout,913) esol
+            write(luout,914) (egas-esol),(egas-esol)*627.509451d+00
  912     format('                 gas phase energy = ',f20.10)
  913     format('                 sol phase energy = ',f20.10)
  914     format(' (electrostatic) solvation energy = ',f20.10,
@@ -293,7 +295,7 @@ c
       if (.not. ga_destroy(g_xorth)) call errquit
      $     ('rohf_diis_solve: ga_destroy xorth', 0, GA_ERR)
 c     
-      if (nodezero) call util_flush(6)
+      if (nodezero) call util_flush(luout)
       call ga_sync()
 c     
       rohf_diis_solve = converged
@@ -444,24 +446,32 @@ c
       integer g_xorth
 c
       integer l_e, k_e, i
+      integer l_scr,k_scr
       double precision xx
 c
       if (.not.ma_push_get(MT_DBL, nbf, 'overlap', l_e, k_e ))
      $     call errquit('rohf_ao_orthonorm: cannot allocate over',0,
-     &       MA_ERR)
+     &     MA_ERR)
+      if (.not.ma_push_get(MT_DBL, nbf, 'scratch', l_scr, k_scr ))
+     $     call errquit('rohf_ao_orthonorm: cannot allocate over',0,
+     &     MA_ERR)
       call util_diag_std( g_over, g_xorth, dbl_mb(k_e))
 c               1/2
 c   X   = U  / s
 c    ij    ij   j
 c
       do i=ga_nodeid()+1,nbf,ga_nnodes()
-        xx = 1.d0/sqrt(dbl_mb(k_e+i-1))
-        call ga_dscal_patch( g_xorth, 1, nbf, i, i, xx )
+         xx = 1.d0/sqrt(dbl_mb(k_e+i-1))
+c     call ga_dscal_patch( g_xorth, 1, nbf, i, i, xx )
+        call ga_get( g_xorth, 1, nbf, i, i, dbl_mb(k_scr), nbf )
+        call dscal(nbf,xx,dbl_mb(k_scr),1)
+        call ga_put( g_xorth, 1, nbf, i, i, dbl_mb(k_scr), nbf )
       enddo
+      call ga_sync()
 c
 c
 c
-      if (.not.ma_pop_stack(l_e))
+      if (.not.ma_chop_stack(l_e))
      $     call errquit('rohf_ao_orthonorm: cannot pop stack',0,
      &       MA_ERR)
       return

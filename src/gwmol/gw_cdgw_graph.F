@@ -127,7 +127,7 @@
           rms3(:) = 1d100
 
           !fixed contribution
-          const = Eref(llmo+iqp-1,isp) + Sigma_X -  SigmaOld
+          const = Eold(llmo+iqp-1,isp) + Sigma_X -  SigmaOld
 
           ! we only need a guess
           do iter=1,8
@@ -275,7 +275,7 @@
 
               ! Finish up building the residual
               resmat(ipoints,iqp) = resmat(ipoints,iqp) +
-     $          Eref(llmo+iqp-1,isp) + sigmax(llmo+iqp-1,isp) -
+     $          Eold(llmo+iqp-1,isp) + sigmax(llmo+iqp-1,isp) -
      $          sigma(llmo+iqp-1,isp)
 
               ! If residual is small, solution has been found

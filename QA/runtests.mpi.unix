@@ -339,6 +339,7 @@ sync
         runstatus=$?
       else
           $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE 2> $ERRORFILE 1> $OUTPUTFILE
+	  sync
         runstatus=$?
       fi
     else

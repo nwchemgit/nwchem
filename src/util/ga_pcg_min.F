@@ -6,6 +6,7 @@ C$Id$
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+#include "stdio.fh"
       integer n                 ! No. of parameters [input]
       integer iter              ! Current macro iteration no. [input/output]
       double precision e        ! Energy of current point [input]
@@ -160,15 +161,15 @@ c
 c     Don't write out the header unless are also printing LS info
 c     except on the first iteration ... keeps output compact
 c
-               if (ls_print .or. iter.eq.1) write(6,1)
+               if (ls_print .or. iter.eq.1) write(luout,1)
  1             format(/,
      $              13x,' iter       energy          gnorm     gmax   ',
      $              '    time'/
      $              13x,'----- ------------------- --------- ---------',
      $              ' --------')
-               write(6,2) iter, e, gnorm, gmax, util_cpusec()
+               write(luout,2) iter, e, gnorm, gmax, util_cpusec()
  2             format(13x,i5,f20.10,1p,2d10.2,0p,f9.1)
-               call util_flush(6)
+               call util_flush(luout)
             endif
          endif
          iter = iter + 1

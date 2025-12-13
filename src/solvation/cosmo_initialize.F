@@ -761,12 +761,12 @@ c
 c
 c <-- MN solvation models
 c
- 9973 format(' charge correction applied to potential')
+ 9973 format(' charge correction applied to potential, '
+     $       'doi: 10.1021/acs.jctc.5c01368')
  9972 format(' surface charge correction     = ',a)
  9971 format(' Cosmo: York-Karplus, doi: 10.1021/jp992097l')
  9970 format(' Cosmo: Klamt-Schuurmann, doi: 10.1039/P29930000799')
-c TODO: describe the GEPOL modifications and publish a new article
- 8870 format(' SES surface, doi: 10.1002/jcc.540151009, ??')
+ 8870 format(' SES surface, doi: 10.1021/acs.jctc.5c01368')
 
  9969 format(' Using -Lebedev- grid')
  9968 format(' -iangleb',I4)

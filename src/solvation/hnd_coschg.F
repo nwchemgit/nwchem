@@ -458,6 +458,12 @@ C>   <i>J. Chem. Phys.</i> (1996) <b>105</b>, pp 9972–9981, DOI:
 C>   <a href="https://doi.org/10.1063/1.472829">
 C>   10.1063/1.472829</a>.
 C>
+C>   [12] R. de P. Soares, D. Mej&iacute;a-Rodriguez, E. Apr&agrave;,
+C>   "Recent Improvements to the NWChem COSMO Module",
+C>   <i>J. Chem. Theory Comput.</i> (2025), DOI:
+C>   <a href="https://doi.org/10.1021/acs.jctc.5c01368">
+C>   10.1021/acs.jctc.5c01368</a>.
+C>
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
      &                      efcc,efcs,msrf,efcz,efczz,efciat,ratm,
      &                      ecos,egas,esol,cosmo_file_in)
@@ -1144,7 +1150,7 @@ c     scaling factors or Lagrangian multipliers then additional
 c     correction terms are needed to ensure the expressions agree.
 c
 c     A consistent correction is to recalculate the total potential
-c     with the corrected charges (see Ref. [11] and cosmo_ptcor above).
+c     with the corrected charges (see Ref. [11,12] and cosmo_ptcor above).
 c     After that, adjust the elec potential accordingly, with a
 c     constant nuclear potential. This makes both formulations
 c     agree and also makes scale and Lagrangian corrections
