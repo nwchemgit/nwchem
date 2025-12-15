@@ -622,9 +622,7 @@ c
      &        call errquit('dft_gradients: could not alloc j hessian',
      &        1, MA_ERR)
          call dfill(9*nat*nat, 0.0d0, dbl_mb(k_hess), 1)
-         if (bgj_print() .gt. 0)
-     &        write(LuOut,*)'*** In dft_gradients: calling j_hessian'
-         call j_hessian(iga_dens, log_mb(k_act), nactive,
+         call j_hessian(rtdb,iga_dens, log_mb(k_act), nactive,
      &        dbl_mb(k_hess))
          status = MA_pop_stack(l_hess)
          if (.not.status) call
@@ -661,8 +659,6 @@ c!!!         call int_app_set_no_texas(rtdb)
 c
 c        Allocate and initialize temp GA's for RHS
 c
-         if (bgj_print() .gt. 0)
-     &        write(*,*)'*** j cpks rhs test: nactive =',nactive
          if (nat.gt.100)
      &        call errquit('dft_gradients: dimension error in test',0,
      &       UNKNOWN_ERR)
@@ -680,9 +676,7 @@ c
             endif
          enddo
 
-         if (bgj_print() .gt. 0)
-     &        write(LuOut,*)'*** In dft_gradients: calling j_cpks_rhs'
-         call j_cpks_rhs(iga_dens, log_mb(k_act), nactive, g_rhs)
+         call j_cpks_rhs(rtdb,iga_dens, log_mb(k_act), nactive, g_rhs)
 
          do i = 1, nat
             if (log_mb(k_act+i-1)) then
