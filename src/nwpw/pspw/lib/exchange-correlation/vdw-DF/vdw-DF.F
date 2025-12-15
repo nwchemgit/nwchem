@@ -393,7 +393,7 @@
       nthr = Parallel_nthreads()
 
       do i=tid+1,n2ft3d,nthr
-         rho(i) = dn(i,1)+dn(1,ispin)+dncut
+         rho(i) = dn(i,1)+dn(i,ispin)+dncut
       end do
 !$OMP BARRIER
 

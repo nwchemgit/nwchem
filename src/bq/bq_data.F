@@ -664,7 +664,7 @@ c      local variables
      &      0, MA_ERR)
 
        if (oprint) then
-         call util_print_centered(6,
+         call util_print_centered(luout,
      >      "Bq Structure Information (Angstroms)",
      >              36, .true.)
       
@@ -674,7 +674,7 @@ c      local variables
 c        == tally up bq charges ==
          bq_charge_total = 0.d0
          do i=1,bq_ncent(handle)
-           write(6,FMT=9000)
+           write(luout,FMT=9000)
 c     >           i,(dbl_mb(i_c+3*(i-1)+k-1),k=1,3),
      >           i,(dbl_mb(i_c+3*(i-1)+k-1)*0.529177249d00,k=1,3),
      >           dbl_mb(i_q+i-1)

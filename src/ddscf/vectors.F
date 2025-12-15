@@ -55,7 +55,7 @@ c
          read(unitno, err=1001, end=2001) nsets
          read(unitno, err=1001, end=2001) nbf
          if (nsets .gt. ldnmo) then
-            write(6,*) ' movecs_read_header: ldnmo too small ',
+            write(luout,*) ' movecs_read_header: ldnmo too small ',
      $           nsets, ldnmo
             close(unitno, err=1002)
             goto 10
@@ -80,28 +80,28 @@ c
 c
       return
 c
- 1000 write(6,*) ' movecs_read_header: failed to open ',
+ 1000 write(luout,*) ' movecs_read_header: failed to open ',
      $     filename(1:inp_strlen(filename)),
      A ' IERR = ', ioserr
       call util_flush(luout)
       ok = 0
       goto 10
 c
- 1001 write(6,*) ' movecs_read_header: failing reading from ',
+ 1001 write(luout,*) ' movecs_read_header: failing reading from ',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       close(unitno, err=1002)
       goto 10
 c
- 2001 write(6,*) ' movecs_read_header:eof: failing reading from '
+ 2001 write(luout,*) ' movecs_read_header:eof: failing reading from '
      &    , filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       close(unitno, err=1002)
       goto 10
 c
- 1002 write(6,*) ' movecs_read_header: failed to close',
+ 1002 write(luout,*) ' movecs_read_header: failed to close',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
@@ -199,27 +199,27 @@ c
       movecs_read = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and. movecs_read .and.
      $     util_print('vectors i/o', print_high)) then
-         write(6,22) filename(1:inp_strlen(filename))
+         write(luout,22) filename(1:inp_strlen(filename))
  22      format(/' Read molecular orbitals from ',a/)
          call util_flush(luout)
       endif
       if (oscfps) call pstat_off(ps_vecio)
       return
 c
- 1000 write(6,*) ' movecs_read: failed to open ',
+ 1000 write(luout,*) ' movecs_read: failed to open ',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       goto 10
 c
- 1001 write(6,*) ' movecs_read: failing reading from ',
+ 1001 write(luout,*) ' movecs_read: failing reading from ',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       close(unitno,err=1002)
       goto 10
 c
- 1002 write(6,*) ' movecs_read: failed to close',
+ 1002 write(luout,*) ' movecs_read: failed to close',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
@@ -409,7 +409,7 @@ c get nuclear repulsion energy
 c
       if (ga_nodeid() .eq. 0) then
          if (nsets .gt. 2) then
-            write(6,*) ' movecs_write: nsets > 2 ', nsets
+            write(luout,*) ' movecs_write: nsets > 2 ', nsets
             goto 10
          endif
          open(unitno, status='unknown', form='unformatted',
@@ -470,7 +470,7 @@ c
       movecs_write = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.
      $     util_print('vectors i/o', print_high)) then
-         write(6,22) filename(1:inp_strlen(filename))
+         write(luout,22) filename(1:inp_strlen(filename))
  22      format(/' Wrote molecular orbitals to ',a/)
          call util_flush(luout)
       endif
@@ -478,20 +478,20 @@ c
       if (oscfps) call pstat_off(ps_vecio)
       return
 c
- 1000 write(6,*) ' movecs_write: failed to open ',
+ 1000 write(luout,*) ' movecs_write: failed to open ',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       goto 10
 c
- 1001 write(6,*) ' movecs_write: failing writing to ',
+ 1001 write(luout,*) ' movecs_write: failing writing to ',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       close(unitno,err=1002)
       goto 10
 c
- 1002 write(6,*) ' movecs_write: failed to close',
+ 1002 write(luout,*) ' movecs_write: failed to close',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
@@ -574,7 +574,7 @@ c
          call ga_sync()
          call ga_inquire(g_vecs, type, dim1, dim2)
          if (ga_nodeid() .eq. 0) then
-            if (oprint) write(6,*)
+            if (oprint) write(luout,*)
             if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_veci, k_veci))
      $           call errquit('movecs_swap: no scratch space', dim1,
      &       MA_ERR)
@@ -584,7 +584,7 @@ c
             do pair = 1, nelem, 2
                i = int_mb(index+pair-1)
                j = int_mb(index+pair  )
-               if (oprint) write(6,1) text(1:inp_strlen(text)), i, j
+               if (oprint) write(luout,1) text(1:inp_strlen(text)), i, j
  1             format(' Swapping ',a,' orbitals ', 2i5)
                if (i.lt.0 .or. i.gt.dim2) call errquit
      $              ('movecs_swap: invalid vector ', i, INPUT_ERR)
@@ -1064,13 +1064,13 @@ c
          endif
          goto 10
 c
- 1000    write(6,*) ' file_read_ga_info: failed to open ',
+ 1000    write(luout,*) ' file_read_ga_info: failed to open ',
      $        fname(1:inp_strlen(fname))
          call util_flush(luout)
          ok = 0
          goto 10
 c     
- 1001    write(6,*) ' file_read_ga_info: failing reading from ',
+ 1001    write(luout,*) ' file_read_ga_info: failing reading from ',
      $        fname(1:inp_strlen(fname))
          call util_flush(luout)
          ok = 0
@@ -1086,7 +1086,7 @@ c
          endif
          goto 10
 c     
- 1002    write(6,*) ' file_read_ga_info: failed to close',
+ 1002    write(luout,*) ' file_read_ga_info: failed to close',
      $        fname(1:inp_strlen(fname))
          call util_flush(luout)
          ok = 0
@@ -1213,19 +1213,19 @@ c
       file_write_ga_patch = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.
      $     util_print('vectors i/o', print_high)) then
-         write(6,22) gtitle(1:len1), fname(1:inp_strlen(fname))
+         write(luout,22) gtitle(1:len1), fname(1:inp_strlen(fname))
  22      format(/' Wrote ',a,' to ',a/)
          call util_flush(luout)
       endif
       return
 c
- 1000 write(6,*) ' file_write_ga: failed to open ',
+ 1000 write(luout,*) ' file_write_ga: failed to open ',
      $     fname(1:inp_strlen(fname))
       call util_flush(luout)
       ok = 0
       goto 10
 c
- 1001 write(6,*) ' file_write_ga: failing writing to ',
+ 1001 write(luout,*) ' file_write_ga: failing writing to ',
      $     fname(1:inp_strlen(fname))
       call util_flush(luout)
       ok = 0
@@ -1241,7 +1241,7 @@ c
       endif
       goto 10
 c
- 1002 write(6,*) ' file_write_ga: failed to close',
+ 1002 write(luout,*) ' file_write_ga: failed to close',
      $     fname(1:inp_strlen(fname))
       call util_flush(luout)
       ok = 0
@@ -1360,19 +1360,19 @@ c
       file_read_ga_patch = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.
      $     util_print('vectors i/o', print_high)) then
-         write(6,22) gtitle(1:len1), fname(1:inp_strlen(fname))
+         write(luout,22) gtitle(1:len1), fname(1:inp_strlen(fname))
  22      format(/' Read ',a,' from ',a/)
          call util_flush(luout)
       endif
       return
 c
- 1000 write(6,*) ' file_read_ga: failed to open ',
+ 1000 write(luout,*) ' file_read_ga: failed to open ',
      $     fname(1:inp_strlen(fname))
       call util_flush(luout)
       ok = 0
       goto 10
 c
- 1001 write(6,*) ' file_read_ga: failing reading from ',
+ 1001 write(luout,*) ' file_read_ga: failing reading from ',
      $     fname(1:inp_strlen(fname))
       call util_flush(luout)
       ok = 0
@@ -1388,13 +1388,13 @@ c
       endif
       goto 10
 c
- 1002 write(6,*) ' file_read_ga: failed to close',
+ 1002 write(luout,*) ' file_read_ga: failed to close',
      $     fname(1:inp_strlen(fname))
       call util_flush(luout)
       ok = 0
       goto 10
 c
- 2000 write(6,*) ' file_read_ga: GA and file ',
+ 2000 write(luout,*) ' file_read_ga: GA and file ',
      $           'contents mismatch dimensions',
      $           nrow, ncol, grow, gcol
       call util_flush(luout)
