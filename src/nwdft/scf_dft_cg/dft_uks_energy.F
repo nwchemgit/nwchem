@@ -10,7 +10,6 @@
 #include "util.fh"
 #include "cscfps.fh"
 #include "rtdb.fh"
-#include "bgj.fh"
 #include "case.fh"
 #include "frozemb.fh"
 #include "cosmo.fh"
@@ -68,7 +67,7 @@ c
      $     call errquit('dft_uks_energy: invalid vector length',0,
      $                  GA_ERR)
       cphf_uhf = .false.
-      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
+      if (.not. rtdb_get(rtdb, 
      &     'cphf_solve:cphf_uhf', mt_log, 1, cphf_uhf)) then
          cphf_uhf = .false.
       endif

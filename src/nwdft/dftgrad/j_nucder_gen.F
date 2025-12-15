@@ -7,41 +7,43 @@ c     BGJ - 9/98
 c
 c     $Id$
 c
-      subroutine j_hessian(g_dens, oactive, nactive, hess)
+      subroutine j_hessian(rtdb,g_dens, oactive, nactive, hess)
 c
 c     Wrapper routine for J hessian without fitting
 c
       implicit none
 c
+      integer rtdb
       integer g_dens            ! [input] GA handle for total density
       integer nactive           ! [input] number of active atoms
       logical oactive(nactive)  ! [input] key to active atoms
       double precision hess(*)  ! [output] J hessian matrix
 c
-      call j_deriv_gen(g_dens, oactive, nactive, hess, 0, 2)
+      call j_deriv_gen(rtdb,g_dens, oactive, nactive, hess, 0, 2)
 c
       return
       end
 c
 c
-      subroutine j_cpks_rhs(g_dens, oactive, nactive, g_rhs)
+      subroutine j_cpks_rhs(rtdb,g_dens, oactive, nactive, g_rhs)
 c
 c     Wrapper routine for J CPKS RHS without fitting
 c
       implicit none
 c
+      integer rtdb
       integer g_dens            ! [input] handle to total density
       integer nactive           ! [input] number of active atoms
       logical oactive(nactive)  ! [input] key to active atoms
       integer g_rhs(*)          ! [output] J CPKS RHS matrices
 c
-      call j_deriv_gen(g_dens, oactive, nactive, 0d0, g_rhs, 3)
+      call j_deriv_gen(rtdb,g_dens, oactive, nactive, 0d0, g_rhs, 3)
 c
       return
       end
 c
 c
-      subroutine j_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
+      subroutine j_deriv_gen(rtdb,g_dens, oactive, nactive, hess, g_rhs,
      &                       calc_type)
 c
 c     $Id$
@@ -65,6 +67,7 @@ c
       external ga_create_atom_blocked
 c!!! End BGJ temp test code
 c
+      integer rtdb
       integer g_dens            ! [input] handle to total density
       integer nactive           ! [input] number of active atoms
       logical oactive(nactive)  ! [input] key to active atoms
@@ -78,7 +81,6 @@ c
 c     Local declarations
 c
       logical do_hess, do_cpks_r
-      integer rtdb
       integer natoms
       integer l_d_ija, k_d_ija, l_d_kla, k_d_kla, ldim1, ldim2,
      &        l_db, k_db, l_scr, k_scr, lscr, l_buf, k_buf, lbuf,
@@ -92,16 +94,11 @@ c !!! Start BGJ temp test code
       integer l_ti_db, k_ti_db
 c !!! End BGJ temp test code
 c
-      if (bgj_print() .gt. 0)
-     &     write(*,*)'--------Entered j_deriv_gen-------------'
       do_hess = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
       if (.not. (do_hess .or. do_cpks_r))
      &     call errquit('j_deriv_gen: illegal calculation type',0,
      &       INPUT_ERR)
-      if (bgj_print() .gt. 0)
-     &     write(*,*)'logicals ', do_hess, do_cpks_r
-      rtdb = bgj_get_rtdb_handle()
       if (.not. geom_ncent(geom, natoms))
      &   call errquit('j_deriv_gen: geom_ncent failed',1, GEOM_ERR)
 #if 0
@@ -147,8 +144,6 @@ c     of dftg_cdfit_gen (allocation is set up properly in j_nucder_alloc)
 c     The s34 array is used for the fitting coefficients in the
 c     fitted case (allocation is set up properly in j_nucder_alloc)
 c
-         if (bgj_print().gt.0) write(*,*)
-     &      ': what about oactive for fitted J?'
          call dftg_cdfit_gen(geom,AO_bas_han, CD_bas_han,
      &                       nbf_cd, natoms, tol2e,
      &                       dbl_mb(k_scr), lscr, dbl_mb(k_buf), lbuf,
@@ -243,70 +238,6 @@ c
          enddo
       endif
 c
-c !!! BGJ test !!!
-c All the code from here to the next !!! BGJ test !!! can be removed once
-c the code is stable
-c
-      if (bgj_print() .gt. 0) then
-         if (do_hess) then
-c
-            write(LuOut,*) 'j_deriv_gen: j hessian'
-            call output(hess,1,3*natoms,1,3*natoms,3*natoms,3*natoms,1)
-c
-c     TI check
-c
-            if (.not. MA_push_get(MT_DBL, natoms*natoms*9, 'ti_hess',
-     &           l_ti_hess, k_ti_hess))
-     &           call errquit('j_nucder_gen: could not alloc ti_hess',1,
-     &       MA_ERR)
-            call dcopy(natoms*natoms*9, hess, 1, dbl_mb(k_ti_hess), 1)
-            call hessti(dbl_mb(k_ti_hess),natoms)
-            if (.not. MA_pop_stack(l_ti_hess))
-     &           call errquit('j_nucder_gen: could not pop ti_hess',1,
-     &       MA_ERR)
-c
-         else if (do_cpks_r) then
-c
-            do i = 1, natoms
-               if (oactive(i)) then
-                  do j = 1, 3
-                     write(*,*)'*** j cpks rhs matrix',j,i
-                     call ga_print(g_rhs(j,i))
-                  enddo
-               endif
-            enddo
-c
-c     TI check
-c
-            g_ti(1) = ga_create_atom_blocked (geom, ao_bas_han,
-     &           'TI check x')
-            g_ti(2) = ga_create_atom_blocked (geom, ao_bas_han,
-     &           'TI check y')
-            g_ti(3) = ga_create_atom_blocked (geom, ao_bas_han,
-     &           'TI check z')
-            do j = 1, 3
-               call ga_zero(g_ti(j))
-            enddo
-            do i = 1, natoms
-               if (oactive(i)) then
-                  do j = 1, 3
-                     call ga_add(1d0, g_rhs(j,i), 1d0, g_ti(j), g_ti(j))
-                  enddo
-               endif
-            enddo
-            do j = 1, 3
-               write(*,*)'*** TI check',j
-               call ga_print(g_ti(j))
-               if (.not.ga_destroy(g_ti(j))) then
-                  call errquit('j_deriv_gen: could not destroy TI',j,
-     &       GA_ERR)
-               endif
-            enddo
-c
-         endif
-         write(*,*)'--------Leaving j_deriv_gen-------------'
-      endif
-c !!! BGJ test !!!
 c
       return
       end

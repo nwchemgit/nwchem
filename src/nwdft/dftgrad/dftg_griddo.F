@@ -136,9 +136,6 @@ c
       Ec = 0.d0
       Ex = 0.d0
       oprint = util_print('quadrature', print_high)
-      if (bgj_print() .gt. 0)
-     &    write(*,*)'*** dftg_gridv0a: logicals ',
-     &    do_force,do_hess,do_cpks_r
 c
 c     Determine the XC energy functionals.
 c

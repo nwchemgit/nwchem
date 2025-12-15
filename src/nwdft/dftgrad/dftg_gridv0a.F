@@ -169,9 +169,6 @@ c
       me = ga_nodeid()
       Ec = 0.d0
       Ex = 0.d0
-      if (bgj_print() .gt. 0)
-     &    write(*,*)'*** dftg_gridv0a: logicals ',
-     &    do_force,do_hess,do_cpks_r
 c
 c     Determine the XC energy functionals.
 c

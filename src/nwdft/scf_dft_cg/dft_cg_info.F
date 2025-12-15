@@ -31,19 +31,6 @@ c
       integer mult
       integer cd_basis
 c
-c     hf_job = .not. bgj_have_xc()
-c     if (bgj_print() .gt. 0)
-c    &     write(*,*)'*** scf_get_info: hf_job ',hf_job
-c
-c     if (.not. rtdb_cget(rtdb, 'title', 1, title))
-c    $     title = ' '
-c
-c     load geometry and symmetry info
-c
-c     if (.not. geom_create(geom, 'geometry'))
-c    $     call errquit('dft_cg_init: geom_create?', 0, GEOM_ERR)
-c     if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-c    $     call errquit('dft_cg_init: no geometry ', 0, RTDB_ERR)
       if (rtdb_get(rtdb, 'dft:level shift info', MT_DBL, 6,shifts)) then
         ouser_changed_conv = .true.
       else
@@ -188,19 +175,6 @@ c
 c     Determine no. of open and closed shells ... default is to run closed
 c     shell unless told otherwise
 c     
-c     if (bgj_print() .gt. 0)
-c    &   write(*,*)'*** !!! more stuff to check in scf_get_info.F !!!'
-c     if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
-c    +     call errquit('task: no task input for theory?',0, INPUT_ERR)
-c     if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
-c     $     nopen = 0
-c     if(theory .eq. 'dft')then
-c        if (.not. rtdb_get(rtdb, 'dft:mult', MT_INT, 1,mult))
-c    *        mult = 1
-c        nopen = mult - 1
-c     endif
-c     if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
-c    $     nopen = 0
       if (nopen .gt. nelec) call errquit
      $     ('scf: nopen > nelec ', nopen, INPUT_ERR)
       if (mod(nelec-nopen,2) .ne. 0) call errquit

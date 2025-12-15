@@ -193,20 +193,6 @@ c
          enddo
       endif
 c
-#if 0
-      if (bgj_print() .gt. 1) then
-      write(LuOut,*) ' setACmat: AMAT out' 
-      call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
-      if (grad) then
-         write(LuOut,*) ' setACmat: CMAT out ',xform_Cmat
-         call output(cmat, 1, nq, 1, 3*ipol, nq, 3*ipol, 1)
-      endif
-      if (kske) then
-         write(LuOut,*) ' setACmat: MMAT out'
-         call output(mmat, 1, nq, 1, ipol, nq, ipol, 1)
-      endif
-      endif
-#endif
 c
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
       do ii = 1, NCOL_AMAT2
@@ -228,16 +214,6 @@ c
             enddo
          enddo
       endif
-#if 0
-      if (bgj_print() .gt. 1) then
-      write(LuOut,*) ' setACmat_d2: AMAT2 out'
-      call output(amat2, 1, nq, 1, NCOL_AMAT2, nq, NCOL_AMAT2, 1)
-      if (grad) then
-         write(LuOut,*) ' setACmat_d2: CMAT2 out'
-         call output(cmat2, 1, nq, 1, NCOL_CMAT2, nq, NCOL_CMAT2, 1)
-      endif
-      endif
-#endif
 #endif
 c
 #ifdef THIRD_DERIV
