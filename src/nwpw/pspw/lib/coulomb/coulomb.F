@@ -68,8 +68,9 @@ c    >     + i+1
      >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
      >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
 
-         if (((pzero.eq.taskid) .and. (i.eq.zero)).or.
-     E    (abs(gg) .lt.toll))  then
+         if ((abs(gg) .lt.toll))  then
+            dbl_mb(tmp1(1)+i-1) = 0.0d0
+         elseif (((pzero.eq.taskid) .and. (i.eq.zero))) then
             dbl_mb(tmp1(1)+i-1) = 0.0d0
          else
             dbl_mb(tmp1(1)+i-1) = fourpi/gg
