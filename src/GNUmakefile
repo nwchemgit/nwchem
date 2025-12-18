@@ -255,7 +255,7 @@ ifdef SUBDIRS
 endif
 
 .PHONY:	install
-install: all
+install: link
 	@test $${INSTALL_PREFIX?Please set the environment variable INSTALL_PREFIX}
 	@echo install_prefix is $(INSTALL_PREFIX)
 	@mkdir -p $(INSTALL_PREFIX)/bin  $(INSTALL_PREFIX)/share
