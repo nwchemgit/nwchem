@@ -21,7 +21,7 @@ jobs:
       matrix:
         blas: [build_openblas]
         blas_size: [8]
-        os: [ubuntu-22.04, macos-latest, ubuntu-24.04-arm]
+        os: [ubuntu-latest, macos-latest, ubuntu-24.04-arm]
         experimental: [false]
         mpi_impl:
           - openmpi
