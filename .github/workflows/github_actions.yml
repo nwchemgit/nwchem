@@ -374,6 +374,12 @@ jobs:
             armci_network: MPI-TS
             nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump nwc_columbus"
             fc: ifx
+          - os: ubuntu-24.04-arm
+            experimental: true
+            mpi_impl: build_mpich
+            armci_network: MPI-TS
+            nwchem_modules: "tinyqmpw"
+            fc: flang-22
           - os: ubuntu-latest
             experimental: true
             mpi_impl: build_mpich
