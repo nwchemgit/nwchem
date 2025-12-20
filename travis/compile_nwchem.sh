@@ -32,13 +32,6 @@ if [[ "$arch" == "aarch64" ]]; then
 	export OMPI_FC=nvfortran
 	env|egrep FC
 	nvfortran -V
-    else
-#should be gfortran	
-	if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
-	    FOPT="-O0 -fno-aggressive-loop-optimizations"
-	else
-	    FOPT="-O1 -fno-aggressive-loop-optimizations"
-	fi
     fi
 else
     if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then

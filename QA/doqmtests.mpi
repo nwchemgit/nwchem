@@ -342,6 +342,10 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np cho_bp_props
 let "myexit+=$?"
+./runtests.mpi.unix procs $np dft_hyperf_zno
+let "myexit+=$?"
+./runtests.mpi.unix procs $np dft_hyperf_zno6bq
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np prop_cg_nh3_b3lyp
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np localize-ibo-aa
