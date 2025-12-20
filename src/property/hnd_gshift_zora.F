@@ -1071,11 +1071,6 @@ c     Print out tensor information, and write to Ecce file if necessary
       call ecce_print_module_entry('nmr')
       do iatom = 1, sh_atom
        ioff = (iatom-1)*9
-       if (.not. geom_cent_get(geom, int_mb(k_tmp+iatom-1), tag, 
-     &     dbl_mb(k_xyz), dbl_mb(k_zan))) call 
-     &     errquit('hnd_gshift: geom_cent_tag failed',0,GEOM_ERR)
-       if (.not. geom_tag_to_element(tag, symbol, element, atn)) call
-     &     errquit('hnd_gshift: geom_tag_to_element failed',0,GEOM_ERR)
 c
 c      Print tensor pieces and sum for total shielding tensor
 
