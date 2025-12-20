@@ -4,14 +4,14 @@ title dft_zorahyperf_zno6bq
 
 
 geometry 
-symmetry c4
+#symmetry c4
 zn 0. 0. 0.
 O  2. 0. 0
-O -2. 0. 0
+O1 -2. 0. 0
 O  0. 2. 0.
-O  0. -2. 0.
+O1  0. -2. 0.
 O  0. 0. 2.1
-O  0. 0. -2.1 
+O1  0. 0. -2.1 
 bqZn  4.  0.  0. charge 1d-20
 bqZn -4.  0.  0. charge 1d-20
 bqZn  0.  4.  0. charge 1d-20
@@ -19,19 +19,20 @@ bqZn  0. -4.  0. charge 1d-20
 bqZn  0.  0. -4.2 charge 1d-20
 bqZn  0.  0.  4.2 charge 1d-20
 end
-charge -10
+
 BASIS "ao basis" spherical 
 * library def2-svp
 end
-set tolguess 1d-3
-charge 0
+
+
 dft
  direct
  mult 3
  xc pbe0
  grid xfine
- tolerances tight
+ tolerances  acccoul 13
  convergence energy 1d-8 lshift 0.
+ maxiter 99
  end
 task dft
 set dft:no_prune t
