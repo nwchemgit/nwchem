@@ -20,6 +20,7 @@ c::local
       integer ip, j, index
       logical warning
       logical oldway
+      double precision factor2,summin
 c
       oldway = .false.
 c
@@ -38,7 +39,6 @@ c... number of integrals
      &       BASIS_ERR)
       nbf = (l+1)*(l+2)/2
       nint = nbf*nbf
-      if (.not.oldway) then
 *
 *...
 *... normalize for overlap of basis function in all space
@@ -68,6 +68,7 @@ c... number of integrals
 *...
 *
         sum = 0.0d00
+        call dfill(nbf,0d0,scr(lscr-nbf+1),1)
         do i = 1,np
           do j = i,np
 *debug:            write(6,*)' '
@@ -81,15 +82,20 @@ c... number of integrals
      &          xyz,z(j),cc(j),1,1,l,
      &          xyz,dumexp,dumcof,1,1,0,
      &          scr,nint,.false.,.false.,.false.,.false.,
-     &          scr(1+nint),(lscr-nint))
+     &          scr(1+nint),(lscr-nint-nbf))
+            if(oldway) then
 * find minimum diagonal element
-            call find_min_diag_nmcoef2c(scr,nbf,factor)
+               call find_min_diag_nmcoef2c(scr,nbf,factor)
 *debug:            write(6,*)' sum 1     ', sum, factor
-            if(i.ne.j) factor = factor*2d0
-            sum = sum + factor
+               if(i.ne.j) factor = factor*2d0
+               sum = sum + factor
 *debug:            write(6,*)' sum 2     ', sum
+            else
+               call sum_diag_nmcoef2c(scr(lscr-nbf+1),scr,nbf,i.eq.j)
+            endif
           enddo
         enddo
+        if(.not.oldway) sum=minval(scr(lscr-nbf+1:lscr))
 *debug:        write(6,*)' sum final ', sum
         factor = 1.0d00/sqrt(sum)
 *debug:        write(6,*)' factor    ',factor
@@ -97,38 +103,6 @@ c... number of integrals
           cc(i) = cc(i)*factor
         enddo
 c
-      else
-        call hf2 (
-     &        xyz,z,cc,np,1,l,
-     &        xyz,dumexp,dumcof,1,1,0,
-     &        xyz,z,cc,np,1,l,
-     &        xyz,dumexp,dumcof,1,1,0,
-     &        scr,nint,.false.,.false.,.false.,.false.,
-     &        scr(1+nint),(lscr-nint))
-*        
-crak:--
-c.. find minimum diagonal element
-c
-        factor = abs(scr(1))
-        index = 0
-        do i = 1,nbf
-          do j = 1,nbf
-            index = index + 1
-            if (i.eq.j) then
-              if (abs(scr(index)).gt.1.0d-05) then
-                factor = min(factor,abs(scr(index)))
-              endif
-*debug:              write(6,*)'factor ',factor,' val ',scr(index)
-            endif
-          enddo
-        enddo
-        factor = 1.0d00/sqrt(factor)
-c
-c... normalize contraction coefficients
-        do i = 1, np
-          cc(i) = cc(i)*factor
-        enddo
-      endif
 *debug:* compute sum of squares
 *debug:      factor = 0.0d00
 *debug:      do ip = 1,np
@@ -189,17 +163,30 @@ c
 *debug:      write(6,*)' nr = ',nr
       factor = abs(buf(1,1))
       negative = buf(1,1).lt.0.0d00
-      do i = 1,nr
-        do j = 1,nr
-          if (i.eq.j) then
-*debug:            write(6,10000)i,j,buf(i,j)
-            if (abs(buf(i,j)).lt.factor) then
-              factor = abs(buf(i,j))
-              negative = buf(i,j) .lt. 0.0d00
-            endif
-          endif
-        enddo
+      do i = 2,nr
+*debug:            write(6,10000)i,buf(i,i)
+         if (abs(buf(i,i)).lt.factor) then
+            factor = abs(buf(i,i))
+            negative = buf(i,i) .lt. 0.0d00
+         endif
       enddo
       if (negative) factor = -1.0d00*factor
-10000 format(' findbuffer(',i3,',',i3,') =',1pd20.10)
+      write(6,*) ' findmin factor ',factor
+10000 format(' findbuffer(',i3,') =',1pd20.10)
+      end
+      subroutine sum_diag_nmcoef2c(test,scr,nbf,ieqj)
+      implicit none
+      integer nbf
+      logical ieqj
+      double precision test(*),scr(nbf,*)
+c
+      integer k
+      double precision fact
+c
+      fact=1d0
+      if(.not.ieqj) fact=2d0
+      do k=1,nbf
+         test(k) = test(k) + fact*scr(k,k)
+      enddo
+      return
       end
