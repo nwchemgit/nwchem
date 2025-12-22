@@ -10,7 +10,7 @@ else
     rm -rf OpenBLAS*
     tries=1 ; until [ "$tries" -ge 6 ] ; do
 		  if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
-		  curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz ;
+		  curl -L https://github.com/OpenMathLib/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz ;
 		  # check tar.gz integrity
 		  gzip -t OpenBLAS-${VERSION}.tar.gz >&  /dev/null
 		  if [ $? -eq 0 ]; then break ;  fi
