@@ -92,6 +92,8 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_siosi3
 let "myexit+=$?"
+./runtests.mpi.unix procs $np adft_he2+
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np adft_siosi3
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_cr2
@@ -191,6 +193,8 @@ let "myexit+=$?"
 ./runtests.mpi.unix procs $np tddft_n2+
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np tddft_ac_co
+let "myexit+=$?"
+./runtests.mpi.unix procs $np h2o_bnl2007_tddft
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_xdm1
 let "myexit+=$?"
@@ -764,6 +768,8 @@ let "myexit+=$?"
 ./runtests.mpi.unix procs $np  cosmo_h2cco2_opt
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np  rt_tddft_dplot
+let "myexit+=$?"
+./runtests.mpi.unix procs $np  metagga_li4h4_1_m05_0
 let "myexit+=$?"
 if [[ "$what" != "flaky" ]]; then
     echo
