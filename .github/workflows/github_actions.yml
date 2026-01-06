@@ -21,7 +21,7 @@ jobs:
       matrix:
         blas: [build_openblas]
         blas_size: [8]
-        os: [ubuntu-22.04, macos-latest, ubuntu-24.04-arm]
+        os: [ubuntu-latest, macos-latest, ubuntu-24.04-arm]
         experimental: [false]
         mpi_impl:
           - openmpi
@@ -374,6 +374,12 @@ jobs:
             armci_network: MPI-TS
             nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump nwc_columbus"
             fc: ifx
+          - os: ubuntu-24.04-arm
+            experimental: true
+            mpi_impl: build_mpich
+            armci_network: MPI-TS
+            nwchem_modules: "tinyqmpw"
+            fc: flang-22
           - os: ubuntu-latest
             experimental: true
             mpi_impl: build_mpich
@@ -475,7 +481,7 @@ jobs:
         shell: bash
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/cache

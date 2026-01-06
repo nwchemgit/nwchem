@@ -2,37 +2,54 @@ echo
 start dft_zorahyperf_zno6bq
 title dft_zorahyperf_zno6bq
 
-
+charge -10
 geometry 
-symmetry c4
+#symmetry c4
 zn 0. 0. 0.
 O  2. 0. 0
-O -2. 0. 0
+O1 -2. 0. 0
 O  0. 2. 0.
-O  0. -2. 0.
+O1  0. -2. 0.
 O  0. 0. 2.1
-O  0. 0. -2.1 
-bqZn  4.  0.  0. charge 1d-20
-bqZn -4.  0.  0. charge 1d-20
-bqZn  0.  4.  0. charge 1d-20
-bqZn  0. -4.  0. charge 1d-20
-bqZn  0.  0. -4.2 charge 1d-20
-bqZn  0.  0.  4.2 charge 1d-20
+O1  0. 0. -2.1
+bq_zn  4.  0.  0.  charge 1d-20
+bq_zn -4.  0.  0.  charge 1d-20
+bq_zn  0.  4.  0.  charge 1d-20
+bq_zn  0. -4.  0.  charge 1d-20
+bq_zn  0.  0. -4.2  charge 1d-20
+bq_zn  0.  0.  4.2  charge 1d-20
 end
-charge -10
-BASIS "ao basis" spherical 
-* library def2-svp
+
+basis bse spherical
+zn library stuttgart_rsc_1997
+O library def2-svp
 end
-set tolguess 1d-3
-charge 0
+
+ecp bse
+zn library stuttgart_rsc_1997
+bq_zn nelec 10
+bq_zn ul
+2       1.000000000            0.000000000
+bq_zn S
+2      34.150000000          399.987282000
+2      14.590000000           85.485655000
+bq_zn P
+2      39.780000000          277.148960000
+2      14.950000000           69.052205000
+bq_zn D
+2      43.800000000          -34.149349000
+2      14.980000000           -3.291831000
+end
+
+
 dft
  direct
  mult 3
  xc pbe0
- grid xfine
- tolerances tight
+ grid fine
  convergence energy 1d-8 lshift 0.
- end
+ maxiter 99
+end
 task dft
 set dft:no_prune t
 relativistic

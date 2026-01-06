@@ -7,7 +7,14 @@ wget https://www.chemie.uni-bonn.de/grimme/de/software/dft-d3/dftd3.tgz
 cd $NWCHEM_TOP/src/libext/openblas
 VERSION=0.3.29
 rm -rf OpenBLAS*gz
-curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz
+    rm -rf OpenBLAS*
+    tries=1 ; until [ "$tries" -ge 6 ] ; do
+		  if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
+		  curl -L https://github.com/OpenMathLib/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz ;
+		  # check tar.gz integrity
+		  gzip -t OpenBLAS-${VERSION}.tar.gz >&  /dev/null
+		  if [ $? -eq 0 ]; then break ;  fi
+		  tries=$((tries+1)) ;  done
 cd $NWCHEM_TOP/src/libext/scalapack
 COMMIT=a23c2cdc6586c427686f6097ae66bb54ef693571
 rm -f scalapack-$COMMIT.zip
