@@ -2,9 +2,8 @@
 #set -v
 arch=`uname -m`
 #SHORTVERSION=2021.11.001
-SHORTVERSION=2025.01.002
-#VERSION=new_release_${SHORTVERSION}
-VERSION=${SHORTVERSION}
+SHORTVERSION=2023.05.001
+VERSION=new_release_${SHORTVERSION}
 echo mpif90 is `which mpif90`
 if [ -f  elpa-${VERSION}.tar.gz ]; then
     echo "using existing"  elpa-${VERSION}.tar.gz
@@ -12,17 +11,8 @@ else
     rm -rf elpa*
 #    echo    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
 #    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
-#    echo curl https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
-#    curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
-echo    curl -LJO https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${VERSION}/elpa-${VERSION}.tar.gz
-    tries=1 ; until [ "$tries" -ge 6 ] ; do
-		  if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
-    curl -LJO https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${VERSION}/elpa-${VERSION}.tar.gz
-    # check tar.gz integrity
-    echo check tar.gz integrity
-		  gzip -t elpa-${VERSION}.tar.gz >&  /dev/null
-		  if [ $? -eq 0 ]; then echo "download successful"; break ;  fi
-		  tries=$((tries+1)) ;  done
+    echo curl https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+    curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
 fi
 tar xzf elpa-${VERSION}.tar.gz
 ln -sf elpa-${VERSION} elpa
@@ -175,17 +165,6 @@ echo MPICH_CC is "$MPICH_CC"
 if [[  -z "$MPICH_CXX"   ]] ; then
     export MPICH_CXX="$CXX"
 fi
-if [[  -z "$OMPI_FC"   ]] ; then
-    export OMPI_FC="$FC"
-fi
-echo OMPI_FC is "$OMPI_FC"
-if [[  -z "$OMPI_CC"   ]] ; then
-    export OMPI_CC="$CC"
-fi
-echo OMPI_CC is "$OMPI_CC"
-if [[  -z "$OMPI_CXX"   ]] ; then
-    export OMPI_CXX="$CXX"
-fi
 #Intel MPI
 if [[  -z "$I_MPI_F90"   ]] ; then
     export I_MPI_F90="$FC"
@@ -289,7 +268,6 @@ echo FC is $MPIF90 CC is $MPICC CXX is $MPICXX
   CFLAGS="$MYCFLAGS" \
   FCFLAGS="$MYFCFLAGS" \
   --enable-option-checking=fatal \
- --disable-openmp  \
  --disable-dependency-tracking \
  --disable-shared --enable-static  \
  --disable-c-tests \
@@ -304,7 +282,9 @@ unset SCALAPACK_LDFLAGS
 echo mpif90 is `which mpif90`
 echo MPIF90 is "$MPIF90"
 if [[ "$USE_MANUALCPP" == 1 ]]; then echo @@@@ MANUALCPP @@@; fi
-make FC=$MPIF90 CC=$MPICC CXX=$MPICXX -j4
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-libLTLIBRARIES  -j4
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_elpa_includeHEADERS 
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_nodist_elpa_includeHEADERS 
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "Elpa compilation failed"
@@ -313,7 +293,7 @@ if [[ "$?" != "0" ]]; then
     cat config.log
     exit 1
 fi
-    make V=0   install
+#    make V=0   install
 
 cp ${NWCHEM_TOP}/src/libext/lib/libelpa.a  ${NWCHEM_TOP}/src/libext/lib/libnwc_elpa.a
 cp -r ${NWCHEM_TOP}/src/libext/include/elpa-${SHORTVERSION}  ${NWCHEM_TOP}/src/libext/include/elpa
