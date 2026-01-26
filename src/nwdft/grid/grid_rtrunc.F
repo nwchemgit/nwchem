@@ -246,8 +246,10 @@ c
       if (ilo .eq. 0) then
          dexpo=sqrt(alpha)*r
          if(dexpo.gt.40d0) then
+            valexp=0d0
             value=0d0
          else
+            valexp=exp(-alpha*r*r)
 #if defined(WIN32) ||defined(LINUX)
             value = 0.5d0*sqrt(4.0d0*atan(1.0d0)/alpha)*
      $           derfc(dexpo)
@@ -256,13 +258,14 @@ c
      $           erfc(dexpo)
 #endif
          endif
-      endif
-      if(alpha*r*r.gt.500d0) then
-         valexp=0d0
-         value =0d0
       else
-         valexp=exp(-alpha*r*r)
-         value =valexp/(2.0d0*alpha)
+        if(alpha*r*r.gt.500d0) then
+           valexp=0d0
+           value =0d0
+        else
+           valexp=exp(-alpha*r*r)
+           value =valexp/(2.0d0*alpha)
+        endif
       endif
 c
       do i = ilo+2,k,2
