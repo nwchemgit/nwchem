@@ -520,6 +520,6 @@ jobs:
         run: |
           ./travis/run_qas.sh
       - name: Check if QA testing has failed
-        if: ${{ failure() }} &&  steps.qa_test.outcome == 'failure'
+        if: ${{ failure() &&  steps.qa_test.outcome == 'failure' }}
         run: |
           ./travis/check_qas.sh
