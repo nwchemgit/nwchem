@@ -52,6 +52,4 @@ bsse
 mon first 1 2 3
 mon second 4 5 6
 end
-
-task dft optimize
-
+task dft energy
