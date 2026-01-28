@@ -20,12 +20,14 @@ property
 end
 
 scf
+ direct
  uhf
 end
 
 task scf property
 
 dft
+# direct
  xc b3lyp
  odft
 end
