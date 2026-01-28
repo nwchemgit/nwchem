@@ -1,0 +1,197 @@
+name: NWChem_CI_selfhosted
+
+on:
+  release:
+  schedule:
+    - cron: '0 4 * * SAT'
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+jobs:
+  build_workflow:
+    uses: ./.github/workflows/update_main.yml
+    secrets:
+      inherit
+  build:
+    if: |
+      github.event_name == 'schedule' ||
+      (!contains(github.event.head_commit.message, 'ci skip'))
+    needs: [build_workflow]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 2880
+    strategy:
+      matrix:
+        os:
+          - [self-hosted, ubuntu1604]
+        blas: [build_openblas]
+        blas_size:
+          - 8
+        experimental: [false]
+        armci_network:
+          - MPI-PR
+        nwchem_modules:
+          - "all python xtb"
+        fc:
+          - gfortran
+        use_simint:
+          - 1
+        use_libxc:
+          - 1
+        use_tblite:
+          - 1
+        build_plumed:
+          - 1
+        branch:
+          - main
+        include:
+          - os: [self-hosted, ubuntu1804]
+            experimental: false
+            mpi_impl: intel
+            armci_network: MPI-TS
+            nwchem_modules: "all python xtb"
+            fc: ifort
+            blas: "build_openblas"
+            use_libxc: 1
+            use_openmp: 2
+            use_tblite: 1
+            simint_vector: avx2
+          - os: [self-hosted, ubuntu1604]
+            experimental: false
+            mpi_impl: intel
+            armci_network: SOCKETS
+            nwchem_modules: "all python xtb"
+            fc: ifx
+            blas: "build_openblas"
+            use_libxc: 1
+            use_tblite: 1
+            simint_vector: avx2
+          - os: [self-hosted, fedora]
+            experimental: false
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "all python xtb"
+            fc: gfortran
+            blas: "build_openblas"
+            use_libxc: 1
+            use_simint: 1
+            use_openmp: 2
+            use_tblite: 1
+            simint_vector: scalar
+            branch: main
+          - os: [self-hosted, ubuntu2304]
+            experimental: false
+            mpi_impl: openmpi
+            armci_network: MPI-PT
+            nwchem_modules: "all python xtb"
+            fc: gfortran
+            blas: "build_openblas"
+            use_libxc: 1
+            use_openmp: 2
+            use_tblite: 1
+            simint_vector: scalar
+            branch: main
+          - os: [self-hosted, osx-arm64, ajay]
+            experimental: false
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "all python "
+            fc: gfortran
+            blas: "build_openblas"
+            use_libxc: 1
+            use_simint: 1
+            simint_vector: scalar
+            branch: main
+          - os: [self-hosted, osx-x64]
+            experimental: false
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "all python xtb"
+            fc: gfortran
+            blas: "build_openblas"
+            use_libxc: 1
+            use_simint: 1
+            use_openmp: 2
+            use_tblite: 1
+            simint_vector: avx2
+            branch: main
+      fail-fast: false
+    env:
+      MPI_IMPL: ${{ matrix.mpi_impl }}
+      ARMCI_NETWORK: ${{ matrix.armci_network }}
+      NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
+      USE_SIMINT: ${{ matrix.use_simint }}
+      USE_LIBXC: ${{ matrix.use_libxc }}
+      USE_TBLITE: ${{ matrix.use_tblite }}
+      BUILD_PLUMED: ${{ matrix.build_plumed }}
+      FC: ${{ matrix.fc }}
+      CC: ${{ matrix.cc }}
+      COMEX_MAX_NB_OUTSTANDING: 16
+      SIMINT_MAXAM: 4
+      SIMINT_VECTOR: ${{ matrix.simint_vector }}
+      BLAS_ENV: ${{ matrix.blas }}
+      BLAS_SIZE: ${{ matrix.blas_size }}
+      USE_OPENMP: ${{ matrix.use_openmp }}
+    continue-on-error: ${{ matrix.experimental }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 32
+          ref: ${{ matrix.branch }}
+          clean: true
+      - name: Get Instruction
+        id: get-simd
+        run: |
+          echo "simd=$(./travis/guess_simd.sh)" >> $GITHUB_ENV
+        shell: bash
+      - name: Clear cache dir
+        run: |
+          rm -rf ~/cache || true
+        shell: bash
+      - name: Setup cache
+        id: setup-cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/cache
+          key: |
+            ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}
+            -xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}
+            -blas${{ matrix.blas}}-blas_size${{ matrix.blas_size}}
+            -libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}
+            -simd${{ env.simd }}-nwchemcache-v003
+      - name: fetch cache
+        if: steps.setup-cache.outputs.cache-hit == 'true'
+        run: |
+          ./travis/cache_fetch.sh
+      - name: compile
+        id: compile
+        run: |
+          mytee=tee
+          if  [[ `uname -s` == "Darwin" ]]; then mytee=gtee; fi
+          ./travis/config_nwchem.sh  | $mytee >(ts "%d%b%Y %H:%M:%S" > ../../../config.log.` date +%b%d%Y_%H:%M`)
+          ./travis/compile_nwchem.sh  | $mytee >(ts "%d%b%Y %H:%M:%S" > ../../../compile.log.` date +%b%d%Y_%H:%M`)
+      - name: Check compilation result
+        if: ${{ failure() }}
+        run: |
+          ./travis/compile_check.sh
+      - name: store cache
+        run: |
+          ./travis/cache_store.sh
+      - name: qa_test
+        id: qa_test
+        if: steps.compile.conclusion == 'success'
+        run: |
+          export TRAVIS_BUILD_DIR=`pwd`
+          unset USE_SIMINT
+          mytee=tee
+          if  [[ `uname -s` == "Darwin" ]]; then mytee=gtee; dist=Darwin; fi
+          if  test -f "/usr/lib/os-release"; then dist=$(grep ID= /etc/os-release |grep -v VERSION|head -1 |cut -c4-| sed 's/\"//g') ; fi
+          if [[ $dist == "fedora" ]]; then nprocs=2; else nprocs=3 ;fi
+          echo nprocs is $nprocs
+          source travis/nwchem.bashrc; cd QA && ./doqmtests.mpi $nprocs | $mytee >(ts "%d%b%Y %H:%M:%S" > ../../../../doqmtests.mpi.log.` date +%b%d%Y_%H:%M`)
+        shell: bash
+      - name: Check if QA testing has failed
+        if: ${{ failure() }} &&  steps.qa_test.outcome == 'failure'
+        run: |
+          ./travis/check_qas.sh
