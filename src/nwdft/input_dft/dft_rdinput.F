@@ -1158,7 +1158,7 @@ c
         CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
       endif
       if (CDFIT)then
-         call int_init(rtdb, 1, cd_bas_han)         
+         call int_init(rtdb,2,(/ao_bas_han,cd_bas_han/))
          if (.not. int_norm_2c(rtdb,CD_bas_han))
      &      call errquit('rdinput: int_norm_2c failed', 208, BASIS_ERR)
          call int_terminate()
