@@ -60,7 +60,7 @@ c
       integer g_cos1e
       dimension g_cos1e(3)
       double precision ecosmo
-      logical osome
+      logical do_x2c
 c
       logical odebug
       integer itype_wfn
@@ -160,13 +160,16 @@ c
          endif
         call ga_dadd(1.d0,g_hcore,1.d0,g_zora_Kinetic(1),g_hcore) ! zora kinetic
       endif
+c     == X2C options ==
+      if (rtdb_get(rtdb,'x2c:on',mt_log,1,do_x2c)) then
+            if(do_x2c) call
+     A           errquit('X2C available only for DFT ',0,CAPMIS_ERR)
+      endif
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel) ! potential
       if (util_print('rohf_fock',print_debug)) call ga_print(g_hcore)
 c
 c     cosmo charges, potential and energy contribution
 c
-      osome=.false.
-      osome=osome.and.ga_nodeid().eq.0
       if(cosmo_on.and.cosmo_phase.eq.2) then
        cosmo_file = "cosmo.xyz"
        g_dens = ga_create_atom_blocked(geom,basis,'density matrix')

@@ -15,18 +15,18 @@
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "nwcsim.fh"
-c      use iso_c_binding
-      integer rtdb,nbas,bases(3)
+c     use iso_c_binding
+      integer rtdb,nbas,bases(max_bases)
       integer :: num_der
 c      type(c_simint_multi_shellpair), target :: msh
-      double precision :: alpha(3), coef(3)
       integer :: ibasis,basis,bas
       logical cart_2_sphe
       integer :: geom, natoms
       integer :: max_der, max_ang
       integer :: mxmx
-      integer :: iat,icset,ic1,ic2, nprim
-      integer :: l, ncontr, isphere
+      integer :: iat,icset,ic1,ic2
+      integer :: nprim, l
+      integer :: ncontr, isphere
       character*16 tag 
       integer l_coef,k_coef,l_exp,k_exp
       double precision coord(3)
@@ -47,9 +47,9 @@ c     fetch stuff from rtdb
 c reset screen_tol when screening is off
       if(smnt_screen_method.eq.SIMINT_SCREEN_NONE)smnt_screen_tol=0d0
 
-c     stick to nbas>=2 for now
-         if(nbas.gt.2) call errquit(
-     C        ' simint interface not ready for no basis gt 2',0,0)
+         if(nbas.gt.max_bases) call errquit(
+     C     ' simint interface not tested yet for no basis gt ',
+     M     max_bases, 0)
 c     init
       max_der=0
 #ifdef SIMINT_GRADIENT
@@ -168,7 +168,7 @@ c      iszb_2e4c=isz_2e4c
       implicit none
 #include "errquit.fh"
       integer nbas     ! [in]
-      integer bases(3) ! [in]
+      integer bases(max_bases) ! [in]
 c
       integer icsh,ibasis,bas
       character*14 pname

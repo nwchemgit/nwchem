@@ -11,7 +11,6 @@ ifdef SIMINT_GRADIENT
       LIB_DEFINES +=  -DSIMINT_GRADIENT
 endif
 
-        
        HEADERS = 
 
        LIBRARY = libnwints.a

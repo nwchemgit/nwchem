@@ -223,7 +223,7 @@ if [[ ${FC_EXTRA} == gfortran  || ${FC_EXTRA} == flang || ${FC_EXTRA} == armflan
 fi
 elif  [ ${FC} == xlf ] || [ ${FC} == xlf_r ] || [ ${FC} == xlf90 ]|| [ ${FC} == xlf90_r ]; then
     Fortran_FLAGS=" -qintsize=8 -qextname -qpreprocess"
-elif  [[ ${FC} == ifort || (${FC} == ftn && ${PE_ENV} == INTEL) ]]; then
+elif  [[ ${FC} == ifort || ${FC} == ifx || (${FC} == ftn && ${PE_ENV} == INTEL) ]]; then
     Fortran_FLAGS="-i8 -fpp"
 elif  [ ${FC} == ftn ]  && [ ${PE_ENV} == CRAY  ]; then
     Fortran_FLAGS=" -ffree -s integer64 -e F "

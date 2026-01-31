@@ -699,6 +699,7 @@ cc AJL/Begin/SPIN ECPs
       external bas_get_ecp_handle
       logical ecp_get_high_chan
       external ecp_get_high_chan
+      logical do_x2c
 cc AJL/End
 c     
 c ... jochen 05/20: added an option to print contributions to
@@ -1055,6 +1056,11 @@ c
             call errquit('ZORA available only for DFT ',0,CAPMIS_ERR)
          endif
         call ga_dadd(1.d0,g_a_hcore,1.d0,g_zora_Kinetic(1),g_a_hcore) ! zora kinetic
+      endif
+c     == X2C options ==
+      if (rtdb_get(rtdb,'x2c:on',mt_log,1,do_x2c)) then
+            if(do_x2c) call
+     A           errquit('X2C available only for DFT ',0,CAPMIS_ERR)
       endif
 
       if (epsana) then

@@ -7,11 +7,12 @@ c      use ISO_FORTRAN_ENV
 #define SIMINT_SCREEN_SCHWARZ      1
 #define SIMINT_SCREEN_FASTSCHWARZ  2
 C     shells 
-      type(c_simint_shell), target :: smnt_sh(nw_max_shells,3)
+      integer, parameter :: max_bases=4
+      type(c_simint_shell), target :: smnt_sh(nw_max_shells,max_bases)
 c dummy shell for 3c- 
-      type(c_simint_shell), target :: zero_sh(nw_max_shells,3)
+      type(c_simint_shell), target :: zero_sh(nw_max_shells,max_bases)
       type(c_simint_multi_shellpair), target :: bra_msh, ket_msh
-      integer :: nwcsim_noshell(3), nwcsim_bas(3)
+      integer :: nwcsim_noshell(max_bases), nwcsim_bas(max_bases)
       integer :: nwcsim_nbas
       logical :: nwcsim_initialized = .false.
       double precision :: smnt_screen_tol 
