@@ -6,7 +6,12 @@ C REVISION
 C     $Id$
 C
 C SYNOPSIS
+#if !defined SERIAL_DIAG
       Subroutine GA_MatPow(G_V, Pow, MinEval)
+#elif defined(SERIAL_DIAG)
+#warning serial sub
+      Subroutine GA_MatPow_serial(G_V, Pow, MinEval)
+#endif
       Implicit NONE
 #include "errquit.fh"
       Integer G_V
@@ -57,9 +62,6 @@ C LOCAL VARIABLES
       Integer D, DiagLo, DiagHi
       Integer G_EV, G_Tmp
       Integer I, J, VType, Rows, Cols, ILo, IHi, JLo, JHi
-#if defined(USE_GEN_DIAG)
-      Integer G_Junk
-#endif
       Double precision Elem
 C
 C     ***************************
@@ -109,44 +111,13 @@ C
 C
 C     Now we can solve the stupid thing...
 C
-#if defined(USE_GEN_DIAG)
-C     Create an array for the metric and turn it into the unit matrix
-C
-      If ( .NOT. GA_Create( VType, Rows, Cols, 'Metric',
-     $   -MinChunk, -MinChunk, G_Junk) )
-     $   Call ErrQuit('GA_MatPow: Unable to allocate metric',
-     $   Rows*Cols, GA_ERR)
-C
-C     This is clearly serial, but hopefully soon we should be able to
-C     go back to the standard eigensolver instead of the generalized one.
-C
-      Call GA_Zero( G_Junk)
-      If ( GA_NodeID() .eq. 0) then
-         Do I = 1, Rows
-            Call GA_Put(G_Junk, I, I, I, I, FP_One, 1)
-         EndDo
-      EndIf
-C
-#ifdef SCALAPACK
-         call ga_pdsygv(g_v, g_junk, g_ev, dbl_mb(eval_idx),0)
-#elif defined(PEIGS)
-      Call GA_Diag( G_V, G_Junk, G_EV, Dbl_MB(Eval_Idx))
-#else
-      Call GA_Diag_Seq( G_V, G_Junk, G_EV, Dbl_MB(Eval_Idx))
-#endif
-C
-      If ( .NOT. GA_Destroy( G_Junk) )
-     $   Call ErrQuit('GA_MatPow: Unable to free metric', 0, GA_ERR)
-C
-#else /* defined(USE_GEN_DIAG) */
-#ifdef SCALAPACK
-      call ga_pdsyev(g_v, g_ev, dbl_mb(eval_idx),0)
-#elif defined(PEIGS)
+#if defined(SCALAPACK) && defined(USE_PDSYEVR) && !defined(SERIAL_DIAG)
+      call ga_pdsyevr(g_v, g_ev, dbl_mb(eval_idx),0,rows)
+#elif defined(PEIGS) && !defined(SERIAL_DIAG)
       Call GA_Diag_Std( G_V, G_EV, Dbl_MB(Eval_Idx))
 #else
       Call GA_Diag_Std_Seq( G_V, G_EV, Dbl_MB(Eval_Idx))
 #endif
-#endif /* defined(USE_GEN_DIAG) */
 C
 C     Sometimes people may just want a look at the eigenvalues.
 C
@@ -301,3 +272,10 @@ C
 C
       Return
       End
+#ifndef SERIAL_DIAG
+#define SERIAL_DIAG
+c
+c     Compile source again for the serial diag case
+c
+#include "ga_matpow.F"
+#endif
