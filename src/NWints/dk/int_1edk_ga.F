@@ -39,6 +39,8 @@ c:tex-\noindent Author: W. A. de Jong
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
+#define PGROUP
+#define PGROUP_MAXPROC 3
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
 c:tex-\end{verbatim}
       implicit none
@@ -122,9 +124,13 @@ c
       integer ZpxVp_ga          ! Unmodified pxVp for DK3
       integer tmp3g_a           ! Temporary g_a matrix #3 handle for
                                 ! full DK3
+      integer max2,list2(PGROUP_MAXPROC),p_handle,g_inpg,g_inworld
+      integer comm_world
+      logical status
       integer info
       integer ga_cholesky,ga_llt_i
       external ga_cholesky,ga_llt_i
+      integer itype,dim
 c
 c     cau = 137.0360000d0         ! Speed of light by Bernd Hess
 c
@@ -135,6 +141,18 @@ c
 c
 c     Define the dimensions of the arrays
 c
+      call ga_sync()
+#ifdef PGROUP
+      max2=min(ga_nnodes(),PGROUP_MAXPROC)
+      do iloop=1,PGROUP_MAXPROC
+         list2(iloop)=iloop-1
+      enddo
+      p_handle=ga_pgroup_create(list2,max2)
+      call ga_inquire(g_in, itype, dim, dim)
+      comm_world=ga_pgroup_get_world()
+      if(ga_nodeid().lt.max2) then
+      call ga_pgroup_set_default(p_handle)
+#endif
       if (.not. bas_numbf(dk_fitbas,nbf))
      $   call errquit('int_1edk_ga: bas_numbf failed',0, BASIS_ERR)
 c
@@ -182,7 +200,7 @@ c
       if (.not. ma_push_get(MT_DBL,nbf,'psquared',p2m_a,p2Im_a))
      $     call errquit('int_1edk_ga: ma_push_get failed psquared',0,
      &       MA_ERR)
-#ifdef SCALAPACK
+#if defined(SCALAPACK)  && !defined(PGROUP)
 c     pdsygv is unstable since it uses the inaccurate pdsyevx
 cold         call ga_pdsygv(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
 c     S=chol*chol_t
@@ -190,7 +208,7 @@ c     S=chol*chol_t
 c     inv(a)
       info = ga_llt_i('L',tempg_a,-1)
 c     U=chol(inv(a))_t
-      info = ga_cholesky('L',tempg_a,-1)
+      info = ga_cholesky('L',tempg_a)
 
 c     f_prime=U_t*f*inv(chol)*U
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,tempg_a,Tg_a,0.0d0,tmpg_a)
@@ -201,7 +219,7 @@ c     diag f_prime c_prime
 c     c=inv(chol)_t*c_prime
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,tmpg_a,
      Z     0.0d0,ug_a)
-#elif defined(PEIGS)
+#elif defined(PEIGS) && !defined(PGROUP)
       call ga_diag(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
 #else
       call ga_diag_seq(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
@@ -1744,6 +1762,7 @@ c
 c     S_-1 is inverse overlap in the uncontracted basis
 c     Scontr_uncon is the mixed basis overlap
 c
+
       if (.not. bas_numbf(basis_in,nbf_in))
      $   call errquit('int_1edk_ga: bas_numbf failed',0, BASIS_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf_in,'Mixed overlap',1,1,
@@ -1765,7 +1784,11 @@ c     Create overlap matrix dk_fitbas, invert to S^-1 and multiply with Mixg_a
 c
       call ga_zero(tempg_a)
       call int_1e_oldga(dk_fitbas,dk_fitbas,tempg_a,'overlap',.false.)
+#ifdef PGROUP
+      call ga_matpow_serial(tempg_a, -1.0d0, 0.0d0)
+#else
       call ga_matpow(tempg_a, -1.0d0, 0.0d0)
+#endif
       call ga_dgemm('n','n',nbf,nbf_in,nbf,1.0d0,tempg_a,Mixg_a,
      $              0.0d0,tmpg_a)
       call ga_copy(tmpg_a,Mixg_a)
@@ -1782,9 +1805,18 @@ c
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf_in,nbf,nbf,1.0d0,Mixg_a,
      $              DKg_a,0.0d0,tempg_a)
+      call ga_zero(DKg_a)
+#ifdef PGROUP
+      if (.not. ga_create(MT_DBL,dim,dim,'GA tmp',1,1,g_inpg))
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &     GA_ERR)
+      call ga_zero(g_inpg)
+#else
+      g_inpg=g_in
+#endif
       call ga_dgemm('n','n',nbf_in,nbf_in,nbf,1.0d0,tempg_a,Mixg_a,
-     $              1.0d0,g_in)
-      call ga_symmetrize(g_in)
+     $              1.0d0,g_inpg)
+      call ga_symmetrize(g_inpg)
 c
 c     Destroy transformation matrices Mixg_a, tempg_a and DKg_a
 c
@@ -1795,6 +1827,24 @@ c
       if (.not. ga_destroy(DKg_a))
      $     call errquit('int_1edk_ga: ga_destroy DKg_a',0, GA_ERR)
 c
+#ifdef PGROUP
+      endif
+      call ga_pgroup_set_default(comm_world)
+      call ga_sync()
+      if (.not. ga_create(MT_DBL,dim,dim,'GA tmp',1,1,g_inworld))
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &     GA_ERR)
+      call ga_serialcopy(g_inpg,g_inworld)
+      if(ga_nodeid().lt.max2) then
+         if (.not. ga_destroy(g_inpg))
+     $        call errquit('int_1edk_ga: ga_destroy g_inpg',0, GA_ERR)
+      endif
+      call ga_add(1d0,g_inworld,1d0,g_in, g_in)
+      if (.not. ga_destroy(g_inworld))
+     $     call errquit('int_1edk_ga: ga_destroy g_inworld',0, GA_ERR)
+      if(.not.ga_pgroup_destroy(p_handle))
+     $     call errquit('int_1edk_ga: pgroupdestroy',0, GA_ERR)
+#endif
       return
 c
       end
