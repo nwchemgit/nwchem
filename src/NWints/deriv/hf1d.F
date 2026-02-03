@@ -16,29 +16,30 @@ C> Lachlan Belcher 14 Feb 2023
      &       O2I,KEI,NAI,canAB,dryrun,W0,maxW0)
 c $Id$
 
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+      implicit none
       logical hlfdrv    ! [input] if true, calculate same atom as well
                         ! as different atom integrals. This is necessary
                         ! when calculating the half-derivative overlap
                         ! matrix for NADCTs
-      integer ictrA, ictrB !NB already used implicitly
+      integer ictrA, ictrB      !NB already used implicitly
+      integer NPA,NCA,La,NPB,NCB,Lb,ncenters,nint,maxw0
 
       Logical dryrun
       Logical O2I,KEI,NAI,canAB,GenCon
 
 c--> Cartesian Coordinates, Primitives & Contraction Coefficients
 
-      Dimension Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
-      Dimension Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
+      double precision Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
+      double precision Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
 
 c--> Nuclear Cartesian Coordinates, Charges & Inverse Exponents
 
-      Dimension Cxyz(3,ncenters),zan(ncenters),exinv(ncenters)
+      double precision Cxyz(3,ncenters),zan(ncenters),exinv(ncenters)
 
 c--> Blocks of Overlap, Kinetic Energy & Nuclear Attraction Integrals
 
-      Dimension bO2I(Nint,*),bKEI(Nint,*),bNAI(Nint,*)
+      Double precision bO2I(Nint,*),bKEI(Nint,*),bNAI(Nint,*)
+      Double Precision W0(maxW0)
 
 
       hlfdrv=.false.
@@ -66,9 +67,7 @@ C-------------------------------------------------------------------------
      &       hlfdrv)
 c $Id$
 
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-
+      implicit none
 #include "errquit.fh"
 #include "stdio.fh"
       LOGICAL smatm     ! if true, both integrals use the same atom
@@ -80,30 +79,31 @@ c $Id$
                         ! when calculating the half-derivative overlap
                         ! matrix for NADCTs
       integer ictrA, ictrB !NB already used implicitly
+      integer NPA,NCA,La,NPB,NCB,Lb,ncenters,nint,maxw0
 
       Logical dryrun
       Logical O2I,KEI,NAI,canAB,GenCon
 
 c--> Cartesian Coordinates, Primitives & Contraction Coefficients
 
-      Dimension Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
-      Dimension Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
+      Double Precision Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
+      Double Precision Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
 
 c--> Nuclear Cartesian Coordinates, Charges & Inverse Exponents
 
-      Dimension Cxyz(3,ncenters),zan(ncenters),exinv(ncenters)
+      Double Precision Cxyz(3,ncenters),zan(ncenters),exinv(ncenters)
 
 c--> Blocks of Overlap, Kinetic Energy & Nuclear Attraction Integrals
 
-      Dimension bO2I(Nint,*),bKEI(Nint,*),bNAI(Nint,*)
+      Double Precision bO2I(Nint,*),bKEI(Nint,*),bNAI(Nint,*)
 
 c--> Derivative Indices
 
-      Dimension inder1(3,3),inder2(6,6)
+      integer inder1(3,3),inder2(6,6)
 
 c--> Scratch Space.
 
-      Dimension W0(maxW0)
+      Double Precision W0(maxW0)
 
       Data inder1/ 1,0,0,
      &             0,1,0,
@@ -115,6 +115,12 @@ c--> Scratch Space.
      &             0,0,0,1,0,0,
      &             0,0,0,0,1,0,
      &             0,0,0,0,0,1 /
+c
+      integer i_ALPHAp,i_Ep,i_ESp,i_ff,i_IJK,i_IPAIRp,
+     I     i_left,i_P,i_PC,i_pf,i_R0,i_R0C,i_right,
+     I     i_Rj,i_RS,i_Ti,i_top,i_VA,i_VB,i_VP,i_VR,
+     I     Li, Lp,Lp3, lprod, MaxMem, MXD,
+     I     n, NCP, nd, nder, npp
 c
 c Compute gradient of the overlap, kinetic energy, and nuclear attraction 
 c integrals for 2 shells of contracted Gaussians functions.

@@ -172,7 +172,7 @@ c::local
       integer bra_prim, ket_prim, ket_lim
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket, nat
-      integer bra_fact, ket_fact
+      integer bra_fact, ket_fact, lp
       double precision factor
 c
 #include "bas_exndcf_sfn.fh"
@@ -238,7 +238,11 @@ c
             ket_gen  = 1
           endif
 c
-          memdum = 60 000 000
+c     must be larger than NPP*Lp3*ncenters (line 340 of hf1d.F)
+          lp=bra_type+ket_type+1
+          memdum= (((lp+1)*(lp+2)*(lp+3))/6*
+     *         nat*bra_prim*ket_prim)*125/100
+          memdum=max(memdum,60000000)
           nint = int_unint(brain,ibc,ketin,ikc,0,0,0,0)
           call hf1d(
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
