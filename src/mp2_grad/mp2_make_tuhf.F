@@ -50,6 +50,7 @@ c
       parameter (eps=1d-14)
 c
       logical otdebug
+      logical dumpabij
       logical do_mirra,do_mirrb,do_mirr
       integer g_ta_mirr,g_tb_mirr,g_ta_org,g_tb_org
       logical util_mirrmat,tuhfreplicated
@@ -58,12 +59,14 @@ c
       external util_mirrmem
 c
       integer l_ia_uv, k_ia_uv, l_tmp, k_tmp, l_ia_jb, k_ia_jb
+      character*255 dumpabij_fn
       double precision ddot
       external ddot
 c
 #include "bitops.fh"
 c
       otdebug = util_print('tdebug',print_debug)
+      dumpabij = util_print('dumpabij',print_never)
 c     
       eaa=0.0d0
       eab=0.0d0
@@ -133,6 +136,11 @@ c
       endif
       tunitptra=1
       tunitptrb=1
+      if(dumpabij) then
+         call util_file_name('dumpabij',.false.,.true.,dumpabij_fn)
+         write(6,*)' dumpabij filename', dumpabij_fn
+         open(90, status='unknown', form='formatted', file=dumpabij_fn)
+      endif
       do i=oseg_lo,oseg_hi 
          symi=irs_a(i)
          call ga_zero(g_t_a)
@@ -260,11 +268,16 @@ c
      $                    -eval_a(i)-eval_a(j)
                      t=dbl_mb(counta+k_ia_jb+j-sym_lo_oa(symj))/denom
                      if(abs(t).lt.eps)t=0.0d0
+                  if(dumpabij.and.t.gt.0d0)
+     D             write(90,9012)  i, j, a_a, b,
+     N                 t*denom,
+     D                 denom
 c
                      eaa=eaa+t*t*denom
                      dbl_mb(counta+k_ia_jb+j-sym_lo_oa(symj))=t
                   enddo
                   counta=counta+(sym_hi_oa(symj)-sym_lo_oa(symj)+1)
+ 9012               format(1x,4i6,2(1pe15.7))
                endif
             enddo
             if(task.eq.'gradient' .and. counta.gt.0)then
@@ -294,6 +307,10 @@ c
      $                    -eval_a(i)-eval_b(j)
                      t=dbl_mb(countb+k_ia_jb+j-sym_lo_ob(symj))/denom
                      if(abs(t).lt.eps)t=0.0d0
+                     if(dumpabij.and.t.gt.0d0)
+     D             write(90,9012)  i, j, a_a, b,
+     N                 t*denom,
+     D                 denom
                      eab=eab+t*t*denom
                      dbl_mb(countb+k_ia_jb+j-sym_lo_ob(symj))=t
                   enddo
