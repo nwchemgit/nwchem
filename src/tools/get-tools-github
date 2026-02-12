@@ -202,8 +202,15 @@ fi
 GOTMINGW64=` $CC -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21 `
 if [[ -d $GA_DIR ]]; then
     if [[ ! -f "${GA_DIR}/patched" ]]; then
-	echo patched
+	echo patching
+	rm -f elpa.patch
+	wget https://github.com/edoapra/ga/commit/f65bcc756198b7928371e3e283f59ac525afff7a.patch -O elpa.patch
+	cd ${GA_DIR}
+	patch -p1 < ../elpa.patch
+	cd ..
 	touch ${GA_DIR}/patched
+    else
+	echo patched
     fi
 fi
 #if [ ! -z "$GOTMINGW64" ]

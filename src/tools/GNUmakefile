@@ -464,6 +464,9 @@ ifneq ($(ELPA),)
     else
         MAYBE_ELPA = --with-elpa="$(strip $(ELPA))"
     endif
+    ifneq ($(ELPA_NVIDIA),)
+        FFLAGS_FORGA += -DHAVE_ELPA_NVIDIA
+    endif
 endif
 
 ifneq ($(SCALAPACK),)
