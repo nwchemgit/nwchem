@@ -269,7 +269,9 @@ c
                      t=dbl_mb(counta+k_ia_jb+j-sym_lo_oa(symj))/denom
                      if(abs(t).lt.eps)t=0.0d0
                   if(dumpabij.and.t.gt.0d0)
-     D             write(90,9012)  i, j, a_a, b,
+     D                    write(90,9012)
+     A            nbf*(nbf*(nbf*(i-1)+(j-1))+a_a-1)+b,
+     I                    i, j, a_a, b,
      N                 t*denom,
      D                 denom
 c
@@ -277,7 +279,7 @@ c
                      dbl_mb(counta+k_ia_jb+j-sym_lo_oa(symj))=t
                   enddo
                   counta=counta+(sym_hi_oa(symj)-sym_lo_oa(symj)+1)
- 9012               format(1x,4i6,2(1pe15.7))
+ 9012               format(1x,i12,4i6,2(1pe15.7))
                endif
             enddo
             if(task.eq.'gradient' .and. counta.gt.0)then
@@ -308,7 +310,9 @@ c
                      t=dbl_mb(countb+k_ia_jb+j-sym_lo_ob(symj))/denom
                      if(abs(t).lt.eps)t=0.0d0
                      if(dumpabij.and.t.gt.0d0)
-     D             write(90,9012)  i, j, a_a, b,
+     D                    write(90,9012)
+     N                    nbf*(nbf*(nbf*(i-1)+(j-1))+a_a-1)+b,
+     I                    i, j, a_a, b,
      N                 t*denom,
      D                 denom
                      eab=eab+t*t*denom

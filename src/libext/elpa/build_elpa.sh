@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #set -v
 arch=`uname -m`
-#SHORTVERSION=2021.11.001
-SHORTVERSION=2023.05.001
+#SHORTVERSION=2023.05.001
+SHORTVERSION=2025.06.002
 VERSION=new_release_${SHORTVERSION}
 echo mpif90 is `which mpif90`
 if [ -f  elpa-${VERSION}.tar.gz ]; then
@@ -215,16 +215,16 @@ elif [[ ${FC_EXTRA} == gfortran ]] ; then
 fi    
     if [[ "${GOTAVX}" == "Y" ]]; then
 	echo "using AVX instructions"
-	FORCETARGET=" --disable-sse-assembly --enable-avx --disable-avx2  --disable-avx512  "
+	FORCETARGET=" --disable-sse-assembly --enable-avx-kernels --disable-avx2  --disable-avx512  "
     fi
     if [[ "${GOTAVX2}" == "Y" ]]; then
 	echo "using AVX2 instructions"
-	FORCETARGET=" --enable-sse-assembly --enable-avx --enable-avx2  --disable-avx512  "
+	FORCETARGET=" --enable-sse-assembly --enable-avx-kernel2 --enable-avx2-kernels  --disable-avx512  "
 #	CFLAGS+=" -mmmx -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes -mavx -mfma -mavx2 "
     fi
     if [[ "${GOTAVX512}" == "Y" ]]; then
 	echo "using AVX512 instructions"
-	FORCETARGET=" --disable-sse-assembly --enable-avx --enable-avx2  --enable-avx512 "
+	FORCETARGET=" --disable-sse-assembly --enable-avx-kernels --enable-avx2-kernels  --enable-avx512-kernels "
     fi
 fi #USE_HWOPT
 if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
@@ -252,6 +252,20 @@ fi
 if [[ !  -z "${BLASOPT}" ]]; then
     MYLINK+=" ${BLASOPT} "
 fi
+if [[ ! -z "${ELPA_NVIDIA}" ]]; then
+    GPUFLAGS=--enable-nvidia-gpu-kernels
+#    GPUFLAGS+=" --with-default-real-kernel=nvidia_gpu "
+    if [[ ! -z "${CUDA_ROOT}" ]]; then
+	GPUFLAGS+=" --with-cuda-path=${CUDA_ROOT} "
+    else
+	echo " "
+	echo "Please specify location of CUDA installation"
+	echo "by setting the env. variable CUDA_ROOT"
+	echo " "
+	exit 1
+	
+    fi
+fi
 echo MYFCFLAGS is $MYFCFLAGS
 echo MYCFLAGS is $MYCFLAGS
 echo 64ints is $sixty4_int
@@ -272,6 +286,7 @@ echo FC is $MPIF90 CC is $MPICC CXX is $MPICXX
  --disable-shared --enable-static  \
  --disable-c-tests \
      ${FORCETARGET} \
+     ${GPUFLAGS} \
 --prefix=${NWCHEM_TOP}/src/libext
 unset FORCETARGET
 unset LIBS
@@ -284,7 +299,8 @@ echo MPIF90 is "$MPIF90"
 if [[ "$USE_MANUALCPP" == 1 ]]; then echo @@@@ MANUALCPP @@@; fi
 make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-libLTLIBRARIES  -j4
 make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_elpa_includeHEADERS 
-make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_nodist_elpa_includeHEADERS 
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_nodist_elpa_includeHEADERS
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-pkgconfigDATA
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "Elpa compilation failed"
@@ -297,3 +313,5 @@ fi
 
 cp ${NWCHEM_TOP}/src/libext/lib/libelpa.a  ${NWCHEM_TOP}/src/libext/lib/libnwc_elpa.a
 cp -r ${NWCHEM_TOP}/src/libext/include/elpa-${SHORTVERSION}  ${NWCHEM_TOP}/src/libext/include/elpa
+mkdir -p ${NWCHEM_TOP}/src/libext/lib/pkgconfig
+
