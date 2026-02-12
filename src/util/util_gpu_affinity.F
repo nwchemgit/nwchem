@@ -1,6 +1,6 @@
       subroutine util_setup_gpu_affinity
 #ifdef USE_CUDA_AFFINITY
-      use iso_fortran_env
+      use iso_fortran_env, only: INT32
       use cudafor
       use openacc
       implicit none
@@ -57,7 +57,7 @@
       call acc_set_device_num(my_gpu,devicetype)
 #else
 #ifdef USE_OPENACC_AFFINITY
-      use iso_fortran_env
+      use iso_fortran_env, only: INT32
       use openacc
       implicit none
 #include "errquit.fh"
