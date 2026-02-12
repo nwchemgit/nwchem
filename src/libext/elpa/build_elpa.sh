@@ -45,8 +45,6 @@ UNAME_S=$(uname -s)
 if [[ ${UNAME_S} == Linux ]]; then
     export ARFLAGS=rU
 fi
-MYCFLAGS+=" -Wno-error=implicit-function-declaration "
-MYCFLAGS+=" -Wno-error=format "
 if [[ ${UNAME_S} == Darwin ]]; then
     MYLINK+=" -Wl,-no_compact_unwind"
 if [[  -z "$HOMEBREW_PREFIX" ]]; then
@@ -82,6 +80,12 @@ else
 #	FCFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
 #	CFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
     fi
+fi
+GOTNVC=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __NVCOMPILER\  |cut -d " " -f 3)
+echo GOTNVC $GOTNVC
+if [[ ${GOTNVC} != 1 ]]; then
+    MYCFLAGS+=" -Wno-error=implicit-function-declaration "
+    MYCFLAGS+=" -Wno-error=format "
 fi
 if [[  -z "${FC}" ]]; then
     if [[ ! -z ${PE_ENV} ]]; then
@@ -222,7 +226,7 @@ fi
 if [[ ${CC} == ifort ]] ; then
     MYFCFLAGS+=" -O3 -xhost "
 elif [[ ${FC} == nvfortran ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
-    MYCFLAGS+=" -tp native"
+    MYFCFLAGS+=" -tp native"
 elif [[ ${FC_EXTRA} == gfortran ]] ; then
     MYFCFLAGS+=" -O3 -g -mtune=native -march=native "
 #    MYFCFLAGS+=" -Wno-lto-type-mismatch "

@@ -277,10 +277,13 @@ if [[  -z "$PE_ENV"   ]] ; then
 fi
 #fix for clang 12 error in implicit-function-declaration
 GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+GOTNVC=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __NVCOMPILER\  |cut -d " " -f 3)
 if [[ `${MPICC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
+    if [[ ${GOTNVC} != 1 ]]; then
     let GCCVERSIONGT12=$(expr `${MPICC} -dumpversion | cut -f1 -d.` \> 12)
     let GCCVERSIONGT13=$(expr `${MPICC} -dumpversion | cut -f1 -d.` \> 13)
     let GCCVERSIONGT14=$(expr `${MPICC} -dumpversion | cut -f1 -d.` \> 14)
+    fi
 fi
 
 if [[ ${GOTCLANG} == "1" ]] || [[ ${GCCVERSIONGT12} == "1" ]]  ; then
