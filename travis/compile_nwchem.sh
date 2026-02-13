@@ -122,7 +122,11 @@ echo    "$FOPT$FDOPT"
      cd $TRAVIS_BUILD_DIR/src
      $TRAVIS_BUILD_DIR/contrib/getmem.nwchem 1000
      echo  === ldd ====
-     ldd ../bin/LINUX*/nwchem
+     if [[ "$os" == "Darwin" ]]; then
+	 otool -L ../bin/MACX*/nwchem
+     else
+	 ldd ../bin/LINUX*/nwchem
+     fi
  #caching
  mkdir -p $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET $TRAVIS_BUILD_DIR/.cachedir/files
  cp $TRAVIS_BUILD_DIR/bin/$NWCHEM_TARGET/nwchem  $NWCHEM_EXECUTABLE
