@@ -1,4 +1,19 @@
 #!/usr/bin/env bash
+dump_build_env(){
+echo %%%%%%% debug make failures
+env|grep -i pkg
+echo %%%%%%% debug make failures
+grep install- Makefile |grep -v uni ||true
+echo %%%%%%% debug make failures
+grep -dskip PKG *
+echo %%%%%%% debug make failures
+grep pkg Makefile ||true
+echo %%%%%%% debug make failures
+cat Makefile || true
+echo %%%%%%% debug make failures
+cat  config.log || true
+echo %%%%%%% debug make failures
+}
 #set -v
 arch=`uname -m`
 #SHORTVERSION=2023.05.001
@@ -30,8 +45,6 @@ UNAME_S=$(uname -s)
 if [[ ${UNAME_S} == Linux ]]; then
     export ARFLAGS=rU
 fi
-MYCFLAGS+=" -Wno-error=implicit-function-declaration "
-MYCFLAGS+=" -Wno-error=format "
 if [[ ${UNAME_S} == Darwin ]]; then
     MYLINK+=" -Wl,-no_compact_unwind"
 if [[  -z "$HOMEBREW_PREFIX" ]]; then
@@ -67,6 +80,12 @@ else
 #	FCFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
 #	CFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
     fi
+fi
+GOTNVC=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __NVCOMPILER\  |cut -d " " -f 3)
+echo GOTNVC $GOTNVC
+if [[ ${GOTNVC} != 1 ]]; then
+    MYCFLAGS+=" -Wno-error=implicit-function-declaration "
+    MYCFLAGS+=" -Wno-error=format "
 fi
 if [[  -z "${FC}" ]]; then
     if [[ ! -z ${PE_ENV} ]]; then
@@ -178,7 +197,7 @@ fi
 echo I_MPI_F90 is "$I_MPI_F90"
 
 if [[  -z "${FORCETARGET}" ]]; then
-FORCETARGET="-disable-sse -disable-sse-assembly --disable-avx --disable-avx2  --disable-avx512  "
+FORCETARGET="--enable-generic-kernels -disable-sse-kernels -disable-sse-assembly-kernels --disable-avx-kernels --disable-avx2-kernels  --disable-avx512-kernels  "
 fi #FORCETARGET
 if [[ ${CC} == icx ]] ; then
     MYCFLAGS+=" -xhost "
@@ -207,7 +226,7 @@ fi
 if [[ ${CC} == ifort ]] ; then
     MYFCFLAGS+=" -O3 -xhost "
 elif [[ ${FC} == nvfortran ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
-    MYCFLAGS+=" -tp native"
+    MYFCFLAGS+=" -tp native"
 elif [[ ${FC_EXTRA} == gfortran ]] ; then
     MYFCFLAGS+=" -O3 -g -mtune=native -march=native "
 #    MYFCFLAGS+=" -Wno-lto-type-mismatch "
@@ -215,16 +234,16 @@ elif [[ ${FC_EXTRA} == gfortran ]] ; then
 fi    
     if [[ "${GOTAVX}" == "Y" ]]; then
 	echo "using AVX instructions"
-	FORCETARGET=" --disable-sse-assembly --enable-avx-kernels --disable-avx2  --disable-avx512  "
+	FORCETARGET=" --disable-sse-assembly-kernels --enable-avx-kernels --disable-avx2-kernels  --disable-avx512-kernels  "
     fi
     if [[ "${GOTAVX2}" == "Y" ]]; then
 	echo "using AVX2 instructions"
-	FORCETARGET=" --enable-sse-assembly --enable-avx-kernel2 --enable-avx2-kernels  --disable-avx512  "
+	FORCETARGET=" --enable-sse-assembly-kernels --enable-avx-kernels --enable-avx2-kernels  --disable-avx512-kernels  "
 #	CFLAGS+=" -mmmx -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes -mavx -mfma -mavx2 "
     fi
     if [[ "${GOTAVX512}" == "Y" ]]; then
 	echo "using AVX512 instructions"
-	FORCETARGET=" --disable-sse-assembly --enable-avx-kernels --enable-avx2-kernels  --enable-avx512-kernels "
+	FORCETARGET=" --disable-sse-assembly-kernels --enable-avx-kernels --enable-avx2-kernels  --enable-avx512-kernels "
     fi
 fi #USE_HWOPT
 if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
@@ -253,6 +272,14 @@ if [[ !  -z "${BLASOPT}" ]]; then
     MYLINK+=" ${BLASOPT} "
 fi
 if [[ ! -z "${ELPA_NVIDIA}" ]]; then
+# check if we have nvcc in the PATH    
+    if ! [ -x "$(command -v nvcc)" ]; then
+	echo
+	echo nvcc not found
+	echo nvcc is required for building Elpa with Nvidia GPUs
+	echo
+	exit 1
+    fi
     GPUFLAGS=--enable-nvidia-gpu-kernels
 #    GPUFLAGS+=" --with-default-real-kernel=nvidia_gpu "
     if [[ ! -z "${CUDA_ROOT}" ]]; then
@@ -277,6 +304,7 @@ export LIBS="${MYLINK}"
 export    FC=$MPIF90
 export CC=$MPICC
 echo FC is $MPIF90 CC is $MPICC CXX is $MPICXX
+     set -x
  FC=$MPIF90 CC=$MPICC CXX=$MPICXX ../configure \
     $sixty4_int \
   CFLAGS="$MYCFLAGS" \
@@ -287,7 +315,7 @@ echo FC is $MPIF90 CC is $MPICC CXX is $MPICXX
  --disable-c-tests \
      ${FORCETARGET} \
      ${GPUFLAGS} \
---prefix=${NWCHEM_TOP}/src/libext
+     --prefix=${NWCHEM_TOP}/src/libext  ||  { echo config libs failure; dump_build_env ; exit 1; }
 unset FORCETARGET
 unset LIBS
 unset FCFLAGS
@@ -297,10 +325,11 @@ unset SCALAPACK_LDFLAGS
 echo mpif90 is `which mpif90`
 echo MPIF90 is "$MPIF90"
 if [[ "$USE_MANUALCPP" == 1 ]]; then echo @@@@ MANUALCPP @@@; fi
-make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-libLTLIBRARIES  -j4
-make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_elpa_includeHEADERS 
-make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_nodist_elpa_includeHEADERS
-make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-pkgconfigDATA
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-libLTLIBRARIES -j4 || { echo make libs failure; dump_build_env ; exit 1; }
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_elpa_includeHEADERS || { echo make headers1 failure; dump_build_env ; exit 1; }
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_nodist_elpa_includeHEADERS || { echo make headers2 failure; dump_build_env ; exit 1; }
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-pkgconfigDATA || { echo make installpkg failure; dump_build_env ; exit 1; }
+
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "Elpa compilation failed"
