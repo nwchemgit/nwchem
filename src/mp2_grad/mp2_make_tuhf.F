@@ -268,12 +268,12 @@ c
      $                    -eval_a(i)-eval_a(j)
                      t=dbl_mb(counta+k_ia_jb+j-sym_lo_oa(symj))/denom
                      if(abs(t).lt.eps)t=0.0d0
-                  if(dumpabij.and.t.gt.0d0)
+                  if(dumpabij.and.abs(t).gt.0d0)
      D                    write(90,9012)
      A            nbf*(nbf*(nbf*(i-1)+(j-1))+a_a-1)+b,
      I                    i, j, a_a, b,
-     N                 t*denom,
-     D                 denom
+     N                    -0.25d0*t*t*denom*denom,
+     D                    denom
 c
                      eaa=eaa+t*t*denom
                      dbl_mb(counta+k_ia_jb+j-sym_lo_oa(symj))=t
@@ -309,12 +309,12 @@ c
      $                    -eval_a(i)-eval_b(j)
                      t=dbl_mb(countb+k_ia_jb+j-sym_lo_ob(symj))/denom
                      if(abs(t).lt.eps)t=0.0d0
-                     if(dumpabij.and.t.gt.0d0)
+                     if(dumpabij.and.abs(t).gt.0d0)
      D                    write(90,9012)
      N                    nbf*(nbf*(nbf*(i-1)+(j-1))+a_a-1)+b,
      I                    i, j, a_a, b,
-     N                 t*denom,
-     D                 denom
+     N                    -0.5d0*t*t*denom*denom,
+     D                    denom
                      eab=eab+t*t*denom
                      dbl_mb(countb+k_ia_jb+j-sym_lo_ob(symj))=t
                   enddo
