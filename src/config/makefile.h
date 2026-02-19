@@ -1379,7 +1379,11 @@ ifeq ($(TARGET),MACX64)
 
         ifdef USE_OPENMP
             FOPTIONS  += -fopenmp
-            LDOPTIONS += -fopenmp
+            ifneq (,$(wildcard ${HOMEBREW_PREFIX}/opt/libomp/lib/libomp.a))
+                LDOPTIONS += -L$(HOMEBREW_PREFIX)/opt/libomp/lib -lomp
+            else
+                LDOPTIONS += -fopenmp
+            endif
         endif
 
         ifeq ($(USE_FLANG),1)
