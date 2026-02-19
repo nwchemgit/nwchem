@@ -150,6 +150,9 @@ c
       p_handle=ga_pgroup_create(list2,max2)
       call ga_inquire(g_in, itype, dim, dim)
       comm_world=ga_pgroup_get_world()
+      if (.not. ga_create(MT_DBL,dim,dim,'GA tmp',1,1,g_inworld))
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &     GA_ERR)
       if(ga_nodeid().lt.max2) then
       call ga_pgroup_set_default(p_handle)
 #endif
@@ -1828,13 +1831,11 @@ c
      $     call errquit('int_1edk_ga: ga_destroy DKg_a',0, GA_ERR)
 c
 #ifdef PGROUP
+            call ga_copy(g_inpg,g_inworld)
       endif
       call ga_pgroup_set_default(comm_world)
       call ga_sync()
-      if (.not. ga_create(MT_DBL,dim,dim,'GA tmp',1,1,g_inworld))
-     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
-     &     GA_ERR)
-      call ga_serialcopy(g_inpg,g_inworld)
+c      call ga_serialcopy(g_inpg,g_inworld)
       if(ga_nodeid().lt.max2) then
          if (.not. ga_destroy(g_inpg))
      $        call errquit('int_1edk_ga: ga_destroy g_inpg',0, GA_ERR)
