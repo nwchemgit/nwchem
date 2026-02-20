@@ -320,6 +320,7 @@ echo FC is $MPIF90 CC is $MPICC CXX is $MPICXX
  --disable-dependency-tracking \
  --disable-shared --enable-static  \
  --disable-c-tests \
+ --disable-detect-mpi-launcher \
      ${FORCETARGET} \
      ${GPUFLAGS} \
      --prefix=${NWCHEM_TOP}/src/libext  ||  { echo config libs failure; dump_build_env ; exit 1; }
