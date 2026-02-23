@@ -374,12 +374,6 @@ jobs:
             armci_network: MPI-TS
             nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump nwc_columbus"
             fc: ifx
-          - os: ubuntu-24.04-arm
-            experimental: true
-            mpi_impl: build_mpich
-            armci_network: MPI-TS
-            nwchem_modules: "tinyqmpw"
-            fc: flang-22
           - os: ubuntu-latest
             experimental: true
             mpi_impl: build_mpich
@@ -520,6 +514,6 @@ jobs:
         run: |
           ./travis/run_qas.sh
       - name: Check if QA testing has failed
-        if: ${{ failure() }} &&  steps.qa_test.outcome == 'failure'
+        if: ${{ failure() &&  steps.qa_test.outcome == 'failure' }}
         run: |
           ./travis/check_qas.sh

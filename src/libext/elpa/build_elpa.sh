@@ -1,10 +1,24 @@
 #!/usr/bin/env bash
+dump_build_env(){
+echo %%%%%%% debug make failures
+env|grep -i pkg
+echo %%%%%%% debug make failures
+grep install- Makefile |grep -v uni ||true
+echo %%%%%%% debug make failures
+grep -dskip PKG *
+echo %%%%%%% debug make failures
+grep pkg Makefile ||true
+echo %%%%%%% debug make failures
+cat Makefile || true
+echo %%%%%%% debug make failures
+cat  config.log || true
+echo %%%%%%% debug make failures
+}
 #set -v
 arch=`uname -m`
-#SHORTVERSION=2021.11.001
-SHORTVERSION=2025.01.002
-#VERSION=new_release_${SHORTVERSION}
-VERSION=${SHORTVERSION}
+#SHORTVERSION=2023.05.001
+SHORTVERSION=2025.06.002
+VERSION=new_release_${SHORTVERSION}
 echo mpif90 is `which mpif90`
 if [ -f  elpa-${VERSION}.tar.gz ]; then
     echo "using existing"  elpa-${VERSION}.tar.gz
@@ -12,17 +26,15 @@ else
     rm -rf elpa*
 #    echo    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
 #    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
-#    echo curl https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
-#    curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
-echo    curl -LJO https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${VERSION}/elpa-${VERSION}.tar.gz
-    tries=1 ; until [ "$tries" -ge 6 ] ; do
-		  if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
-    curl -LJO https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${VERSION}/elpa-${VERSION}.tar.gz
-    # check tar.gz integrity
-    echo check tar.gz integrity
-		  gzip -t elpa-${VERSION}.tar.gz >&  /dev/null
-		  if [ $? -eq 0 ]; then echo "download successful"; break ;  fi
-		  tries=$((tries+1)) ;  done
+    tries=1
+    until [ "$tries" -ge 6 ]
+    do
+	if [ "$tries" -gt 1 ]; then echo sleeping for 9s ;sleep 9; echo attempt no.  $tries ; fi
+	echo curl https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+	curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+	gzip -t elpa-${VERSION}.tar.gz >&  /dev/null
+	if [ $? -eq 0 ]; then break ;  fi
+	tries=$((tries+1)) ;  done
 fi
 tar xzf elpa-${VERSION}.tar.gz
 ln -sf elpa-${VERSION} elpa
@@ -40,8 +52,6 @@ UNAME_S=$(uname -s)
 if [[ ${UNAME_S} == Linux ]]; then
     export ARFLAGS=rU
 fi
-MYCFLAGS+=" -Wno-error=implicit-function-declaration "
-MYCFLAGS+=" -Wno-error=format "
 if [[ ${UNAME_S} == Darwin ]]; then
     MYLINK+=" -Wl,-no_compact_unwind"
 if [[  -z "$HOMEBREW_PREFIX" ]]; then
@@ -77,6 +87,12 @@ else
 #	FCFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
 #	CFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
     fi
+fi
+GOTNVC=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __NVCOMPILER\  |cut -d " " -f 3)
+echo GOTNVC $GOTNVC
+if [[ ${GOTNVC} != 1 ]]; then
+    MYCFLAGS+=" -Wno-error=implicit-function-declaration "
+    MYCFLAGS+=" -Wno-error=format "
 fi
 if [[  -z "${FC}" ]]; then
     if [[ ! -z ${PE_ENV} ]]; then
@@ -175,17 +191,6 @@ echo MPICH_CC is "$MPICH_CC"
 if [[  -z "$MPICH_CXX"   ]] ; then
     export MPICH_CXX="$CXX"
 fi
-if [[  -z "$OMPI_FC"   ]] ; then
-    export OMPI_FC="$FC"
-fi
-echo OMPI_FC is "$OMPI_FC"
-if [[  -z "$OMPI_CC"   ]] ; then
-    export OMPI_CC="$CC"
-fi
-echo OMPI_CC is "$OMPI_CC"
-if [[  -z "$OMPI_CXX"   ]] ; then
-    export OMPI_CXX="$CXX"
-fi
 #Intel MPI
 if [[  -z "$I_MPI_F90"   ]] ; then
     export I_MPI_F90="$FC"
@@ -199,7 +204,7 @@ fi
 echo I_MPI_F90 is "$I_MPI_F90"
 
 if [[  -z "${FORCETARGET}" ]]; then
-FORCETARGET="-disable-sse -disable-sse-assembly --disable-avx --disable-avx2  --disable-avx512  "
+FORCETARGET="--enable-generic-kernels -disable-sse-kernels -disable-sse-assembly-kernels --disable-avx-kernels --disable-avx2-kernels  --disable-avx512-kernels  "
 fi #FORCETARGET
 if [[ ${CC} == icx ]] ; then
     MYCFLAGS+=" -xhost "
@@ -228,7 +233,7 @@ fi
 if [[ ${CC} == ifort ]] ; then
     MYFCFLAGS+=" -O3 -xhost "
 elif [[ ${FC} == nvfortran ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
-    MYCFLAGS+=" -tp native"
+    MYFCFLAGS+=" -tp native"
 elif [[ ${FC_EXTRA} == gfortran ]] ; then
     MYFCFLAGS+=" -O3 -g -mtune=native -march=native "
 #    MYFCFLAGS+=" -Wno-lto-type-mismatch "
@@ -236,16 +241,16 @@ elif [[ ${FC_EXTRA} == gfortran ]] ; then
 fi    
     if [[ "${GOTAVX}" == "Y" ]]; then
 	echo "using AVX instructions"
-	FORCETARGET=" --disable-sse-assembly --enable-avx --disable-avx2  --disable-avx512  "
+	FORCETARGET=" --disable-sse-assembly-kernels --enable-avx-kernels --disable-avx2-kernels  --disable-avx512-kernels  "
     fi
     if [[ "${GOTAVX2}" == "Y" ]]; then
 	echo "using AVX2 instructions"
-	FORCETARGET=" --enable-sse-assembly --enable-avx --enable-avx2  --disable-avx512  "
+	FORCETARGET=" --enable-sse-assembly-kernels --enable-avx-kernels --enable-avx2-kernels  --disable-avx512-kernels  "
 #	CFLAGS+=" -mmmx -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes -mavx -mfma -mavx2 "
     fi
     if [[ "${GOTAVX512}" == "Y" ]]; then
 	echo "using AVX512 instructions"
-	FORCETARGET=" --disable-sse-assembly --enable-avx --enable-avx2  --enable-avx512 "
+	FORCETARGET=" --disable-sse-assembly-kernels --enable-avx-kernels --enable-avx2-kernels  --enable-avx512-kernels "
     fi
 fi #USE_HWOPT
 if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
@@ -273,6 +278,28 @@ fi
 if [[ !  -z "${BLASOPT}" ]]; then
     MYLINK+=" ${BLASOPT} "
 fi
+if [[ ! -z "${ELPA_NVIDIA}" ]]; then
+# check if we have nvcc in the PATH    
+    if ! [ -x "$(command -v nvcc)" ]; then
+	echo
+	echo nvcc not found
+	echo nvcc is required for building Elpa with Nvidia GPUs
+	echo
+	exit 1
+    fi
+    GPUFLAGS=--enable-nvidia-gpu-kernels
+#    GPUFLAGS+=" --with-default-real-kernel=nvidia_gpu "
+    if [[ ! -z "${CUDA_ROOT}" ]]; then
+	GPUFLAGS+=" --with-cuda-path=${CUDA_ROOT} "
+    else
+	echo " "
+	echo "Please specify location of CUDA installation"
+	echo "by setting the env. variable CUDA_ROOT"
+	echo " "
+	exit 1
+	
+    fi
+fi
 echo MYFCFLAGS is $MYFCFLAGS
 echo MYCFLAGS is $MYCFLAGS
 echo 64ints is $sixty4_int
@@ -284,17 +311,19 @@ export LIBS="${MYLINK}"
 export    FC=$MPIF90
 export CC=$MPICC
 echo FC is $MPIF90 CC is $MPICC CXX is $MPICXX
+     set -x
  FC=$MPIF90 CC=$MPICC CXX=$MPICXX ../configure \
     $sixty4_int \
   CFLAGS="$MYCFLAGS" \
   FCFLAGS="$MYFCFLAGS" \
   --enable-option-checking=fatal \
- --disable-openmp  \
  --disable-dependency-tracking \
  --disable-shared --enable-static  \
  --disable-c-tests \
+ --disable-detect-mpi-launcher \
      ${FORCETARGET} \
---prefix=${NWCHEM_TOP}/src/libext
+     ${GPUFLAGS} \
+     --prefix=${NWCHEM_TOP}/src/libext  ||  { echo config libs failure; dump_build_env ; exit 1; }
 unset FORCETARGET
 unset LIBS
 unset FCFLAGS
@@ -304,7 +333,11 @@ unset SCALAPACK_LDFLAGS
 echo mpif90 is `which mpif90`
 echo MPIF90 is "$MPIF90"
 if [[ "$USE_MANUALCPP" == 1 ]]; then echo @@@@ MANUALCPP @@@; fi
-make FC=$MPIF90 CC=$MPICC CXX=$MPICXX -j4
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-libLTLIBRARIES -j4 || { echo make libs failure; dump_build_env ; exit 1; }
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_elpa_includeHEADERS || { echo make headers1 failure; dump_build_env ; exit 1; }
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_nodist_elpa_includeHEADERS || { echo make headers2 failure; dump_build_env ; exit 1; }
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-pkgconfigDATA || { echo make installpkg failure; dump_build_env ; exit 1; }
+
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "Elpa compilation failed"
@@ -313,7 +346,9 @@ if [[ "$?" != "0" ]]; then
     cat config.log
     exit 1
 fi
-    make V=0   install
+#    make V=0   install
 
 cp ${NWCHEM_TOP}/src/libext/lib/libelpa.a  ${NWCHEM_TOP}/src/libext/lib/libnwc_elpa.a
 cp -r ${NWCHEM_TOP}/src/libext/include/elpa-${SHORTVERSION}  ${NWCHEM_TOP}/src/libext/include/elpa
+mkdir -p ${NWCHEM_TOP}/src/libext/lib/pkgconfig
+

@@ -384,9 +384,23 @@ ifdef BUILD_ELPA
 #   endif
 
     ifndef SCALAPACK_SIZE
-        SCALAPACK_SIZE=8
+        SCALAPACK_SIZE = 8
     endif
-    ELPA=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_elpa -I$(NWCHEM_TOP)/src/libext/include/elpa/modules
+    ELPA := -L$(NWCHEM_TOP)/src/libext/lib -lnwc_elpa -I$(NWCHEM_TOP)/src/libext/include/elpa/modules
+    ifdef ELPA_NVIDIA
+       ifdef CUDA_ROOT
+          ELPA := $(ELPA) -L$(CUDA_ROOT)/lib64
+#          ELPA := $(ELPA) $(shell PKG_CONFIG_PATH=$(NWCHEM_TOP)/src/libext/lib/pkgconfig pkg-config --libs-only-l elpa | sed -e 's/-lelpa//g')
+	  ELPA := $(ELPA) -lcusolver -lcudart -lcublasLt -lcublas
+          ELPA := $(ELPA) -lstdc++
+       else
+          $(info )
+          $(info please set the env. variable CUDA_ROOT)
+          $(info when compiling ELPA for Nvidia GPUs)
+          $(info )
+          $(error )
+       endif
+    endif
 endif
 
 
