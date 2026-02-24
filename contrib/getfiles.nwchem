@@ -7,21 +7,51 @@ wget https://www.chemie.uni-bonn.de/grimme/de/software/dft-d3/dftd3.tgz
 cd $NWCHEM_TOP/src/libext/openblas
 VERSION=0.3.29
 rm -rf OpenBLAS*gz
-    rm -rf OpenBLAS*
-    tries=1 ; until [ "$tries" -ge 6 ] ; do
-		  if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
-		  curl -L https://github.com/OpenMathLib/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz ;
-		  # check tar.gz integrity
-		  gzip -t OpenBLAS-${VERSION}.tar.gz >&  /dev/null
-		  if [ $? -eq 0 ]; then break ;  fi
-		  tries=$((tries+1)) ;  done
+rm -rf OpenBLAS*
+tries=1
+until [ "$tries" -ge 6 ]
+do
+    if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
+    curl -L https://github.com/OpenMathLib/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz ;
+    # check tar.gz integrity
+    gzip -t OpenBLAS-${VERSION}.tar.gz >&  /dev/null
+    if [ $? -eq 0 ]; then break ;  fi
+    tries=$((tries+1)) ;  done
 cd $NWCHEM_TOP/src/libext/scalapack
+#scalapack
 COMMIT=a23c2cdc6586c427686f6097ae66bb54ef693571
-rm -f scalapack-$COMMIT.zip
-curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip -o scalapack-$COMMIT.zip
+echo "downloading"  "scalapack-$COMMIT.tar.gz"
+rm -rf scalapack-$COMMIT.tar.gz scalapack*
+tries=1
+until [ "$tries" -ge 6 ]
+do
+    if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
+    curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.tar.gz -o scalapack-$COMMIT.tar.gz
+    # check tar.gz integrity
+    gzip -t scalapack-$COMMIT.tar.gz >&  /dev/null
+    if [ $? -eq 0 ]; then break ;  fi
+    tries=$((tries+1))
+done
+#ELPA
+cd $NWCHEM_TOP/src/libext/elpa
+rm -rf elpa*tar.gz elpa*
+SHORTVERSION=2025.06.002
+VERSION=new_release_${SHORTVERSION}
+#    echo    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+#    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+tries=1
+until [ "$tries" -ge 6 ]
+do
+    if [ "$tries" -gt 1 ]; then echo sleeping for 9s ;sleep 9; echo attempt no.  $tries ; fi
+    echo curl https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+    curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+    gzip -t elpa-${VERSION}.tar.gz >&  /dev/null
+    if [ $? -eq 0 ]; then break ;  fi
+    tries=$((tries+1)) ;  done
 #caching
 if [ ! -z "$1" ]; then
     rsync -av $NWCHEM_TOP/src/nwpw/nwpwlib/nwpwxc/dftd3.tgz "$1"/.
     rsync -av $NWCHEM_TOP/src/libext/openblas/OpenBLAS*gz "$1"/.
     rsync -av $NWCHEM_TOP/src/libext/scalapack/scalapack*zip "$1"/.
+    rsync -av $NWCHEM_TOP/src/libext/elpa/elpa*tar.gz "$1"/.
 fi
