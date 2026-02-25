@@ -295,6 +295,13 @@ if [[ ! -z "${ELPA_NVIDIA}" ]]; then
 	exit 1
     fi
     GPUFLAGS=--enable-nvidia-gpu-kernels
+    if [[ ! -z "${GPU_ARCH}" ]]; then
+	export NVCC_APPEND_FLAGS=-arch=${GPU_ARCH}
+	GPUFLAGS+=" --with-NVIDIA-GPU-compute-capability=${GPU_ARCH} "
+	if [[ "${GPU_ARCH}" == sm_80 ]]; then
+	    GPUFLAGS+=" --enable-nvidia-sm80-gpu-kernels "
+	fi
+    fi
 #    GPUFLAGS+=" --with-default-real-kernel=nvidia_gpu "
     if [[ ! -z "${CUDA_ROOT}" ]]; then
 	GPUFLAGS+=" --with-cuda-path=${CUDA_ROOT} "
