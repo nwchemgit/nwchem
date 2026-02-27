@@ -285,6 +285,9 @@ fi
 if [[ !  -z "${BLASOPT}" ]]; then
     MYLINK+=" ${BLASOPT} "
 fi
+if [[ ! -z "${USE_OPENMP}" ]]; then
+    export OMPFLAGS="--enable-openmp"
+fi
 if [[ ! -z "${ELPA_NVIDIA}" ]]; then
 # check if we have nvcc in the PATH    
     if ! [ -x "$(command -v nvcc)" ]; then
@@ -313,6 +316,7 @@ if [[ ! -z "${ELPA_NVIDIA}" ]]; then
 	exit 1
 	
     fi
+    MYLDFLAGS=-lstdc++
 fi
 echo MYFCFLAGS is $MYFCFLAGS
 echo MYCFLAGS is $MYCFLAGS
@@ -330,6 +334,7 @@ echo FC is $MPIF90 CC is $MPICC CXX is $MPICXX
     $sixty4_int \
   CFLAGS="$MYCFLAGS" \
   FCFLAGS="$MYFCFLAGS" \
+  LDFLAGS="$MYLDFLAGS" \
   --enable-option-checking=fatal \
  --disable-dependency-tracking \
  --disable-shared --enable-static  \
@@ -337,6 +342,7 @@ echo FC is $MPIF90 CC is $MPICC CXX is $MPICXX
  --disable-detect-mpi-launcher \
      ${FORCETARGET} \
      ${GPUFLAGS} \
+     ${OMPFLAGS} \
      --prefix=${NWCHEM_TOP}/src/libext  ||  { echo config libs failure; dump_build_env ; exit 1; }
 unset FORCETARGET
 unset LIBS
@@ -351,7 +357,7 @@ make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-libLTLIBRARIES -j4 || { echo make 
 make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_elpa_includeHEADERS || { echo make headers1 failure; dump_build_env ; exit 1; }
 make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-nobase_nodist_elpa_includeHEADERS || { echo make headers2 failure; dump_build_env ; exit 1; }
 make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-pkgconfigDATA || { echo make installpkg failure; dump_build_env ; exit 1; }
-
+make FC=$MPIF90 CC=$MPICC CXX=$MPICXX install-binPROGRAMS || { echo make instalbins failure; dump_build_env ; exit 1; }
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "Elpa compilation failed"
@@ -362,7 +368,10 @@ if [[ "$?" != "0" ]]; then
 fi
 #    make V=0   install
 
-cp ${NWCHEM_TOP}/src/libext/lib/libelpa.a  ${NWCHEM_TOP}/src/libext/lib/libnwc_elpa.a
-cp -r ${NWCHEM_TOP}/src/libext/include/elpa-${SHORTVERSION}  ${NWCHEM_TOP}/src/libext/include/elpa
+if [[ ! -z "${USE_OPENMP}" ]]; then
+    ompsuffix="_openmp"
+fi
+cp ${NWCHEM_TOP}/src/libext/lib/libelpa${ompsuffix}.a  ${NWCHEM_TOP}/src/libext/lib/libnwc_elpa.a
+${NWCHEM_TOP}/src/libext/bin/elpa2_print_kernels${ompsuffix}
+cp -r ${NWCHEM_TOP}/src/libext/include/elpa${ompsuffix}-${SHORTVERSION}  ${NWCHEM_TOP}/src/libext/include/elpa
 mkdir -p ${NWCHEM_TOP}/src/libext/lib/pkgconfig
-
