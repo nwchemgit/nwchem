@@ -19,30 +19,9 @@ arch=`uname -m`
 #SHORTVERSION=2023.05.001
 SHORTVERSION=2025.06.002
 VERSION=new_release_${SHORTVERSION}
+source ../libext_utils/getfiles_utils.sh
+get_elpa $SHORTVERSION
 echo mpif90 is `which mpif90`
-if [ -f  elpa-${VERSION}.tar.gz ]; then
-    echo "using existing"  elpa-${VERSION}.tar.gz
-else
-    rm -rf elpa*
-    ELPA_URL=("https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz" \
-		  "https://web.archive.org/web/20260214233634/https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/new_release_2025.06.002/elpa-new_release_2025.06.002.tar.gz")
-    #    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
-    for url in  "${ELPA_URL[@]}"
-    do
-	echo using $url
-	tries=1
-	until [ "$tries" -ge 3 ]
-	do
-	    if [ "$tries" -gt 1 ]; then echo sleeping for 9s ;sleep 9; echo attempt no.  $tries ; fi
-	    curl -L --progress-bar  $url -o elpa-${VERSION}.tar.gz
-	    gzip -t elpa-${VERSION}.tar.gz >&  /dev/null
-	    if [ $? -eq 0 ]; then break ;  fi
-	    tries=$((tries+1))
-	done
-	gzip -t elpa-${VERSION}.tar.gz >&  /dev/null
-	if [ $? -eq 0 ]; then break ;  fi
-    done
-fi
 tar xzf elpa-${VERSION}.tar.gz
 ln -sf elpa-${VERSION} elpa
 cd elpa
