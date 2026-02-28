@@ -139,31 +139,11 @@ fi
 if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
     BLASOPT="-L`pwd`/../lib -lnwc_openblas"
 fi
-#git clone https://github.com/scibuilder/scalapack.git
-#svn co --non-interactive --trust-server-cert https://icl.utk.edu/svn/scalapack-dev/scalapack/trunk/ scalapack
-VERSION=2.1.0
-#curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/v${VERSION}.tar.gz -o scalapack.tgz
-#COMMIT=bc6cad585362aa58e05186bb85d4b619080c45a9
-#COMMIT=ea5d20668a6b8bbee645b7ffe44623c623969d33
-COMMIT=5bad7487f496c811192334640ce4d3fc5f88144b
-COMMIT=782e739f8eb0e7f4d51ad7dd23fc1d03dc99d240
+source ../libext_utils/getfiles_utils.sh
 COMMIT=a23c2cdc6586c427686f6097ae66bb54ef693571
 #COMMIT=bd1768b91262b4cdc7dd5f87b373b9b18eda4636
 #COMMIT=b935167ca4d244735abc04a3cd4f6d56699702a0
-rm -rf scalapack 
-if [[ -f "scalapack-$COMMIT.tar.gz" ]]; then
-    echo "using existing"  "scalapack-$COMMIT.tar.gz"
-else
-    echo "downloading"  "scalapack-$COMMIT.tar.gz"
-    rm -f scalapack-$COMMIT.tar.gz
-    tries=1 ; until [ "$tries" -ge 6 ] ; do
-		  if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
-		  curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.tar.gz -o scalapack-$COMMIT.tar.gz
-		  # check tar.gz integrity
-		  gzip -t scalapack-$COMMIT.tar.gz >&  /dev/null
-		  if [ $? -eq 0 ]; then break ;  fi
-		  tries=$((tries+1)) ;  done
-fi
+get_scalapack $COMMIT
 tar xzf scalapack-$COMMIT.tar.gz
 ln -sf scalapack-*$COMMIT scalapack
 #ln -sf scalapack-${VERSION} scalapack

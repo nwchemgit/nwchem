@@ -611,7 +611,7 @@ let "myexit+=$?"
 ./runtests.mpi.unix procs $np bare_ecps
 let "myexit+=$?"
 if [[ ! -z "${BUILD_ELPA}" ]]; then
-./runtests.mpi.unix procs $np siosi3_elpa
+./runtests.mpi.unix procs $np dft_siosi3_elpa
 let "myexit+=$?"
 fi
 ./runtests.mpi.unix procs $np dft_formaldehyde_mom

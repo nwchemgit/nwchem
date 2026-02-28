@@ -40,7 +40,7 @@ c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
 #define PGROUP
-#define PGROUP_MAXPROC 3
+#define PGROUP_MAXPROC 2
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
 c:tex-\end{verbatim}
       implicit none
@@ -143,6 +143,10 @@ c     Define the dimensions of the arrays
 c
       call ga_sync()
 #ifdef PGROUP
+#if defined(SCALAPACK)
+      call slexit
+      call slexit2
+#endif
       max2=min(ga_nnodes(),PGROUP_MAXPROC)
       do iloop=1,PGROUP_MAXPROC
          list2(iloop)=iloop-1
@@ -203,7 +207,9 @@ c
       if (.not. ma_push_get(MT_DBL,nbf,'psquared',p2m_a,p2Im_a))
      $     call errquit('int_1edk_ga: ma_push_get failed psquared',0,
      &       MA_ERR)
-#if defined(SCALAPACK)  && !defined(PGROUP)
+#if defined(SCALAPACK)
+!      call slexit
+!      call slexit2
 c     pdsygv is unstable since it uses the inaccurate pdsyevx
 cold         call ga_pdsygv(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
 c     S=chol*chol_t
@@ -222,6 +228,8 @@ c     diag f_prime c_prime
 c     c=inv(chol)_t*c_prime
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,tmpg_a,
      Z     0.0d0,ug_a)
+      call slexit
+      call slexit2
 #elif defined(PEIGS) && !defined(PGROUP)
       call ga_diag(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
 #else
