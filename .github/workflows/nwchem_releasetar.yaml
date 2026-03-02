@@ -73,7 +73,7 @@ jobs:
         run: |
           ls -lrt ${{ env.tmpdir_name }}/*tar*
       - name: Upload artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: nwchem-tarball
           path: ${{ env.tmpdir_name }}/*tar*
