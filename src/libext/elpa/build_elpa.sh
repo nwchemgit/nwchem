@@ -266,6 +266,12 @@ if [[ !  -z "${BLASOPT}" ]]; then
 fi
 if [[ ! -z "${USE_OPENMP}" ]]; then
     export OMPFLAGS="--enable-openmp"
+    if [ -f ${HOMEBREW_PREFIX}/opt/libomp/lib/libomp.a ]
+    then
+        MYFCFLAGS+="-I${HOMEBREW_PREFIX}/opt/libomp/include"
+        MYCFLAGS+="-I${HOMEBREW_PREFIX}/opt/libomp/include"
+        MYLINK+=" -L${HOMEBREW_PREFIX}/opt/libomp/lib -lomp"
+    fi
 fi
 if [[ ! -z "${ELPA_NVIDIA}" ]]; then
 # check if we have nvcc in the PATH    
@@ -295,7 +301,7 @@ if [[ ! -z "${ELPA_NVIDIA}" ]]; then
 	exit 1
 	
     fi
-    MYLDFLAGS=-lstdc++
+    MYLDFLAGS+=-lstdc++
 fi
 echo MYFCFLAGS is $MYFCFLAGS
 echo MYCFLAGS is $MYCFLAGS
