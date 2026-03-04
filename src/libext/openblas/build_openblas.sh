@@ -84,7 +84,8 @@ else
     if [[ -n "${USE_DYNAMIC_ARCH}" ]] || [[ "${USE_HWOPT}" == "n" ]]; then
 	if [[ "$arch" == "x86_64" ]]; then
 	    echo   "not cross compiling, therefore using DYNAMIC_ARCH "
-	    FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
+	    FORCETARGET+="DYNAMIC_ARCH=1"
+#	    FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
 	fi
     fi
 fi
@@ -235,7 +236,7 @@ if [[  ! -z "${USE_OPENMP}" ]]; then
 fi
 GOTFREEBSD=$(uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
 MYMAKE=make
-MAKEJ="MAKE_NB_JOBS=2"
+MAKEJ="MAKE_NB_JOBS=4"
 MAKE_MAJOR=$(make --version 2>& 1|head -1| cut -d " " -f 3 |cut -d .  -f 1)
 MAKE_MINOR=$(make --version 2>& 1|head -1| cut -d " " -f 3 |cut -d .  -f 2)
 if [[ ${MAKE_MAJOR} -ge 4 ]] && [[ ${MAKE_MINOR} -ge 4 ]]; then

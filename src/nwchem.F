@@ -173,6 +173,7 @@ C
  99   format(2x,'NWChem w/ OpenMP: maximum threads = ',i4)
       do_printaff=.false.
 #if defined(USE_OPENMP)
+      call util_setmaxthreads()
       !$omp parallel
       !$omp master
       if (ga_nodeid().eq.0) write(luout,99) omp_get_max_threads()

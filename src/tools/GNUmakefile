@@ -467,6 +467,13 @@ ifneq ($(ELPA),)
     ifneq ($(ELPA_NVIDIA),)
         FFLAGS_FORGA += -DHAVE_ELPA_NVIDIA
     endif
+    ifdef USE_OPENMP
+       ifneq (,$(wildcard ${HOMEBREW_PREFIX}/opt/libomp/lib/libomp.a))
+          LDFLAGS_FORGA += -L$(HOMEBREW_PREFIX)/opt/libomp/lib -lomp
+       else
+          LDFLAGS_FORGA += -fopenmp
+       endif
+    endif
 endif
 
 ifneq ($(SCALAPACK),)
@@ -597,9 +604,6 @@ ifeq ($(PE_ENV),CRAY)
    FFLAGS_FORGA +=-O0 -g
 endif
 
-ifdef USE_OPENMP
-    LDFLAGS_FORGA += -fopenmp
-endif
 
 ifeq ($(GOTFREEBSD),1)
     UNSETFLAGS_FORGA = LDFLAGS=" " CPPFLAGS=" " LIBS=" "
