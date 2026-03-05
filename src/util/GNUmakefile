@@ -165,8 +165,8 @@ ifdef USE_OPENMP
    ifeq ($(USE_HWLOC),Y)
       LIB_DEFINES += -DUSE_HWLOC
    endif
-   EXTRA_OBJ += utilc_getncpus.o util_getncpus.o util_maxthreads.o
 endif
+EXTRA_OBJ += utilc_getncpus.o util_getncpus.o util_maxthreads.o
 _PDSYEVR := $(shell [ -e ${NWCHEM_TOP}/src/tools/install/lib/libga.a ] &&  nm ${NWCHEM_TOP}/src/tools/install/lib/libga.a|egrep T |egrep  ga_pdsyevr |awk '/ga_pdsyevr/ {print "Y"}')
 ifeq ($(_PDSYEVR),Y) 
  LIB_DEFINES += -DUSE_PDSYEVR
