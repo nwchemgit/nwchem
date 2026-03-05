@@ -106,8 +106,8 @@ then
 	do
 	    [[ counter -eq $max_retry ]] && echo "GA download failed!" && exit 1
 	    sleep 2
-	    echo "Trying again. Try #$counter"
 	    ((counter++))
+	    echo "Trying again. Try #$counter"
 	done
 	if [ $? -ne 0 ]
 	then
