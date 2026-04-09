@@ -17,7 +17,8 @@ echo %%%%%%% debug make failures
 #set -v
 arch=`uname -m`
 #SHORTVERSION=2023.05.001
-SHORTVERSION=2025.06.002
+#SHORTVERSION=2025.06.002
+SHORTVERSION=2026.02.001
 VERSION=new_release_${SHORTVERSION}
 source ../libext_utils/getfiles_utils.sh
 get_elpa $SHORTVERSION
@@ -286,9 +287,9 @@ if [[ ! -z "${ELPA_NVIDIA}" ]]; then
     if [[ ! -z "${GPU_ARCH}" ]]; then
 	export NVCC_APPEND_FLAGS=-arch=${GPU_ARCH}
 	GPUFLAGS+=" --with-NVIDIA-GPU-compute-capability=${GPU_ARCH} "
-	if [[ "${GPU_ARCH}" == sm_80 ]]; then
-	    GPUFLAGS+=" --enable-nvidia-sm80-gpu-kernels "
-	fi
+#	if [[ "${GPU_ARCH}" == sm_80 ]]; then
+#	    GPUFLAGS+=" --enable-nvidia-sm80-gpu-kernels "
+#	fi
     fi
 #    GPUFLAGS+=" --with-default-real-kernel=nvidia_gpu "
     if [[ ! -z "${CUDA_ROOT}" ]]; then

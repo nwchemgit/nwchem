@@ -6,13 +6,14 @@ get_elpa(){
 	elpa_shortv=$1
     fi
     echo "Parameter #1 is $1"
-    VERSION=new_release_${elpa_shortv}
+#    VERSION=new_release_${elpa_shortv}
+    VERSION=${elpa_shortv}
     echo ELPA VERSION is $VERSION
     if [ -f  elpa-${VERSION}.tar.gz ]; then
 	echo "using existing"  elpa-${VERSION}.tar.gz
     else
 	rm -rf elpa*
-	ELPA_URL=("https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz" \
+	ELPA_URL=("https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${VERSION}/elpa-${VERSION}.tar.gz" \
 		      "https://web.archive.org/web/20260214233634/https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/new_release_2025.06.002/elpa-new_release_2025.06.002.tar.gz")
 	for url in  "${ELPA_URL[@]}"
 	do
