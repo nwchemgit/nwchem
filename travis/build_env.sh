@@ -280,7 +280,7 @@ if [[ "$os" == "Linux" ]]; then
 	if [[ "$FC" == "nvfortran" ]]; then
 	    $MYSUDO apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
 	    nv_major=26
-	    nv_minor=1
+	    nv_minor=3
 	    nverdot="$nv_major"."$nv_minor"
 	    nverdash="$nv_major"-"$nv_minor"
 	    arch_dpkg=`dpkg --print-architecture`
