@@ -1,3 +1,8 @@
+# QMMM Zhang 3-21G ecp
+# Elements                             References
+# --------                             ----------
+# F      :  Y. Zhang, T.-S. Lee, W. Yang, J. Chem. Phys.  110, 46–54 (1999)
+# 
 ecp "F_qmmm zhang 3-21g ecp"
   F nelec  2 # down to carbon
   F ul
