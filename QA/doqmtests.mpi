@@ -618,6 +618,8 @@ fi
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_boron_imom
 let "myexit+=$?"
+./runtests.mpi.unix procs $np dft_napht_masvp
+let "myexit+=$?"
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
     echo
