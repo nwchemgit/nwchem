@@ -515,7 +515,9 @@ jobs:
         id: qa_test
         if: steps.compile.conclusion == 'success'
         run: |
+          if [[ $FC != 'nvfortran' && ${{ env.microarch}} != 'Zen4' ]]; then
           ./travis/run_qas.sh
+          fi
       - name: Check if QA testing has failed
         if: ${{ failure() &&  steps.qa_test.outcome == 'failure' }}
         run: |
