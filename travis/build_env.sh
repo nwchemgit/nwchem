@@ -255,10 +255,26 @@ if [[ "$os" == "Linux" ]]; then
 	    $MYSUDO ./llvm.sh $llvm_ver
 	    $MYSUDO apt-get install -y flang-$llvm_ver
 	fi
+	if [[ "$FC" == 'aof' ]]; then
+	    aocc_major=6
+	    aocc_minor=0
+	    aocc_patch=0
+	    aocc_version=${aocc_major}.${aocc_minor}.${aocc_patch}
+	    aocc_dir=aocc-${aocc_major}-${aocc_minor}
+	    aocc_file=aocc-compiler-${aocc_version}
+	    #		curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
+	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
+			  curl -sS -LJO https://download.amd.com/developer/eula/aocc/${aocc_dir}/${aocc_file}.tar \
+			      && break ; \
+			  tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
+	    tar xf ${aocc_file}.tar
+	    ./${aocc_file}/install.sh
+	    source setenv_AOCC.sh
+	fi
 	if [[ "$FC" == "amdflang" ]]; then
 	    $MYSUDO apt-get install -y wget gnupg2 coreutils dialog tzdata
 	    $MYSUDO mkdir --parents --mode=0755 /etc/apt/keyrings
-	    rocm_version=7.0.1
+	    rocm_version=7.2.4
 #	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
 #	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | gpg --dearmor |  $MYSUDO tee /etc/apt/keyrings/rocm.gpg > /dev/null \
 #		&& break ; \
