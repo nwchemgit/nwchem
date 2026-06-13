@@ -203,10 +203,12 @@ GOTMINGW64=` $CC -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21 `
 if [[ -d $GA_DIR ]]; then
     if [[ ! -f "${GA_DIR}/patched" ]]; then
 	echo patching
-	rm -f elpa.patch
-	wget https://github.com/edoapra/ga/commit/f65bcc756198b7928371e3e283f59ac525afff7a.patch -O elpa.patch
+	rm -f elpa?.patch
+        wget https://github.com/edoapra/ga/commit/f65bcc756198b7928371e3e283f59ac525afff7a.patch -O elpa1.patch
+	wget https://github.com/GlobalArrays/ga/commit/20692fced41074ae7c87adb309fba4c4e8e6675e.patch -O elpa2.patch
 	cd ${GA_DIR}
-	patch -p1 < ../elpa.patch
+	patch -p1 < ../elpa1.patch
+	patch -p1 < ../elpa2.patch
 	cd ..
 	touch ${GA_DIR}/patched
     else
