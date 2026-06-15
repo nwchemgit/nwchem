@@ -16,15 +16,12 @@ echo %%%%%%% debug make failures
 }
 #set -v
 arch=`uname -m`
-#SHORTVERSION=2023.05.001
-#SHORTVERSION=2025.06.002
-SHORTVERSION=2026.02.001
-VERSION=new_release_${SHORTVERSION}
 source ../libext_utils/getfiles_utils.sh
-get_elpa $SHORTVERSION
+get_elpa
+# version set in ../libext_utils/getfiles_utils.sh
 echo mpif90 is `which mpif90`
-tar xzf elpa-${VERSION}.tar.gz
-ln -sf elpa-${VERSION} elpa
+tar xzvf elpa-*.tar.gz && rm elpa-*.tar.gz
+ln -sf elpa-* elpa
 cd elpa
 rm -f check_thread_affinity.patch
 wget https://raw.githubusercontent.com/conda-forge/elpa-feedstock/main/recipe/check_thread_affinity.patch
@@ -359,5 +356,5 @@ if [[ ! -z "${USE_OPENMP}" ]]; then
 fi
 cp ${NWCHEM_TOP}/src/libext/lib/libelpa${ompsuffix}.a  ${NWCHEM_TOP}/src/libext/lib/libnwc_elpa.a
 ${NWCHEM_TOP}/src/libext/bin/elpa2_print_kernels${ompsuffix}
-cp -r ${NWCHEM_TOP}/src/libext/include/elpa${ompsuffix}-${SHORTVERSION}  ${NWCHEM_TOP}/src/libext/include/elpa
+cp -r ${NWCHEM_TOP}/src/libext/include/elpa${ompsuffix}-*  ${NWCHEM_TOP}/src/libext/include/elpa
 mkdir -p ${NWCHEM_TOP}/src/libext/lib/pkgconfig
