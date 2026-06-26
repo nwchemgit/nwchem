@@ -175,7 +175,7 @@ c
       if(transa.eq.'t'.or.transa.eq.'T') then
          call tddft_transpatch(g_a,g_in1,alo,ahi)
       endif
-      if(transb.eq.'t'.or.transa.eq.'T') then
+      if(transb.eq.'t'.or.transb.eq.'T') then
          call tddft_transpatch(g_b,g_in2,blo,bhi)
       endif
       call nga_matmul_patch('n','n',alpha,beta,
