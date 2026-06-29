@@ -18,6 +18,7 @@ Optimizations applied:
 import os
 import sys
 import re
+import subprocess
 
 debug = False
 
@@ -74,7 +75,7 @@ def load_data_file():
     
     if debug:
         print(f"Data path: {data_path}")
-    
+
     try:
         with open(data_path, 'r') as data_file:
             for line in data_file:
@@ -165,6 +166,14 @@ def process_file(file_path, patterns):
     if debug:
         print(f"Processing: {file_path}")
         print(f"Backup file: {filebak}")
+    
+    # Runs the Linux 'file' command
+    result = subprocess.run(['file', file_path], capture_output=True, text=True)
+    
+    # DOS files output contains "with CRLF line terminators"
+    if "CRLF" in result.stdout:
+        print(f"ERROR: DOS file with CRLF {file_path}", file=sys.stderr)
+        sys.exit(123)  
     
     # Rename original to backup [1]
     os.rename(file_path, filebak)

@@ -1,205 +1,39 @@
-#!/usr/bin/env python3
-"""
-Python script to do transliteration from "single" values to "double" values
-Usage: python 32_to_64.py file1.f [file2.f ...]
-
-Optimized with:
-- Early exits to skip unnecessary processing
-- Reduced redundant regex passes
-- Combined line-type checks
-"""
-
-import os
-import sys
-import re
-
-debug = False
+#!/usr/bin/env bash
+#
+# $Id$
+#
+#
+# modified to use the perl version to change back to the sed scripts
+#
+if [[ -z "${NWCHEM_TOP}" ]]; then
+    DIRUTIL=`dirname "$0"`
+    MYPWD=`pwd`
+    NWCHEM_TOP=`echo ${MYPWD}/${DIRUTIL} | sed -e 's/\/src.*//' `
+fi
+pythonexe=python
+pythonscript=${NWCHEM_TOP}/src/config/32_to_64.py
 
 
-def copy_case(from_str, to_str):
-    """Take case from 'from_str' and apply it to 'to_str' and return that new string"""
-    result = []
-    for i, char in enumerate(to_str):
-        if i < len(from_str):
-            if from_str[i].isupper():
-                result.append(char.upper())
-            elif from_str[i].islower():
-                result.append(char.lower())
-            else:
-                result.append(char)
-        else:
-            result.append(char)
-    return ''.join(result)
+ JOB_LIMIT=6
 
+ njob=0
 
-class ConversionPattern:
-    """Holds precompiled regex patterns for a single from/to conversion pair"""
-    
-    def __init__(self, from_str, to_str):
-        self.from_str = from_str
-        self.to_str = to_str
-        self.from_str_upper = from_str.upper()
-        
-        # Precompile all regex patterns
-        escaped = re.escape(from_str)
-        
-        # Pattern for finding the from_str (case insensitive)
-        self.search_pattern = re.compile(escaped, re.IGNORECASE)
-        
-        # Pattern for Fortran continuation lines (5 spaces + non-space)
-        self.fortran_pattern = re.compile(
-            r'([ ]{5}.)' + escaped + r'(\W)',
-            re.IGNORECASE
-        )
-        
-        # Pattern for general substitution (word boundaries)
-        self.general_pattern = re.compile(
-            r'(\W)' + escaped + r'(\W)',
-            re.IGNORECASE
-        )
+for file in "$@"
+do
+if [ -f "$file" ]; then
+   echo converting "$file" to 64-bit integers for BLAS/LAPACK
+      ($pythonexe $pythonscript $file) &	
 
+   let njob++
+   if [ $njob -gt $JOB_LIMIT ]; then
+     wait
+     let njob=0
+   fi
+else
+    echo "!!!!file missing: " "$file"
+fi
+done
 
-def load_data_file():
-    """Load the from/to conversion pairs from the data file and precompile patterns"""
-    patterns = []
-    
-    data_path = os.path.dirname(os.path.abspath(__file__))
-    data_path = os.path.join(data_path, "data.64_to_32")
-    
-    if debug:
-        print(f"Data path: {data_path}")
-    
-    try:
-        with open(data_path, 'r') as data_file:
-            for line in data_file:
-                if line and not line.startswith('#'):
-                    tokens = line.split()
-                    if len(tokens) >= 2:
-                        # For 32_to_64: tokens[1] is "from", tokens[0] is "to" [2]
-                        patterns.append(ConversionPattern(tokens[1], tokens[0]))
-    except IOError:
-        sys.exit(f"Unable to open: {data_path}")
-    
-    if debug:
-        print(f"Loaded {len(patterns)} conversion patterns")
-    
-    return patterns
-
-
-# Precompile line-type detection patterns (used for every line)
-COMMENT_PATTERN = re.compile(r'^[cC*]')
-FORTRAN_CONTINUATION = re.compile(r'^[ ]{5}[^\s]')
-# Combined pattern for lines that need general substitution [2]
-GENERAL_LINE_PATTERN = re.compile(r'^[ \t\S\d]')
-
-
-def process_line(line, patterns, line_upper):
-    """
-    Process a single line with all conversion patterns.
-    Uses early exits and optimized regex passes.
-    """
-    # Early exit: Skip comment lines (Fortran style) or empty lines [2]
-    if not line or line[0] in ('c', 'C', '*') or line.strip() == '':
-        return line
-    
-    # Early exit: Quick check if any pattern might match using uppercase comparison
-    # This avoids regex overhead for lines with no potential matches
-    has_potential_match = False
-    for conv in patterns:
-        if conv.from_str_upper in line_upper:
-            has_potential_match = True
-            break
-    
-    if not has_potential_match:
-        return line
-    
-    # Determine line type once (not for each pattern) [2]
-    is_fortran_continuation = line.startswith('     ') and len(line) > 5 and not line[5].isspace()
-    is_general_line = len(line) > 0 and line[0] in ' \t'
-    
-    # Process each conversion pattern
-    for conv in patterns:
-        # Early exit: Skip if pattern not in line (case-insensitive quick check)
-        if conv.from_str_upper not in line_upper:
-            continue
-        
-        match = conv.search_pattern.search(line)
-        if not match:
-            continue
-        
-        # Found a match - compute replacement
-        froom = match.start()
-        toot = copy_case(
-            line[froom:froom + len(conv.from_str)],
-            conv.to_str
-        )
-        
-        # Apply appropriate substitution based on line type (single pass) [2]
-        if is_fortran_continuation:
-            line = conv.fortran_pattern.sub(
-                lambda m: m.group(1) + toot + m.group(2),
-                line
-            )
-        
-        if is_general_line:
-            line = conv.general_pattern.sub(
-                lambda m: m.group(1) + toot + m.group(2),
-                line
-            )
-        
-        # Update line_upper after substitution for subsequent patterns
-        line_upper = line.upper()
-    
-    return line
-
-
-def process_file(file_path, patterns):
-    """Process a single file and perform transliteration"""
-    pid = os.getpid()
-    orgfile = file_path
-    filebak = f"{file_path}.{pid}"
-    
-    if debug:
-        print(f"Processing: {file_path}")
-        print(f"Backup file: {filebak}")
-    
-    # Rename original to backup [2]
-    os.rename(file_path, filebak)
-    
-    try:
-        with open(filebak, 'r') as fh_in:
-            with open(orgfile, 'w') as fh_out:
-                for line in fh_in:
-                    line_upper = line.upper()
-                    processed_line = process_line(line, patterns, line_upper)
-                    fh_out.write(processed_line)
-    except IOError as e:
-        sys.exit(f"Can't open file: {e}")
-    
-    # Remove backup [2]
-    os.unlink(filebak)
-
-
-def main():
-    if debug:
-        print(f"Arguments: {sys.argv[1:]}")
-    
-    # Load patterns once (precompiled)
-    patterns = load_data_file()
-    
-    if len(patterns) == 0:
-        sys.exit("Fatal sngl2dbl error: No conversion patterns loaded")
-    
-    files = sys.argv[1:]
-    
-    if len(files) == 0:
-        print("Usage: python 32_to_64.py file1.f [file2.f ...]")
-        sys.exit(1)
-    
-    # Process each file sequentially
-    for file_path in files:
-        process_file(file_path, patterns)
-
-
-if __name__ == "__main__":
-    main()
+if [ $njob -gt  0 ] ; then
+    wait
+fi
