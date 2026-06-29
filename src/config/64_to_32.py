@@ -18,7 +18,7 @@ Optimizations applied:
 import os
 import sys
 import re
-import subprocess
+import subprocess # nosec B404
 
 debug = False
 
@@ -168,8 +168,9 @@ def process_file(file_path, patterns):
         print(f"Backup file: {filebak}")
     
     # Runs the Linux 'file' command
-    result = subprocess.run(['file', file_path], capture_output=True, text=True)
     
+    result = subprocess.run(['file', file_path], shell=False, capture_output=True, text=True) # nosec
+
     # DOS files output contains "with CRLF line terminators"
     if "CRLF" in result.stdout:
         print(f"ERROR: DOS file with CRLF {file_path}", file=sys.stderr)
