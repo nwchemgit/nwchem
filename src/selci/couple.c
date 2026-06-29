@@ -33,7 +33,7 @@ static void Error(char *string, int integer)
 }
 
 
-static void Dscal(int n, double s, double *u, int iu)
+static void selci_dscal(int n, double s, double *u, int iu)
 /*
   Scale double precision vector u by s
 */
@@ -735,7 +735,7 @@ void FATR selci_couple_(Integer *pmulti, Integer *pns, Integer *pprint, char *pf
 /* Make the matrices (-1)^p sqrt(2) U(P), P=(1...m)(1...j)
    Note that in u we already have (-1)^m U(1...m) */
 
-      Dscal(nf*nf, sqrt(2.0), u, 1);
+      selci_dscal(nf*nf, sqrt(2.0), u, 1);
       
       if (print) {
 	(void) printf("\n(-1)^p sqrt(2) U(P), P=(1...%d)(1...%d)\n",i,1);
