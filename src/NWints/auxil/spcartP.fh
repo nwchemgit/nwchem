@@ -23,7 +23,7 @@
       logical active_sp2c_lindx    ! active ma array sp2c_lindx ?
       logical active_invsp2c_lindx ! active ma array sp2c_lindx ?
       logical active_cart_norm_scale ! active ma array cart_norm_scale ?
-      logical trust_dgemm          ! is dgemm okay
+      logical trust_dgemm          ! is _dgemm_ okay
 *
       parameter (sph_cart_init_value = 1731)
 *

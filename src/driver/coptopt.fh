@@ -73,7 +73,7 @@ c
      $     ostress2,            ! include lattice gradients
      $     ocheckgrad,          ! verify the gradient
      $     diagonal_hessian,    ! tells the code to use a diagonal hessian
-     $     ofast_diag      ,    ! use dsyev instead of jacobi eigensolver
+     $     ofast_diag      ,    ! use _dsyev_ instead of jacobi eigensolver
      $     oactive(max_cent)    ! active atom flags
 c
       character*8
