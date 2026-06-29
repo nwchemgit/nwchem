@@ -10,19 +10,8 @@ if [[ -z "${NWCHEM_TOP}" ]]; then
     MYPWD=`pwd`
     NWCHEM_TOP=`echo ${MYPWD}/${DIRUTIL} | sed -e 's/\/src.*//' `
 fi
-  if [ -x /msrc/apps/bin/perl ]; then
-      perlexe=/msrc/apps/bin/perl
-  elif [ -x /usr/local/bin/perl ]; then
-      perlexe=/usr/local/bin/perl
-  elif [ -x /usr/local/gnu/bin/perl ]; then
-      perlexe=/usr/local/gnu/bin/perl
-  elif [ -x /usr/gnu/bin/perl ]; then
-      perlexe=/usr/gnu/bin/perl
-  else
-# assume perl is in your path
-      perlexe=perl
-  fi
-   perlscript=${NWCHEM_TOP}/src/config/64_to_32.pl
+pythonexe=python
+pythonscript=${NWCHEM_TOP}/src/config/64_to_32.py
 
 
  JOB_LIMIT=6
@@ -33,7 +22,7 @@ for file in "$@"
 do
 if [ -f "$file" ]; then
    echo converting "$file" to 32-bit integers for BLAS/LAPACK
-      ($perlexe $perlscript $file) &	
+      ($pythonexe $pythonscript $file) &	
 
    let njob++
    if [ $njob -gt $JOB_LIMIT ]; then

@@ -2,11 +2,16 @@
 """
 Python script to do transliteration from "single" values to "double" values
 Usage: python 32_to_64.py file1.f [file2.f ...]
+Original Perl script:
+    Written:  3/14/97
+    By:       Ricky A. Kendall
 
-Optimized with:
-- Early exits to skip unnecessary processing
-- Reduced redundant regex passes
-- Combined line-type checks
+Converted from Perl to Python using Claude (claude-4-5-opus-4-5-20251101-v1)
+Optimizations applied:
+    - Early exits to skip unnecessary processing
+    - Reduced redundant regex passes
+    - Combined line-type checks
+    - Precompiled regex patterns
 """
 
 import os
@@ -38,7 +43,6 @@ class ConversionPattern:
     def __init__(self, from_str, to_str):
         self.from_str = from_str
         self.to_str = to_str
-        self.from_str_upper = from_str.upper()
         
         # Precompile all regex patterns
         escaped = re.escape(from_str)
@@ -75,7 +79,8 @@ def load_data_file():
                 if line and not line.startswith('#'):
                     tokens = line.split()
                     if len(tokens) >= 2:
-                        # For 32_to_64: tokens[1] is "from", tokens[0] is "to" [2]
+                        # Note: For 32_to_64, tokens are reversed compared to 64_to_32
+                        # tokens[1] is "from" and tokens[0] is "to" [2]
                         patterns.append(ConversionPattern(tokens[1], tokens[0]))
     except IOError:
         sys.exit(f"Unable to open: {data_path}")
@@ -89,68 +94,9 @@ def load_data_file():
 # Precompile line-type detection patterns (used for every line)
 COMMENT_PATTERN = re.compile(r'^[cC*]')
 FORTRAN_CONTINUATION = re.compile(r'^[ ]{5}[^\s]')
-# Combined pattern for lines that need general substitution [2]
-GENERAL_LINE_PATTERN = re.compile(r'^[ \t\S\d]')
-
-
-def process_line(line, patterns, line_upper):
-    """
-    Process a single line with all conversion patterns.
-    Uses early exits and optimized regex passes.
-    """
-    # Early exit: Skip comment lines (Fortran style) or empty lines [2]
-    if not line or line[0] in ('c', 'C', '*') or line.strip() == '':
-        return line
-    
-    # Early exit: Quick check if any pattern might match using uppercase comparison
-    # This avoids regex overhead for lines with no potential matches
-    has_potential_match = False
-    for conv in patterns:
-        if conv.from_str_upper in line_upper:
-            has_potential_match = True
-            break
-    
-    if not has_potential_match:
-        return line
-    
-    # Determine line type once (not for each pattern) [2]
-    is_fortran_continuation = line.startswith('     ') and len(line) > 5 and not line[5].isspace()
-    is_general_line = len(line) > 0 and line[0] in ' \t'
-    
-    # Process each conversion pattern
-    for conv in patterns:
-        # Early exit: Skip if pattern not in line (case-insensitive quick check)
-        if conv.from_str_upper not in line_upper:
-            continue
-        
-        match = conv.search_pattern.search(line)
-        if not match:
-            continue
-        
-        # Found a match - compute replacement
-        froom = match.start()
-        toot = copy_case(
-            line[froom:froom + len(conv.from_str)],
-            conv.to_str
-        )
-        
-        # Apply appropriate substitution based on line type (single pass) [2]
-        if is_fortran_continuation:
-            line = conv.fortran_pattern.sub(
-                lambda m: m.group(1) + toot + m.group(2),
-                line
-            )
-        
-        if is_general_line:
-            line = conv.general_pattern.sub(
-                lambda m: m.group(1) + toot + m.group(2),
-                line
-            )
-        
-        # Update line_upper after substitution for subsequent patterns
-        line_upper = line.upper()
-    
-    return line
+TAB_START = re.compile(r'^[ \t]')
+DECLARATION_START = re.compile(r'^[ \S]')
+DIGIT_START = re.compile(r'^[ \d]')
 
 
 def process_file(file_path, patterns):
@@ -163,20 +109,63 @@ def process_file(file_path, patterns):
         print(f"Processing: {file_path}")
         print(f"Backup file: {filebak}")
     
-    # Rename original to backup [2]
+    # Rename original to backup
     os.rename(file_path, filebak)
     
     try:
         with open(filebak, 'r') as fh_in:
             with open(orgfile, 'w') as fh_out:
                 for line in fh_in:
-                    line_upper = line.upper()
-                    processed_line = process_line(line, patterns, line_upper)
-                    fh_out.write(processed_line)
+                    # Skip comment lines (Fortran style) or empty lines
+                    if COMMENT_PATTERN.match(line) or line.strip() == '':
+                        fh_out.write(line)
+                        continue
+                    
+                    # Process each conversion pattern
+                    for conv in patterns:
+                        match = conv.search_pattern.search(line)
+                        if match:
+                            # Find where the string starts
+                            froom = match.start()
+                            toot = copy_case(
+                                line[froom:froom + len(conv.from_str)],
+                                conv.to_str
+                            )
+                            
+                            # Fortran continuation lines (5 spaces + non-space)
+                            if FORTRAN_CONTINUATION.match(line):
+                                line = conv.fortran_pattern.sub(
+                                    lambda m: m.group(1) + toot + m.group(2),
+                                    line
+                                )
+                            
+                            # Handle tab chars in C [2]
+                            if TAB_START.match(line):
+                                line = conv.general_pattern.sub(
+                                    lambda m: m.group(1) + toot + m.group(2),
+                                    line
+                                )
+                            
+                            # Handle declarations in C [2]
+                            if DECLARATION_START.match(line):
+                                line = conv.general_pattern.sub(
+                                    lambda m: m.group(1) + toot + m.group(2),
+                                    line
+                                )
+                            
+                            # Handle digit starts
+                            if DIGIT_START.match(line):
+                                line = conv.general_pattern.sub(
+                                    lambda m: m.group(1) + toot + m.group(2),
+                                    line
+                                )
+                    
+                    fh_out.write(line)
+                    
     except IOError as e:
         sys.exit(f"Can't open file: {e}")
     
-    # Remove backup [2]
+    # Remove backup
     os.unlink(filebak)
 
 
@@ -190,14 +179,8 @@ def main():
     if len(patterns) == 0:
         sys.exit("Fatal sngl2dbl error: No conversion patterns loaded")
     
-    files = sys.argv[1:]
-    
-    if len(files) == 0:
-        print("Usage: python 32_to_64.py file1.f [file2.f ...]")
-        sys.exit(1)
-    
-    # Process each file sequentially
-    for file_path in files:
+    # Process each file
+    for file_path in sys.argv[1:]:
         process_file(file_path, patterns)
 
 

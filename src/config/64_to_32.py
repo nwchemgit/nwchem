@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 """
-Python script to do transliteration from "single" values to "double" values
-Usage: python 32_to_64.py file1.f [file2.f ...]
+Python script to do transliteration from "double" values to "8wrap" values
+Usage: python 64_to_32.py file1.f [file2.f ...]
 
-Optimized with:
-- Early exits to skip unnecessary processing
-- Reduced redundant regex passes
-- Combined line-type checks
+Original Perl script:
+    Written:  3/14/97
+    By:       Ricky A. Kendall
+
+Converted from Perl to Python using Claude (claude-4-5-opus-4-5-20251101-v1)
+Optimizations applied:
+    - Early exits to skip unnecessary processing
+    - Reduced redundant regex passes
+    - Combined line-type checks
+    - Precompiled regex patterns
 """
 
 import os
@@ -75,8 +81,8 @@ def load_data_file():
                 if line and not line.startswith('#'):
                     tokens = line.split()
                     if len(tokens) >= 2:
-                        # For 32_to_64: tokens[1] is "from", tokens[0] is "to" [2]
-                        patterns.append(ConversionPattern(tokens[1], tokens[0]))
+                        # For 64_to_32: tokens[0] is "from", tokens[1] is "to" [1]
+                        patterns.append(ConversionPattern(tokens[0], tokens[1]))
     except IOError:
         sys.exit(f"Unable to open: {data_path}")
     
@@ -87,10 +93,7 @@ def load_data_file():
 
 
 # Precompile line-type detection patterns (used for every line)
-COMMENT_PATTERN = re.compile(r'^[cC*]')
 FORTRAN_CONTINUATION = re.compile(r'^[ ]{5}[^\s]')
-# Combined pattern for lines that need general substitution [2]
-GENERAL_LINE_PATTERN = re.compile(r'^[ \t\S\d]')
 
 
 def process_line(line, patterns, line_upper):
@@ -98,7 +101,7 @@ def process_line(line, patterns, line_upper):
     Process a single line with all conversion patterns.
     Uses early exits and optimized regex passes.
     """
-    # Early exit: Skip comment lines (Fortran style) or empty lines [2]
+    # Early exit: Skip comment lines (Fortran style) or empty lines [1]
     if not line or line[0] in ('c', 'C', '*') or line.strip() == '':
         return line
     
@@ -113,7 +116,7 @@ def process_line(line, patterns, line_upper):
     if not has_potential_match:
         return line
     
-    # Determine line type once (not for each pattern) [2]
+    # Determine line type once (not for each pattern) [1]
     is_fortran_continuation = line.startswith('     ') and len(line) > 5 and not line[5].isspace()
     is_general_line = len(line) > 0 and line[0] in ' \t'
     
@@ -134,7 +137,7 @@ def process_line(line, patterns, line_upper):
             conv.to_str
         )
         
-        # Apply appropriate substitution based on line type (single pass) [2]
+        # Apply appropriate substitution based on line type (single pass) [1]
         if is_fortran_continuation:
             line = conv.fortran_pattern.sub(
                 lambda m: m.group(1) + toot + m.group(2),
@@ -163,7 +166,7 @@ def process_file(file_path, patterns):
         print(f"Processing: {file_path}")
         print(f"Backup file: {filebak}")
     
-    # Rename original to backup [2]
+    # Rename original to backup [1]
     os.rename(file_path, filebak)
     
     try:
@@ -176,7 +179,7 @@ def process_file(file_path, patterns):
     except IOError as e:
         sys.exit(f"Can't open file: {e}")
     
-    # Remove backup [2]
+    # Remove backup [1]
     os.unlink(filebak)
 
 
@@ -188,12 +191,12 @@ def main():
     patterns = load_data_file()
     
     if len(patterns) == 0:
-        sys.exit("Fatal sngl2dbl error: No conversion patterns loaded")
+        sys.exit("Fatal dbl2sngl error: No conversion patterns loaded")
     
     files = sys.argv[1:]
     
     if len(files) == 0:
-        print("Usage: python 32_to_64.py file1.f [file2.f ...]")
+        print("Usage: python 64_to_32.py file1.f [file2.f ...]")
         sys.exit(1)
     
     # Process each file sequentially
