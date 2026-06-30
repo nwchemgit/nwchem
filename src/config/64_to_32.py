@@ -13,6 +13,7 @@ Optimizations applied:
     - Reduced redundant regex passes
     - Combined line-type checks
     - Precompiled regex patterns
+    - Lookahead for correct underscore boundary matching
 """
 
 import os
@@ -55,13 +56,19 @@ class ConversionPattern:
         
         # Pattern for Fortran continuation lines (5 spaces + non-space)
         self.fortran_pattern = re.compile(
-            r'([ ]{5}.)' + escaped + r'(\W)',
+            r'([ ]{5}.)' + escaped + r'(?=_\(|\W)',
             re.IGNORECASE
         )
-        
-        # Pattern for general substitution (word boundaries)
+
+        # Pattern for general substitution
+        # Use capturing group for preceding \W (consumed, restored via group(1))
+        # Lookahead (?=_\(|\W) matches underscore only when followed by ( [1]
+        # This correctly handles:
+        #   DCOPY_()    -> YCOPY_()    (matches - underscore followed by paren)
+        #   DCOPY_OMP() -> DCOPY_OMP() (no match - underscore followed by letter)
+        #   dcopy(      -> ycopy(      (matches - non-word char after)
         self.general_pattern = re.compile(
-            r'(\W)' + escaped + r'(\W)',
+            r'(\W)' + escaped + r'(?=_\(|\W)',
             re.IGNORECASE
         )
 
@@ -120,13 +127,17 @@ def process_line(line, patterns, line_upper):
     # Determine line type once (not for each pattern) [1]
     is_fortran_continuation = line.startswith('     ') and len(line) > 5 and not line[5].isspace()
     is_general_line = len(line) > 0 and line[0] in ' \t'
-    
+    # Matches any line starting with space or non-whitespace char [1]
+    # ^[ \S] in Perl matches virtually every non-empty line
+    # including C declarations like "void dcopy_()"
+    is_declaration_line = len(line) > 0 and (line[0] == ' ' or not line[0].isspace())
+
     # Process each conversion pattern
     for conv in patterns:
         # Early exit: Skip if pattern not in line (case-insensitive quick check)
         if conv.from_str_upper not in line_upper:
             continue
-        
+
         match = conv.search_pattern.search(line)
         if not match:
             continue
@@ -137,20 +148,29 @@ def process_line(line, patterns, line_upper):
             line[froom:froom + len(conv.from_str)],
             conv.to_str
         )
-        
-        # Apply appropriate substitution based on line type (single pass) [1]
+
+        # Apply Fortran continuation substitution [1]
         if is_fortran_continuation:
             line = conv.fortran_pattern.sub(
-                lambda m: m.group(1) + toot + m.group(2),
+                lambda m: m.group(1) + toot,
                 line
             )
-        
+
+        # Apply general substitution for tab/space lines [1]
         if is_general_line:
             line = conv.general_pattern.sub(
-                lambda m: m.group(1) + toot + m.group(2),
+                lambda m: m.group(1) + toot,
                 line
             )
-        
+
+        # Apply declaration substitution for C-style lines [1]
+        # Handles cases like "void dcopy_()" where line starts with non-space
+        if is_declaration_line:
+            line = conv.general_pattern.sub(
+                lambda m: m.group(1) + toot,
+                line
+            )
+
         # Update line_upper after substitution for subsequent patterns
         line_upper = line.upper()
     
