@@ -34,9 +34,9 @@ from pylab import *
 def parse_nwchem_output(fname):
     import re
     from pprint import pprint
-    singlet_pat = re.compile('\s+Root\s+\d+\s+singlet')
-    triplet_pat = re.compile('\s+Root\s+\d+\s+triplet')
-    unrestricted_pat = re.compile('\s+Root\s+\d')
+    singlet_pat = re.compile(r'\s+Root\s+\d+\s+singlet')
+    triplet_pat = re.compile(r'\s+Root\s+\d+\s+triplet')
+    unrestricted_pat = re.compile(r'\s+Root\s+\d')
     singlets = []
     triplets = []
     unrestricted = []
@@ -59,7 +59,7 @@ def parse_nwchem_output(fname):
 
 def parse_element(line,f):
     import re
-    oscillator_pat = re.compile('\s+Oscillator')
+    oscillator_pat = re.compile(r'\s+Oscillator')
     words = line.split()
     try:
         energy = float(words[4])

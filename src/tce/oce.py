@@ -286,7 +286,7 @@ class Operator:
       """Returns a LaTex form of output"""
       show = string.join([self.type[0],"_{",repr(self.index),"}"], "")
       if (self.dagger == "creation"):
-         show = string.join([show, "^{\dagger}"], "")
+         show = string.join([show, r"^{\dagger}"], "")
       return show
 
    def duplicate(self):
@@ -507,7 +507,7 @@ class Amplitude:
          show = string.join([show, index.texwithoutdagger()])
       show = string.join([show,"}"])
       if (self.conjugate):
-         show = string.join(["\\left(",show,"\\right)^{\\dagger}"],"")
+         show = string.join([r"\\left(",show,"\\right)^{\\dagger}"],"")
       return show
       
    def duplicate(self):
@@ -845,10 +845,10 @@ class OperatorSequence:
       if (self.sequence):
          show = string.join([show, "\\langle 0 |"])
          for sequence in self.sequence:
-            show = string.join([show, "\{"])
+            show = string.join([show, r"\{"])
             for operator in sequence:
                show = string.join([show, operator.tex()])
-            show = string.join([show, "\}"])
+            show = string.join([show, r"\}"])
          show = string.join([show, "|0\\rangle"])
       return show
 

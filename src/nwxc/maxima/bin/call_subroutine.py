@@ -189,7 +189,7 @@ def find_code_skeleton_type(lines,subr_lines):
    autoxc-Ds generated subroutine.
    """
    (lineno_start,lineno_end) = subr_lines
-   pattern = re.compile("if \(taua\.gt\.tol_rho\) then")
+   pattern = re.compile(r"if \(taua\.gt\.tol_rho\) then")
    subr_type = type_autoxc
    line = lineno_start
    while line <= lineno_end:
@@ -210,14 +210,14 @@ def find_autoxc_code_skeleton(lines,subr_lines):
    ifstart = -1
    ifend   = -1
    #
-   pattern = re.compile("if \(rhoa\.gt\.tol_rho\) then")
+   pattern = re.compile(r"if \(rhoa\.gt\.tol_rho\) then")
    while line <= lineno_end:
       if pattern.search(lines[line]):
          ifstart = line+1
          break
       line += 1
    #
-   pattern = re.compile("endif ! rhoa\.gt\.tol_rho")
+   pattern = re.compile(r"endif ! rhoa\.gt\.tol_rho")
    while line <= lineno_end:
       if pattern.search(lines[line]):
          ifend   = line-1
@@ -232,14 +232,14 @@ def find_autoxc_code_skeleton(lines,subr_lines):
    ifendb   = -1
    ifstartc = -1
    ifendc   = -1
-   pattern = re.compile("if \(rhoa\.gt\.tol_rho\.and\.rhob\.gt\.tol_rho\) then")
+   pattern = re.compile(r"if \(rhoa\.gt\.tol_rho\.and\.rhob\.gt\.tol_rho\) then")
    while line <= lineno_end:
       if pattern.search(lines[line]):
          ifstarta = line+1
          break
       line += 1
    #
-   pattern = re.compile("elseif \(rhoa\.gt\.tol_rho\.and\.rhob\.le\.tol_rho\) then")
+   pattern = re.compile(r"elseif \(rhoa\.gt\.tol_rho\.and\.rhob\.le\.tol_rho\) then")
    while line <= lineno_end:
       if pattern.search(lines[line]):
          ifenda   = line-1
@@ -247,7 +247,7 @@ def find_autoxc_code_skeleton(lines,subr_lines):
          break
       line += 1
    #
-   pattern = re.compile("elseif \(rhoa\.le\.tol_rho\.and\.rhob\.gt\.tol_rho\) then")
+   pattern = re.compile(r"elseif \(rhoa\.le\.tol_rho\.and\.rhob\.gt\.tol_rho\) then")
    while line <= lineno_end:
       if pattern.search(lines[line]):
          ifendb   = line-1
@@ -255,7 +255,7 @@ def find_autoxc_code_skeleton(lines,subr_lines):
          break
       line += 1
    #
-   pattern = re.compile("endif ! rhoa\.gt\.tol_rho\.and\.rhob\.gt\.tol_rho")
+   pattern = re.compile(r"endif ! rhoa\.gt\.tol_rho\.and\.rhob\.gt\.tol_rho")
    while line <= lineno_end:
       if pattern.search(lines[line]):
          ifendc   = line-1
@@ -281,14 +281,14 @@ def find_autoxcDs_code_skeleton(lines,subr_lines):
    ifstartb = -1
    ifendb   = -1
    #
-   pattern = re.compile("if \(taua\.gt\.tol_rho\) then")
+   pattern = re.compile(r"if \(taua\.gt\.tol_rho\) then")
    while line <= lineno_end:
       if pattern.search(lines[line]):
          ifstarta = line+1
          break
       line += 1
    #
-   pattern = re.compile("else")
+   pattern = re.compile(r"else")
    while line <= lineno_end:
       if pattern.search(lines[line]):
          ifenda   = line-1
@@ -296,7 +296,7 @@ def find_autoxcDs_code_skeleton(lines,subr_lines):
          break
       line += 1
    #
-   pattern = re.compile("endif")
+   pattern = re.compile(r"endif")
    while line <= lineno_end:
       if pattern.search(lines[line]):
          ifendb  = line-1
@@ -315,14 +315,14 @@ def find_autoxcDs_code_skeleton(lines,subr_lines):
       ifendc   = -1
       ifstartd = -1
       ifendd   = -1
-      pattern = re.compile("if \(taua\.gt\.tol_rho\.and\.taub\.gt\.tol_rho\) then")
+      pattern = re.compile(r"if \(taua\.gt\.tol_rho\.and\.taub\.gt\.tol_rho\) then")
       while line <= lineno_end:
          if pattern.search(lines[line]):
             ifstarta = line+1
             break
          line += 1
       #
-      pattern = re.compile("elseif \(taua\.gt\.tol_rho\.and\.taub\.le\.tol_rho\) then")
+      pattern = re.compile(r"elseif \(taua\.gt\.tol_rho\.and\.taub\.le\.tol_rho\) then")
       while line <= lineno_end:
          if pattern.search(lines[line]):
             ifenda   = line-1
@@ -330,7 +330,7 @@ def find_autoxcDs_code_skeleton(lines,subr_lines):
             break
          line += 1
       #
-      pattern = re.compile("elseif \(taua\.le\.tol_rho\.and\.taub\.gt\.tol_rho\) then")
+      pattern = re.compile(r"elseif \(taua\.le\.tol_rho\.and\.taub\.gt\.tol_rho\) then")
       while line <= lineno_end:
          if pattern.search(lines[line]):
             ifendb   = line-1
@@ -340,7 +340,7 @@ def find_autoxcDs_code_skeleton(lines,subr_lines):
       #
       # needed because "else" is a substring of "elseif ..."
       line = ifstartc
-      pattern = re.compile("else")
+      pattern = re.compile(r"else")
       while line <= lineno_end:
          if pattern.search(lines[line]):
             ifendc   = line-1
@@ -348,7 +348,7 @@ def find_autoxcDs_code_skeleton(lines,subr_lines):
             break
          line += 1
       #
-      pattern = re.compile("endif")
+      pattern = re.compile(r"endif")
       while line <= lineno_end:
          if pattern.search(lines[line]):
             ifendd   = line-1
@@ -368,7 +368,7 @@ def find_type_declaration_insertion_point(lines,subr_lines):
    subroutine calls can be inserted.
    """
    (lineno_start,lineno_end) = subr_lines
-   pattern = re.compile("#include \"nwxc_param.fh\"")
+   pattern = re.compile(r"#include \"nwxc_param.fh\"")
    line_insert = -1
    line = lineno_start
    while line <= lineno_end:
@@ -412,7 +412,7 @@ def collect_subroutine_calls(lines,ifbranch_lines):
    """
    (lineno_start,lineno_end) = ifbranch_lines
    dict = {}
-   pattern = re.compile("nwxc")
+   pattern = re.compile(r"nwxc")
    line = lineno_start
    while line <= lineno_end:
       if pattern.search(lines[line]):
@@ -640,8 +640,8 @@ def find_max_order_diff(lines,subr_lines):
    (lineno_start,lineno_end) = subr_lines
    aline = lines[lineno_start]
    orderdiff = 0
-   pattern_d2 = re.compile("_d2\(")
-   pattern_d3 = re.compile("_d3\(")
+   pattern_d2 = re.compile(r"_d2\(")
+   pattern_d3 = re.compile(r"_d3\(")
    if pattern_d2.search(aline):
       orderdiff = 2
    elif pattern_d3.search(aline):
@@ -740,9 +740,9 @@ def find_varname(dict,diffstr):
       #DEBUG
    lengthl = len(list)
    if num == lengthl:
-      sys.stdout.write("entity %s not found\n"%callref)
+      sys.stdout.write(r"entity %s not found\n"%callref)
       for jj in range(0,length):
-         sys.stdout.write("list %d: %s\n"%(jj,list[jj]))
+         sys.stdout.write(r"list %d: %s\n"%(jj,list[jj]))
       sys.exit(10)
    # num is now the variable set number
    lengthd = len(data)
@@ -764,8 +764,8 @@ def find_varname(dict,diffstr):
    #print "find_varname: orderdiff:",orderdiff
    #DEBUG
    # orderdiff is now the order of differentiation
-   patternc = re.compile("gamma")
-   patternt = re.compile("tau")
+   patternc = re.compile(r"gamma")
+   patternt = re.compile(r"tau")
    var_func = func_lda
    if lengthd >= 3:
       if patternc.match(data[1]):
@@ -909,7 +909,7 @@ def find_indent(line):
    Given a line of source code work the indentation out and return a string
    containing as many spaces as the indentation.
    """
-   pattern = re.compile("\s*")
+   pattern = re.compile(r"\s*")
    obj     = pattern.match(line)
    indent  = obj.group()
    return indent
@@ -919,13 +919,13 @@ def find_var_in_line(line,var_name):
    Find all locations where the variable given by "var_name" is used.
    The locations are stored in a list which is returned.
    """
-   patterne = re.compile(" = ")
+   patterne = re.compile(r" = ")
    # If var_name = t2 we need to make sure we do not replace
    # cmat2 as well. Patternw is needed to achieve that. So we look for
    # t2 as well at2, if the end-points are equal the string found does
    # not match the variable t2.
    patternv = re.compile(var_name+"[^0-9]")
-   patternw = re.compile("a"+var_name+"[^0-9]")
+   patternw = re.compile(r"a"+var_name+"[^0-9]")
    aline = line+" "
    found = patterne.search(aline)
    list = []
@@ -952,7 +952,7 @@ def expand_var_in_line(line,list):
    Here we expand the tuples in the list to cover these strings in full.
    The list with updated tuples is returned.
    """
-   pattern = re.compile("\)")
+   pattern = re.compile(r"\)")
    item = 0
    length = len(list)
    while item < length:
@@ -1006,7 +1006,7 @@ def rewrap_line(longline):
   conform the Fortran77 standard. The chunks are written to standard output.
   In addition we do not want to break the line in the middle of numbers.
   """
-  pattern = re.compile("\S")
+  pattern = re.compile(r"\S")
   i = (pattern.search(longline)).start()
   indent = longline[:i]
   indent = indent[:5]+"+"+indent[7:]+"   "

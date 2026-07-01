@@ -264,7 +264,7 @@ endif
 endif # QUICKBUILD
 ifdef CONVERT_ALL
 64_to_32:
-	$(CNFDIR)/64_to_32 *.F *.f *.c *.f90
+	$(CNFDIR)/64_to_32 *.F *.f *.c *.f90 *fh
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif

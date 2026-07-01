@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eo pipefail
 sudo apt-get install -y mpich libmpich-dev
 export NWCHEM_TOP=`pwd`
 export USE_MPI=1
