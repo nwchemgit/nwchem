@@ -18,7 +18,7 @@ echo %%%%%%% debug make failures
 arch=`uname -m`
 #SHORTVERSION=2023.05.001
 SHORTVERSION=2025.06.002
-VERSION=new_release_${SHORTVERSION}
+VERSION=${SHORTVERSION}
 echo mpif90 is `which mpif90`
 if [ -f  elpa-${VERSION}.tar.gz ]; then
     echo "using existing"  elpa-${VERSION}.tar.gz
@@ -30,9 +30,10 @@ else
     until [ "$tries" -ge 6 ]
     do
 	if [ "$tries" -gt 1 ]; then echo sleeping for 9s ;sleep 9; echo attempt no.  $tries ; fi
-	echo curl https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
-	curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+	set -ex
+	curl -L https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
 	gzip -t elpa-${VERSION}.tar.gz >&  /dev/null
+	set +ex
 	if [ $? -eq 0 ]; then break ;  fi
 	tries=$((tries+1)) ;  done
 fi
