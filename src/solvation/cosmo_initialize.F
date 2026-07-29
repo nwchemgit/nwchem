@@ -725,6 +725,7 @@ c     number of charges, the atoms they are associated with, etc.
 c
       status = rtdb_delete(rtdb,'cosmo:qraw')
 c
+      call util_print_pop
       return
  9999 format(/,10x,15(1h-),
      1       /,10x,'-cosmo- solvent',
