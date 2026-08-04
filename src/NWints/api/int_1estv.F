@@ -94,6 +94,7 @@ c::functions
       logical cando_hnd_1e
       logical cando_nw_1e
       logical cando_nw
+      logical cando_sim
       logical int_chk_init
       logical int_chk_sh
       external int_chk_init
@@ -101,6 +102,7 @@ c::functions
       external cando_hnd_1e
       external cando_nw_1e
       external cando_nw
+      external cando_sim
 c::passed
 c:tex-\begin{verbatim}
       integer i_basis !< [Input] basis set handle for ish
@@ -118,7 +120,7 @@ c:tex-\begin{verbatim}
       logical doV                !< [Input] flag for potential energy integrals
 c:tex-\end{verbatim}
 c::local
-      logical ohnd_ok, onw_ok, onw1e_ok
+      logical ohnd_ok, onw_ok, onw1e_ok, osim_ok
       logical shells_ok, orel, oirel, ojrel, oNR, canAB
       integer i_geom, j_geom, ibas, jbas, ucont, uconts
       integer lbas, sbas, abas, isbas, jsbas
@@ -247,6 +249,7 @@ c
      &    .and. (.not.geom_any_finuc (i_geom))
      &    .and. (.not.geom_any_finuc (j_geom))
       onw_ok = cando_nw(i_basis,ish,0) .and. cando_nw(j_basis,jsh,0)
+      osim_ok = cando_sim(i_basis,ish,0) .and. cando_sim(j_basis,jsh,0)
       onw1e_ok = cando_nw_1e(i_basis,ish,0)
      &    .and. cando_nw_1e(j_basis,jsh,0)
       if (orel) then
@@ -263,6 +266,16 @@ c
      &      geom_invnucexp(1,i_geom),ncenter(i_geom),
      &      S,T,V,lstv,doS,doT,doV,canAB,onw_ok,ohnd_ok,oNR,.false.,
      &      scr,lscr,rel_dbg,rel_typ)
+      elseif (onw_ok.or.osim_ok) then
+        call hf1(
+     &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
+     &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &      dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
+     &      coords(1,1,i_geom),charge(1,i_geom),
+     &      geom_invnucexp(1,i_geom),ncenter(i_geom),
+     &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
+     &      scr,lscr)
       else if (ohnd_ok) then
         call hnd_stvint(
      &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
@@ -289,16 +302,6 @@ cc AJL/Begin
 c     &        scr,lscr,'int_1eov')
      &        scr,lscr,msg)
 cc AJL/End
-      elseif (onw_ok) then
-        call hf1(
-     &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
-     &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
-     &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
-     &      dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
-     &      coords(1,1,i_geom),charge(1,i_geom),
-     &      geom_invnucexp(1,i_geom),ncenter(i_geom),
-     &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
-     &      scr,lscr)
       else
         call errquit('int_1eov: could not do hnd, sp or nw integrals',
      &                0, INT_ERR)
@@ -993,6 +996,16 @@ c
      &      dbl_mb(k_efc_inv),nefc,
      &      S,T,V,lstv,doS,doT,doV,canAB,onw_ok,ohnd_ok,oNR,.false.,
      &      scr,lscr,rel_dbg,rel_typ)
+      elseif (.true.) then
+        call hf1(
+     &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
+     &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &      dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
+     &      dbl_mb(iefc_c),dbl_mb(iefc_q),
+     &      dbl_mb(k_efc_inv),nefc,
+     &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
+     &      scr,lscr)
       else if (ohnd_ok) then
         call hnd_stvint(
      &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
@@ -1016,16 +1029,6 @@ c
      &        dbl_mb(k_efc_inv),nefc,
      &        S,T,V,lstv,doS,doT,doV,canAB,.false.,
      &        scr,lscr,'int_1eefc')
-      elseif (onw_ok) then
-        call hf1(
-     &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
-     &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
-     &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
-     &      dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
-     &      dbl_mb(iefc_c),dbl_mb(iefc_q),
-     &      dbl_mb(k_efc_inv),nefc,
-     &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
-     &      scr,lscr)
       else
         call errquit('int_1eefc: could not do hnd, sp or nw integrals',
      &                0, INT_ERR)
