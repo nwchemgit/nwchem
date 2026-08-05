@@ -38,6 +38,7 @@ c--> Local variables
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "errquit.fh"
+      logical ofinite
 c
 c Compute the overlap, kinetic energy, and nuclear attraction integrals for 
 c two shells of contracted Gaussians functions. This driver is NOT capable of 
@@ -302,7 +303,7 @@ c Assign scratch space.
         i_RS  = i_P   + NPP*3
         i_PC  = i_RS  + NPP
         i_ff  = i_PC  + NPP*3
-        i_Rj  = i_ff  + NPP*2
+        i_Rj  = i_ff  + NPP*3
         i_top = i_Rj  + NPP*(Lp+1)*Lp3 - 1
 
         if( DryRun )then
@@ -332,11 +333,22 @@ C          write (LuOut,*) MaxMem,maxW0
      &       MEM_ERR)
 
         else
+      ofinite=.false.
+      do i_ptr=1,ncenters
+         if(exinv(i_ptr).gt.1d-29)  ofinite=.true.
+      enddo
 
-          call hf1mkr(Axyz,Bxyz,Cxyz,zan,exinv,ncenters,
+           if(ofinite) then
+              call hf1mkr(Axyz,Bxyz,Cxyz,zan,exinv,ncenters,
      &        W0(i_ALPHAp),W0(i_P),W0(i_RS),W0(i_PC),W0(i_ff),
      &        W0(i_Rj),W0(i_R0),W0(i_R0),W0(i_IJK),
-     &        NPP,Lp,Lp3,.FALSE.)
+     &             NPP,Lp,Lp3,.FALSE.)
+           else
+          call hf1mkr_fast(Axyz,Bxyz,Cxyz,zan,ncenters,
+     &        W0(i_ALPHAp),W0(i_P),W0(i_RS),W0(i_PC),W0(i_ff),
+     &        W0(i_Rj),W0(i_R0),W0(i_R0),W0(i_IJK),
+     &             NPP,Lp,Lp3,.FALSE.)
+          endif
 
           if (gencon) then
             call hfnai_gc(W0(i_Ep),W0(i_R0),W0(i_IJK),bNAI,
