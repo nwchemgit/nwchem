@@ -25,7 +25,14 @@ c
       npts=(ni+nj-2)/2+1
       imin=hermin(npts)
       imax=hermax(npts)
-!DEC$ LOOP COUNT MAX=9, MIN=1
+      if(ni.eq.1.and.nj.eq.1) then
+         do i=imin,imax
+            xint=xint+w(i)
+            yint=yint+w(i)
+            zint=zint+w(i)
+         enddo
+      else
+!     DEC$ LOOP COUNT MAX=9, MIN=1
       do 16 i=imin,imax
          dum=w(i)
          px=dum
@@ -69,6 +76,7 @@ c
          xint=xint+px
          yint=yint+py
          zint=zint+pz
-   16 continue
+ 16   continue
+      endif
       return
       end
