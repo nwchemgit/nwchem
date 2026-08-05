@@ -266,28 +266,7 @@ c
      &      geom_invnucexp(1,i_geom),ncenter(i_geom),
      &      S,T,V,lstv,doS,doT,doV,canAB,onw_ok,ohnd_ok,oNR,.false.,
      &      scr,lscr,rel_dbg,rel_typ)
-      elseif (onw_ok.or.osim_ok) then
-        call hf1(
-     &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
-     &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
-     &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
-     &      dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
-     &      coords(1,1,i_geom),charge(1,i_geom),
-     &      geom_invnucexp(1,i_geom),ncenter(i_geom),
-     &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
-     &      scr,lscr)
-      else if (ohnd_ok) then
-        call hnd_stvint(
-     &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
-     &      dbl_mb(mb_exndcf(i_icfp,ibas)),
-     &      i_prim, i_gen, Li,
-     &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
-     &      dbl_mb(mb_exndcf(j_icfp,jbas)),
-     &      j_prim, j_gen, Lj,
-     &      coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
-     &      S,T,V,lstv,doS,doT,doV,scr,lscr)
-c
-      elseif (onw1e_ok) then
+      elseif (onw1e_ok.or.osim_ok) then
         call int_hf1sp(
      &        coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
      &        dbl_mb(mb_exndcf(i_icfp,ibas)),
@@ -301,6 +280,27 @@ c
 cc AJL/Begin
 c     &        scr,lscr,'int_1eov')
      &        scr,lscr,msg)
+      else if (ohnd_ok) then
+        call hnd_stvint(
+     &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &      dbl_mb(mb_exndcf(i_icfp,ibas)),
+     &      i_prim, i_gen, Li,
+     &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &      dbl_mb(mb_exndcf(j_icfp,jbas)),
+     &      j_prim, j_gen, Lj,
+     &      coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &      S,T,V,lstv,doS,doT,doV,scr,lscr)
+c
+      elseif (onw_ok) then
+        call hf1(
+     &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
+     &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &      dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
+     &      coords(1,1,i_geom),charge(1,i_geom),
+     &      geom_invnucexp(1,i_geom),ncenter(i_geom),
+     &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
+     &      scr,lscr)
 cc AJL/End
       else
         call errquit('int_1eov: could not do hnd, sp or nw integrals',
