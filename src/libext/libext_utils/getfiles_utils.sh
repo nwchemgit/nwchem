@@ -70,7 +70,7 @@ get_scalapack(){
 get_openblas()
 {
     if [[ $# -eq 0 ]] ; then
-	VERSION=0.3.29
+	VERSION=0.3.34
     else
 	VERSION=$1
     fi
