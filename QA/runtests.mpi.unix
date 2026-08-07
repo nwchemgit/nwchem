@@ -89,15 +89,23 @@ if [[ -x $"NWCHEM" ]]; then
   exit 1
 fi
 #figure out python
-if ! [ -x "$(command -v python)" ]; then
-    if ! [ -x "$(command -v python3)" ]; then
-	echo 'neither python nor python3 found'
-	exit 1
+if [ -z "$NWPYTHON" ];  then
+    if ! [ -x "$(command -v python)" ]; then
+	if ! [ -x "$(command -v python3)" ]; then
+	    echo 'neither python nor python3 found'
+	    exit 1
+	else
+	    NWPYTHON=python3
+	fi
     else
-	NWPYTHON=python3
+	NWPYTHON=python
     fi
-else
-    NWPYTHON=python
+fi
+# check if this is python 2 or 3
+if [[ $($NWPYTHON -c 'import sys; print(sys.version_info[0])') == "2" ]]; then
+    echo "python version 3 required"
+    echo "your python install is version" $($NWPYTHON -c 'import sys; print(sys.version_info[:3])')
+    exit 1
 fi
 # Figure out where the nwparse.py script is.
 if [ -z "$NWPARSE" ];  then
