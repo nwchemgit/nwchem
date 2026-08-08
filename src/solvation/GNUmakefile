@@ -19,7 +19,7 @@
          grad_hnd_cos.o\
 	 cosmo_thomson.o
    
-   OBJ_OPTIMIZE =
+   OBJ_OPTIMIZE = hnd_cosaxd.o
 
    LIBRARY = libsolvation.a
 

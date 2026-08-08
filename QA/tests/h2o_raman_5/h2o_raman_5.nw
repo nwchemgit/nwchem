@@ -15,7 +15,6 @@ O library 6-31g*
 H library 6-31g*
 end
 
-memory global 3000 heap 1000 stack 1000 mb
 
 set geometry water
 

@@ -2,7 +2,7 @@
 
 include ../../../config/makefile.h
 
-  OBJ_OPTIMIZE = nwcsim_facef90.o nwcsim_hf2.o
+  OBJ_OPTIMIZE = nwcsim_facef90.o nwcsim_hf2.o nwcsim_hf1.o
 ifdef USE_SIMINT
       LIB_DEFINES += -I$(SIMINT_HOME)/include/simint -DUSE_SIMINT
       LIB_DEFINES += -I../module

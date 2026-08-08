@@ -7,7 +7,7 @@
                    hf2oi.o hf3OIs.o hfabc.o hfctr3.o \
                    hferi.o hferi_gen.o hfkei.o hfmke.o hfmkr.o \
                    hfnai.o hfset.o igamma.o hf_print.o \
-                   hfreord_pq.o hf1_tran.o hf1_er.o hfnai_er.o case_impl.o
+                   hfreord_pq.o hf1_tran.o hf1_er.o hfnai_er.o case_impl.o hf1mkr_fast.o
 
   USES_BLAS = hf2oi.f hfkei.f hfnai.f hfnai_er.F hf2.F igamma.F hferi.F hf1.F hf1mke3.f
 

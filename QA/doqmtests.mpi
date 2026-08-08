@@ -489,6 +489,10 @@ let "myexit+=$?"
 np_small=$(get_limit $np 16)
 ./runtests.mpi.unix procs $np_small mcscf_ch2 mcscf_ozone
 let "myexit+=$?"
+./runtests.mpi.unix procs $np h2o_raman_1
+let "myexit+=$?"
+./runtests.mpi.unix procs $np h2o_raman_2
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_raman_3
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_raman_4

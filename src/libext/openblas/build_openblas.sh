@@ -2,7 +2,7 @@
 #set -v
 arch=`uname -m`
 source ../libext_utils/getfiles_utils.sh
-VERSION=0.3.29
+#VERSION=0.3.29 #set in getfiles_utils.sh
 get_openblas $VERSION
 tar xzf OpenBLAS-${VERSION}.tar.gz
 ln -sf OpenBLAS-${VERSION} OpenBLAS
