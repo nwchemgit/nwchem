@@ -198,7 +198,11 @@ fi
 	   if [[ ! -z "$USE_LIBXC" ]] || [[ ! -z "$LIBXC_INCLUDE" ]]; then
 	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs libxc_he2+
 	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs libxc_scanl
-	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs libxc_tddftgrad_h2
+	       # check for availability of 3rd deriv
+	       PATH=${NWCHEM_TOP}/src/libext/libxc/install/bin:$PATH
+	       if (xc-info  1|grep ' third derivative' >& /dev/null) ; then
+		   cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs libxc_tddftgrad_h2
+	       fi
 	   fi
 	   if [[ ! -z "$BUILD_ELPA" ]]; then
 	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_siosi3_elpa
