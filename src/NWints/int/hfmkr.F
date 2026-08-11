@@ -1,3 +1,4 @@
+#define USE_SPECIAL_MAKER 1
       Subroutine hfmkr(R,IJK,PQ,NAB,Lp,Lp3)
 c $Id$
 
