@@ -255,6 +255,8 @@ c
                dumxy=0.0d0
                dumxz=0.0d0
                dumyz=0.0d0
+!GCC$ vector
+!GCC$ unroll 2
 !DEC$ LOOP COUNT MAX=20, MIN=6
                do 430 iroot=1,nroots
                   dum=xv(ix,jx,iroot)*yv(iy,jy,iroot)*
@@ -283,6 +285,8 @@ c
                dumx=0.0d0
                dumy=0.0d0
                dumz=0.0d0
+!GCC$ vector
+!GCC$ unroll 2
 !DEC$ LOOP COUNT MAX=20, MIN=6
                do 431 iroot=1,nroots
                   dumx=dumx + dxv(ix,jx,iroot)*yv(iy,jy,iroot)*  
@@ -297,6 +301,8 @@ c
                elfder(ij,3,ipt) = elfder(ij,3,ipt) + dumz*dij
             else
                dumx=0.0d0
+!GCC$ vector
+!GCC$ unroll 2
 !DEC$ LOOP COUNT MAX=20, MIN=6
                do 432 iroot=1,nroots
                   dumx=dumx + xv(ix,jx,iroot)*yv(iy,jy,iroot)*
