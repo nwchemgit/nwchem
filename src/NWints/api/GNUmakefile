@@ -52,10 +52,9 @@ endif
           int_dso.o int_ops.o intd_1epot.o \
           intd_1epot_cosmo.o \
           int_veloc.o    int_angmom.o   int_giaos100.o \
-	  cosmo_screen.o
 
     OBJ_OPTIMIZE = int_hf1sp.o int_l2e4c.o intb_init4c.o intb_2e4c.o \
-                   int_2e4c.o
+                   int_2e4c.o 	  cosmo_screen.o
 
     HEADERS = int_tim.fh apiP.fh int_nbf.fh ../../property/prop.fh candoP.fh
    LIBRARY = libnwints.a

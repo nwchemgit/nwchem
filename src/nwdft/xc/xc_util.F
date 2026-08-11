@@ -633,7 +633,7 @@ c
      .                )
 c
       if (libxcon .and. .not.xc_ngot3rd) then
-        xc_ngot3rd = xc_ngot3rd .and. (.not.nwchem_libxc_family("kxc"))
+         xc_ngot3rd = .not.nwchem_libxc_family("kxc")
       endif
 
       return

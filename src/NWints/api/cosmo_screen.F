@@ -37,21 +37,17 @@
      $     (Axyz(3) - Bxyz(3))**2
 
       skip = .true.
-
+      a=1d99
       do mpa = 1,NPA
-        a = Aprims(mpa)
-        do mpb = 1,NPB
-          b = Bprims(mpb)
+         a = min(a,Aprims(mpa))
+      enddo
+      b=1d99
+      do mpb = 1,NPB
+         b = min(b,Bprims(mpb))
+      enddo
          
           abi = 1.0d0/(a+b)
           beta = a*b*abi
 
-          if (beta*r2 .lt. const+log(abi)) then
-            skip = .false.
-            return
-          endif
-
-        enddo
-      enddo
-
+          if (beta*r2 .lt. const+log(abi)) skip = .false.
       end subroutine

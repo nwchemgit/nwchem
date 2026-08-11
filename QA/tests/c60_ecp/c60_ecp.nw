@@ -18,4 +18,8 @@ ecp
   C library SBKJC_ECP
 end
 
+scf
+  direct
+end
+
 task scf

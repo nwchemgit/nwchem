@@ -16,8 +16,8 @@
 # uses the daily NWChem release build
 # Gets mpirun executable from environment variable MPIRUN_PATH or
 # assumes it is in your path.
-# Gets nwparse.pl from enironement varialle NWPARSE or looks in your 
-# nwchem tree for $NWCHEM_TOP/QA/nwparse.pl
+# Gets nwparse.py from enironement varialle NWPARSE or looks in your 
+# nwchem tree for $NWCHEM_TOP/QA/nwparse.py
 
 # A test is specified by the path to the directory containing
 # the test inputs and outputs.  The input file is assumed to
@@ -88,15 +88,33 @@ if [[ -x $"NWCHEM" ]]; then
   echo failed: cannot execute \"$NWCHEM\"
   exit 1
 fi
-# Figure out where the nwparse.pl script is.
-
+#figure out python
+if [ -z "$NWPYTHON" ];  then
+    if ! [ -x "$(command -v python)" ]; then
+	if ! [ -x "$(command -v python3)" ]; then
+	    echo 'neither python nor python3 found'
+	    exit 1
+	else
+	    NWPYTHON=python3
+	fi
+    else
+	NWPYTHON=python
+    fi
+fi
+# check if this is python 2 or 3
+if [[ $($NWPYTHON -c 'import sys; print(sys.version_info[0])') == "2" ]]; then
+    echo "python version 3 required"
+    echo "your python install is version" $($NWPYTHON -c 'import sys; print(sys.version_info[:3])')
+    exit 1
+fi
+# Figure out where the nwparse.py script is.
 if [ -z "$NWPARSE" ];  then
-  if [ -f nwparse.pl ]; then
-    NWPARSE=${CURDIR}/nwparse.pl
+  if [ -f nwparse.py ]; then
+    NWPARSE=${CURDIR}/nwparse.py
   elif [[ -n $NWCHEM_TOP ]]; then
-    NWPARSE=${NWCHEM_TOP}/QA/nwparse.pl
+    NWPARSE=${NWCHEM_TOP}/QA/nwparse.py
   else
-    echo failed: Cannot find nwparse.pl.  Set NWPARSE or NWCHEM_TOP appropriately.
+    echo failed: Cannot find nwparse.py.  Set NWPARSE or NWCHEM_TOP appropriately.
     exit 1
   fi
 fi
@@ -424,15 +442,15 @@ sync
     rm -f hydradebugout.txt
     grep -v proxy:0:0@ ${STUB}.out > hydradebugout.txt
     mv hydradebugout.txt ${STUB}.out
-    perl $NWPARSE ${STUB}.out >& /dev/null
+    $NWPYTHON $NWPARSE ${STUB}.out >& /dev/null
     if [ $? -ne 0 ]; then
-      echo nwparse.pl failed on test output ${STUB}.out
+      echo nwparse.py failed on test output ${STUB}.out
       overall_status=1
       continue
     fi 
-    perl $NWPARSE ${STUB}.ok.out >& /dev/null
+    $NWPYTHON $NWPARSE ${STUB}.ok.out >& /dev/null
     if [ $? -ne 0 ]; then
-      echo nwparse.pl failed on verified output ${STUB}.ok.out
+      echo nwparse.py failed on verified output ${STUB}.ok.out
       set overall_status = 1
       continue
     fi
@@ -451,8 +469,10 @@ sync
 	sort -n ${STUB}.out.nwparse > sort.new && mv sort.new ${STUB}.out.nwparse
     fi
 
-    diff -w ${STUB}.ok.out.nwparse ${STUB}.out.nwparse >& /dev/null
+    #diff -w ${STUB}.ok.out.nwparse ${STUB}.out.nwparse >& /dev/null
+    $NWPYTHON ../nwdiff.py  ${STUB}.ok.out.nwparse ${STUB}.out.nwparse
     diff1status=$?
+#    echo diff1status $diff1status
     cat ${ERRORFILE}
 #
   fi
