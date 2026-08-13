@@ -1,0 +1,5 @@
+c     Target vector length.  128 keeps R inside L2:
+c        128*(Lp+1)*Lp3*8 bytes = 179 KB at Lp=4, Lp3=35
+c     Reduce to 64 if L2 pressure is a concern at high Lp.
+      integer MVMAX
+      Parameter (MVMAX=64)
