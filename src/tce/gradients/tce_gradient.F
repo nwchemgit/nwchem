@@ -1441,6 +1441,7 @@ c
  9460 format(/,1x,'Excited state root',i3,/
      1     1x,'Excitation energy / hartree =',f25.15,/
      2     1x,'                  / eV      =',f25.15)
+c     Format 9470 is used in tce_energy.F at lines 8620, 10370, and 10656
  9470 format(/,1x,A,' transition moments / hartree',/
      1     1x,'--------------------------------------------',/
      2     1x,'X',f13.7,' Y',f13.7,' Z',f13.7,/
