@@ -1,4 +1,6 @@
 name: nwchem_docker
+permissions:
+  contents: read
 
 on:
   release:
