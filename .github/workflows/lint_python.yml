@@ -1,4 +1,6 @@
 name: lint_python
+permissions:
+  contents: read
 on:
   push:
     paths-ignore:
