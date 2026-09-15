@@ -21,7 +21,7 @@
 * Maximum number of basis set objects
 *
       integer nw_max_basis_sets
-      parameter (nw_max_basis_sets = 6)
+      parameter (nw_max_basis_sets = 32)
 *------------------------------------------------------------------------------
 * Maximum number of geometry objects
 *
