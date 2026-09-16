@@ -13,11 +13,19 @@ name: "CodeQL Advanced"
 
 on:
   push:
-    branches: [ "main" ]
+    branch: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branch: [ "master" ]
   schedule:
     - cron: '32 23 * * 2'
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+    inputs:
+      branch:
+        type: string
+        required: false
+        default: 'master'
 
 jobs:
   analyze:
@@ -58,6 +66,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v7
+      with:
+        ref: ${{ inputs.branch }}
 
     # Add any setup steps before running the `github/codeql-action/init` action.
     # This includes steps like installing compilers or runtimes (`actions/setup-node`

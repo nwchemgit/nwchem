@@ -1,5 +1,10 @@
 name: NWChem_CI
-
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  #https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#permissions
+  
 on:
   push:
     paths-ignore:

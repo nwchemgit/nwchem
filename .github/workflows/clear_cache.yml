@@ -1,4 +1,10 @@
 name: Clear all Github Actions caches
+permissions:
+  contents: read
+  actions: write
+  #issues: write
+  #pull-requests: write
+  #https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#permissions
 on:
   repository_dispatch:
     types: [backend_automation]

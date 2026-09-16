@@ -1,4 +1,6 @@
 name: check_64_to_32
+permissions:
+  contents: read
 
 on:
   push:
