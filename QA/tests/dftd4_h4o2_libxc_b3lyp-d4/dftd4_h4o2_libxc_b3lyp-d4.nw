@@ -1,0 +1,51 @@
+echo
+start h4o2_libxc_b3lyp-d4
+memory total 2000 mb noverify
+
+geometry units angstrom
+ zmatrix
+  O
+  H 1 R1
+  H 1 R2 2 A1
+  O 1 R3 2 A2 3 D1
+  H 4 R4 1 A3 2 D2
+  H 4 R4 1 A3 2 -D2
+ variables
+  R1 0.971
+  R2 0.962
+  R3 2.908
+  R4 0.964
+  A1 105.440
+  A2 5.835
+  A3 106.976
+  D1 180.000
+  D2 123.697
+ end
+end
+
+basis spherical
+ * library def2-tzvpd
+end
+
+dft
+ xc hyb_gga_xc_b3lyp
+ dftd4 on
+ convergence energy 1d-9 density 1d-8 gradient 1d-7
+ grid euler lebedev 99 14
+end
+
+scf
+ thresh 1d-8
+ tol2e 1d-14
+ maxiter 99
+end
+
+driver
+ tight
+ eprec 1d-8
+ maxiter 99
+end
+
+task dft energy
+task dft gradient
+

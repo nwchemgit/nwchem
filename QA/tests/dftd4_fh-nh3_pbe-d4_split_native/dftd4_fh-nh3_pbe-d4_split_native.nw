@@ -1,0 +1,24 @@
+echo
+start fh-nh3_pbe-d4_split_native
+memory total 2000 mb noverify
+
+geometry units angstrom
+F     0.00000    0.00000    0.00000
+H     0.00000    0.00000    0.94000
+N    -0.02618    0.00000    2.99989
+H    -1.00006    0.00000    3.33522
+H     0.45626    0.84084    3.34793
+H     0.45626   -0.84084    3.34793
+end
+
+basis spherical
+ * library 6-31G
+end
+
+dft
+ xc xpbe96 1.0 cpbe96 1.0
+ dftd4 on
+end
+
+task dft energy
+

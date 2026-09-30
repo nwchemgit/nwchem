@@ -30,7 +30,7 @@ c
       integer num_dirs          ! No. of known directives
 cc AJL/Begin/FDE
 c      parameter (num_dirs = 48)
-      parameter (num_dirs = 55)
+      parameter (num_dirs = 56)
 cc AJL/End
       character*12 dirs(num_dirs)
       character*255 test
@@ -96,7 +96,7 @@ c     xps variables
      $         'frozemb', 'frozemb_xc', 'frozemb_ts',
      $         'cgmin','nocgmin','tol2e','ri-scf','lock',
      $         'rodft','fukui','maxiter','vspec','xps','xdm',
-     $         'densmat','adft','freecdfit','imom','end'/
+     $         'densmat','adft','freecdfit','imom','dftd4','end'/
 c
 c Qin / cdft
       integer nconstr
@@ -151,7 +151,7 @@ c
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 
      $     3500, 3520, 3530,
      $     3600, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 4300,
-     $     4400, 4500, 4600, 4700, 4800, 4900, 9999) ind
+     $     4400, 4500, 4600, 4700, 4800, 4900, 4950, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1023,6 +1023,28 @@ c
      &  call errquit('dft_input: rtdb_put failed',4900, RTDB_ERR) 
       if (.not.rtdb_put(rtdb,'dft:max_ovl', mt_log, 1, .true.))
      &  call errquit('dft_input: rtdb_put failed',4901, RTDB_ERR) 
+      goto 10
+c
+ 4950 continue
+c     DFTD4 input integration added with assistance from OpenAI Codex.
+#ifdef USE_DFTD4
+      if (.not.inp_a(test))
+     & call errquit('DFTD4 requires ON or OFF',0,INPUT_ERR)
+      if (inp_compare(.false.,'on',test)) then
+         if (.not.rtdb_put(rtdb,'dft:dftd4',mt_log,1,.true.))
+     &      call errquit('dft_input: DFTD4 rtdb_put failed',4950,
+     &                   RTDB_ERR)
+      elseif (inp_compare(.false.,'off',test)) then
+         if (.not.rtdb_put(rtdb,'dft:dftd4',mt_log,1,.false.))
+     &      call errquit('dft_input: DFTD4 rtdb_put failed',4950,
+     &                   RTDB_ERR)
+      else
+         call errquit('DFTD4 accepts only ON or OFF',0,INPUT_ERR)
+      endif
+#else
+      call errquit('DFTD4 support was not enabled at build time',0,
+     &             CAPMIS_ERR)
+#endif
       goto 10
 c
  9999 continue

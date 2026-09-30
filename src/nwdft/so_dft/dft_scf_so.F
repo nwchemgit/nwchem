@@ -94,7 +94,7 @@ c     vdw contrib
       double precision dum
       logical xc_chkdispauto
       external xc_chkdispauto
-      logical disp
+      logical disp,dftd4
 c
 c     misc
       double precision tanalyze
@@ -1200,6 +1200,11 @@ c     dispersion bit
      &   disp=.false.
       if(disp.or.xc_chkdispauto())
      &     call xc_vdw(rtdb,geom,Edisp,dum,'energy')
+#ifdef USE_DFTD4
+      if (.not.rtdb_get(rtdb,'dft:dftd4',mt_log,1,dftd4))
+     &   dftd4=.false.
+      if (dftd4) call xc_dftd4(rtdb,geom,Edisp,dum,'energy')
+#endif
 c     
 c     Top of infinite SCF iteration loop
 c

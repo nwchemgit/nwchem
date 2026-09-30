@@ -224,3 +224,30 @@ C MGGAs are not ready for 3rd derivatives
      $  call errquit(' libxc_rtdbput: rtdb_get failed',5,RTDB_ERR)
 
       end subroutine
+
+c     DFTD4 LibXC adapter added with assistance from OpenAI Codex.
+      subroutine nwchem_libxc_dftd4_names(name1,name2,nfunc,status)
+      use,intrinsic :: iso_c_binding
+#ifdef USE_LIBXC
+      use xc_f03_lib_m, only: xc_f03_functional_get_name
+#endif
+      implicit none
+#include "libxc.fh"
+      character*(*) name1,name2
+      integer nfunc,status,i
+      name1=' '
+      name2=' '
+      nfunc=0
+      status=0
+#ifdef USE_LIBXC
+      nfunc=libxc_nfuncs
+      if (nfunc.ge.1) name1=
+     &   xc_f03_functional_get_name(libxc_funcs(1))
+      if (nfunc.ge.2) name2=
+     &   xc_f03_functional_get_name(libxc_funcs(2))
+      do i=1,nfunc
+         if (abs(libxc_facts(i)-1.0d0).gt.1.0d-12) status=i
+      enddo
+#endif
+      return
+      end

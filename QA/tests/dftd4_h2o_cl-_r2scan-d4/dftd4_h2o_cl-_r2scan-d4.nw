@@ -1,0 +1,32 @@
+echo
+start dftd4_h2o_cl-_r2scan-d4
+memory total 2000 mb noverify
+
+charge -1
+
+geometry units angstrom
+ O              -0.07129066     1.97245442     0.00000000
+ H              -0.15872200     0.97995339     0.00000000
+ H               0.88687129     2.06612395     0.00000000
+ Cl              0.10547891    -1.11056861     0.00000000
+end
+
+basis spherical
+ * library def2-tzvpd
+end
+
+dft
+ xc r2scan
+ dftd4 on
+ convergence energy 1d-9 density 1d-8 gradient 1d-7
+ grid euler lebedev 99 14
+end
+
+scf
+ thresh 1d-8
+ tol2e 1d-14
+ maxiter 99
+end
+
+task dft freq
+

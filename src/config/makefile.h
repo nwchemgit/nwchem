@@ -305,6 +305,10 @@ ifdef USE_TBLITE
     NW_CORE_SUBDIRS += libext
 endif
 
+ifdef USE_DFTD4
+    NW_CORE_SUBDIRS += libext
+endif
+
 ifdef BUILD_OPENBLAS
     ifndef BLAS_SIZE
         BLAS_SIZE=8
@@ -3709,6 +3713,12 @@ endif
 
 
 #TBLITE
+ifdef USE_DFTD4
+    ifdef USE_TBLITE
+        $(error USE_DFTD4 and USE_TBLITE cannot be enabled together)
+    endif
+endif
+
 ifeq ("$(wildcard $(NWCHEM_TOP)/src/config/NWCHEM_CONFIG)","")
     ifeq (xtb, $(findstring xtb, $(NWCHEM_MODULES)))
         MODULES_HAS_XTB=Y
@@ -3735,6 +3745,15 @@ ifdef USE_TBLITE
         EXTRA_LIBS += -ltblite -ltoml-f -ldftd4 -lmulticharge -ls-dftd3 -lmctc-lib
     endif
     EXTRA_LIBS += $(LAPACK_LIB) $(BLASOPT)
+endif
+
+# DFTD4 integration developed with assistance from OpenAI Codex
+# Reviewed, validated, and tested by MPH
+ifdef USE_DFTD4
+    DEFINES += -DUSE_DFTD4
+    DFTD4_LIBDIR = $(NWCHEM_TOP)/src/libext/dftd4/install/lib
+    EXTRA_LIBS += -L$(LIBDIR) -lnwc_dftd4 -L$(DFTD4_LIBDIR) \
+                  -ldftd4 -lmulticharge -lmctc-lib -lmstore
 endif
 
 # CUDA

@@ -11,6 +11,10 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 	xc_chkdispauto.o \
 	xc_vdw_init.o 2ndDerivB97.o 
 
+ifdef USE_DFTD4
+	OBJ += xc_dftd4.o
+endif
+
 	OBJ_OPTIMIZE = xc_eval_basis.o  \
 	a_dist.o \
 	eumac.o \
@@ -74,7 +78,7 @@ LIB_INCLUDES = -I../include
                xc_eval_basis.F xc_eval_fnl.F xc_fd.F xc_optc.F xc_atomblock.F scat_mat.F \
                xc_replicated.F xc_vdw_main.F xc_vdw_util.F\
                xc_3rd_deriv.F xc_hcth.F ts_tf.F xc_xn12.F xc_util.F \
-	       xc_tabcd_adft.F xc_rhogen_adft.F xc_getvxc.F xc_lb94.F
+	       xc_tabcd_adft.F xc_rhogen_adft.F xc_getvxc.F xc_lb94.F xc_dftd4.F
 
 include ../../config/makefile.h
 	ifeq ($(_FC),ifort)

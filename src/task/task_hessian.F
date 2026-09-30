@@ -170,7 +170,7 @@ c
       character*32 theory
 c
 c     vdw contrib
-      logical disp
+      logical disp,dftd4
       logical xc_chkdispauto
       external xc_chkdispauto
 c
@@ -290,6 +290,11 @@ c       vdw contribution to analytic hessian
 c       for numerical hessians, this contribution is added via the gradients
         if(theory.eq.'dft') then
           if(disp.or.xc_chkdispauto()) call xc_vdw_to_hessian(rtdb)
+#ifdef USE_DFTD4
+          if (.not.rtdb_get(rtdb,'dft:dftd4',mt_log,1,dftd4))
+     &       dftd4=.false.
+          if (dftd4) call xc_dftd4_to_hessian(rtdb)
+#endif
         endif ! vdw
       endif  ! numerical or analytic
 c

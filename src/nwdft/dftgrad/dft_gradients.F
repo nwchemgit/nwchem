@@ -90,7 +90,7 @@ c
 c     vdw
       double precision dum
       logical cgmin
-      logical disp
+      logical disp,dftd4
       logical xc_chkdispauto
       external xc_chkdispauto
 c
@@ -538,6 +538,13 @@ c
      &   disp=.false.
       if(disp.or.xc_chkdispauto())
      &   call xc_vdw(rtdb,geom,dum,dbl_mb(k_frc_xc), 'forces')
+c DFTD4 Interface implemented with assistence from OpenAI Codex
+#ifdef USE_DFTD4
+      if (.not.rtdb_get(rtdb,'dft:dftd4',mt_log,1,dftd4))
+     &   dftd4=.false.
+      if (dftd4)
+     &   call xc_dftd4(rtdb,geom,dum,dbl_mb(k_frc_xc),'forces')
+#endif
 c     
 c     xdm bit
 c

@@ -82,7 +82,7 @@ c
       double precision eone, etwo, enrep, energy
       double precision dft_time
       double precision edisp, dum
-      logical disp
+      logical disp,dftd4
       double precision ecosmo,gcds
       logical do_cosmo_smd
       double precision esol, egas
@@ -146,6 +146,11 @@ c     == Dispersion corrections ==
 c
       if(disp.or.xc_chkdispauto())
      &      call xc_vdw(rtdb,geom,Edisp,dum,'energy')
+#ifdef USE_DFTD4
+      if (.not.rtdb_get(rtdb,'dft:dftd4',mt_log,1,dftd4))
+     &   dftd4=.false.
+      if (dftd4) call xc_dftd4(rtdb,geom,Edisp,dum,'energy')
+#endif
 c
 c     == needed for dftmp2 ==
       if (.not. rtdb_cput(rtdb,'scf:scftype', 1, scftype))
