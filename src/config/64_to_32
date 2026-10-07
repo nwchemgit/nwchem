@@ -10,7 +10,14 @@ if [[ -z "${NWCHEM_TOP}" ]]; then
     MYPWD=`pwd`
     NWCHEM_TOP=`echo ${MYPWD}/${DIRUTIL} | sed -e 's/\/src.*//' `
 fi
-pythonexe=python
+if  [ -x "$(command -v python)" ]; then
+    pythonexe=python
+elif [ -x "$(command -v python3)" ]; then
+    pythonexe=python3
+else
+    echo "error: neither python3 nor python found"
+    exit 1
+fi
 pythonscript=${NWCHEM_TOP}/src/config/64_to_32.py
 filecheck="/tmp/myfail.txt"
 
