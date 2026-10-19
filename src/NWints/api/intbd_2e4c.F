@@ -179,12 +179,12 @@ c
      &          INT_ERR)
       nint_s = nint_s*(jhi-jlo+1)       ! j partial block size
 *
-      if (.not.bas_cn2bfr(brain,kcl(i_q),klo,khi))
+      if (.not.bas_cn2bfr(ketin,kcl(i_q),klo,khi))
      &    call errquit(' intbd_nw_2e4c: cn2bfr failed for ksh',911,
      &                  INT_ERR)
       nint_s = nint_s*(khi-klo+1)       ! k partial block size
 *
-      if (.not.bas_cn2bfr(brain,lcl(i_q),llo,lhi))
+      if (.not.bas_cn2bfr(ketin,lcl(i_q),llo,lhi))
      &    call errquit(' intbd_nw_2e4c: cn2bfr failed for lsh',911,
      &          INT_ERR)
       nint_s = nint_s*(lhi-llo+1)       ! l partial block size
