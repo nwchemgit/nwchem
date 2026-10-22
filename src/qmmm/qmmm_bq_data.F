@@ -116,7 +116,7 @@ c
 
       if(.not.bq_check_handle(bq_handle)) then
         if(.not.bq_create("qmmm charges", bq_handle))
-          call errquit(pname//' bq_create failed', 0, 0)
+     &    call errquit(pname//' bq_create failed', 0, 0)
       endif
 c
 c     reset bq flags for solute and solvent
