@@ -63,7 +63,7 @@ c
         allbqs = .false.
         allbqw = .true.
       else
-       call errquit(pname,"unknown option for charge expand",0,0)
+       call errquit(pname//"unknown option for charge expand",0,0)
       end if
 c
 c      if (.not.rtdb_get(irtdb,'qmmm:bq-solute',mt_log,1,allbqs))
@@ -113,6 +113,11 @@ c
      >       write(*,*) "in",pname
 
       call qmmm_bq_data_dealloc()
+
+      if(.not.bq_check_handle(bq_handle)) then
+        if(.not.bq_create("qmmm charges", bq_handle))
+     &    call errquit(pname//' bq_create failed', 0, 0)
+      endif
 c
 c     reset bq flags for solute and solvent
 c     -------------------------------------

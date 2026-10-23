@@ -53,6 +53,8 @@ c
 c     check for correct region
 c     ------------------------
       tag ="qmmm:region"
+      nregion = 1
+
       if (.not.rtdb_cget(rtdb,tag,nregion,region)) then
         nregion = 1
         region(1)="mm"
@@ -61,9 +63,9 @@ c     ------------------------
      >      call errquit(pname//tag,0,RTDB_ERR)
         if (.not.rtdb_cput(rtdb,tag,nregion,region)) 
      >      call errquit(pname//tag,0,RTDB_ERR)
-      else if(region(1).ne."mm_solute".or.
-     >        region(1).ne."solvent".or.
-     >        region(1).ne."mm") then
+      else if(.not.(region(1).eq."mm_solute".or.
+     >        region(1).eq."solvent".or.
+     >        region(1).eq."mm")) then
             call errquit("only classical regions supported",0,RTDB_ERR)
       end if
 c

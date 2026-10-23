@@ -492,13 +492,17 @@ c
       scalew=one
       scales=one
       if(itscal.eq.1) then
-      if(temp.gt.small) scalew=sqrt(one+(tmpext/temp-one)*tstep/tmwrlx)
-      scales=scalew
+        if(temp.gt.small) scalew=sqrt(one+(tmpext/temp-one)*
+     *     tstep/tmwrlx)
+        scalew = min(1.1d0, max(0.9d0, scalew))
+        scales=scalew
       elseif(itscal.gt.1) then
-      if(tempw.gt.small)
-     + scalew=sqrt(one+(tmpext/tempw-one)*tstep/tmwrlx)
-      if(temps.gt.small)
-     + scales=sqrt(one+(tmpext/temps-one)*tstep/tmsrlx)
+        if(tempw.gt.small)
+     +    scalew=sqrt(one+(tmpext/tempw-one)*tstep/tmwrlx)
+        if(temps.gt.small)
+     +   scales=sqrt(one+(tmpext/temps-one)*tstep/tmsrlx)
+        scalew = min(1.1d0, max(0.9d0, scalew))
+        scales = min(1.1d0, max(0.9d0, scales))
       endif
 c
       return
