@@ -7,7 +7,7 @@ c      use ISO_FORTRAN_ENV
 #define SIMINT_SCREEN_SCHWARZ      1
 #define SIMINT_SCREEN_FASTSCHWARZ  2
 C     shells 
-      integer, parameter :: max_bases=4
+      integer, parameter :: max_bases=nw_max_basis_sets
       type(c_simint_shell), target :: smnt_sh(nw_max_shells,max_bases)
 c dummy shell for 3c- 
       type(c_simint_shell), target :: zero_sh(nw_max_shells,max_bases)
