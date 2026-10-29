@@ -448,6 +448,7 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: pkg cleanup
+        if: ${{ runner.os == 'Linux' }}
         uses: edoapra/ubuntu-pkg-cleanup@main
       - name: Checkout code
         uses: actions/checkout@v7
