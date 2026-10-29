@@ -38,7 +38,7 @@ c     only dft works for now
 c      
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      &  call errquit('task_fcidump: theory not specified',0, RTDB_ERR)
-      if (theory.eq.'dft') then
+      if (theory.eq.'dft'.or.theory.eq.'scf') then
          status = .true.
       else
          status = .false.
