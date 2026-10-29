@@ -2241,6 +2241,11 @@ ifneq ($(TARGET),LINUX)
             ARFLAGS = rU
         endif
 
+        GCCMAJOR := $(shell $(CC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+        ifdef GCCMAJOR
+            GCCMINOR := $(shell $(CC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24-)
+            GCC_GE_14 := $(shell [ $(GCCMAJOR) -ge 14  ] && echo true)
+        endif
         ifeq ($(_FC),gfortran)
             ifdef  USE_ASAN
                 FOPTIONS += -fsanitize=address -fsanitize-recover=address -fno-omit-frame-pointer
@@ -2292,11 +2297,6 @@ ifneq ($(TARGET),LINUX)
                     FFLAGS_FORGA = -mcmodel=medium
 		endif
             else
-                GCCMAJOR := $(shell $(CC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
-                ifdef GCCMAJOR
-                    GCCMINOR := $(shell $(CC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24-)
-                    GCC_GE_14 := $(shell [ $(GCCMAJOR) -ge 14  ] && echo true)
-                endif
 	        GNUMAJOR := $(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
                 ifdef GNUMAJOR
 		    GNUMINOR := $(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
