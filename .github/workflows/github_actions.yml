@@ -385,19 +385,19 @@ jobs:
             mpi_impl: build_mpich
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
-            fc: flang-20
+            fc: flang-23
           - os: ubuntu-latest
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
-            fc: flang-new-19
+            fc: flang-22
           - os: ubuntu-latest
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
-            fc: flang-new-18
+            fc: flang-21
           - os: ubuntu-latest
             experimental: true
             mpi_impl: openmpi
