@@ -118,7 +118,7 @@ jobs:
             nwchem_modules: "all"
             fc: gfortran
             blas: "build_openblas"
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             experimental: true
             mpi_impl: openmpi
             armci_network: GA_DEBIAN
