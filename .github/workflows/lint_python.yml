@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: '3.12.3'
+          python-version: '3.13'
       - run: pip install --upgrade pip wheel
       - run: pip install bandit black codespell flake8 flake8-2020 flake8-bugbear
                          flake8-comprehensions isort mypy pytest pyupgrade safety
