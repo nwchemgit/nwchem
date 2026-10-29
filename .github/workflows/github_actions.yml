@@ -448,23 +448,7 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: pkg cleanup
-        run: |
-          df -h
-          if [[ $(uname -s) == "Linux" ]]; then
-          ubuntu_ver=$(cat /etc/os-release | grep VERSION_ID |cut -d \" -f 2)
-          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
-          sudo apt-get purge -y firefox || true
-          sudo apt-get purge -y microsoft-edge-stable dotnet-sdk-* google-chrome-stable firefox || true
-          sudo apt-get purge -y azure-cli || tru
-          sudo apt-get purge -y google-cloud-cli|| true
-          sudo apt-get purge -y temurin-*jdk openjdk-*
-          sudo apt-get purge -y llvm-*-dev
-          sudo apt-get -y clean
-          sudo apt-get autoremove -y
-          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
-          df -h
-          fi
-        shell: bash
+        uses: edoapra/ubuntu-pkg-cleanup@main
       - name: Checkout code
         uses: actions/checkout@v7
         with:
