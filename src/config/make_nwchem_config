@@ -195,6 +195,8 @@ MODULES := $(patsubst xtb, xtb nwdft ddscf gradients hessian atomscf NWints,$(MO
 
 MODULES := $(patsubst nwc_columbus, nwc_columbus NWints,$(MODULES) )
 
+MODULES := $(patsubst fcidump, fcidump nwdft ddscf gradients atomscf hessian NWints moints mp2_grad,$(MODULES) )
+
 # This dependency is the other way round (matchnxyz used by symmetry)
 # but is required for correct linking on SOLARIS.  Nasty kludge.
 #

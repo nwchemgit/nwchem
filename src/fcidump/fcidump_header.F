@@ -44,7 +44,7 @@ C     ....
       character*16 pname,theory
       character*4 scftype
       parameter(pname='fcidump_header: ')
-      integer geom,basis,mult
+      integer geom,basis,mult,nopen
       double precision nuclear_charge,charge
       integer nelec  ! NELEC
       integer norb   ! NORB
@@ -106,11 +106,16 @@ c
          if(mult.ne.1) then
             ms2=mult-1
          endif
-         if(scftype(1:inp_strlen(scftype)).eq.'UHF') iuhf=1
+      elseif(theory(1:inp_strlen(theory)) .eq. 'scf')then
+      if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, ms2))
+     $     ms2 = 0
+         if(.not. rtdb_cget(rtdb, 'scf:scftype', 1,scftype))
+     $        scftype='RHF'
       else
          write(luout,*) ' fcidump for theory ',
      &        theory(1:inp_strlen(theory)), ' not implemented yet'
       endif
+      if(scftype(1:inp_strlen(scftype)).eq.'UHF') iuhf=1
 c      
 c      no symmetry for now
 c

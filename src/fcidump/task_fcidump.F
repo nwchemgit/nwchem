@@ -23,6 +23,8 @@ c
       integer occ_frozen,vir_frozen,geom
       character*255 filename
       integer iunit,ios
+      logical task_energy
+      external task_energy
 c
 c     ! Time at the start
       cputime  = util_cpusec()
@@ -36,7 +38,7 @@ c     only dft works for now
 c      
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      &  call errquit('task_fcidump: theory not specified',0, RTDB_ERR)
-      if (theory.eq.'dft') then
+      if (theory.eq.'dft'.or.theory.eq.'scf') then
          status = .true.
       else
          status = .false.
@@ -46,6 +48,11 @@ c
       end if
 
 c     ! Perform the task
+c
+c       Calculate the energy
+c
+        if(.not.task_energy(rtdb)) call errquit
+     *    ('hnd_property: energy failure', 555, CALC_ERR)
 c      call fcidump_input(rtdb)
       if (.not. rtdb_get(rtdb, 'fcidump:mos', mt_log, 1, molecorb))
      &        molecorb=.true.

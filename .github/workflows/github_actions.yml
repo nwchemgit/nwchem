@@ -118,7 +118,7 @@ jobs:
             nwchem_modules: "all"
             fc: gfortran
             blas: "build_openblas"
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             experimental: true
             mpi_impl: openmpi
             armci_network: GA_DEBIAN
@@ -174,8 +174,8 @@ jobs:
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "qmandpw qmd"
-            fc: gfortran-11
-            cc: gcc-11
+            fc: gfortran
+            cc: gcc
             use_libxc: -1
           - os: ubuntu-22.04
             experimental: true
@@ -385,19 +385,19 @@ jobs:
             mpi_impl: build_mpich
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
-            fc: flang-20
+            fc: flang-23
           - os: ubuntu-latest
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
-            fc: flang-new-19
+            fc: flang-22
           - os: ubuntu-latest
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
-            fc: flang-new-18
+            fc: flang-21
           - os: ubuntu-latest
             experimental: true
             mpi_impl: openmpi
@@ -448,23 +448,8 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: pkg cleanup
-        run: |
-          df -h
-          if [[ $(uname -s) == "Linux" ]]; then
-          ubuntu_ver=$(cat /etc/os-release | grep VERSION_ID |cut -d \" -f 2)
-          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
-          sudo apt-get purge -y firefox || true
-          sudo apt-get purge -y microsoft-edge-stable dotnet-sdk-* google-chrome-stable firefox || true
-          sudo apt-get purge -y azure-cli || tru
-          sudo apt-get purge -y google-cloud-cli|| true
-          sudo apt-get purge -y temurin-*jdk openjdk-*
-          sudo apt-get purge -y llvm-*-dev
-          sudo apt-get -y clean
-          sudo apt-get autoremove -y
-          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
-          df -h
-          fi
-        shell: bash
+        if: ${{ runner.os == 'Linux' }}
+        uses: edoapra/ubuntu-pkg-cleanup@main
       - name: Checkout code
         uses: actions/checkout@v7
         with:
